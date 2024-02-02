@@ -1,12 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.axonivy.market</groupId>
-  <artifactId>MY-PRODUCT-NAME-product</artifactId>
+  <artifactId>workflow-estimator-product</artifactId>
   <version>10.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <properties>
-    <variables.yaml.file>../MY-PRODUCT-NAME/config/variables.yaml</variables.yaml.file>
+    <variables.yaml.file>../workflow-estimator/config/variables.yaml</variables.yaml.file>
   </properties>
 
   <build>
