@@ -1,4 +1,4 @@
-# MY-PRODUCT-NAME
+# workflow-estimator
 
 YOUR DESCRIPTION GOES HERE
 

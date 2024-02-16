@@ -6,8 +6,8 @@
       "data": {
         "projects": [
           {
-            "groupId": "MY-GROUP-ID",
-            "artifactId": "MY-PRODUCT-NAME-demo",
+            "groupId": "com.axonivy.utils.estimator",
+            "artifactId": "workflow-estimator-demo",
             "version": "${version}",
             "type": "iar"
           }
@@ -28,8 +28,8 @@
       "data": {
         "dependencies": [
           {
-            "groupId": "MY-GROUP-ID",
-            "artifactId": "MY-PRODUCT-NAME",
+            "groupId": "com.axonivy.utils.estimator",
+            "artifactId": "workflow-estimator",
             "version": "${version}",
             "type": "iar"
           }
@@ -50,8 +50,8 @@
       "data": {
         "dependencies": [
           {
-            "groupId": "MY-GROUP-ID",
-            "artifactId": "MY-PRODUCT-NAME",
+            "groupId": "com.axonivy.utils.estimator",
+            "artifactId": "workflow-estimator",
             "version": "${version}"
           }
         ],
