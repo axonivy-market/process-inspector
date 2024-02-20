@@ -6,9 +6,9 @@
   <artifactId>workflow-estimator-test</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>iar</packaging>
-  <properties>
-		<build.plugin.version>11.2.0</build.plugin.version>		
-	</properties>
+  <properties>    
+    <build.plugin.version>10.0.14</build.plugin.version>    
+  </properties>  
   <dependencies>
     <dependency>
       <groupId>com.axonivy.utils.estimator</groupId>
@@ -19,7 +19,7 @@
     <dependency>
       <groupId>com.axonivy.ivy.test</groupId>
       <artifactId>unit-tester</artifactId>
-      <version>11.2.0</version>
+      <version>10.0.14</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
