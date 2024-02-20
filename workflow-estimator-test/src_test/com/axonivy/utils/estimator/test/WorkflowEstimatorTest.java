@@ -12,7 +12,6 @@ import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.environment.IvyTest;
-import ch.ivyteam.ivy.process.IProcessManager;
 import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.rdm.IProcessManager;
 
@@ -45,5 +44,16 @@ public class WorkflowEstimatorTest {
 		assertEquals("Task A", estimatedTasks.get(0).getTaskName());
 		assertEquals("Task B", estimatedTasks.get(1).getTaskName());
 		assertEquals("Task C", estimatedTasks.get(2).getTaskName());
+	}
+	
+	@Test
+	void shouldfindAllTasksAtTaskB() {
+		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var taskB = this.graph.findByTaskName("Task B");
+		var estimatedTasks = workflowEstimator.findAllTasks(taskB).stream()
+				.sorted(Comparator.comparing(EstimatedTask::getTaskName)).toList();
+
+		assertEquals(1, estimatedTasks.size());		
+		assertEquals("Task B", estimatedTasks.get(1).getTaskName());		
 	}
 }
