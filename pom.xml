@@ -3,7 +3,7 @@
   <groupId>com.axonivy.utils.estimator</groupId><!-- your group id: e.g. com.axonivy.connector.<myconnector> or com.axonivy.utils.<myutil> -->
   <name>workflow-estimator</name><!-- fill your product name -->
   <artifactId>workflow-estimator-modules</artifactId><!-- fill your product name + a "-modules" postfix -->
-  <version>11.0.0-SNAPSHOT</version><!-- identicate your minimal compliant ivy version with the first 2 digits -->
+  <version>1.0.0-SNAPSHOT</version><!-- identicate your minimal compliant ivy version with the first 2 digits -->
   <packaging>pom</packaging>
 
   <modules>
