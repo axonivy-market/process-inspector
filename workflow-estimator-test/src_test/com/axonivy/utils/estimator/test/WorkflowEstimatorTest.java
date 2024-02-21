@@ -19,8 +19,7 @@ import ch.ivyteam.ivy.process.rdm.IProcessManager;
 @SuppressWarnings("restriction")
 public class WorkflowEstimatorTest {
 
-	private Process process;
-	private WorkflowEstimator workflowEstimator;
+	private Process process;	
 	private ProcessGraph graph;
 
 	@BeforeEach
@@ -28,9 +27,7 @@ public class WorkflowEstimatorTest {
 		var pmv = Ivy.request().getProcessModelVersion();
 		var manager = IProcessManager.instance().getProjectDataModelFor(pmv);
 		this.process = manager.findProcessByPath("MainTest").getModel();
-		this.graph = new ProcessGraph(process);
-		
-		// workflowEstimator = new WorkflowEstimator(process, null, "");a
+		this.graph = new ProcessGraph(process);		
 	}
 
 	@Test
@@ -38,7 +35,8 @@ public class WorkflowEstimatorTest {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 
 		var estimatedTasks = workflowEstimator.findAllTasks(graph.findStart()).stream()
-				.sorted(Comparator.comparing(EstimatedTask::getTaskName)).toList();
+				.sorted(Comparator.comparing(EstimatedTask::getTaskName))
+				.toList();
 
 		assertEquals(3, estimatedTasks.size());
 		assertEquals("Task A", estimatedTasks.get(0).getTaskName());
@@ -49,11 +47,25 @@ public class WorkflowEstimatorTest {
 	@Test
 	void shouldfindAllTasksAtTaskB() {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
-		var taskB = this.graph.findByTaskName("Task B");
+		var taskB = this.graph.findByElementName("Task B");
 		var estimatedTasks = workflowEstimator.findAllTasks(taskB).stream()
-				.sorted(Comparator.comparing(EstimatedTask::getTaskName)).toList();
+				.sorted(Comparator.comparing(EstimatedTask::getTaskName))
+				.toList();
 
 		assertEquals(1, estimatedTasks.size());		
-		assertEquals("Task B", estimatedTasks.get(1).getTaskName());		
+		assertEquals("Task B", estimatedTasks.get(0).getTaskName());		
+	}
+	
+	@Test
+	void shouldfindAllTasksAtTaskC() {
+		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var taskB = this.graph.findByElementName("Task C");
+		var estimatedTasks = workflowEstimator.findAllTasks(taskB).stream()
+				.sorted(Comparator.comparing(EstimatedTask::getTaskName))
+				.toList();
+
+		assertEquals(2, estimatedTasks.size());		
+		assertEquals("Task B", estimatedTasks.get(0).getTaskName());
+		assertEquals("Task C", estimatedTasks.get(1).getTaskName());
 	}
 }

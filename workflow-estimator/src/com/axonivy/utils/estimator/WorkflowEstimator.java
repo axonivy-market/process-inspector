@@ -2,15 +2,17 @@ package com.axonivy.utils.estimator;
 
 import static java.util.Collections.emptyList;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.axonivy.utils.estimator.model.EstimatedTask;
 
-import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.NodeElement;
-import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
+import ch.ivyteam.ivy.process.model.Process;
+import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.activity.UserTask;
 
 @SuppressWarnings("restriction")
@@ -27,15 +29,20 @@ public class WorkflowEstimator {
 	}
 
 	public List<EstimatedTask> findAllTasks(BaseElement startAtElement) {
+		List<EstimatedTask> estimatedTasks = emptyList();
 
-		List<BaseElement> elements = startAtElement.getRootProcess().getElements();
-		List<EstimatedTask> estimatedTasks = elements.stream()
-				// filter to get task only
-				.filter(el -> {
-					return el instanceof UserTask;
-				})
-				// filter the tash which have estimated if needed
-				.map(task -> createEstimatedTask((UserTask) task)).toList();
+		if (startAtElement instanceof NodeElement) {
+			List<NodeElement> nextNodes = nextNodeElements((NodeElement) startAtElement);
+
+			estimatedTasks = Stream.concat(Stream.of(startAtElement), nextNodes.stream())
+					// filter to get task only
+					.filter(node -> {
+						return node instanceof UserTask;
+					})
+					// filter the task which have estimated if needed
+					.map(task -> createEstimatedTask((UserTask) task))
+					.toList();
+		}
 
 		return estimatedTasks;
 	}
@@ -54,4 +61,19 @@ public class WorkflowEstimator {
 		return estimatedTask;
 	}
 
+	public List<NodeElement> nextNodeElements(NodeElement from) {
+		var nexts = new ArrayList<NodeElement>();
+
+		if (from != null) {
+			List<SequenceFlow> outs = from.getOutgoing();
+			for (SequenceFlow out : outs) {
+				NodeElement target = out.getTarget();
+				List<NodeElement> nextElements = nextNodeElements(target);
+				nexts.add(target);
+				nexts.addAll(nextElements);
+			}
+		}
+
+		return nexts.stream().distinct().toList();
+	}	
 }
