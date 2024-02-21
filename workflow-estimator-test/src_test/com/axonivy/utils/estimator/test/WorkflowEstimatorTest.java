@@ -5,24 +5,26 @@ import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.estimator.WorkflowEstimator;
 
-import ch.ivyteam.ivy.application.IProcessModelVersion;
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.environment.IvyTest;
-import ch.ivyteam.ivy.workflow.IProcessStart;
-import ch.ivyteam.ivy.workflow.IWorkflowProcessModelVersion;
+import ch.ivyteam.ivy.process.model.Process;
+import ch.ivyteam.ivy.process.rdm.IProcessManager;
 
 @IvyTest
+@SuppressWarnings("restriction")
 public class WorkflowEstimatorTest {
 
-	private IProcessStart processStart;
+	private Process process;
 	private WorkflowEstimator workflowEstimator;
 	
 	private
 	
 	@BeforeEach
 	void setup() {
-		IProcessModelVersion pmv = Ivy.request().getProcessModelVersion();		
-		processStart = IWorkflowProcessModelVersion.of(pmv).findProcessStartByUserFriendlyRequestPath("MainTest/start.ivp");			
+		var pmv = Ivy.request().getProcessModelVersion();		
+		var manager = IProcessManager.instance().getProjectDataModelFor(pmv);				
+		this.process = manager.findProcessByPath("MainTest").getModel();
+		
 		//workflowEstimator = new WorkflowEstimator(process, null, "");
 		
 	}
