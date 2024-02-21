@@ -1,9 +1,7 @@
 package com.axonivy.utils.estimator.test;
 
-import org.apache.commons.lang3.StringUtils;
-
+import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.Process;
-import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 
 @SuppressWarnings("restriction")
@@ -17,9 +15,11 @@ public class ProcessGraph {
 	public RequestStart findStart() {
 		return process.search().type(RequestStart.class).findOne();
 	}
-	
-	public SingleTaskCreator findByTaskName(String taskName) {
-		
-		return null;
+
+	public BaseElement findByElementName(String name) {
+		return process.getElements().stream()
+				.filter(el -> el.getName().equals(name))
+				.findFirst()
+				.orElse(null);
 	}
 }
