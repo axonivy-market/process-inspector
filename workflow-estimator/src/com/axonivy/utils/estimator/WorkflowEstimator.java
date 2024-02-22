@@ -75,8 +75,8 @@ public class WorkflowEstimator {
 	
 	private List<EstimatedTask> convertToEstimatedTasks(List<List<BaseElement>> paths) {
 		return paths.stream()
-				// If have more than on path.
-				.min(Comparator.comparingInt(List::size)).orElse(emptyList()).stream()
+				// If have more than one path, we get the longest
+				.max(Comparator.comparingInt(List::size)).orElse(emptyList()).stream()
 				// filter to get task only
 				.filter(node -> {
 					return node instanceof UserTask;
