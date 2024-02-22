@@ -36,27 +36,21 @@ public class WorkflowEstimator {
 
 		if (startAtElement instanceof NodeElement) {
 			List<List<BaseElement>> paths = findPaths(startAtElement);
-			
-			estimatedTasks = paths.stream() 
-					//If have more than on path.			 
-		            .min(Comparator.comparingInt(List::size))
-		            .orElse(emptyList())
-		            .stream()
-					// filter to get task only
-					.filter(node -> {
-						return node instanceof UserTask;
-					})
-					// filter the task which have estimated if needed
-					.map(task -> createEstimatedTask((UserTask) task))
-					.toList();
+			estimatedTasks = convertToEstimatedTasks(paths);			
 		}
-
+		
 		return estimatedTasks;
 	}
 
 	public List<EstimatedTask> findTasksOnPath(BaseElement startAtElement) {
-		// TODO: Implement here
-		return emptyList();
+		List<EstimatedTask> estimatedTasks = emptyList();
+		
+		if (startAtElement instanceof NodeElement) {
+			List<List<BaseElement>> paths = findPaths(startAtElement, flowName);
+			estimatedTasks = convertToEstimatedTasks(paths);	
+		}
+		
+		return estimatedTasks;
 	}
 
 	public List<NodeElement> nextNodeElements(NodeElement from) {
@@ -77,6 +71,18 @@ public class WorkflowEstimator {
 	
 	private List<List<BaseElement>> findPaths(BaseElement from) {
 		return findPaths(from, null);
+	}
+	
+	private List<EstimatedTask> convertToEstimatedTasks(List<List<BaseElement>> paths) {
+		return paths.stream()
+				// If have more than on path.
+				.min(Comparator.comparingInt(List::size)).orElse(emptyList()).stream()
+				// filter to get task only
+				.filter(node -> {
+					return node instanceof UserTask;
+				})
+				// filter the task which have estimated if needed
+				.map(task -> createEstimatedTask((UserTask) task)).toList();
 	}
 	
 	private List<List<BaseElement>> findPaths(BaseElement from, String flowName) {
@@ -122,16 +128,22 @@ public class WorkflowEstimator {
 			return true;
 		}
 
+		boolean existsFlowName = false;
 		for (BaseElement el : elements) {
 			if (el instanceof SequenceFlow) {
 				String label = ((SequenceFlow) el).getEdge().getLabel().getText();
-				if (label.contains(flowName)) {
-					return true;
+				if(StringUtils.isNotBlank(label)) {
+					//Have label but not contain flowName -> Exit check
+					if(!label.contains(flowName)) {
+						return false;
+					} else {
+						existsFlowName = true;
+					}
 				}
 			}
 		}
 
-		return false;
+		return existsFlowName;
 	}
 	
 	private EstimatedTask createEstimatedTask(UserTask task) {
