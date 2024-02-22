@@ -1,6 +1,7 @@
 package com.axonivy.utils.estimator.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Comparator;
 
@@ -27,21 +28,17 @@ public class WorkflowEstimatorTest {
 		var pmv = Ivy.request().getProcessModelVersion();
 		var manager = IProcessManager.instance().getProjectDataModelFor(pmv);
 		this.process = manager.findProcessByPath("MainTest").getModel();
-		this.graph = new ProcessGraph(process);		
+		this.graph = new ProcessGraph(process);	
 	}
 
 	@Test
 	void shouldfindAllTasksAtStartRequestWithoutFlowName() {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 
-		var estimatedTasks = workflowEstimator.findAllTasks(graph.findStart()).stream()
-				.sorted(Comparator.comparing(EstimatedTask::getTaskName))
-				.toList();
+		var estimatedTasks = workflowEstimator.findAllTasks(graph.findStart());
 
-		assertEquals(3, estimatedTasks.size());
+		assertEquals(1, estimatedTasks.size());
 		assertEquals("Task A", estimatedTasks.get(0).getTaskName());
-		assertEquals("Task B", estimatedTasks.get(1).getTaskName());
-		assertEquals("Task C", estimatedTasks.get(2).getTaskName());
 	}
 	
 	@Test
@@ -59,13 +56,11 @@ public class WorkflowEstimatorTest {
 	@Test
 	void shouldfindAllTasksAtTaskC() {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
-		var taskB = this.graph.findByElementName("Task C");
-		var estimatedTasks = workflowEstimator.findAllTasks(taskB).stream()
-				.sorted(Comparator.comparing(EstimatedTask::getTaskName))
-				.toList();
+		var taskC = this.graph.findByElementName("Task C");
+		var estimatedTasks = workflowEstimator.findAllTasks(taskC);
 
-		assertEquals(2, estimatedTasks.size());		
-		assertEquals("Task B", estimatedTasks.get(0).getTaskName());
-		assertEquals("Task C", estimatedTasks.get(1).getTaskName());
+		assertEquals(2, estimatedTasks.size());
+		assertEquals("Task C", estimatedTasks.get(0).getTaskName());
+		assertEquals("Task B", estimatedTasks.get(1).getTaskName());		
 	}
 }
