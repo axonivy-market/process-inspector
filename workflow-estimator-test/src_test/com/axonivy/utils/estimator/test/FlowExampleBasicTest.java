@@ -14,7 +14,7 @@ import ch.ivyteam.ivy.process.rdm.IProcessManager;
 
 @IvyTest
 @SuppressWarnings("restriction")
-public class WorkflowEstimatorTest {
+public class FlowExampleBasicTest {
 
 	private Process process;
 	private ProcessGraph graph;
@@ -23,7 +23,7 @@ public class WorkflowEstimatorTest {
 	void setup() {
 		var pmv = Ivy.request().getProcessModelVersion();
 		var manager = IProcessManager.instance().getProjectDataModelFor(pmv);
-		this.process = manager.findProcessByPath("MainTest").getModel();
+		this.process = manager.findProcessByPath("FlowExampleBasic").getModel();
 		this.graph = new ProcessGraph(process);
 	}
 

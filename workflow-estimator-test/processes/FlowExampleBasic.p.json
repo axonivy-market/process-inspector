@@ -1,0 +1,216 @@
+{
+  "$schema" : "https://json-schema.axonivy.com/process/11.2.2/process.json",
+  "id" : "18DC44E096FDFF75",
+  "config" : {
+    "data" : "com.axonivy.utils.estimator.test.Data"
+  },
+  "elements" : [ {
+      "id" : "f0",
+      "type" : "RequestStart",
+      "name" : "start.ivp",
+      "config" : {
+        "signature" : "start"
+      },
+      "visual" : {
+        "at" : { "x" : 96, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f3", "to" : "f2" }
+      ]
+    }, {
+      "id" : "f1",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 944, "y" : 64 }
+      }
+    }, {
+      "id" : "f2",
+      "type" : "UserTask",
+      "name" : [
+        "Task A",
+        "(Element Label)"
+      ],
+      "config" : {
+        "task" : {
+          "name" : "Task A"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 288, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f5", "to" : "f4" }
+      ]
+    }, {
+      "id" : "f4",
+      "type" : "Alternative",
+      "config" : {
+        "conditions" : {
+          "f9" : "true"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 480, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f9", "to" : "f8", "label" : {
+            "name" : [
+              "{internal}",
+              "{external}",
+              "{mixed}"
+            ]
+          } },
+        { "id" : "f14", "to" : "f6", "color" : "default path" }
+      ]
+    }, {
+      "id" : "f7",
+      "type" : "UserTask",
+      "name" : "Task B",
+      "config" : {
+        "task" : {
+          "name" : "Task B"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 696, "y" : 224 }
+      },
+      "connect" : [
+        { "id" : "f15", "to" : "f6", "via" : [ { "x" : 808, "y" : 224 } ] }
+      ]
+    }, {
+      "id" : "f8",
+      "type" : "Alternative",
+      "name" : "int/ext?",
+      "config" : {
+        "conditions" : {
+          "f12" : "true",
+          "f10" : ""
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 480, "y" : 224 },
+        "labelOffset" : { "x" : -24, "y" : 0 }
+      },
+      "connect" : [
+        { "id" : "f10", "to" : "f7", "color" : "default path", "label" : {
+            "name" : "{internal}"
+          } },
+        { "id" : "f12", "to" : "f11", "via" : [ { "x" : 480, "y" : 344 } ], "label" : {
+            "name" : "{external}",
+            "segment" : 1.1,
+            "offset" : { "x" : 73, "y" : 1 }
+          } }
+      ]
+    }, {
+      "id" : "f11",
+      "type" : "UserTask",
+      "name" : "Task C",
+      "config" : {
+        "task" : {
+          "name" : "Task C"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 696, "y" : 344 }
+      },
+      "connect" : [
+        { "id" : "f13", "to" : "f7" }
+      ]
+    }, {
+      "id" : "f6",
+      "type" : "Alternative",
+      "visual" : {
+        "at" : { "x" : 808, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f16", "to" : "f1" }
+      ]
+    }, {
+      "id" : "f17",
+      "type" : "ProcessAnnotation",
+      "name" : "green path = default path with empty condition",
+      "visual" : {
+        "at" : { "x" : 224, "y" : 135 },
+        "size" : { "width" : 294, "height" : 19 },
+        "color" : "default path"
+      }
+    }, {
+      "id" : "f18",
+      "type" : "ProcessAnnotation",
+      "name" : [
+        "useCase=null / flowName = null",
+        "",
+        "findAllTasks( start.ivp ) => Task A, Task C, Task B",
+        "findAllTasks( Task B ) => Task B",
+        "findAllTasks( Task C ) => Task C, Task B",
+        "findAllTasks( NewStart ) => Task B",
+        "",
+        "findTasksOnPath( start.ivp ) => Task A",
+        "findTasksOnPath( Task B ) => Task B",
+        "findTasksOnPath( Task C ) => Task C, Task B",
+        "findTasksOnPath( NewStart ) => Task B"
+      ],
+      "visual" : {
+        "at" : { "x" : 235, "y" : 543 },
+        "size" : { "width" : 333, "height" : 239 }
+      }
+    }, {
+      "id" : "f19",
+      "type" : "ProcessAnnotation",
+      "name" : [
+        "useCase=null / flowName = internal",
+        "",
+        "findAllTasks( start.ivp ) => Task A, Task C, Task B",
+        "findTasksOnPath( start.ivp ) => Task A, Task B",
+        "findTasksOnPath( NewStart ) => Task B",
+        "",
+        "----",
+        "",
+        "useCase=null / flowName = external",
+        "",
+        "findTasksOnPath( start.ivp ) => Task A, Task C, Task B",
+        "findTasksOnPath( NewStart ) => Task C, Task B",
+        "",
+        "----",
+        "",
+        "useCase=null / flowName = mixed",
+        "",
+        "findTasksOnPath( start.ivp ) => Task A, Task B",
+        "findTasksOnPath( NewStart ) => Task B"
+      ],
+      "visual" : {
+        "at" : { "x" : 595, "y" : 580 },
+        "size" : { "width" : 334, "height" : 312 }
+      }
+    }, {
+      "id" : "f20",
+      "type" : "RequestStart",
+      "name" : "NewStart",
+      "config" : {
+        "signature" : "NewStart"
+      },
+      "visual" : {
+        "at" : { "x" : 96, "y" : 224 }
+      },
+      "connect" : [
+        { "id" : "f21", "to" : "f8" }
+      ]
+    }, {
+      "id" : "f22",
+      "type" : "ProcessAnnotation",
+      "name" : [
+        "Note about difference of element name (shown in the BPMN diagram) and the task name!",
+        "",
+        "For Task A, I set both fields to different values. In the result data, we want to see the task name, not process element name."
+      ],
+      "visual" : {
+        "at" : { "x" : 279, "y" : 327 },
+        "size" : { "width" : 251, "height" : 127 }
+      }
+    } ],
+  "layout" : {
+    "colors" : {
+      "default path" : "#06f416"
+    }
+  }
+}
