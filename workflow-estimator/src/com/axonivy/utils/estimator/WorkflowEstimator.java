@@ -91,7 +91,7 @@ public class WorkflowEstimator {
 	}
 	
 	private List<List<BaseElement>> findPaths(BaseElement from) {
-		return findPaths(from, null);
+		return findAllPaths(from);
 	}
 	
 	private List<EstimatedTask> convertToEstimatedTasks(List<List<BaseElement>> paths) {
@@ -119,16 +119,27 @@ public class WorkflowEstimator {
 	}
 	
 	private List<List<BaseElement>> findPaths(BaseElement from, String flowName) {
+		List<List<BaseElement>> paths = findAllPaths(from);
+
+		List<List<BaseElement>> pathByFlowName = emptyList();
+		if (StringUtils.isNotBlank(flowName)) {
+			pathByFlowName = paths.stream().filter(path -> hasFlowName(path, flowName)).toList();
+		} else {
+			pathByFlowName = paths.stream().filter(path -> hasDefaultPath(path)).toList();
+		}
+
+		return pathByFlowName;
+	}
+	
+	private List<List<BaseElement>> findAllPaths(BaseElement from) {
 		List<List<BaseElement>> paths = findNextNodeElementPath(from);
+		
+		//Insert from element at first position
 		paths.forEach(path -> {
 			path.add(0, from);
 		});
-
-		List<List<BaseElement>> pathByFlowName = paths.stream()
-				.filter(path -> hasFlowName(path, flowName))
-				.toList();
-
-		return pathByFlowName;
+		
+		return paths;
 	}
 	
 	private List<List<BaseElement>> findNextNodeElementPath(BaseElement from) {
@@ -179,19 +190,34 @@ public class WorkflowEstimator {
 		return existsFlowName;
 	}
 	
+
 	private EstimatedTask createEstimatedTask(UserTask task, Date startTimestamp) {
 		EstimatedTask estimatedTask = new EstimatedTask();
 		estimatedTask.setPid(task.getPid().getRawPid());
 		estimatedTask.setTaskName(task.getTaskConfig().getName().getRawMacro());
 		estimatedTask.setParentElementNames(emptyList());
-		
+
 		Duration estimatedDuration = getDurationByCode(task.getTaskConfig());
 		estimatedTask.setEstimatedDuration(estimatedDuration);
 		estimatedTask.setEstimatedStartTimestamp(startTimestamp);
 
 		return estimatedTask;
 	}
-	
+
+	private boolean hasDefaultPath(List<BaseElement> elements) {
+		String defaultPathColor = "default path";
+		for (BaseElement el : elements) {
+			if (el instanceof SequenceFlow) {
+				String colorReference = ((SequenceFlow) el).getEdge().color().getReference();
+				if (defaultPathColor.equals(colorReference)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+		
 	private Duration getDurationByCode(TaskConfig task) {
 		// strongly typed!
 		String script = Optional.of(task.getScript()).orElse(EMPTY);
@@ -218,6 +244,5 @@ public class WorkflowEstimator {
 		}
 
 		return Duration.ofHours(0);
-	}
-	
+	}	
 }
