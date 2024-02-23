@@ -2,6 +2,8 @@ package com.axonivy.utils.estimator.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.Duration;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -10,6 +12,8 @@ import com.axonivy.utils.estimator.WorkflowEstimator;
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.Process;
+import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
+import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 import ch.ivyteam.ivy.process.rdm.IProcessManager;
 
 @IvyTest
@@ -79,5 +83,12 @@ public class FlowExampleBasicTest {
 		assertEquals("Task A", estimatedTasks.get(0).getTaskName());
 		assertEquals("Task C", estimatedTasks.get(1).getTaskName());
 		assertEquals("Task B", estimatedTasks.get(2).getTaskName());
+	}
+	
+	@Test
+	void shouldCalculateTotalDuration() {
+		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		Duration duration = workflowEstimator.calculateEstimatedDuration(graph.findStart());
+		assertEquals(15, duration.toHours());
 	}
 }
