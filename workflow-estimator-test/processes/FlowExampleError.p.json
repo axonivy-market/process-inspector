@@ -1,6 +1,6 @@
 {
   "$schema" : "https://json-schema.axonivy.com/process/11.2.2/process.json",
-  "id" : "18DD17872B3D53E2",
+  "id" : "18DD16F8AA39F5DE",
   "config" : {
     "data" : "com.axonivy.utils.estimator.test.Data"
   },
@@ -15,81 +15,59 @@
         "at" : { "x" : 96, "y" : 64 }
       },
       "connect" : [
-        { "id" : "f2", "to" : "f5" }
+        { "id" : "f2", "to" : "f3" }
       ]
     }, {
       "id" : "f1",
       "type" : "TaskEnd",
       "visual" : {
-        "at" : { "x" : 936, "y" : 64 }
+        "at" : { "x" : 672, "y" : 64 }
       }
     }, {
       "id" : "f3",
       "type" : "UserTask",
       "name" : "Task A",
       "visual" : {
-        "at" : { "x" : 472, "y" : 64 }
+        "at" : { "x" : 256, "y" : 64 }
       },
       "connect" : [
         { "id" : "f4", "to" : "f7" }
-      ]
-    }, {
-      "id" : "f5",
-      "type" : "Alternative",
-      "visual" : {
-        "at" : { "x" : 264, "y" : 64 }
-      },
-      "connect" : [
-        { "id" : "f6", "to" : "f3" }
       ]
     }, {
       "id" : "f7",
       "type" : "Alternative",
       "config" : {
         "conditions" : {
-          "f8" : "true"
+          "f8" : "true",
+          "f10" : "true"
         }
       },
       "visual" : {
-        "at" : { "x" : 712, "y" : 64 }
+        "at" : { "x" : 448, "y" : 64 }
       },
       "connect" : [
         { "id" : "f8", "to" : "f1", "label" : {
             "name" : "{success}"
           } },
-        { "id" : "f10", "to" : "f9", "via" : [ { "x" : 712, "y" : 184 } ], "color" : "default path", "label" : {
-            "name" : "cancel path",
-            "segment" : 1.19,
-            "offset" : { "x" : 27, "y" : -37 }
-          } }
+        { "id" : "f10", "to" : "f9", "via" : [ { "x" : 448, "y" : 184 } ] }
       ]
     }, {
       "id" : "f9",
       "type" : "UserTask",
       "name" : "Task B",
       "visual" : {
-        "at" : { "x" : 472, "y" : 184 }
+        "at" : { "x" : 552, "y" : 184 }
       },
       "connect" : [
-        { "id" : "f11", "to" : "f5", "via" : [ { "x" : 264, "y" : 184 } ] }
+        { "id" : "f11", "to" : "f1", "via" : [ { "x" : 672, "y" : 184 } ] }
       ]
-    }, {
-      "id" : "f17",
-      "type" : "ProcessAnnotation",
-      "name" : "green path = default path with empty condition",
-      "visual" : {
-        "at" : { "x" : 920, "y" : 119 },
-        "size" : { "width" : 294, "height" : 19 },
-        "color" : "default path"
-      }
     }, {
       "id" : "f19",
       "type" : "ProcessAnnotation",
       "name" : [
         "useCase=null / flowName = null",
         "",
-        "findAllTasks( start.ivp ) => Task A, Task B",
-        "findTasksOnPath( start.ivp ) => Task A, Task B",
+        "findTasksOnPath( start.ivp ) => Exception",
         "",
         "----",
         "",
@@ -98,13 +76,8 @@
         "findTasksOnPath( start.ivp ) => Task A"
       ],
       "visual" : {
-        "at" : { "x" : 231, "y" : 304 },
+        "at" : { "x" : 231, "y" : 256 },
         "size" : { "width" : 299, "height" : 166 }
       }
-    } ],
-  "layout" : {
-    "colors" : {
-      "default path" : "#12f202"
-    }
-  }
+    } ]
 }

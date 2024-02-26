@@ -158,7 +158,7 @@
         "findAllTasks( start ) => Task A, Task C, Task B",
         "findAllTasks( Task B ) => Task B",
         "findAllTasks( Task C ) => Task C, Task B",
-        "findAllTasks( NewStart ) => Task B",
+        "findAllTasks( NewStart ) => Task C, Task B",
         "",
         "findTasksOnPath( start ) => Task A",
         "findTasksOnPath( Task B ) => Task B",
@@ -166,7 +166,7 @@
         "findTasksOnPath( NewStart ) => Task B"
       ],
       "visual" : {
-        "at" : { "x" : 235, "y" : 543 },
+        "at" : { "x" : 231, "y" : 543 },
         "size" : { "width" : 333, "height" : 239 }
       }
     }, {
