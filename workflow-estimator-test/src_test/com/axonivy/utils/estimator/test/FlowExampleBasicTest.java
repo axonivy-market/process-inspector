@@ -112,7 +112,7 @@ public class FlowExampleBasicTest {
 		var workflowEstimator = new WorkflowEstimator(process, null, "internal");
 		var estimatedTasks = workflowEstimator.findAllTasks(start);
 
-		assertArrayEquals(Arrays.array("Task A", "Task B", "Task C"), getTaskNames(estimatedTasks));		
+		assertArrayEquals(Arrays.array("Task A", "Task C", "Task B"), getTaskNames(estimatedTasks));		
 	}
 
 	@Test
@@ -147,21 +147,21 @@ public class FlowExampleBasicTest {
 		assertArrayEquals(Arrays.array("Task C", "Task B"), getTaskNames(estimatedTasks));		
 	}
 	
-//	@Test
-//	void shouldFindAllTasksOfMixedFlowAtStart() {
-//		var workflowEstimator = new WorkflowEstimator(process, null, "mixed");
-//		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
-//
-//		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(estimatedTasks));		
-//	}
-//	
-//	@Test
-//	void shouldFindAllTasksOfMixedFlowAtNewStart() {
-//		var workflowEstimator = new WorkflowEstimator(process, null, "mixed");
-//		var estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
-//
-//		assertArrayEquals(Arrays.array("Task B"), getTaskNames(estimatedTasks));		
-//	}
+	@Test
+	void shouldFindAllTasksOfMixedFlowAtStart() {
+		var workflowEstimator = new WorkflowEstimator(process, null, "mixed");
+		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
+
+		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(estimatedTasks));		
+	}
+	
+	@Test
+	void shouldFindAllTasksOfMixedFlowAtNewStart() {
+		var workflowEstimator = new WorkflowEstimator(process, null, "mixed");
+		var estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
+
+		assertArrayEquals(Arrays.array("Task B"), getTaskNames(estimatedTasks));		
+	}
 	
 	private String[] getTaskNames(List<EstimatedTask> tasks ) {
 		return tasks.stream().map(EstimatedTask::getTaskName).toArray(String[]::new);
