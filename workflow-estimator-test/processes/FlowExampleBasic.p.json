@@ -32,7 +32,12 @@
       ],
       "config" : {
         "task" : {
-          "name" : "Task A"
+          "name" : "Task A",
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
         }
       },
       "visual" : {
@@ -68,7 +73,12 @@
       "name" : "Task B",
       "config" : {
         "task" : {
-          "name" : "Task B"
+          "name" : "Task B",
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(6,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
         }
       },
       "visual" : {
@@ -107,7 +117,12 @@
       "name" : "Task C",
       "config" : {
         "task" : {
-          "name" : "Task C"
+          "name" : "Task C",
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(4,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
         }
       },
       "visual" : {
