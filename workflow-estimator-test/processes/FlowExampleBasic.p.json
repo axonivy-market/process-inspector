@@ -7,7 +7,7 @@
   "elements" : [ {
       "id" : "f0",
       "type" : "RequestStart",
-      "name" : "start.ivp",
+      "name" : "start",
       "config" : {
         "signature" : "start"
       },
@@ -155,18 +155,18 @@
       "name" : [
         "useCase=null / flowName = null",
         "",
-        "findAllTasks( start.ivp ) => Task A, Task C, Task B",
+        "findAllTasks( start ) => Task A, Task C, Task B",
         "findAllTasks( Task B ) => Task B",
         "findAllTasks( Task C ) => Task C, Task B",
-        "findAllTasks( NewStart ) => Task B",
+        "findAllTasks( NewStart ) => Task C, Task B",
         "",
-        "findTasksOnPath( start.ivp ) => Task A",
+        "findTasksOnPath( start ) => Task A",
         "findTasksOnPath( Task B ) => Task B",
         "findTasksOnPath( Task C ) => Task C, Task B",
         "findTasksOnPath( NewStart ) => Task B"
       ],
       "visual" : {
-        "at" : { "x" : 235, "y" : 543 },
+        "at" : { "x" : 231, "y" : 543 },
         "size" : { "width" : 333, "height" : 239 }
       }
     }, {
@@ -175,22 +175,22 @@
       "name" : [
         "useCase=null / flowName = internal",
         "",
-        "findAllTasks( start.ivp ) => Task A, Task C, Task B",
-        "findTasksOnPath( start.ivp ) => Task A, Task B",
+        "findAllTasks( start ) => Task A, Task C, Task B",
+        "findTasksOnPath( start ) => Task A, Task B",
         "findTasksOnPath( NewStart ) => Task B",
         "",
         "----",
         "",
         "useCase=null / flowName = external",
         "",
-        "findTasksOnPath( start.ivp ) => Task A, Task C, Task B",
+        "findTasksOnPath( start ) => Task A, Task C, Task B",
         "findTasksOnPath( NewStart ) => Task C, Task B",
         "",
         "----",
         "",
         "useCase=null / flowName = mixed",
         "",
-        "findTasksOnPath( start.ivp ) => Task A, Task B",
+        "findTasksOnPath( start ) => Task A, Task B",
         "findTasksOnPath( NewStart ) => Task B"
       ],
       "visual" : {

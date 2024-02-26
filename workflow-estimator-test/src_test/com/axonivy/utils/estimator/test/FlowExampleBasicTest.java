@@ -1,88 +1,170 @@
 package com.axonivy.utils.estimator.test;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Duration;
+import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.assertj.core.util.Arrays;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.estimator.WorkflowEstimator;
+import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.environment.IvyTest;
+import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.Process;
-import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
-import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 import ch.ivyteam.ivy.process.rdm.IProcessManager;
 
 @IvyTest
 @SuppressWarnings("restriction")
 public class FlowExampleBasicTest {
 
-	private Process process;
-	private ProcessGraph graph;
-
-	@BeforeEach
-	void setup() {
+	private static Process process;
+	private static ProcessGraph graph;
+	private static BaseElement start;
+	private static BaseElement newStart;
+	private static BaseElement taskB;
+	private static BaseElement taskC;
+	
+	@BeforeAll
+	public static void setup() {
 		var pmv = Ivy.request().getProcessModelVersion();
 		var manager = IProcessManager.instance().getProjectDataModelFor(pmv);
-		this.process = manager.findProcessByPath("FlowExampleBasic").getModel();
-		this.graph = new ProcessGraph(process);
+		process = manager.findProcessByPath("FlowExampleBasic").getModel();
+		graph = new ProcessGraph(process);
+		
+		start = graph.findByElementName("start");
+		newStart = graph.findByElementName("NewStart");
+		taskB = graph.findByElementName("Task B");
+		taskC = graph.findByElementName("Task C");
 	}
 
 	@Test
-	void shouldFindAllTasksAtStartRequestWithoutFlowName() {
+	void shouldFindAllTasksAtStart() {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(start);
 
-		var estimatedTasks = workflowEstimator.findAllTasks(graph.findStart());
-
-		assertEquals(3, estimatedTasks.size());
-		assertEquals("Task A", estimatedTasks.get(0).getTaskName());
-		assertEquals("Task C", estimatedTasks.get(1).getTaskName());
-		assertEquals("Task B", estimatedTasks.get(2).getTaskName());
+		assertArrayEquals(Arrays.array("Task A", "Task C", "Task B"), getTaskNames(estimatedTasks));
 	}
 
 	@Test
 	void shouldFfindAllTasksAtTaskB() {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
-		var taskB = this.graph.findByElementName("Task B");
 		var estimatedTasks = workflowEstimator.findAllTasks(taskB);
 
-		assertEquals(1, estimatedTasks.size());
-		assertEquals("Task B", estimatedTasks.get(0).getTaskName());
+		assertArrayEquals(Arrays.array("Task B"), getTaskNames(estimatedTasks));	
 	}
 
 	@Test
 	void shouldFindAllTasksAtTaskC() {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
-		var taskC = this.graph.findByElementName("Task C");
 		var estimatedTasks = workflowEstimator.findAllTasks(taskC);
 
-		assertEquals(2, estimatedTasks.size());
-		assertEquals("Task C", estimatedTasks.get(0).getTaskName());
-		assertEquals("Task B", estimatedTasks.get(1).getTaskName());
+		assertArrayEquals(Arrays.array("Task C", "Task B"), getTaskNames(estimatedTasks));
 	}
 
 	@Test
-	void shouldFindAllTasksOfInternalFlow() {
+	void shouldFindAllTasksAtNewStart() {
+		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var estimatedTasks = workflowEstimator.findAllTasks(newStart);
+	
+		assertArrayEquals(Arrays.array("Task C", "Task B"), getTaskNames(estimatedTasks));
+	}
+	
+	@Test
+	void shouldFindTasksOnPathWithoutFlowNameAtStart() {
+		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
+	
+		assertArrayEquals(Arrays.array("Task A"), getTaskNames(estimatedTasks));
+	}
+	
+	@Test
+	void shouldFindTasksOnPathWithoutFlowNameAtTaskB() {
+		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var estimatedTasks = workflowEstimator.findTasksOnPath(taskB);
+	
+		assertArrayEquals(Arrays.array("Task B"), getTaskNames(estimatedTasks));
+	}
+	
+	@Test
+	void shouldFindTasksOnPathWithoutFlowNameAtTaskC() {
+		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var estimatedTasks = workflowEstimator.findTasksOnPath(taskC);
+	
+		assertArrayEquals(Arrays.array("Task C", "Task B"), getTaskNames(estimatedTasks));
+	}
+	
+	@Test
+	void shouldFindTasksOnPathWithoutFlowNameAtNewStart() {
+		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
+	
+		assertArrayEquals(Arrays.array("Task B"), getTaskNames(estimatedTasks));
+	}
+	
+	@Test
+	void shouldFindAllTasksOfInternalFlowAtStart() {
 		var workflowEstimator = new WorkflowEstimator(process, null, "internal");
-		var estimatedTasks = workflowEstimator.findTasksOnPath(graph.findStart());
+		var estimatedTasks = workflowEstimator.findAllTasks(start);
 
-		assertEquals(2, estimatedTasks.size());
-		assertEquals("Task A", estimatedTasks.get(0).getTaskName());
-		assertEquals("Task B", estimatedTasks.get(1).getTaskName());
+		assertArrayEquals(Arrays.array("Task A", "Task B", "Task C"), getTaskNames(estimatedTasks));		
 	}
 
 	@Test
-	void shouldFindAllTasksOfExternalFlow() {
-		var workflowEstimator = new WorkflowEstimator(process, null, "external");
-		var estimatedTasks = workflowEstimator.findTasksOnPath(graph.findStart());
+	void shouldFindTasksOnPathOfInternalFlowAtStart() {
+		var workflowEstimator = new WorkflowEstimator(process, null, "internal");
+		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 
-		assertEquals(3, estimatedTasks.size());
-		assertEquals("Task A", estimatedTasks.get(0).getTaskName());
-		assertEquals("Task C", estimatedTasks.get(1).getTaskName());
-		assertEquals("Task B", estimatedTasks.get(2).getTaskName());
+		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(estimatedTasks));		
+	}
+
+	@Test
+	void shouldFindTasksOnPathOfInternalFlowAtNewStart() {
+		var workflowEstimator = new WorkflowEstimator(process, null, "internal");
+		var estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
+		
+		assertArrayEquals(Arrays.array("Task B"), getTaskNames(estimatedTasks));		
+	}
+	
+	@Test
+	void shouldFindAllTasksOfExternalFlowAtStart() {
+		var workflowEstimator = new WorkflowEstimator(process, null, "external");
+		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
+
+		assertArrayEquals(Arrays.array("Task A", "Task C", "Task B"), getTaskNames(estimatedTasks));		
+	}
+	
+	@Test
+	void shouldFindTasksOnPathOfExternalFlowAtNewStart() {
+		var workflowEstimator = new WorkflowEstimator(process, null, "external");
+		var estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
+
+		assertArrayEquals(Arrays.array("Task C", "Task B"), getTaskNames(estimatedTasks));		
+	}
+	
+//	@Test
+//	void shouldFindAllTasksOfMixedFlowAtStart() {
+//		var workflowEstimator = new WorkflowEstimator(process, null, "mixed");
+//		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
+//
+//		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(estimatedTasks));		
+//	}
+//	
+//	@Test
+//	void shouldFindAllTasksOfMixedFlowAtNewStart() {
+//		var workflowEstimator = new WorkflowEstimator(process, null, "mixed");
+//		var estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
+//
+//		assertArrayEquals(Arrays.array("Task B"), getTaskNames(estimatedTasks));		
+//	}
+	
+	private String[] getTaskNames(List<EstimatedTask> tasks ) {
+		return tasks.stream().map(EstimatedTask::getTaskName).toArray(String[]::new);
 	}
 	
 	@Test
