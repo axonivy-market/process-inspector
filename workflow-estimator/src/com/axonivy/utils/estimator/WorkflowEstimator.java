@@ -62,7 +62,7 @@ public class WorkflowEstimator {
 				throw new Exception("Not found");
 			}
 			
-			estimatedTasks = convertToEstimatedTasks(paths);	
+			estimatedTasks = convertToEstimatedTasks(paths);
 		}
 		
 		return estimatedTasks;

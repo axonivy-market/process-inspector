@@ -4,6 +4,8 @@ import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -62,5 +64,10 @@ public class EstimatedTask {
 				.orElse(0);
 		
 		return DateUtils.addSeconds(this.estimatedStartTimestamp, durationInSecond);
+	}
+
+	@Override
+	public String toString() {
+		return Stream.of(pid, taskName).collect(Collectors.joining("-"));
 	}
 }

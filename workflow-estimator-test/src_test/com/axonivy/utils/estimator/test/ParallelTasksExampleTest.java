@@ -1,7 +1,6 @@
 package com.axonivy.utils.estimator.test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
@@ -12,10 +11,8 @@ import org.junit.jupiter.api.Test;
 import com.axonivy.utils.estimator.WorkflowEstimator;
 import com.axonivy.utils.estimator.model.EstimatedTask;
 
-import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.BaseElement;
-import ch.ivyteam.ivy.process.rdm.IProcessManager;
 
 @IvyTest
 @SuppressWarnings("restriction")
