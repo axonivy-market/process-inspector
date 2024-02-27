@@ -61,7 +61,7 @@
       "config" : {
         "tasks" : [ {
             "id" : "TaskA",
-            "name" : "Tasks-Task1"
+            "name" : "Tasks-TaskA"
           }, {
             "id" : "TaskB",
             "name" : "Tasks-TaskB"

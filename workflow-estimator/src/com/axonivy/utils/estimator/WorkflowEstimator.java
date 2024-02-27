@@ -2,6 +2,7 @@ package com.axonivy.utils.estimator;
 
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -19,7 +20,8 @@ import com.axonivy.utils.estimator.model.EstimatedTask;
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.Process;
-import ch.ivyteam.ivy.process.model.element.activity.UserTask;
+import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
+import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 
 
@@ -50,11 +52,16 @@ public class WorkflowEstimator {
 		return estimatedTasks;
 	}
 
-	public List<EstimatedTask> findTasksOnPath(BaseElement startAtElement) {
+	public List<EstimatedTask> findTasksOnPath(BaseElement startAtElement) throws Exception {
 		List<EstimatedTask> estimatedTasks = emptyList();
 		
 		if (startAtElement instanceof NodeElement) {
 			List<List<BaseElement>> paths = graph.findPaths(startAtElement, flowName);
+			//Maybe throw an exception if there are not path
+			if(paths.isEmpty()) {
+				throw new Exception("Not found");
+			}
+			
 			estimatedTasks = convertToEstimatedTasks(paths);	
 		}
 		
@@ -78,40 +85,52 @@ public class WorkflowEstimator {
 	}
 		
 	private List<EstimatedTask> convertToEstimatedTasks(List<List<BaseElement>> paths) {
-		List<UserTask> tasks = paths.stream()
+		
+		List<TaskAndCaseModifier> taskCaseModifier = paths.stream()
 				// If have more than one path, we get the longest
 				.max(Comparator.comparingInt(List::size)).orElse(emptyList()).stream()
 				// filter to get task only
 				.filter(node -> {
-					return node instanceof UserTask;
+					return node instanceof TaskAndCaseModifier;
 				})
-				.map(UserTask.class::cast)
+				.filter(node -> {
+					return node instanceof RequestStart == false;
+				})
+				.map(TaskAndCaseModifier.class::cast)
 				// filter the task which have estimated if needed
 				.toList();
 		//Convert to EstimatedTask
 		List<EstimatedTask> estimatedTasks = new ArrayList<>(); 
-		for(int i = 0; i < tasks.size(); i ++) {
-			EstimatedTask estimatedTask = new EstimatedTask();
+		for(int i = 0; i < taskCaseModifier.size(); i ++) {
+			List<EstimatedTask> estimatedTaskResults = new ArrayList<>();
 			Date startTimestamp = i == 0 ? new Date() : estimatedTasks.get(i - 1).calculateEstimatedEndTimestamp();
-			estimatedTask = createEstimatedTask(tasks.get(i), startTimestamp);
+			estimatedTaskResults = createEstimatedTask(taskCaseModifier.get(i), startTimestamp);
 			
-			estimatedTasks.add(estimatedTask);
+			estimatedTasks.addAll(estimatedTaskResults);
 		}
 		
 		return estimatedTasks;
 	}
 	
-	private EstimatedTask createEstimatedTask(UserTask task, Date startTimestamp) {
-		EstimatedTask estimatedTask = new EstimatedTask();
-		estimatedTask.setPid(task.getPid().getRawPid());
-		estimatedTask.setTaskName(task.getTaskConfig().getName().getRawMacro());
-		estimatedTask.setParentElementNames(emptyList());
-
-		Duration estimatedDuration = getDurationByCode(task.getTaskConfig());
-		estimatedTask.setEstimatedDuration(estimatedDuration);
-		estimatedTask.setEstimatedStartTimestamp(startTimestamp);
-
-		return estimatedTask;
+	private List<EstimatedTask> createEstimatedTask(TaskAndCaseModifier task, Date startTimestamp) {
+		List<TaskConfig> taskConfigs = task.getAllTaskConfigs();
+		
+		List<EstimatedTask> estimatedTasks = new ArrayList<>();
+		
+		taskConfigs.forEach(item -> {
+			EstimatedTask estimatedTask = new EstimatedTask();
+			
+			estimatedTask.setPid(task.getPid().getRawPid());		
+			estimatedTask.setParentElementNames(emptyList());
+			estimatedTask.setTaskName(defaultIfEmpty(item.getName().getRawMacro(), task.getName()));
+			Duration estimatedDuration = getDurationByCode(item);				
+			estimatedTask.setEstimatedDuration(estimatedDuration);
+			estimatedTask.setEstimatedStartTimestamp(startTimestamp);		
+			
+			estimatedTasks.add(estimatedTask);
+		});
+		
+		return estimatedTasks;
 	}
 			
 	private Duration getDurationByCode(TaskConfig task) {

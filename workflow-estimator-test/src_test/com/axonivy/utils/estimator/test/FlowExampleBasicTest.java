@@ -21,22 +21,17 @@ import ch.ivyteam.ivy.process.rdm.IProcessManager;
 
 @IvyTest
 @SuppressWarnings("restriction")
-public class FlowExampleBasicTest {
+public class FlowExampleBasicTest extends FlowExampleTest {
 
-	private static Process process;
-	private static ProcessGraph graph;
 	private static BaseElement start;
 	private static BaseElement newStart;
 	private static BaseElement taskB;
 	private static BaseElement taskC;
+	private static final String PROCESS_NAME = "FlowExampleBasic";
 	
 	@BeforeAll
 	public static void setup() {
-		var pmv = Ivy.request().getProcessModelVersion();
-		var manager = IProcessManager.instance().getProjectDataModelFor(pmv);
-		process = manager.findProcessByPath("FlowExampleBasic").getModel();
-		graph = new ProcessGraph(process);
-		
+		setup(PROCESS_NAME);
 		start = graph.findByElementName("start");
 		newStart = graph.findByElementName("NewStart");
 		taskB = graph.findByElementName("Task B");
@@ -76,7 +71,7 @@ public class FlowExampleBasicTest {
 	}
 	
 	@Test
-	void shouldFindTasksOnPathWithoutFlowNameAtStart() {
+	void shouldFindTasksOnPathWithoutFlowNameAtStart() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 	
@@ -84,7 +79,7 @@ public class FlowExampleBasicTest {
 	}
 	
 	@Test
-	void shouldFindTasksOnPathWithoutFlowNameAtTaskB() {
+	void shouldFindTasksOnPathWithoutFlowNameAtTaskB() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		var estimatedTasks = workflowEstimator.findTasksOnPath(taskB);
 	
@@ -92,7 +87,7 @@ public class FlowExampleBasicTest {
 	}
 	
 	@Test
-	void shouldFindTasksOnPathWithoutFlowNameAtTaskC() {
+	void shouldFindTasksOnPathWithoutFlowNameAtTaskC() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		var estimatedTasks = workflowEstimator.findTasksOnPath(taskC);
 	
@@ -100,7 +95,7 @@ public class FlowExampleBasicTest {
 	}
 	
 	@Test
-	void shouldFindTasksOnPathWithoutFlowNameAtNewStart() {
+	void shouldFindTasksOnPathWithoutFlowNameAtNewStart() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		var estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
 	
@@ -116,7 +111,7 @@ public class FlowExampleBasicTest {
 	}
 
 	@Test
-	void shouldFindTasksOnPathOfInternalFlowAtStart() {
+	void shouldFindTasksOnPathOfInternalFlowAtStart() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, "internal");
 		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 
@@ -124,7 +119,7 @@ public class FlowExampleBasicTest {
 	}
 
 	@Test
-	void shouldFindTasksOnPathOfInternalFlowAtNewStart() {
+	void shouldFindTasksOnPathOfInternalFlowAtNewStart() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, "internal");
 		var estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
 		
@@ -132,7 +127,7 @@ public class FlowExampleBasicTest {
 	}
 	
 	@Test
-	void shouldFindAllTasksOfExternalFlowAtStart() {
+	void shouldFindAllTasksOfExternalFlowAtStart() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, "external");
 		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 
@@ -140,7 +135,7 @@ public class FlowExampleBasicTest {
 	}
 	
 	@Test
-	void shouldFindTasksOnPathOfExternalFlowAtNewStart() {
+	void shouldFindTasksOnPathOfExternalFlowAtNewStart() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, "external");
 		var estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
 
@@ -148,7 +143,7 @@ public class FlowExampleBasicTest {
 	}
 	
 	@Test
-	void shouldFindAllTasksOfMixedFlowAtStart() {
+	void shouldFindAllTasksOfMixedFlowAtStart() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, "mixed");
 		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 
@@ -156,15 +151,11 @@ public class FlowExampleBasicTest {
 	}
 	
 	@Test
-	void shouldFindAllTasksOfMixedFlowAtNewStart() {
+	void shouldFindAllTasksOfMixedFlowAtNewStart() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, "mixed");
 		var estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
 
 		assertArrayEquals(Arrays.array("Task B"), getTaskNames(estimatedTasks));		
-	}
-	
-	private String[] getTaskNames(List<EstimatedTask> tasks ) {
-		return tasks.stream().map(EstimatedTask::getTaskName).toArray(String[]::new);
 	}
 	
 	@Test
