@@ -67,7 +67,7 @@
       "name" : [
         "useCase=null / flowName = null",
         "",
-        "findTasksOnPath( start.ivp ) => Exception",
+        "findTasksOnPath( start ) => Exception",
         "",
         "----",
         "",
