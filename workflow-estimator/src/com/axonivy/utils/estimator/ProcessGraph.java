@@ -7,10 +7,13 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.collections4.map.HashedMap;
 
 import com.google.common.base.Objects;
 
@@ -32,91 +35,113 @@ public class ProcessGraph {
 	/**
 	 * Using Recursion Algorithm To Find All The Path On Graph.
 	 * Return all paths
-	 * Exception: Throw stack overflow error if there are loop node 
 	 */
 	public List<List<BaseElement>> findPaths(BaseElement from) {
-		return findAllPaths(from);
+		List<BaseElement> path = findPath(from, emptyList());
+		if (path.isEmpty()) {
+			return emptyList();
+		}
+		return Arrays.asList(path);
 	}
 	
 	public List<List<BaseElement>> findPaths(BaseElement from, String flowName) {
-		List<List<BaseElement>> paths = findAllPaths(from);
-
-		List<List<BaseElement>> pathByFlowName = emptyList();
-		if (isNotBlank(flowName)) {
-			pathByFlowName = paths.stream().filter(path -> hasFlowNameOrDefaultPath(path, flowName)).toList();
-		} else {
-			pathByFlowName = paths.stream().filter(path -> isAllEmptyCondition(path)).toList();
+		List<BaseElement> path = findPathByFlowName(from, flowName);
+		if (path.isEmpty()) {
+			return emptyList();
 		}
-		//Maybe throw an exception if there are not path
-		return pathByFlowName;
+		return Arrays.asList(path);
 	}
+
+//	public List<List<BaseElement>> findPaths(BaseElement from, String flowName) {
+//		List<List<BaseElement>> paths = findAllPaths(from);
+//
+//		List<List<BaseElement>> pathByFlowName = emptyList();
+//		if (isNotBlank(flowName)) {
+//			pathByFlowName = paths.stream().filter(path -> hasFlowNameOrDefaultPath(path, flowName)).toList();
+//		} else {
+//			pathByFlowName = paths.stream().filter(path -> isAllEmptyCondition(path)).toList();
+//		}
+//		//Maybe throw an exception if there are not path
+//		return pathByFlowName;
+//	}
+//	
+//	private List<List<BaseElement>> findAllPaths(BaseElement from) {
+//		List<List<BaseElement>> paths = findNextNodeElementPath(from, emptyList());
+//		
+//		//Insert from element at first position
+//		paths.forEach(path -> {
+//			path.add(0, from);
+//		});
+//		
+//		return paths;
+//	}
 	
-	private List<List<BaseElement>> findAllPaths(BaseElement from) {
-		List<List<BaseElement>> paths = findNextNodeElementPath(from);
-		
-		//Insert from element at first position
-		paths.forEach(path -> {
-			path.add(0, from);
-		});
-		
-		return paths;
-	}
+//	private List<List<BaseElement>> findNextNodeElementPath(BaseElement from, List<List<BaseElement>> parentPaths) {
+//		var paths = new ArrayList<List<BaseElement>>();
+//
+//		if (from != null && from instanceof NodeElement) {
+//			List<SequenceFlow> outs = ((NodeElement) from).getOutgoing();
+//			for (SequenceFlow out : outs) {
+//
+//				NodeElement target = out.getTarget();
+//				List<BaseElement> parentElements = Arrays.asList(out, target);
+//				
+//				var x = addToParentPaths(parentPaths, parentElements);
+//				
+//				List<List<BaseElement>> nextElements = findNextNodeElementPath(target, x);
+//
+//				if (nextElements.isEmpty()) {
+//					nextElements.add(new ArrayList<BaseElement>(parentElements));
+//				} else {
+//					nextElements.forEach(nodes -> {
+//						nodes.addAll(0, parentElements);
+//					});
+//				}
+//
+//				paths.addAll(nextElements);
+//			}
+//		}
+//		return paths;
+//	}
 	
-	private List<List<BaseElement>> findNextNodeElementPath(BaseElement from) {
-		var nexts = new ArrayList<List<BaseElement>>();
-
-		if (from != null && from instanceof NodeElement) {
-			List<SequenceFlow> outs = ((NodeElement) from).getOutgoing();
-			for (SequenceFlow out : outs) {
-
-				NodeElement target = out.getTarget();
-				List<List<BaseElement>> nextElements = findNextNodeElementPath(target);
-
-				if (nextElements.isEmpty()) {
-					nextElements.add(new ArrayList<BaseElement>(Arrays.asList(out, target)));
-				} else {
-					nextElements.forEach(nodes -> {
-						nodes.add(0, out);
-						nodes.add(1, target);
-					});
-				}
-
-				nexts.addAll(nextElements);
-			}
-		}
-		return nexts;
-	}
-	
-	private boolean hasFlowNameOrDefaultPath(List<BaseElement> elements, String flowName) {
-		if (StringUtils.isBlank(flowName)) {
-			return true;
-		}
-
-		for (int i = 0; i < elements.size(); i++) {
-			var currentElement = elements.get(i);
-			var previousElement = i > 0 ? elements.get(i - 1) : null;
-			if (currentElement instanceof SequenceFlow) {
-				var passedFlowNameCheck = hasFlowNameOrEmpty((SequenceFlow) currentElement, flowName);
-
-				var passedDefaultPathCheck = false;
-				if (previousElement instanceof Alternative) {
-					passedDefaultPathCheck = isDefaultPath(currentElement, (Alternative) previousElement);
-				}
-
-				if (!passedFlowNameCheck && !passedDefaultPathCheck) {
-					return false;
-				}
-			}
-		}
-
-		return true;
-	}
+//	private List<List<BaseElement>> addToParentPaths(List<List<BaseElement>> parentPaths, List<BaseElement> elements) {
+//		if (parentPaths.isEmpty()) {
+//			return new ArrayList<List<BaseElement>>(Arrays.asList(elements));
+//		} else {
+//			return parentPaths.stream().map(path -> Stream.concat(path.stream(), elements.stream()).toList()).toList();
+//		}
+//	}
+//
+//	private boolean hasFlowNameOrDefaultPath(List<BaseElement> elements, String flowName) {
+//		if (StringUtils.isBlank(flowName)) {
+//			return true;
+//		}
+//
+//		for (int i = 0; i < elements.size(); i++) {
+//			var currentElement = elements.get(i);
+//			var previousElement = i > 0 ? elements.get(i - 1) : null;
+//			if (currentElement instanceof SequenceFlow) {
+//				var passedFlowNameCheck = hasFlowNameOrEmpty((SequenceFlow) currentElement, flowName);
+//
+//				var passedDefaultPathCheck = false;
+//				if (previousElement instanceof Alternative) {
+//					passedDefaultPathCheck = isDefaultPath(currentElement, (Alternative) previousElement);
+//				}
+//
+//				if (!passedFlowNameCheck && !passedDefaultPathCheck) {
+//					return false;
+//				}
+//			}
+//		}
+//
+//		return true;
+//	}
 	
 	private boolean hasFlowNameOrEmpty(SequenceFlow sequenceFlow, String flowName) {
-
+		
 		String label = sequenceFlow.getEdge().getLabel().getText();
 		if (isNotBlank(label)) {
-			if (!label.contains(flowName)) {
+			if (flowName == null || !label.contains(flowName)) {
 				return false;
 			}
 		}
@@ -124,25 +149,34 @@ public class ProcessGraph {
 		return true;
 	}
 
-	private boolean isAllEmptyCondition(List<BaseElement> elements) {
-
-		for (int i = 1; i < elements.size(); i++) {
-			var currentElement = elements.get(i);
-			var previousElement = elements.get(i - 1);
-			if (previousElement instanceof Alternative) {				
-				if (!isDefaultPath(currentElement, (Alternative) previousElement)) {
-					return false;
-				}
-			}
-		}
-		
-		return true;
-	}
+//	private boolean isAllEmptyCondition(List<BaseElement> elements) {
+//
+//		for (int i = 1; i < elements.size(); i++) {
+//			var currentElement = elements.get(i);
+//			var previousElement = elements.get(i - 1);
+//			if (previousElement instanceof Alternative) {				
+//				if (!isDefaultPath(currentElement, (Alternative) previousElement)) {
+//					return false;
+//				}
+//			}
+//		}
+//		
+//		return true;
+//	}
 	
 	private boolean isDefaultPath(BaseElement currentElement, Alternative previousElement) {
 		String currentElementId = currentElement.getPid().getFieldId();
 		String nextTargetId = getNextTargetIdByCondition((Alternative) previousElement, EMPTY);
 		return Objects.equal(currentElementId, nextTargetId);
+	}
+	
+	private boolean isDefaultPath(SequenceFlow flow) {
+		NodeElement sourceElement = flow.getSource();
+		if(sourceElement instanceof Alternative) {
+			return isDefaultPath(flow, (Alternative) sourceElement);
+		}
+		
+		return false;		
 	}
 	
 	private String getNextTargetIdByCondition(Alternative alternative, String condition) {
@@ -158,34 +192,83 @@ public class ProcessGraph {
 	
 	
 	/**
-	 * Find base on start node and check condition at each 
-	 * @param from
-	 * @param flowName
-	 * @return
+	 * Find base on start node and check condition at each
 	 */
-//	public List<BaseElement> findPathByFlowName(BaseElement from, String flowName) {
-//		List<BaseElement> path = new ArrayList<>();
-//		path.add(from);
-//		
-//		
-//		if (from instanceof NodeElement) {
-//			NodeElement currentNode = (NodeElement) from;
-//			List<SequenceFlow> outs = currentNode.getOutgoing();
-//			while (outs.size() > 0) {
-//				SequenceFlow flow = findCorrectSequenceFlow(outs, flowName);
-//				
-//				if(flow == null) {
-//					break;
-//				}
-//
-//				path.add(from);
-//				
-//			}
-//		}
-//		return emptyList();
-//	}
-//	
-//	private SequenceFlow findCorrectSequenceFlow(List<SequenceFlow> outs, String flowName) {
-//		return outs.stream().filter(out -> hasFlowNameOrEmpty(out, flowName)).findFirst().orElse(null);
-//	}
+	public List<BaseElement> findPath(BaseElement from, List<BaseElement> previousElements) {
+	
+		//Prevent loop
+		if (previousElements.indexOf(from) >= 0) {
+			return emptyList();
+		}
+
+		List<BaseElement> path = new ArrayList<>();
+		path.add(from);
+		
+		if (from instanceof NodeElement) {
+			List<SequenceFlow> outs = ((NodeElement) from).getOutgoing();
+			
+			Map<SequenceFlow, List<BaseElement>> paths =  new HashedMap<>();
+			for (SequenceFlow out : outs) {
+				paths.put(out, findPath(out.getTarget(),  ListUtils.union(previousElements, Arrays.asList(from))));				
+			}
+			
+			var longestPath = paths.entrySet().stream()
+					.max(Comparator.comparingInt(entry -> entry.getValue().size()))
+					.orElse(null);
+			
+			if(longestPath != null) {
+				path.add(longestPath.getKey());
+				path.addAll(longestPath.getValue());
+			}
+		}
+		
+		return path;
+	}
+
+	public List<BaseElement> findPathByFlowName(BaseElement from, String flowName) {
+		List<BaseElement> path = new ArrayList<>();
+		path.add(from);
+		
+		if (from instanceof NodeElement) {
+			NodeElement target = (NodeElement) from;			
+			while (target.getOutgoing().size() > 0) {
+				SequenceFlow flow = findCorrectSequenceFlow(target, flowName);
+				
+				if(flow == null) {
+					//Can not find any way
+					path.clear();
+					break;
+				}
+				
+				path.add(flow);
+				
+				target = flow.getTarget();
+				//Prevent loop
+				if (path.indexOf(target) >= 0) {
+					break;
+				}
+				path.add(target);
+			}
+		}
+		
+		return path;
+	}
+	
+	private SequenceFlow findCorrectSequenceFlow(NodeElement nodeElement, String flowName) {
+		List<SequenceFlow> outs = nodeElement.getOutgoing();
+		if(flowName == null && nodeElement instanceof Alternative) {
+			return outs.stream().filter(out -> isDefaultPath(out)).findFirst().orElse(null);
+		}
+		
+		SequenceFlow flow = outs.stream()
+				.filter(out -> hasFlowNameOrEmpty(out, flowName))
+				.findFirst()
+				.orElse(null);			
+				
+		if(flow == null) {
+			flow = outs.stream().filter(out -> isDefaultPath(out)).findFirst().orElse(null);
+		}
+		
+		return flow;
+	}
 }

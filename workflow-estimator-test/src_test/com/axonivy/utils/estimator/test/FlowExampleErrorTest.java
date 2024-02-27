@@ -11,10 +11,8 @@ import org.junit.jupiter.api.Test;
 import com.axonivy.utils.estimator.WorkflowEstimator;
 import com.axonivy.utils.estimator.model.EstimatedTask;
 
-import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.BaseElement;
-import ch.ivyteam.ivy.process.rdm.IProcessManager;
 
 @IvyTest
 @SuppressWarnings("restriction")
@@ -30,7 +28,7 @@ public class FlowExampleErrorTest extends FlowExampleTest {
 	}
 	
 	@Test
-	void shouldFindAllTasksOnPathAtStartWithFlowNameSuccess() throws Exception {
+	void shouldFindTasksOnPathAtStartWithFlowNameSuccess() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, "success");
 		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(start);
 
@@ -39,7 +37,7 @@ public class FlowExampleErrorTest extends FlowExampleTest {
 	}
 	
 	@Test
-	void shouldFindAllTasksOnPathAtStartWithFlowNameNull()  {
+	void shouldFindTasksOnPathAtStartWithFlowNameNull()  {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		
 		Exception exception = assertThrows(Exception.class, () -> {

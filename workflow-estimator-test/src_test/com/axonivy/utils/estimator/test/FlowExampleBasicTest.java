@@ -13,11 +13,8 @@ import org.junit.jupiter.api.Test;
 import com.axonivy.utils.estimator.WorkflowEstimator;
 import com.axonivy.utils.estimator.model.EstimatedTask;
 
-import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.BaseElement;
-import ch.ivyteam.ivy.process.model.Process;
-import ch.ivyteam.ivy.process.rdm.IProcessManager;
 
 @IvyTest
 @SuppressWarnings("restriction")
@@ -143,7 +140,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 	}
 	
 	@Test
-	void shouldFindAllTasksOfMixedFlowAtStart() throws Exception {
+	void shouldFindTasksOnPathOfMixedFlowAtStart() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, "mixed");
 		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 
@@ -151,7 +148,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 	}
 	
 	@Test
-	void shouldFindAllTasksOfMixedFlowAtNewStart() throws Exception {
+	void shouldFindTasksOnPathOfMixedFlowAtNewStart() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, "mixed");
 		var estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
 
