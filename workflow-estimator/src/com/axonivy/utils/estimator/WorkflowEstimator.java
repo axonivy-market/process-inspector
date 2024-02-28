@@ -20,7 +20,6 @@ import com.axonivy.utils.estimator.model.EstimatedTask;
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.Process;
-import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
@@ -137,15 +136,17 @@ public class WorkflowEstimator {
 			estimatedTasks.add(estimatedTask);
 		});
 		
-		return estimatedTasks;
+		return estimatedTasks.stream()
+				.sorted(Comparator.comparing(EstimatedTask::getTaskName))
+				.toList();
 	}
-			
+
 	private String getWfEstimateLineFromCode(TaskConfig task, String prefix) {
 		// strongly typed!
 		String script = Optional.of(task.getScript()).orElse(EMPTY);
 		String[] codeLines = script.split("\\n");
 		String wfEstimateCode = Arrays.stream(codeLines)
-				.filter(line -> line.contains(prefix))   
+				.filter(line -> line.contains(prefix))
 				.findFirst()
 				.orElse(EMPTY);
 		return wfEstimateCode;
