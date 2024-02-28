@@ -1,8 +1,10 @@
 package com.axonivy.utils.estimator;
 
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.ArrayList;
@@ -11,6 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.map.HashedMap;
@@ -21,7 +24,10 @@ import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
+import ch.ivyteam.ivy.process.model.element.event.end.TaskEnd;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
+import ch.ivyteam.ivy.process.model.element.gateway.Join;
+import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.IvyScriptExpression;
 
 @SuppressWarnings("restriction")
@@ -137,18 +143,31 @@ public class ProcessGraph {
 //		return true;
 //	}
 	
-	private boolean hasFlowNameOrEmpty(SequenceFlow sequenceFlow, String flowName) {
-		
-		String label = sequenceFlow.getEdge().getLabel().getText();
-		if (isNotBlank(label)) {
-			if (flowName == null || !label.contains(flowName)) {
-				return false;
-			}
+	private boolean hasFlowNameOrEmpty(SequenceFlow sequenceFlow, String flowName) {		
+		if(isEmpty(flowName)) {
+			return true;
 		}
+		
+		if(hasFlowName(sequenceFlow, flowName)) {
+			return true;
+		}
+		
+		if(isEmpty(sequenceFlow.getEdge().getLabel().getText())) {
+			return true;
+		};
 
-		return true;
+		return false;
 	}
 
+	private boolean hasFlowName(SequenceFlow sequenceFlow, String flowName) {
+		String label = sequenceFlow.getEdge().getLabel().getText();
+		if (isNotBlank(label) && label.contains(flowName)) {
+			return true;
+		}
+
+		return false;
+	}
+	
 //	private boolean isAllEmptyCondition(List<BaseElement> elements) {
 //
 //		for (int i = 1; i < elements.size(); i++) {
@@ -232,11 +251,21 @@ public class ProcessGraph {
 		if (from instanceof NodeElement) {
 			NodeElement target = (NodeElement) from;			
 			while (target.getOutgoing().size() > 0) {
-				SequenceFlow flow = findCorrectSequenceFlow(target, flowName);
 				
+				SequenceFlow flow = null;				
+				if(target instanceof TaskSwitchGateway) {
+					List<BaseElement> parallelTasks = findPathOfTaskSwitchGatewayByFlowName((TaskSwitchGateway) target, flowName);
+					path.addAll(parallelTasks);
+					flow = ((NodeElement) parallelTasks.get(parallelTasks.size() - 1)).getOutgoing().stream().findFirst().orElse(null);					
+				} else {
+					flow = findCorrectSequenceFlow(target, flowName);
+				}
+				 
 				if(flow == null) {
-					//Can not find any way
-					path.clear();
+					if(!(path.get(path.size() - 1) instanceof TaskEnd)) {
+						//Can not find any way
+						path.clear();	
+					}	
 					break;
 				}
 				
@@ -248,27 +277,82 @@ public class ProcessGraph {
 					break;
 				}
 				path.add(target);
-			}
+			}	
 		}
 		
-		return path;
+		return path.stream().distinct().toList();
+	}
+	
+	private List<BaseElement> findPathOfTaskSwitchGatewayByFlowName(TaskSwitchGateway from, String flowName) {
+		List<List<BaseElement>> paths = new ArrayList<List<BaseElement>>();
+
+		List<SequenceFlow> outs = from.getOutgoing();
+		for (SequenceFlow out : outs) {
+
+			List<BaseElement> path = new ArrayList<>();
+			path.add(out);
+
+			NodeElement target = out.getTarget();
+			while (target.getOutgoing().size() > 0) {
+				path.add(target);
+				
+				SequenceFlow flow = null;
+				if(target instanceof TaskSwitchGateway) {
+					List<BaseElement> subTasks = findPathOfTaskSwitchGatewayByFlowName((TaskSwitchGateway) target, flowName);					
+					path.addAll(subTasks);					
+				} else {
+					flow = findCorrectSequenceFlow(target, flowName);					
+				}
+				
+				if(flow == null) {
+					target = null;
+					break;
+				}
+				
+				path.add(flow);
+				
+				target = flow.getTarget();
+				// Prevent loop
+				if (path.indexOf(target) >= 0) {
+					break;
+				}
+			}
+			
+			if(target != null) {
+				path.add(target);	
+			}
+			
+			paths.add(path);
+		}
+
+		List<BaseElement> elements = paths.stream()
+				.sorted(Comparator.comparing(List::size,  Comparator.reverseOrder()))
+				.flatMap(List::stream)
+				.collect(Collectors.toList());
+		
+		return elements;
 	}
 	
 	private SequenceFlow findCorrectSequenceFlow(NodeElement nodeElement, String flowName) {
 		List<SequenceFlow> outs = nodeElement.getOutgoing();
-		if(flowName == null && nodeElement instanceof Alternative) {
-			return outs.stream().filter(out -> isDefaultPath(out)).findFirst().orElse(null);
+		//High priority for checking default path if flowName is null
+		if(nodeElement instanceof Alternative) {
+			if(isEmpty(flowName)) {
+				return outs.stream().filter(out -> isDefaultPath(out)).findFirst().orElse(null);
+			} else {
+				SequenceFlow flow = outs.stream().filter(out -> hasFlowName(out, flowName)).findFirst().orElse(null);
+				if(flow == null) {
+					flow = outs.stream().filter(out -> isDefaultPath(out)).findFirst().orElse(null);
+				}
+				return flow;
+			}
 		}
 		
 		SequenceFlow flow = outs.stream()
 				.filter(out -> hasFlowNameOrEmpty(out, flowName))
 				.findFirst()
-				.orElse(null);			
-				
-		if(flow == null) {
-			flow = outs.stream().filter(out -> isDefaultPath(out)).findFirst().orElse(null);
-		}
-		
+				.orElse(null);
+			
 		return flow;
 	}
 }

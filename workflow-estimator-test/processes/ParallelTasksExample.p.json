@@ -41,8 +41,28 @@
         "labelOffset" : { "x" : 14, "y" : 34 }
       },
       "connect" : [
-        { "id" : "f8", "to" : "f7", "condition" : "ivp==\"TaskB.ivp\"" },
-        { "id" : "f5", "to" : "f21", "condition" : "ivp==\"TaskA.ivp\"", "var" : "in1" }
+        { "id" : "f5", "to" : "f4", "condition" : "ivp==\"TaskA.ivp\"", "var" : "in1" },
+        { "id" : "f8", "to" : "f7", "condition" : "ivp==\"TaskB.ivp\"" }
+      ]
+    }, {
+      "id" : "f4",
+      "type" : "TaskSwitchGateway",
+      "name" : "Join",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "name" : "JoiningTask",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 1056, "y" : 96 },
+        "labelOffset" : { "x" : 14, "y" : 34 }
+      },
+      "connect" : [
+        { "id" : "f6", "to" : "f1", "condition" : "ivp==\"TaskA.ivp\"" }
       ]
     }, {
       "id" : "f7",
@@ -60,18 +80,17 @@
       "type" : "Alternative",
       "config" : {
         "conditions" : {
-          "f14" : "true",
-          "f11" : ""
+          "f14" : "true"
         }
       },
       "visual" : {
         "at" : { "x" : 480, "y" : 168 }
       },
       "connect" : [
-        { "id" : "f11", "to" : "f15", "color" : "def", "var" : "in2" },
-        { "id" : "f14", "to" : "f21", "label" : {
+        { "id" : "f14", "to" : "f4", "label" : {
             "name" : "{shortcut}"
-          }, "var" : "in3" }
+          }, "var" : "in3" },
+        { "id" : "f11", "to" : "f15", "color" : "def", "var" : "in2" }
       ]
     }, {
       "id" : "f15",
@@ -96,8 +115,8 @@
         "labelOffset" : { "x" : 14, "y" : 34 }
       },
       "connect" : [
-        { "id" : "f16", "to" : "f13", "condition" : "ivp==\"TaskB.ivp\"" },
-        { "id" : "f12", "to" : "f21", "condition" : "ivp==\"TaskA.ivp\"", "var" : "in2" }
+        { "id" : "f12", "to" : "f4", "condition" : "ivp==\"TaskA.ivp\"", "var" : "in2" },
+        { "id" : "f16", "to" : "f13", "condition" : "ivp==\"TaskB.ivp\"" }
       ]
     }, {
       "id" : "f13",
@@ -106,7 +125,7 @@
         "at" : { "x" : 840, "y" : 296 }
       },
       "connect" : [
-        { "id" : "f17", "to" : "f21", "via" : [ { "x" : 1056, "y" : 296 } ], "var" : "in4" }
+        { "id" : "f17", "to" : "f4", "via" : [ { "x" : 1056, "y" : 296 } ], "var" : "in4" }
       ]
     }, {
       "id" : "f18",
@@ -149,17 +168,6 @@
         "at" : { "x" : 853, "y" : 461 },
         "size" : { "width" : 407, "height" : 158 }
       }
-    }, {
-      "id" : "f21",
-      "type" : "Join",
-      "name" : "Join",
-      "visual" : {
-        "at" : { "x" : 1056, "y" : 96 },
-        "labelOffset" : { "x" : 16, "y" : -16 }
-      },
-      "connect" : [
-        { "id" : "f4", "to" : "f1" }
-      ]
     } ],
   "layout" : {
     "colors" : {
