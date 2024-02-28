@@ -20,6 +20,7 @@ import com.axonivy.utils.estimator.model.EstimatedTask;
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.Process;
+import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
@@ -93,8 +94,13 @@ public class WorkflowEstimator {
 				.filter(node -> {
 					return node instanceof TaskAndCaseModifier;
 				})
+				.map(TaskAndCaseModifier.class::cast)
 				.filter(node -> {
 					return node instanceof RequestStart == false;
+				})
+				//Remove SYSTEM task
+				.filter(node -> {
+					return isSystemTask(node) == false; 
 				})
 				.map(TaskAndCaseModifier.class::cast)
 				// filter the task which have estimated if needed
@@ -125,7 +131,7 @@ public class WorkflowEstimator {
 			estimatedTask.setTaskName(defaultIfEmpty(item.getName().getRawMacro(), task.getName()));
 			Duration estimatedDuration = getDurationByCode(item);				
 			estimatedTask.setEstimatedDuration(estimatedDuration);
-			estimatedTask.setEstimatedStartTimestamp(startTimestamp);	
+			estimatedTask.setEstimatedStartTimestamp(startTimestamp);		
 			String customerInfo = getCustomInfoByCode(item);
 			estimatedTask.setCustomInfo(customerInfo);
 			estimatedTasks.add(estimatedTask);
@@ -174,5 +180,9 @@ public class WorkflowEstimator {
 			return result;
 		}
 		return null;
+	}
+	
+	private boolean isSystemTask(TaskAndCaseModifier task) {		
+		return task.getAllTaskConfigs().stream().anyMatch(it -> "SYSTEM".equals(it.getActivator().getName()));
 	}
 }

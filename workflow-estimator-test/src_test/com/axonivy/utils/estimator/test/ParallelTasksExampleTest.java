@@ -37,7 +37,7 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 	}
 	
 	@Test
-	void shouldFindAllTasksOnPathAtStartWithFlowNameNull() throws Exception {
+	void shouldFindTasksOnPathAtStartWithFlowNameNull() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(start);
 
@@ -46,7 +46,7 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 	}
 	
 	@Test
-	void shouldFindAllTasksAtStartWithFlowNameShortcut() throws Exception {
+	void shouldFindTasksOnPathAtStartWithFlowNameShortcut() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, "shortcut");
 		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(start);
 
