@@ -77,7 +77,8 @@
           "code" : [
             "import java.util.concurrent.TimeUnit;",
             "",
-            "WfEstimate.setEstimate(6,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            "WfEstimate.setEstimate(6,TimeUnit.HOURS,UseCase.BIGPROJECT);",
+            "WfEstimate.setCustomInfo(\"abc\");"
           ]
         }
       },

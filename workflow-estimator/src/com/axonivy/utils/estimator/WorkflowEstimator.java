@@ -132,24 +132,30 @@ public class WorkflowEstimator {
 			Duration estimatedDuration = getDurationByCode(item);				
 			estimatedTask.setEstimatedDuration(estimatedDuration);
 			estimatedTask.setEstimatedStartTimestamp(startTimestamp);		
-			
+			String customerInfo = getCustomInfoByCode(item);
+			estimatedTask.setCustomInfo(customerInfo);
 			estimatedTasks.add(estimatedTask);
 		});
 		
 		return estimatedTasks;
 	}
 			
-	private Duration getDurationByCode(TaskConfig task) {
+	private String getWfEstimateLineFromCode(TaskConfig task, String prefix) {
 		// strongly typed!
 		String script = Optional.of(task.getScript()).orElse(EMPTY);
 		String[] codeLines = script.split("\\n");
 		String wfEstimateCode = Arrays.stream(codeLines)
-				.filter(line -> line.contains("WfEstimate."))
+				.filter(line -> line.contains(prefix))   
 				.findFirst()
 				.orElse(EMPTY);
+		return wfEstimateCode;
+	}
+	
+	private Duration getDurationByCode(TaskConfig task) {
 		
+		String wfEstimateCode = getWfEstimateLineFromCode(task, "WfEstimate.setEstimate");
 		if (StringUtils.isNotEmpty(wfEstimateCode)) {
-			String result = StringUtils.substringBetween(script, "(", "Use");
+			String result = StringUtils.substringBetween(wfEstimateCode, "(", "UseCase");
 			int amount = Integer.parseInt(result.substring(0, result.indexOf(",")));
 			String unit = result.substring(result.indexOf(".") + 1, result.lastIndexOf(","));
 
@@ -165,6 +171,15 @@ public class WorkflowEstimator {
 		}
 
 		return Duration.ofHours(0);
+	}	
+	
+	private String getCustomInfoByCode(TaskConfig task) {
+		String wfEstimateCode = getWfEstimateLineFromCode(task, "WfEstimate.setCustomInfo");
+		if (StringUtils.isNotEmpty(wfEstimateCode)) {
+			String result = StringUtils.substringBetween(wfEstimateCode, "(\"", "\")");
+			return result;
+		}
+		return null;
 	}
 	
 	private boolean isSystemTask(TaskAndCaseModifier task) {		

@@ -161,4 +161,11 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 		Duration duration = workflowEstimator.calculateEstimatedDuration(graph.findStart());
 		assertEquals(15, duration.toHours());
 	}
+	
+	@Test
+	void shouldCheckCustomInfo() throws Exception {
+		var workflowEstimator = new WorkflowEstimator(process, null, "internal");
+		var estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
+		assertEquals("abc", estimatedTasks.get(0).getCustomInfo());
+	}
 }
