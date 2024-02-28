@@ -16,6 +16,7 @@ public class EstimatedTask {
 	private Duration estimatedDuration;
 	private List<String> parentElementNames;
 	private Date estimatedStartTimestamp;
+	private String customInfo;
 
 	public String getPid() {
 		return pid;
@@ -55,6 +56,14 @@ public class EstimatedTask {
 
 	public void setParentElementNames(List<String> parentElementNames) {
 		this.parentElementNames = parentElementNames;
+	}
+	
+	public String getCustomInfo() {
+		return customInfo;
+	}
+
+	public void setCustomInfo(String customInfo) {
+		this.customInfo = customInfo;
 	}
 	
 	public Date calculateEstimatedEndTimestamp() {
