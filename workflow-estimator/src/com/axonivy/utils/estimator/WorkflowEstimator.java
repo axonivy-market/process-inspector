@@ -92,7 +92,7 @@ public class WorkflowEstimator {
 		List<EstimatedTask> estimatedTasks = new ArrayList<>();
 		for (int i = 0; i < taskPath.size(); i++) {
 			List<EstimatedTask> estimatedTaskResults = new ArrayList<>();
-			Date startTimestamp = i == 0 ? new Date() : estimatedTasks.get(i - 1).calculateEstimatedEndTimestamp();
+			Date startTimestamp = i == 0 ? new Date() : estimatedTasks.get(estimatedTasks.size() - 1).calculateEstimatedEndTimestamp();
 			estimatedTaskResults = createEstimatedTask(taskPath.get(i), startTimestamp);
 
 			estimatedTasks.addAll(estimatedTaskResults);
