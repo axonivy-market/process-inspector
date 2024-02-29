@@ -46,7 +46,7 @@ public class WorkflowEstimator {
 
 		if (startAtElement instanceof NodeElement) {
 			List<List<BaseElement>> paths = graph.findPaths(startAtElement);
-			estimatedTasks = convertToEstimatedTasks(paths);			
+			estimatedTasks = convertToEstimatedTasks(paths).get(0);			
 		}
 		
 		return estimatedTasks;
@@ -62,7 +62,7 @@ public class WorkflowEstimator {
 				throw new Exception("Not found");
 			}
 			
-			estimatedTasks = convertToEstimatedTasks(paths);
+			estimatedTasks = convertToEstimatedTasks(paths).get(0);
 		}
 		
 		return estimatedTasks;
@@ -76,45 +76,49 @@ public class WorkflowEstimator {
 			paths = graph.findPaths(startElement);
 		}
 		
-		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(paths);
+		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(paths).get(0);
 		Duration total = Duration.ofHours(0);
 		for(EstimatedTask item : estimatedTasks) {
 			total = total.plus(item.getEstimatedDuration());
 		}
 		return total;
 	}
+
+	private List<List<EstimatedTask>> convertToEstimatedTasks(List<List<BaseElement>> paths) {
 		
-	private List<EstimatedTask> convertToEstimatedTasks(List<List<BaseElement>> paths) {
+		List<List<TaskAndCaseModifier>> taskPaths = paths.stream().map(path -> filterAcceptedTask(path)).toList();
 		
-		List<TaskAndCaseModifier> taskCaseModifier = paths.stream()
-				// If have more than one path, we get the longest
-				.max(Comparator.comparingInt(List::size)).orElse(emptyList()).stream()
+		List<List<EstimatedTask>> estimatedTaskPaths = taskPaths.stream().map(taskPath -> {
+			//Convert to EstimatedTask
+			List<EstimatedTask> estimatedTasks = new ArrayList<>(); 
+			for(int i = 0; i < taskPath.size(); i ++) {
+				List<EstimatedTask> estimatedTaskResults = new ArrayList<>();
+				Date startTimestamp = i == 0 ? new Date() : estimatedTasks.get(i - 1).calculateEstimatedEndTimestamp();
+				estimatedTaskResults = createEstimatedTask(taskPath.get(i), startTimestamp);
+				
+				estimatedTasks.addAll(estimatedTaskResults);
+			}
+			return estimatedTasks;
+		}).toList();
+						
+		return estimatedTaskPaths.stream().sorted(Comparator.comparing(List::size, Comparator.reverseOrder())).toList();
+	}
+	
+	private List<TaskAndCaseModifier> filterAcceptedTask(List<BaseElement> path) {
+		return path.stream()
 				// filter to get task only
 				.filter(node -> {
 					return node instanceof TaskAndCaseModifier;
-				})
-				.map(TaskAndCaseModifier.class::cast)
+				}).map(TaskAndCaseModifier.class::cast)
 				.filter(node -> {
 					return node instanceof RequestStart == false;
 				})
-				//Remove SYSTEM task
+				// Remove SYSTEM task
 				.filter(node -> {
-					return isSystemTask(node) == false; 
-				})
-				.map(TaskAndCaseModifier.class::cast)
+					return isSystemTask(node) == false;
+				}).map(TaskAndCaseModifier.class::cast)
 				// filter the task which have estimated if needed
 				.toList();
-		//Convert to EstimatedTask
-		List<EstimatedTask> estimatedTasks = new ArrayList<>(); 
-		for(int i = 0; i < taskCaseModifier.size(); i ++) {
-			List<EstimatedTask> estimatedTaskResults = new ArrayList<>();
-			Date startTimestamp = i == 0 ? new Date() : estimatedTasks.get(i - 1).calculateEstimatedEndTimestamp();
-			estimatedTaskResults = createEstimatedTask(taskCaseModifier.get(i), startTimestamp);
-			
-			estimatedTasks.addAll(estimatedTaskResults);
-		}
-		
-		return estimatedTasks;
 	}
 	
 	private List<EstimatedTask> createEstimatedTask(TaskAndCaseModifier task, Date startTimestamp) {

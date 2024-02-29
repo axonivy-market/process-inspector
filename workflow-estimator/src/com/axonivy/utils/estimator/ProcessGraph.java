@@ -1,7 +1,6 @@
 package com.axonivy.utils.estimator;
 
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -26,7 +25,6 @@ import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.event.end.TaskEnd;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
-import ch.ivyteam.ivy.process.model.element.gateway.Join;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.IvyScriptExpression;
 
@@ -57,91 +55,6 @@ public class ProcessGraph {
 		}
 		return Arrays.asList(path);
 	}
-
-//	public List<List<BaseElement>> findPaths(BaseElement from, String flowName) {
-//		List<List<BaseElement>> paths = findAllPaths(from);
-//
-//		List<List<BaseElement>> pathByFlowName = emptyList();
-//		if (isNotBlank(flowName)) {
-//			pathByFlowName = paths.stream().filter(path -> hasFlowNameOrDefaultPath(path, flowName)).toList();
-//		} else {
-//			pathByFlowName = paths.stream().filter(path -> isAllEmptyCondition(path)).toList();
-//		}
-//		//Maybe throw an exception if there are not path
-//		return pathByFlowName;
-//	}
-//	
-//	private List<List<BaseElement>> findAllPaths(BaseElement from) {
-//		List<List<BaseElement>> paths = findNextNodeElementPath(from, emptyList());
-//		
-//		//Insert from element at first position
-//		paths.forEach(path -> {
-//			path.add(0, from);
-//		});
-//		
-//		return paths;
-//	}
-	
-//	private List<List<BaseElement>> findNextNodeElementPath(BaseElement from, List<List<BaseElement>> parentPaths) {
-//		var paths = new ArrayList<List<BaseElement>>();
-//
-//		if (from != null && from instanceof NodeElement) {
-//			List<SequenceFlow> outs = ((NodeElement) from).getOutgoing();
-//			for (SequenceFlow out : outs) {
-//
-//				NodeElement target = out.getTarget();
-//				List<BaseElement> parentElements = Arrays.asList(out, target);
-//				
-//				var x = addToParentPaths(parentPaths, parentElements);
-//				
-//				List<List<BaseElement>> nextElements = findNextNodeElementPath(target, x);
-//
-//				if (nextElements.isEmpty()) {
-//					nextElements.add(new ArrayList<BaseElement>(parentElements));
-//				} else {
-//					nextElements.forEach(nodes -> {
-//						nodes.addAll(0, parentElements);
-//					});
-//				}
-//
-//				paths.addAll(nextElements);
-//			}
-//		}
-//		return paths;
-//	}
-	
-//	private List<List<BaseElement>> addToParentPaths(List<List<BaseElement>> parentPaths, List<BaseElement> elements) {
-//		if (parentPaths.isEmpty()) {
-//			return new ArrayList<List<BaseElement>>(Arrays.asList(elements));
-//		} else {
-//			return parentPaths.stream().map(path -> Stream.concat(path.stream(), elements.stream()).toList()).toList();
-//		}
-//	}
-//
-//	private boolean hasFlowNameOrDefaultPath(List<BaseElement> elements, String flowName) {
-//		if (StringUtils.isBlank(flowName)) {
-//			return true;
-//		}
-//
-//		for (int i = 0; i < elements.size(); i++) {
-//			var currentElement = elements.get(i);
-//			var previousElement = i > 0 ? elements.get(i - 1) : null;
-//			if (currentElement instanceof SequenceFlow) {
-//				var passedFlowNameCheck = hasFlowNameOrEmpty((SequenceFlow) currentElement, flowName);
-//
-//				var passedDefaultPathCheck = false;
-//				if (previousElement instanceof Alternative) {
-//					passedDefaultPathCheck = isDefaultPath(currentElement, (Alternative) previousElement);
-//				}
-//
-//				if (!passedFlowNameCheck && !passedDefaultPathCheck) {
-//					return false;
-//				}
-//			}
-//		}
-//
-//		return true;
-//	}
 	
 	private boolean hasFlowNameOrEmpty(SequenceFlow sequenceFlow, String flowName) {		
 		if(isEmpty(flowName)) {
@@ -167,21 +80,6 @@ public class ProcessGraph {
 
 		return false;
 	}
-	
-//	private boolean isAllEmptyCondition(List<BaseElement> elements) {
-//
-//		for (int i = 1; i < elements.size(); i++) {
-//			var currentElement = elements.get(i);
-//			var previousElement = elements.get(i - 1);
-//			if (previousElement instanceof Alternative) {				
-//				if (!isDefaultPath(currentElement, (Alternative) previousElement)) {
-//					return false;
-//				}
-//			}
-//		}
-//		
-//		return true;
-//	}
 	
 	private boolean isDefaultPath(BaseElement currentElement, Alternative previousElement) {
 		String currentElementId = currentElement.getPid().getFieldId();
@@ -228,7 +126,8 @@ public class ProcessGraph {
 			
 			Map<SequenceFlow, List<BaseElement>> paths =  new HashedMap<>();
 			for (SequenceFlow out : outs) {
-				paths.put(out, findPath(out.getTarget(),  ListUtils.union(previousElements, Arrays.asList(from))));				
+				List<BaseElement> currentPath = ListUtils.union(previousElements, Arrays.asList(from));
+				paths.put(out, findPath(out.getTarget(), currentPath));			
 			}
 			
 			var longestPath = paths.entrySet().stream()
