@@ -23,7 +23,9 @@ import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
+import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.event.end.TaskEnd;
+import ch.ivyteam.ivy.process.model.element.event.start.StartEvent;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.IvyScriptExpression;
@@ -148,15 +150,19 @@ public class ProcessGraph {
 		path.add(from);
 		
 		if (from instanceof NodeElement) {
-			NodeElement target = (NodeElement) from;			
+			NodeElement target = (NodeElement) from;
 			while (target.getOutgoing().size() > 0) {
 				
-				SequenceFlow flow = null;				
-				if(target instanceof TaskSwitchGateway) {
+				SequenceFlow flow = null;			
+				if(target instanceof EmbeddedProcessElement) {
+					List<BaseElement> subPaths = findPathOfSubProcessByFlowName((EmbeddedProcessElement)target, flowName);
+					path.addAll(subPaths);
+					flow = findCorrectSequenceFlow(target, flowName);
+				} else if(target instanceof TaskSwitchGateway) {					
 					List<BaseElement> parallelTasks = findPathOfTaskSwitchGatewayByFlowName((TaskSwitchGateway) target, flowName);
 					path.addAll(parallelTasks);
 					flow = ((NodeElement) parallelTasks.get(parallelTasks.size() - 1)).getOutgoing().stream().findFirst().orElse(null);					
-				} else {
+				} else {					
 					flow = findCorrectSequenceFlow(target, flowName);
 				}
 				 
@@ -180,6 +186,22 @@ public class ProcessGraph {
 		}
 		
 		return path.stream().distinct().toList();
+	}
+	
+	/**
+	 * Find path on sub process
+	 */
+	private List<BaseElement> findPathOfSubProcessByFlowName(EmbeddedProcessElement subProcessElement, String flowName) {
+		// find start element
+		BaseElement start = findStartElementOfProcess(subProcessElement.getEmbeddedProcess());
+		var listElement = findPathByFlowName(start, flowName);
+		
+		return listElement;
+	}
+	
+	private BaseElement findStartElementOfProcess(Process subProcess) {
+		BaseElement start = subProcess.getElements().stream().filter(item -> item instanceof StartEvent).findFirst().orElse(null);
+		return start;
 	}
 	
 	private List<BaseElement> findPathOfTaskSwitchGatewayByFlowName(TaskSwitchGateway from, String flowName) {
