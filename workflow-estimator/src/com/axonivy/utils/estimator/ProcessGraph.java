@@ -42,20 +42,14 @@ public class ProcessGraph {
 	 * Using Recursion Algorithm To Find All The Path On Graph.
 	 * Return all paths
 	 */
-	public List<List<BaseElement>> findPaths(BaseElement from) {
-		List<BaseElement> path = findPath(from, emptyList());
-		if (path.isEmpty()) {
-			return emptyList();
-		}
-		return Arrays.asList(path);
+	public List<BaseElement> findPath(BaseElement from) {
+		List<BaseElement> path = findPath(from, emptyList());		
+		return path;
 	}
 	
-	public List<List<BaseElement>> findPaths(BaseElement from, String flowName) {
+	public List<BaseElement> findPath(BaseElement from, String flowName) {
 		List<BaseElement> path = findPathByFlowName(from, flowName);
-		if (path.isEmpty()) {
-			return emptyList();
-		}
-		return Arrays.asList(path);
+		return path;
 	}
 	
 	private boolean hasFlowNameOrEmpty(SequenceFlow sequenceFlow, String flowName) {		
@@ -113,7 +107,7 @@ public class ProcessGraph {
 	/**
 	 * Find base on start node and check condition at each
 	 */
-	public List<BaseElement> findPath(BaseElement from, List<BaseElement> previousElements) {
+	private List<BaseElement> findPath(BaseElement from, List<BaseElement> previousElements) {
 	
 		//Prevent loop
 		if (previousElements.indexOf(from) >= 0) {
