@@ -12,19 +12,21 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import java.util.Optional;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.map.HashedMap;
 
-import com.google.common.base.Objects;
-
+import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
-import ch.ivyteam.ivy.process.model.element.event.end.TaskEnd;
+import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
+import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.event.start.StartEvent;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
@@ -39,18 +41,111 @@ public class ProcessGraph {
 	}
 	
 	/**
-	 * Using Recursion Algorithm To Find All The Path On Graph.
-	 * Return all paths
+	 * Using Recursion Algorithm To Find Tasks On Graph.
+	 * @throws Exception 
 	 */
-	public List<BaseElement> findPath(BaseElement from) {
-		List<BaseElement> path = findPath(from, emptyList());		
+	public List<BaseElement> findPath(BaseElement from) throws Exception {
+		List<BaseElement> path = findPath(from, EMPTY, true,  emptyList());		
 		return path;
 	}
 	
-	public List<BaseElement> findPath(BaseElement from, String flowName) {
-		List<BaseElement> path = findPathByFlowName(from, flowName);
+	public List<BaseElement> findPath(BaseElement from, String flowName) throws Exception {
+		List<BaseElement> path = findPath(from, flowName, false, emptyList());
 		return path;
 	}
+
+	public List<BaseElement> findPath(BaseElement from, String flowName, boolean isFindAllTasks, List<BaseElement> previousElements) throws Exception {
+		// Prevent loop
+		if (previousElements.indexOf(from) >= 0) {
+			return emptyList();
+		}
+
+		List<BaseElement> path = new ArrayList<>();
+		path.add(from);
+
+		if (from instanceof NodeElement) {
+			if(from instanceof EmbeddedProcessElement) {
+				List<BaseElement> pathFromSubProcess = findPathOfSubProcess((EmbeddedProcessElement) from, flowName, isFindAllTasks);
+				path.addAll(pathFromSubProcess);
+			}
+			
+			List<SequenceFlow> outs = getSequenceFlows((NodeElement) from, flowName, isFindAllTasks);			
+			
+			if (from instanceof Alternative && outs.isEmpty()) {
+				Ivy.log().error("Can not found the out going from a alternative {0}", from.getPid().getRawPid());
+				throw new Exception("Not found path");
+			}
+			
+			Map<SequenceFlow, List<BaseElement>> paths = new HashedMap<>();
+			for (SequenceFlow out : outs) {
+				List<BaseElement> currentPath = ListUtils.union(previousElements, Arrays.asList(from));
+				List<BaseElement> nextOfPath = findPath(out.getTarget(), flowName, isFindAllTasks, currentPath);
+				paths.put(out, nextOfPath);
+			}
+
+			paths.entrySet().stream()
+					.sorted(Map.Entry.comparingByValue(Comparator.comparing(List::size, Comparator.reverseOrder())))
+					.forEach(entry -> {
+						path.add(entry.getKey());
+						path.addAll(entry.getValue());
+					});
+		}
+		
+		return path.stream().distinct().toList();
+	}
+	
+	/**
+	 * Find path on sub process
+	 */	
+	private List<BaseElement> findPathOfSubProcess(EmbeddedProcessElement subProcessElement, String flowName, boolean isFindAllTasks) throws Exception {
+		// find start element
+		BaseElement start = findStartElementOfProcess(subProcessElement.getEmbeddedProcess());
+		var listElement = findPath(start, flowName, isFindAllTasks, emptyList());
+		
+		return listElement;
+	}
+	
+	private BaseElement findStartElementOfProcess(Process subProcess) {
+		BaseElement start = subProcess.getElements().stream().filter(item -> item instanceof StartEvent).findFirst().orElse(null);
+		return start;
+	}
+	
+	private List<SequenceFlow> getSequenceFlows(NodeElement from, String flowName, boolean isFindAllTasks) {
+		if (isFindAllTasks || from instanceof TaskSwitchGateway) {
+			return from.getOutgoing();
+		} else {
+			return getSequenceFlow(from, flowName).map(Arrays::asList).orElse(emptyList());
+		}
+	}
+	
+	private Optional<SequenceFlow> getSequenceFlow(NodeElement nodeElement, String flowName) {
+		List<SequenceFlow> outs = nodeElement.getOutgoing();
+		if(CollectionUtils.isEmpty(outs)) {
+			return Optional.empty();
+		}
+			
+		if(nodeElement instanceof Alternative) {
+			// High priority for checking default path if flowName is null
+			if(isEmpty(flowName)) {
+				return outs.stream().filter(out -> isDefaultPath(out)).findFirst();
+			} else {
+				//If flowName is not null, check flowName first
+				Optional<SequenceFlow> flow = outs.stream().filter(out -> hasFlowName(out, flowName)).findFirst();
+				// Then check default path
+				if(!flow.isPresent()) {
+					flow = outs.stream().filter(out -> isDefaultPath(out)).findFirst();
+				}
+				return flow;
+			}
+		}
+		
+		Optional<SequenceFlow> flow = outs.stream()
+				.filter(out -> hasFlowNameOrEmpty(out, flowName))
+				.findFirst();
+			
+		return flow;
+	}
+	
 	
 	private boolean hasFlowNameOrEmpty(SequenceFlow sequenceFlow, String flowName) {		
 		if(isEmpty(flowName)) {
@@ -80,7 +175,7 @@ public class ProcessGraph {
 	private boolean isDefaultPath(BaseElement currentElement, Alternative previousElement) {
 		String currentElementId = currentElement.getPid().getFieldId();
 		String nextTargetId = getNextTargetIdByCondition((Alternative) previousElement, EMPTY);
-		return Objects.equal(currentElementId, nextTargetId);
+		return Objects.equals(currentElementId, nextTargetId);
 	}
 	
 	private boolean isDefaultPath(SequenceFlow flow) {
@@ -103,171 +198,22 @@ public class ProcessGraph {
 		return nextTargetId;
 	}
 	
-	
-	/**
-	 * Find base on start node and check condition at each
-	 */
-	private List<BaseElement> findPath(BaseElement from, List<BaseElement> previousElements) {
-	
-		//Prevent loop
-		if (previousElements.indexOf(from) >= 0) {
-			return emptyList();
-		}
-
-		List<BaseElement> path = new ArrayList<>();
-		path.add(from);
-		
-		if (from instanceof NodeElement) {
-			List<SequenceFlow> outs = ((NodeElement) from).getOutgoing();
-			
-			Map<SequenceFlow, List<BaseElement>> paths =  new HashedMap<>();
-			for (SequenceFlow out : outs) {
-				List<BaseElement> currentPath = ListUtils.union(previousElements, Arrays.asList(from));
-				paths.put(out, findPath(out.getTarget(), currentPath));			
-			}
-			
-			var longestPath = paths.entrySet().stream()
-					.max(Comparator.comparingInt(entry -> entry.getValue().size()))
-					.orElse(null);
-			
-			if(longestPath != null) {
-				path.add(longestPath.getKey());
-				path.addAll(longestPath.getValue());
-			}
-		}
-		
-		return path;
-	}
-
-	public List<BaseElement> findPathByFlowName(BaseElement from, String flowName) {
-		List<BaseElement> path = new ArrayList<>();
-		path.add(from);
-		
-		if (from instanceof NodeElement) {
-			NodeElement target = (NodeElement) from;
-			while (target.getOutgoing().size() > 0) {
-				
-				SequenceFlow flow = null;			
-				if(target instanceof EmbeddedProcessElement) {
-					List<BaseElement> subPaths = findPathOfSubProcessByFlowName((EmbeddedProcessElement)target, flowName);
-					path.addAll(subPaths);
-					flow = findCorrectSequenceFlow(target, flowName);
-				} else if(target instanceof TaskSwitchGateway) {					
-					List<BaseElement> parallelTasks = findPathOfTaskSwitchGatewayByFlowName((TaskSwitchGateway) target, flowName);
-					path.addAll(parallelTasks);
-					flow = ((NodeElement) parallelTasks.get(parallelTasks.size() - 1)).getOutgoing().stream().findFirst().orElse(null);					
-				} else {					
-					flow = findCorrectSequenceFlow(target, flowName);
-				}
-				 
-				if(flow == null) {
-					if(!(path.get(path.size() - 1) instanceof TaskEnd)) {
-						//Can not find any way
-						path.clear();	
-					}	
-					break;
-				}
-				
-				path.add(flow);
-				
-				target = flow.getTarget();
-				//Prevent loop
-				if (path.indexOf(target) >= 0) {
-					break;
-				}
-				path.add(target);
-			}	
-		}
-		
-		return path.stream().distinct().toList();
+	private boolean isAcceptedTask(BaseElement element) {
+		return Optional.ofNullable(element)
+				// filter to get task only
+				.filter(node -> {
+					return node instanceof TaskAndCaseModifier;
+				}).map(TaskAndCaseModifier.class::cast)
+				.filter(node -> {
+					return node instanceof RequestStart == false;
+				})
+				// Remove SYSTEM task
+				.filter(node -> {
+					return isSystemTask(node) == false;
+				}).isPresent();
 	}
 	
-	/**
-	 * Find path on sub process
-	 */
-	private List<BaseElement> findPathOfSubProcessByFlowName(EmbeddedProcessElement subProcessElement, String flowName) {
-		// find start element
-		BaseElement start = findStartElementOfProcess(subProcessElement.getEmbeddedProcess());
-		var listElement = findPathByFlowName(start, flowName);
-		
-		return listElement;
-	}
-	
-	private BaseElement findStartElementOfProcess(Process subProcess) {
-		BaseElement start = subProcess.getElements().stream().filter(item -> item instanceof StartEvent).findFirst().orElse(null);
-		return start;
-	}
-	
-	private List<BaseElement> findPathOfTaskSwitchGatewayByFlowName(TaskSwitchGateway from, String flowName) {
-		List<List<BaseElement>> paths = new ArrayList<List<BaseElement>>();
-
-		List<SequenceFlow> outs = from.getOutgoing();
-		for (SequenceFlow out : outs) {
-
-			List<BaseElement> path = new ArrayList<>();
-			path.add(out);
-
-			NodeElement target = out.getTarget();
-			while (target.getOutgoing().size() > 0) {
-				path.add(target);
-				
-				SequenceFlow flow = null;
-				if(target instanceof TaskSwitchGateway) {
-					List<BaseElement> subTasks = findPathOfTaskSwitchGatewayByFlowName((TaskSwitchGateway) target, flowName);					
-					path.addAll(subTasks);					
-				} else {
-					flow = findCorrectSequenceFlow(target, flowName);					
-				}
-				
-				if(flow == null) {
-					target = null;
-					break;
-				}
-				
-				path.add(flow);
-				
-				target = flow.getTarget();
-				// Prevent loop
-				if (path.indexOf(target) >= 0) {
-					break;
-				}
-			}
-			
-			if(target != null) {
-				path.add(target);	
-			}
-			
-			paths.add(path);
-		}
-
-		List<BaseElement> elements = paths.stream()
-				.sorted(Comparator.comparing(List::size,  Comparator.reverseOrder()))
-				.flatMap(List::stream)
-				.collect(Collectors.toList());
-		
-		return elements;
-	}
-	
-	private SequenceFlow findCorrectSequenceFlow(NodeElement nodeElement, String flowName) {
-		List<SequenceFlow> outs = nodeElement.getOutgoing();
-		//High priority for checking default path if flowName is null
-		if(nodeElement instanceof Alternative) {
-			if(isEmpty(flowName)) {
-				return outs.stream().filter(out -> isDefaultPath(out)).findFirst().orElse(null);
-			} else {
-				SequenceFlow flow = outs.stream().filter(out -> hasFlowName(out, flowName)).findFirst().orElse(null);
-				if(flow == null) {
-					flow = outs.stream().filter(out -> isDefaultPath(out)).findFirst().orElse(null);
-				}
-				return flow;
-			}
-		}
-		
-		SequenceFlow flow = outs.stream()
-				.filter(out -> hasFlowNameOrEmpty(out, flowName))
-				.findFirst()
-				.orElse(null);
-			
-		return flow;
+	private boolean isSystemTask(TaskAndCaseModifier task) {		
+		return task.getAllTaskConfigs().stream().anyMatch(it -> "SYSTEM".equals(it.getActivator().getName()));
 	}
 }

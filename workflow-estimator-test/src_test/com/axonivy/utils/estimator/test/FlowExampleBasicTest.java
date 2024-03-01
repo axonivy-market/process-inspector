@@ -36,7 +36,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 	}
 
 	@Test
-	void shouldFindAllTasksAtStart() {
+	void shouldFindAllTasksAtStart() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(start);
 
@@ -44,7 +44,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 	}
 
 	@Test
-	void shouldFfindAllTasksAtTaskB() {
+	void shouldFfindAllTasksAtTaskB() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		var estimatedTasks = workflowEstimator.findAllTasks(taskB);
 
@@ -52,7 +52,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 	}
 
 	@Test
-	void shouldFindAllTasksAtTaskC() {
+	void shouldFindAllTasksAtTaskC() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		var estimatedTasks = workflowEstimator.findAllTasks(taskC);
 
@@ -60,7 +60,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 	}
 
 	@Test
-	void shouldFindAllTasksAtNewStart() {
+	void shouldFindAllTasksAtNewStart() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		var estimatedTasks = workflowEstimator.findAllTasks(newStart);
 	
@@ -100,7 +100,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 	}
 	
 	@Test
-	void shouldFindAllTasksOfInternalFlowAtStart() {
+	void shouldFindAllTasksOfInternalFlowAtStart() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, "internal");
 		var estimatedTasks = workflowEstimator.findAllTasks(start);
 
@@ -156,7 +156,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 	}
 	
 	@Test
-	void shouldCalculateTotalDuration() {
+	void shouldCalculateTotalDuration() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		Duration duration = workflowEstimator.calculateEstimatedDuration(graph.findStart());
 		assertEquals(15, duration.toHours());

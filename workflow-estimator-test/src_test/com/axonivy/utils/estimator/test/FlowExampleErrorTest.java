@@ -44,7 +44,7 @@ public class FlowExampleErrorTest extends FlowExampleTest {
 			workflowEstimator.findTasksOnPath(start);
 	    });
 
-	    String expectedMessage = "Not found";
+	    String expectedMessage = "Not found path";
 	    String actualMessage = exception.getMessage();
 
 	    assertEquals(expectedMessage, actualMessage);

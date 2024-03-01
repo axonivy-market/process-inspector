@@ -1,0 +1,348 @@
+{
+  "$schema" : "https://json-schema.axonivy.com/process/11.2.2/process.json",
+  "id" : "18DF31B990019995",
+  "config" : {
+    "data" : "com.axonivy.utils.estimator.test.Data"
+  },
+  "elements" : [ {
+      "id" : "f0",
+      "type" : "RequestStart",
+      "name" : "start",
+      "config" : {
+        "signature" : "start"
+      },
+      "visual" : {
+        "at" : { "x" : 96, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f3", "to" : "f2" }
+      ]
+    }, {
+      "id" : "f1",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 1736, "y" : 64 }
+      }
+    }, {
+      "id" : "f2",
+      "type" : "UserTask",
+      "name" : [
+        "Task A",
+        "(Element Label)"
+      ],
+      "config" : {
+        "task" : {
+          "name" : "Task A",
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 288, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f5", "to" : "f4" }
+      ]
+    }, {
+      "id" : "f4",
+      "type" : "Alternative",
+      "config" : {
+        "conditions" : {
+          "f9" : "true"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 480, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f9", "to" : "f8", "label" : {
+            "name" : [
+              "{internal}",
+              "{external}",
+              "{mixed}"
+            ]
+          } },
+        { "id" : "f14", "to" : "f6", "color" : "default path" }
+      ]
+    }, {
+      "id" : "f7",
+      "type" : "UserTask",
+      "name" : "Task B",
+      "config" : {
+        "task" : {
+          "name" : "Task B",
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(6,TimeUnit.HOURS,UseCase.BIGPROJECT);",
+            "WfEstimate.setCustomInfo(\"abc\");"
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 696, "y" : 224 }
+      },
+      "connect" : [
+        { "id" : "f15", "to" : "f6", "via" : [ { "x" : 808, "y" : 224 } ] }
+      ]
+    }, {
+      "id" : "f8",
+      "type" : "Alternative",
+      "name" : "int/ext?",
+      "config" : {
+        "conditions" : {
+          "f12" : "true",
+          "f10" : ""
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 480, "y" : 224 },
+        "labelOffset" : { "x" : -24, "y" : 0 }
+      },
+      "connect" : [
+        { "id" : "f10", "to" : "f7", "color" : "default path", "label" : {
+            "name" : "{internal}"
+          } },
+        { "id" : "f12", "to" : "f11", "via" : [ { "x" : 480, "y" : 344 } ], "label" : {
+            "name" : "{external}",
+            "segment" : 1.1,
+            "offset" : { "x" : 73, "y" : 1 }
+          } }
+      ]
+    }, {
+      "id" : "f11",
+      "type" : "UserTask",
+      "name" : "Task C",
+      "config" : {
+        "task" : {
+          "name" : "Task C",
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(4,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 696, "y" : 344 }
+      },
+      "connect" : [
+        { "id" : "f22", "to" : "f13", "var" : "in1" }
+      ]
+    }, {
+      "id" : "f6",
+      "type" : "Alternative",
+      "visual" : {
+        "at" : { "x" : 808, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f29", "to" : "f16", "color" : "default path" }
+      ]
+    }, {
+      "id" : "f17",
+      "type" : "ProcessAnnotation",
+      "name" : "green path = default path with empty condition",
+      "visual" : {
+        "at" : { "x" : 224, "y" : 135 },
+        "size" : { "width" : 294, "height" : 19 },
+        "color" : "default path"
+      }
+    }, {
+      "id" : "f18",
+      "type" : "ProcessAnnotation",
+      "name" : [
+        "useCase=null / flowName = null",
+        "",
+        "findAllTasks( start ) => Task A, Task C, Task1A, Task1B, Task D, Task E, Task2A, Task2B, Task G, Task H, Task F, Task K, Task B",
+        "",
+        "useCase=null / flowName = internal",
+        "findTasksOnPath( start ) => Task A, Task B, Task E, Task2A, Task2B, Task G, Task H"
+      ],
+      "visual" : {
+        "at" : { "x" : 507, "y" : 547 },
+        "size" : { "width" : 773, "height" : 247 }
+      }
+    }, {
+      "id" : "f13",
+      "type" : "TaskSwitchGateway",
+      "name" : "Task1",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "name" : "Task1A"
+          }, {
+            "id" : "TaskB",
+            "name" : "Task1B"
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 912, "y" : 344 },
+        "labelOffset" : { "x" : 56, "y" : -8 }
+      },
+      "connect" : [
+        { "id" : "f24", "to" : "f25", "via" : [ { "x" : 912, "y" : 456 } ], "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f26", "to" : "f23", "condition" : "ivp==\"TaskB.ivp\"" }
+      ]
+    }, {
+      "id" : "f23",
+      "type" : "UserTask",
+      "name" : "Task D",
+      "visual" : {
+        "at" : { "x" : 912, "y" : 168 }
+      },
+      "connect" : [
+        { "id" : "f31", "to" : "f16" }
+      ]
+    }, {
+      "id" : "f25",
+      "type" : "UserTask",
+      "name" : "Task E",
+      "visual" : {
+        "at" : { "x" : 1096, "y" : 456 }
+      },
+      "connect" : [
+        { "id" : "f27", "to" : "f47" }
+      ]
+    }, {
+      "id" : "f16",
+      "type" : "Alternative",
+      "config" : {
+        "conditions" : {
+          "f21" : "true",
+          "f40" : ""
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 1096, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f40", "to" : "f30", "color" : "default path" },
+        { "id" : "f21", "to" : "f25", "label" : {
+            "name" : [
+              "{internal}",
+              "{external}",
+              "{mixed}"
+            ]
+          } }
+      ]
+    }, {
+      "id" : "f32",
+      "type" : "TaskSwitchGateway",
+      "name" : "Task2",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "name" : "Task2A"
+          }, {
+            "id" : "TaskB",
+            "name" : "Task2B"
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 1432, "y" : 456 },
+        "labelOffset" : { "x" : 14, "y" : 34 }
+      },
+      "connect" : [
+        { "id" : "f36", "to" : "f35", "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f43", "to" : "f42", "condition" : "ivp==\"TaskB.ivp\"" }
+      ]
+    }, {
+      "id" : "f34",
+      "type" : "UserTask",
+      "name" : "Task F",
+      "visual" : {
+        "at" : { "x" : 1248, "y" : 256 }
+      },
+      "connect" : [
+        { "id" : "f41", "to" : "f39", "var" : "in1" }
+      ]
+    }, {
+      "id" : "f35",
+      "type" : "UserTask",
+      "name" : "Task H",
+      "visual" : {
+        "at" : { "x" : 1608, "y" : 456 }
+      },
+      "connect" : [
+        { "id" : "f38", "to" : "f37" }
+      ]
+    }, {
+      "id" : "f37",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 1816, "y" : 456 }
+      }
+    }, {
+      "id" : "f39",
+      "type" : "TaskSwitchGateway",
+      "name" : "Join",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "name" : "JoiningTask",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          }, {
+            "id" : "TaskB"
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 1432, "y" : 256 }
+      },
+      "connect" : [
+        { "id" : "f46", "to" : "f45", "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f33", "to" : "f16", "condition" : "ivp==\"TaskB.ivp\"" }
+      ]
+    }, {
+      "id" : "f42",
+      "type" : "UserTask",
+      "name" : "Task G",
+      "visual" : {
+        "at" : { "x" : 1432, "y" : 344 }
+      },
+      "connect" : [
+        { "id" : "f44", "to" : "f39", "var" : "in2" }
+      ]
+    }, {
+      "id" : "f45",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 1736, "y" : 256 }
+      }
+    }, {
+      "id" : "f47",
+      "type" : "Alternative",
+      "config" : {
+        "conditions" : {
+          "f28" : "true",
+          "f48" : ""
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 1248, "y" : 456 }
+      },
+      "connect" : [
+        { "id" : "f48", "to" : "f32", "color" : "default path", "var" : "in1" },
+        { "id" : "f28", "to" : "f34" }
+      ]
+    }, {
+      "id" : "f30",
+      "type" : "UserTask",
+      "name" : "Task K",
+      "visual" : {
+        "at" : { "x" : 1480, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f49", "to" : "f1" }
+      ]
+    } ],
+  "layout" : {
+    "colors" : {
+      "default path" : "#06f416"
+    }
+  }
+}

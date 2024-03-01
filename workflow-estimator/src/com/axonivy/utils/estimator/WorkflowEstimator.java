@@ -41,7 +41,7 @@ public class WorkflowEstimator {
 		this.graph = new ProcessGraph(process);
 	}
 
-	public List<EstimatedTask> findAllTasks(BaseElement startAtElement) {
+	public List<EstimatedTask> findAllTasks(BaseElement startAtElement) throws Exception {
 		List<EstimatedTask> estimatedTasks = emptyList();
 
 		if (startAtElement instanceof NodeElement) {
@@ -56,19 +56,14 @@ public class WorkflowEstimator {
 		List<EstimatedTask> estimatedTasks = emptyList();
 		
 		if (startAtElement instanceof NodeElement) {
-			List<BaseElement> path = graph.findPath(startAtElement, flowName);
-			//Maybe throw an exception if there are not path
-			if(path.isEmpty()) {
-				throw new Exception("Not found");
-			}
-			
+			List<BaseElement> path = graph.findPath(startAtElement, flowName);	
 			estimatedTasks = convertToEstimatedTasks(path);
 		}
 		
 		return estimatedTasks;
 	}
 	
-	public Duration calculateEstimatedDuration(BaseElement startElement) {
+	public Duration calculateEstimatedDuration(BaseElement startElement) throws Exception {
 		List<BaseElement> path = emptyList();
 		if (startElement instanceof NodeElement && StringUtils.isNotEmpty(flowName)) {
 			path = graph.findPath(startElement, flowName);					
@@ -92,7 +87,7 @@ public class WorkflowEstimator {
 		List<EstimatedTask> estimatedTasks = new ArrayList<>();
 		for (int i = 0; i < taskPath.size(); i++) {
 			List<EstimatedTask> estimatedTaskResults = new ArrayList<>();
-			Date startTimestamp = i == 0 ? new Date() : estimatedTasks.get(i - 1).calculateEstimatedEndTimestamp();
+			Date startTimestamp = i == 0 ? new Date() : estimatedTasks.get(estimatedTasks.size() - 1).calculateEstimatedEndTimestamp();
 			estimatedTaskResults = createEstimatedTask(taskPath.get(i), startTimestamp);
 
 			estimatedTasks.addAll(estimatedTaskResults);
