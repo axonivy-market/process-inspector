@@ -20,6 +20,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 
 	private static BaseElement start;
 	private static BaseElement taskD;
+	private static BaseElement taskE;
 	private static final String PROCESS_NAME = "FlowExampleComplex";
 
 	@BeforeAll
@@ -27,6 +28,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		setup(PROCESS_NAME);
 		start = graph.findByElementName("start");
 		taskD = graph.findByElementName("Task D");
+		taskE = graph.findByElementName("Task E");
 	}
 
 	@Test
@@ -40,6 +42,19 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		assertArrayEquals(expected, taskNames);
 	}
 
+	@Test
+	void shouldFindAllTasksAtTaskKAndTaskF() throws Exception {
+		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var taskK = graph.findByElementName("Task K");
+		var taskF = graph.findByElementName("Task F");
+		
+		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(List.of(taskK, taskF));
+
+		var expected = Arrays.array("Task K", "Task F", "Task E", "Task2A", "Task2B", "Task H", "Task G");
+		var taskNames = getTaskNames(estimatedTasks);
+		assertArrayEquals(expected, taskNames);
+	}
+	
 	@Test
 	void shouldFindAllTasksAtTaskD() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
@@ -60,4 +75,13 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		assertArrayEquals(expected, taskNames);
 	}
 
+	@Test
+	void shouldFindTasksOnPathWithoutFlowNameAtTaskDAndTaskE() throws Exception {
+		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(List.of(taskD, taskE));
+		
+		var expected = Arrays.array("Task D", "Task K", "Task E", "Task2A", "Task2B", "Task G", "Task H");
+		var taskNames = getTaskNames(estimatedTasks);
+		assertArrayEquals(expected, taskNames);
+	}
 }
