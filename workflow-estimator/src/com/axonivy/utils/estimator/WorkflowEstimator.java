@@ -3,6 +3,7 @@ package com.axonivy.utils.estimator;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -18,7 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
-import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
@@ -42,40 +42,38 @@ public class WorkflowEstimator {
 	}
 
 	public List<EstimatedTask> findAllTasks(BaseElement startAtElement) throws Exception {
-		List<EstimatedTask> estimatedTasks = emptyList();
-
-		if (startAtElement instanceof NodeElement) {
-			List<BaseElement> path = graph.findPath(startAtElement);
-			estimatedTasks = convertToEstimatedTasks(path);			
-		}
-		
+		List<BaseElement> path = graph.findPath(startAtElement);
+		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path);
+		return estimatedTasks;
+	}
+	
+	public List<EstimatedTask> findAllTasks(List<BaseElement> startAtElements) throws Exception {
+		List<BaseElement> path = graph.findPath(startAtElements.toArray(new BaseElement[0]));
+		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path);
 		return estimatedTasks;
 	}
 
 	public List<EstimatedTask> findTasksOnPath(BaseElement startAtElement) throws Exception {
-		List<EstimatedTask> estimatedTasks = emptyList();
-		
-		if (startAtElement instanceof NodeElement) {
-			List<BaseElement> path = graph.findPath(startAtElement, flowName);	
-			estimatedTasks = convertToEstimatedTasks(path);
-		}
-		
+		List<BaseElement> path = graph.findPath(flowName, startAtElement);
+		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path);
+		return estimatedTasks;
+	}
+	
+	public List<EstimatedTask> findTasksOnPath(List<BaseElement> startAtElements) throws Exception {
+		List<BaseElement> path = graph.findPath(flowName, startAtElements.toArray(new BaseElement[0]));
+		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path);
 		return estimatedTasks;
 	}
 	
 	public Duration calculateEstimatedDuration(BaseElement startElement) throws Exception {
-		List<BaseElement> path = emptyList();
-		if (startElement instanceof NodeElement && StringUtils.isNotEmpty(flowName)) {
-			path = graph.findPath(startElement, flowName);					
-		} else {
-			path = graph.findPath(startElement);
-		}
+		List<BaseElement> path = isNotEmpty(flowName) 
+				? graph.findPath(flowName, startElement)
+				: graph.findPath(startElement);
 		
 		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path);
-		Duration total = Duration.ofHours(0);
-		for(EstimatedTask item : estimatedTasks) {
-			total = total.plus(item.getEstimatedDuration());
-		}
+		
+		Duration total = estimatedTasks.stream().map(EstimatedTask::getEstimatedDuration).reduce((a,b) -> a.plus(b)).orElse(Duration.ZERO);
+		
 		return total;
 	}
 

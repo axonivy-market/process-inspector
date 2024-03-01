@@ -42,19 +42,28 @@ public class ProcessGraph {
 	
 	/**
 	 * Using Recursion Algorithm To Find Tasks On Graph.
-	 * @throws Exception 
 	 */
-	public List<BaseElement> findPath(BaseElement from) throws Exception {
-		List<BaseElement> path = findPath(from, EMPTY, true,  emptyList());		
+	public List<BaseElement> findPath(BaseElement... from) throws Exception {
+		List<BaseElement> path = findPath(Arrays.asList(from), null, true,  emptyList());		
 		return path;
 	}
 	
-	public List<BaseElement> findPath(BaseElement from, String flowName) throws Exception {
-		List<BaseElement> path = findPath(from, flowName, false, emptyList());
+	public List<BaseElement> findPath(String flowName, BaseElement... from) throws Exception {
+		List<BaseElement> path = findPath(Arrays.asList(from), flowName, false, emptyList());
 		return path;
 	}
 
-	public List<BaseElement> findPath(BaseElement from, String flowName, boolean isFindAllTasks, List<BaseElement> previousElements) throws Exception {
+	private List<BaseElement> findPath(List<BaseElement> froms, String flowName, boolean isFindAllTasks, List<BaseElement> previousElements) throws Exception {
+		List<BaseElement> result = new ArrayList<>();
+		for(BaseElement from : froms) {
+			var path = findPath(from, flowName, isFindAllTasks, emptyList());
+			result.addAll(path);
+		}
+				
+		return result.stream().distinct().toList();
+	}
+	
+	private List<BaseElement> findPath(BaseElement from, String flowName, boolean isFindAllTasks, List<BaseElement> previousElements) throws Exception {
 		// Prevent loop
 		if (previousElements.indexOf(from) >= 0) {
 			return emptyList();
