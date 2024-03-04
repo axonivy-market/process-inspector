@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -28,14 +29,12 @@ import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 @SuppressWarnings("restriction")
 public class WorkflowEstimator {
 
-	private Process process;
 	private Enum<?> useCase;
 	private String flowName;
 	
 	public final ProcessGraph graph;
 	
-	public WorkflowEstimator(Process process, Enum<?> useCase, String flowName) {
-		this.process = process;
+	public WorkflowEstimator(Process process, Enum<?> useCase, String flowName) {		
 		this.useCase = useCase;
 		this.flowName = flowName;
 		this.graph = new ProcessGraph(process);
@@ -77,6 +76,11 @@ public class WorkflowEstimator {
 		return total;
 	}
 
+	public WorkflowEstimator setProcessFlowOverrides(HashMap<String, String> processFlowOverrides) {
+		graph.setProcessFlowOverrides(processFlowOverrides);
+		return this;
+	}
+	
 	private List<EstimatedTask> convertToEstimatedTasks(List<BaseElement> path) {
 
 		List<TaskAndCaseModifier> taskPath = filterAcceptedTask(path);
