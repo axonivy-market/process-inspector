@@ -93,10 +93,10 @@ public class ProcessGraph {
 			}
 
 			paths.entrySet().stream()
-					.sorted(Map.Entry.comparingByValue(Comparator.comparing(List::size, Comparator.reverseOrder())))
+					.sorted(Map.Entry.comparingByValue(Comparator.comparing(ProcessGraph::countNumberAcceptedTasks, Comparator.reverseOrder())))
 					.forEach(entry -> {
 						path.add(entry.getKey());
-						path.addAll(entry.getValue());
+						path.addAll(entry.getValue()); 
 					});
 		}
 		
@@ -207,7 +207,11 @@ public class ProcessGraph {
 		return nextTargetId;
 	}
 	
-	private boolean isAcceptedTask(BaseElement element) {
+	private static long countNumberAcceptedTasks(List<BaseElement> listElements) {
+		return listElements.stream().filter(item -> isAcceptedTask(item)).count();
+	}
+	
+	private static boolean isAcceptedTask(BaseElement element) {
 		return Optional.ofNullable(element)
 				// filter to get task only
 				.filter(node -> {
@@ -222,7 +226,7 @@ public class ProcessGraph {
 				}).isPresent();
 	}
 	
-	private boolean isSystemTask(TaskAndCaseModifier task) {		
+	private static boolean isSystemTask(TaskAndCaseModifier task) {		
 		return task.getAllTaskConfigs().stream().anyMatch(it -> "SYSTEM".equals(it.getActivator().getName()));
 	}
 }
