@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: workflow-estimator
+Bundle-SymbolicName: workflow-estimator
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: workflow.estimator
+Export-Package: com.axonivy.utils.estimator,
+ com.axonivy.utils.estimator.helper,
+ com.axonivy.utils.estimator.model
+Require-Bundle: ch.ivyteam.ivy.process.rdm;bundle-version="11.2.1"
