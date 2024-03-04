@@ -50,7 +50,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		
 		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(List.of(taskK, taskF));
 
-		var expected = Arrays.array("Task K", "Task F", "Task E", "Task2A", "Task2B", "Task H", "Task G");
+		var expected = Arrays.array("Task K", "Task F", "Task E", "Task2A", "Task2B", "Task G", "Task H");
 		var taskNames = getTaskNames(estimatedTasks);
 		assertArrayEquals(expected, taskNames);
 	}
