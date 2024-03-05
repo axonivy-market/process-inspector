@@ -1,7 +1,9 @@
 package com.axonivy.utils.estimator.test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.Duration;
 import java.util.List;
 
 import org.assertj.core.util.Arrays;
@@ -83,5 +85,13 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		var expected = Arrays.array("Task D", "Task K", "Task E", "Task2A", "Task2B", "Task G", "Task H");
 		var taskNames = getTaskNames(estimatedTasks);
 		assertArrayEquals(expected, taskNames);
+	}
+	
+	@Test
+	void shouldCalculateEstimateDurationBasedOnManyStartElements() throws Exception {
+		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		Duration duration = workflowEstimator.calculateEstimatedDuration(List.of(taskD, taskE));
+		
+		assertEquals(Duration.ofHours(19), duration);
 	}
 }
