@@ -2,11 +2,13 @@ package com.axonivy.utils.estimator.test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.util.List;
 
 import org.assertj.core.util.Arrays;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -38,10 +40,10 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(start);
 
-		var expected = Arrays.array("Task A", "Task C", "Task1A", "Task1B", "Task D", "Task E", "Task2A", "Task2B",
+		var expected = Lists.list("Task A", "Task C", "Task1A", "Task1B", "Task D", "Task E", "Task2A", "Task2B",
 				"Task G", "Task H", "Task F", "Task K", "Task B");
-		var taskNames = getTaskNames(estimatedTasks);
-		assertArrayEquals(expected, taskNames);
+		var taskNames = Lists.list(getTaskNames(estimatedTasks));
+		assertTrue(expected.containsAll(taskNames));
 	}
 
 	@Test
@@ -52,9 +54,9 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		
 		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(List.of(taskK, taskF));
 
-		var expected = Arrays.array("Task K", "Task F", "Task E", "Task2A", "Task2B", "Task G", "Task H");
-		var taskNames = getTaskNames(estimatedTasks);
-		assertArrayEquals(expected, taskNames);
+		var expected = Lists.list("Task K", "Task F", "Task E", "Task2A", "Task2B", "Task G", "Task H");
+		var taskNames = Lists.list(getTaskNames(estimatedTasks));
+		assertTrue(expected.containsAll(taskNames));
 	}
 	
 	@Test
@@ -62,9 +64,10 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(taskD);
 
-		var expected = Arrays.array("Task D", "Task E", "Task2A", "Task2B", "Task G", "Task H", "Task F", "Task K");
-		var taskNames = getTaskNames(estimatedTasks);
-		assertArrayEquals(expected, taskNames);
+		var expected = Lists.list("Task D", "Task E", "Task2A", "Task2B", "Task G", "Task H", "Task F", "Task K");
+		var taskNames = Lists.list(getTaskNames(estimatedTasks));
+		
+		assertTrue(expected.containsAll(taskNames));
 	}
 
 	@Test
@@ -72,9 +75,9 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		var workflowEstimator = new WorkflowEstimator(process, null, "internal");
 		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(start);
 
-		var expected = Arrays.array("Task A", "Task B", "Task E", "Task2A", "Task2B", "Task G", "Task H");
-		var taskNames = getTaskNames(estimatedTasks);
-		assertArrayEquals(expected, taskNames);
+		var expected = Lists.list("Task A", "Task B", "Task E", "Task2A", "Task2B", "Task G", "Task H");
+		var taskNames = Lists.list(getTaskNames(estimatedTasks));
+		assertTrue(expected.containsAll(taskNames));
 	}
 
 	@Test

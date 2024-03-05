@@ -138,6 +138,7 @@ public class ProcessGraph {
 			}
 
 			paths.entrySet().stream()
+					//Consider to count all element of remove this sort (what flow is drawn first it will go first  
 					.sorted(Map.Entry.comparingByValue(Comparator.comparing(ProcessGraph::countNumberAcceptedTasks, Comparator.reverseOrder())))
 					.forEach(entry -> {
 						path.add(entry.getKey());
