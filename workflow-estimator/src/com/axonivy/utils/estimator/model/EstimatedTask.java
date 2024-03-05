@@ -14,8 +14,15 @@ public class EstimatedTask {
 	private String pid;
 	private String taskName;
 	private Duration estimatedDuration;
+	/**
+	 * Names of parent process elements in the order they appeared.
+	 * In case the task is not inside of a sub-process element, list will be empty.
+	 */
 	private List<String> parentElementNames;
 	private Date estimatedStartTimestamp;
+	/**
+	 * Custom string which can be set on the task element
+	 */
 	private String customInfo;
 
 	public String getPid() {

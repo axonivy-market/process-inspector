@@ -58,9 +58,6 @@ public class ProcessGraph {
 		this.durationOverrides = durationOverrides;
 	}
 	
-	/**
-	 * Using Recursion Algorithm To Find Tasks On Graph.
-	 */
 	public List<BaseElement> findPath(BaseElement... from) throws Exception {
 		List<BaseElement> path = findPath(Arrays.asList(from), null, true,  emptyList());		
 		return path;
@@ -108,6 +105,9 @@ public class ProcessGraph {
 		return result.stream().distinct().toList();
 	}
 	
+	/**
+	 * Using Recursion Algorithm To Find Tasks On Graph.
+	 */
 	private List<BaseElement> findPath(BaseElement from, String flowName, boolean isFindAllTasks, List<BaseElement> previousElements) throws Exception {
 		// Prevent loop
 		if (previousElements.indexOf(from) >= 0) {
