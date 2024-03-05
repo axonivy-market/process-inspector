@@ -1,7 +1,10 @@
 package com.axonivy.utils.estimator.test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 
 import org.assertj.core.util.Arrays;
@@ -52,6 +55,26 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 
 		var names = getTaskNames(estimatedTasks);
 		assertArrayEquals(Arrays.array("Task1A", "Task1B", "Task2"), names);
+	}
+	
+	@Test
+	void shouldFindOverrideDuration() throws Exception {
+		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		
+		HashMap<String, Duration> hashMap = new HashMap<>();
+		hashMap.put("18DD185B60B6E769-f15-TaskA", Duration.ofHours(10));
+		workflowEstimator.setDurationOverrides(hashMap);
+		
+		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(start);
+		assertEquals(estimatedTasks.get(3).getEstimatedDuration().toHours(), 10);
+	}
+	
+	@Test
+	void shouldFindDefaultDuration() throws Exception {
+		var workflowEstimator = new WorkflowEstimator(process, null, null);	
+		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(start);
+		
+		assertEquals(estimatedTasks.get(3).getEstimatedDuration().toHours(), 5);
 	}
 
 }

@@ -6,6 +6,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -15,12 +16,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.map.HashedMap;
+import org.apache.commons.lang3.StringUtils;
 
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -34,6 +37,7 @@ import ch.ivyteam.ivy.process.model.element.event.start.StartEvent;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.IvyScriptExpression;
+import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 
 @SuppressWarnings("restriction")
 public class ProcessGraph {
@@ -65,6 +69,37 @@ public class ProcessGraph {
 	public List<BaseElement> findPath(String flowName, BaseElement... from) throws Exception {
 		List<BaseElement> path = findPath(Arrays.asList(from), flowName, false, emptyList());
 		return path;
+	}
+	
+	public String getCustomInfoByCode(TaskConfig task) {
+		String wfEstimateCode = getCodeLineByPrefix(task, "WfEstimate.setCustomInfo");
+		String result = null;
+		if (isNotEmpty(wfEstimateCode)) {
+			result = StringUtils.substringBetween(wfEstimateCode, "(\"", "\")");
+		}
+		return result;
+	}
+	
+	public String getTaskId(TaskAndCaseModifier task, TaskConfig taskConfig) {
+		String id = task.getPid().getRawPid();
+		if (task instanceof TaskSwitchGateway) {
+			return id + "-" + taskConfig.getTaskIdentifier().getRawIdentifier();
+		} else {
+			return id;
+		}
+	}
+	
+	public Duration getDuration(TaskAndCaseModifier task, TaskConfig taskConfig) {
+		String key = getTaskId(task, taskConfig);		
+		if(durationOverrides.get(key) != null) {
+			return durationOverrides.get(key);
+		} else {
+			return getDurationByTaskScript(taskConfig);
+		}			
+	}
+	
+	public static boolean isSystemTask(TaskAndCaseModifier task) {		
+		return task.getAllTaskConfigs().stream().anyMatch(it -> "SYSTEM".equals(it.getActivator().getName()));
 	}
 
 	private List<BaseElement> findPath(List<BaseElement> froms, String flowName, boolean isFindAllTasks, List<BaseElement> previousElements) throws Exception {
@@ -182,7 +217,6 @@ public class ProcessGraph {
 		return flow;
 	}
 	
-	
 	private boolean hasFlowNameOrEmpty(SequenceFlow sequenceFlow, String flowName) {		
 		if(isEmpty(flowName)) {
 			return true;
@@ -253,7 +287,36 @@ public class ProcessGraph {
 				}).isPresent();
 	}
 	
-	private static boolean isSystemTask(TaskAndCaseModifier task) {		
-		return task.getAllTaskConfigs().stream().anyMatch(it -> "SYSTEM".equals(it.getActivator().getName()));
+	private String getCodeLineByPrefix(TaskConfig task, String prefix) {
+		// strongly typed!
+		String script = Optional.of(task.getScript()).orElse(EMPTY);
+		String[] codeLines = script.split("\\n");
+		String wfEstimateCode = Arrays.stream(codeLines)
+				.filter(line -> line.contains(prefix))
+				.findFirst()
+				.orElse(EMPTY);
+		return wfEstimateCode;
 	}
+	
+	private Duration getDurationByTaskScript(TaskConfig task) {
+		
+		String wfEstimateCode = getCodeLineByPrefix(task, "WfEstimate.setEstimate");
+		if (StringUtils.isNotEmpty(wfEstimateCode)) {
+			String result = StringUtils.substringBetween(wfEstimateCode, "(", "UseCase");
+			int amount = Integer.parseInt(result.substring(0, result.indexOf(",")));
+			String unit = result.substring(result.indexOf(".") + 1, result.lastIndexOf(","));
+
+			if(TimeUnit.DAYS.toString().equals(unit)) {
+				return Duration.ofDays(amount);
+			} else if (TimeUnit.HOURS.toString().equals(unit)) {
+				return Duration.ofHours(amount);
+			} else if(TimeUnit.MINUTES.toString().equals(unit)) {
+				return Duration.ofMinutes(amount);
+			} else if (TimeUnit.SECONDS.toString().equals(unit)) {
+				return Duration.ofSeconds(amount);
+			}
+		}
+
+		return Duration.ofHours(0);
+	}	
 }

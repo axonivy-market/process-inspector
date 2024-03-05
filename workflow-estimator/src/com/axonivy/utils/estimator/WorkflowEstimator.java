@@ -1,22 +1,15 @@
 package com.axonivy.utils.estimator;
 
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -81,6 +74,11 @@ public class WorkflowEstimator {
 		return this;
 	}
 	
+	public WorkflowEstimator setDurationOverrides(HashMap<String, Duration> durationOverrides) {
+		graph.setDurationOverrides(durationOverrides);
+		return this;
+	}
+	
 	private List<EstimatedTask> convertToEstimatedTasks(List<BaseElement> path) {
 
 		List<TaskAndCaseModifier> taskPath = filterAcceptedTask(path);
@@ -108,7 +106,7 @@ public class WorkflowEstimator {
 				})
 				// Remove SYSTEM task
 				.filter(node -> {
-					return isSystemTask(node) == false;
+					return ProcessGraph.isSystemTask(node) == false;
 				}).map(TaskAndCaseModifier.class::cast)
 				// filter the task which have estimated if needed
 				.toList();
@@ -119,16 +117,16 @@ public class WorkflowEstimator {
 		
 		List<EstimatedTask> estimatedTasks = new ArrayList<>();
 		
-		taskConfigs.forEach(item -> {
+		taskConfigs.forEach(taskConfig -> {
 			EstimatedTask estimatedTask = new EstimatedTask();
 			
-			estimatedTask.setPid(task.getPid().getRawPid());		
+			estimatedTask.setPid(graph.getTaskId(task, taskConfig));		
 			estimatedTask.setParentElementNames(emptyList());
-			estimatedTask.setTaskName(defaultIfEmpty(item.getName().getRawMacro(), task.getName()));
-			Duration estimatedDuration = getDurationByCode(item);				
+			estimatedTask.setTaskName(defaultIfEmpty(taskConfig.getName().getRawMacro(), task.getName()));
+			Duration estimatedDuration = graph.getDuration(task, taskConfig);				
 			estimatedTask.setEstimatedDuration(estimatedDuration);
 			estimatedTask.setEstimatedStartTimestamp(startTimestamp);		
-			String customerInfo = getCustomInfoByCode(item);
+			String customerInfo = graph.getCustomInfoByCode(taskConfig);
 			estimatedTask.setCustomInfo(customerInfo);
 			estimatedTasks.add(estimatedTask);
 		});
@@ -136,51 +134,5 @@ public class WorkflowEstimator {
 		return estimatedTasks.stream()
 				.sorted(Comparator.comparing(EstimatedTask::getTaskName))
 				.toList();
-	}
-
-	private String getWfEstimateLineFromCode(TaskConfig task, String prefix) {
-		// strongly typed!
-		String script = Optional.of(task.getScript()).orElse(EMPTY);
-		String[] codeLines = script.split("\\n");
-		String wfEstimateCode = Arrays.stream(codeLines)
-				.filter(line -> line.contains(prefix))
-				.findFirst()
-				.orElse(EMPTY);
-		return wfEstimateCode;
-	}
-	
-	private Duration getDurationByCode(TaskConfig task) {
-		
-		String wfEstimateCode = getWfEstimateLineFromCode(task, "WfEstimate.setEstimate");
-		if (StringUtils.isNotEmpty(wfEstimateCode)) {
-			String result = StringUtils.substringBetween(wfEstimateCode, "(", "UseCase");
-			int amount = Integer.parseInt(result.substring(0, result.indexOf(",")));
-			String unit = result.substring(result.indexOf(".") + 1, result.lastIndexOf(","));
-
-			if(TimeUnit.DAYS.toString().equals(unit)) {
-				return Duration.ofDays(amount);
-			} else if (TimeUnit.HOURS.toString().equals(unit)) {
-				return Duration.ofHours(amount);
-			} else if(TimeUnit.MINUTES.toString().equals(unit)) {
-				return Duration.ofMinutes(amount);
-			} else if (TimeUnit.SECONDS.toString().equals(unit)) {
-				return Duration.ofSeconds(amount);
-			}
-		}
-
-		return Duration.ofHours(0);
-	}	
-	
-	private String getCustomInfoByCode(TaskConfig task) {
-		String wfEstimateCode = getWfEstimateLineFromCode(task, "WfEstimate.setCustomInfo");
-		if (StringUtils.isNotEmpty(wfEstimateCode)) {
-			String result = StringUtils.substringBetween(wfEstimateCode, "(\"", "\")");
-			return result;
-		}
-		return null;
-	}
-	
-	private boolean isSystemTask(TaskAndCaseModifier task) {		
-		return task.getAllTaskConfigs().stream().anyMatch(it -> "SYSTEM".equals(it.getActivator().getName()));
 	}
 }
