@@ -190,6 +190,15 @@
       "id" : "f23",
       "type" : "UserTask",
       "name" : "Task D",
+      "config" : {
+        "task" : {
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
+        }
+      },
       "visual" : {
         "at" : { "x" : 912, "y" : 168 }
       },
@@ -200,6 +209,15 @@
       "id" : "f25",
       "type" : "UserTask",
       "name" : "Task E",
+      "config" : {
+        "task" : {
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(6,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
+        }
+      },
       "visual" : {
         "at" : { "x" : 1096, "y" : 456 }
       },
@@ -253,6 +271,15 @@
       "id" : "f34",
       "type" : "UserTask",
       "name" : "Task F",
+      "config" : {
+        "task" : {
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(2,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
+        }
+      },
       "visual" : {
         "at" : { "x" : 1248, "y" : 256 }
       },
@@ -263,6 +290,15 @@
       "id" : "f35",
       "type" : "UserTask",
       "name" : "Task H",
+      "config" : {
+        "task" : {
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
+        }
+      },
       "visual" : {
         "at" : { "x" : 1608, "y" : 456 }
       },
@@ -301,6 +337,15 @@
       "id" : "f42",
       "type" : "UserTask",
       "name" : "Task G",
+      "config" : {
+        "task" : {
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(1,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
+        }
+      },
       "visual" : {
         "at" : { "x" : 1432, "y" : 344 }
       },
