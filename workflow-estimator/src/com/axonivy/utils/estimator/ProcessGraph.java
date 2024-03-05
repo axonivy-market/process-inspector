@@ -91,11 +91,7 @@ public class ProcessGraph {
 	
 	public Duration getDuration(TaskAndCaseModifier task, TaskConfig taskConfig) {
 		String key = getTaskId(task, taskConfig);		
-		if(durationOverrides.get(key) != null) {
-			return durationOverrides.get(key);
-		} else {
-			return getDurationByTaskScript(taskConfig);
-		}			
+		return durationOverrides.getOrDefault(key, getDurationByTaskScript(taskConfig));	
 	}
 	
 	public static boolean isSystemTask(TaskAndCaseModifier task) {		
@@ -306,15 +302,19 @@ public class ProcessGraph {
 			int amount = Integer.parseInt(result.substring(0, result.indexOf(",")));
 			String unit = result.substring(result.indexOf(".") + 1, result.lastIndexOf(","));
 
-			if(TimeUnit.DAYS.toString().equals(unit)) {
-				return Duration.ofDays(amount);
-			} else if (TimeUnit.HOURS.toString().equals(unit)) {
-				return Duration.ofHours(amount);
-			} else if(TimeUnit.MINUTES.toString().equals(unit)) {
-				return Duration.ofMinutes(amount);
-			} else if (TimeUnit.SECONDS.toString().equals(unit)) {
-				return Duration.ofSeconds(amount);
-			}
+			switch (TimeUnit.valueOf(unit.toUpperCase())) {
+				case DAYS:
+	                return Duration.ofDays(amount);
+	            case HOURS:
+	                return Duration.ofHours(amount);
+	            case MINUTES:
+	                return Duration.ofMinutes(amount);
+	            case SECONDS:
+	                return Duration.ofSeconds(amount);
+	            default:
+	                // Handle any unexpected TimeUnit
+	                break;
+			}		
 		}
 
 		return Duration.ofHours(0);

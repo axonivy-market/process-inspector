@@ -61,9 +61,9 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 	void shouldFindOverrideDuration() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		
-		HashMap<String, Duration> hashMap = new HashMap<>();
-		hashMap.put("18DD185B60B6E769-f15-TaskA", Duration.ofHours(10));
-		workflowEstimator.setDurationOverrides(hashMap);
+		HashMap<String, Duration> durationOverride = new HashMap<>();
+		durationOverride.put("18DD185B60B6E769-f15-TaskA", Duration.ofHours(10));
+		workflowEstimator.setDurationOverrides(durationOverride);
 		
 		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(start);
 		assertEquals(estimatedTasks.get(3).getEstimatedDuration().toHours(), 10);
