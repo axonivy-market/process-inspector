@@ -30,7 +30,12 @@
       "config" : {
         "tasks" : [ {
             "id" : "TaskA",
-            "name" : "Task1A"
+            "name" : "Task1A",
+            "code" : [
+              "import java.util.concurrent.TimeUnit;",
+              "",
+              "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            ]
           }, {
             "id" : "TaskB",
             "name" : "Task1B"
@@ -99,7 +104,12 @@
       "config" : {
         "tasks" : [ {
             "id" : "TaskA",
-            "name" : "Task3A"
+            "name" : "Task3A",
+            "code" : [
+              "import java.util.concurrent.TimeUnit;",
+              "",
+              "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            ]
           }, {
             "id" : "TaskB",
             "name" : "Task3B"
