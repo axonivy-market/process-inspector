@@ -1,14 +1,17 @@
 package com.axonivy.utils.estimator;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,9 +38,20 @@ import ch.ivyteam.ivy.process.model.element.value.IvyScriptExpression;
 @SuppressWarnings("restriction")
 public class ProcessGraph {
 	public final Process process;
-
+	
+	private Map<String, Duration> durationOverrides = emptyMap();
+	private Map<String, String> processFlowOverrides = emptyMap() ;
+	
 	public ProcessGraph(Process process) {
 		this.process = process;
+	}
+	
+	public void setProcessFlowOverrides(HashMap<String, String> processFlowOverrides) {
+		this.processFlowOverrides = processFlowOverrides;
+	}
+	
+	public void setDurationOverrides(HashMap<String, Duration> durationOverrides) {
+		this.durationOverrides = durationOverrides;
 	}
 	
 	/**
@@ -123,7 +137,20 @@ public class ProcessGraph {
 		if (isFindAllTasks || from instanceof TaskSwitchGateway) {
 			return from.getOutgoing();
 		} else {
-			return getSequenceFlow(from, flowName).map(Arrays::asList).orElse(emptyList());
+			Optional<SequenceFlow> flow = Optional.empty();
+			
+			//Always is priority check flow from flowOverrides first.
+			if(from instanceof Alternative) {
+				String flowIdFromOrverride = processFlowOverrides.get(from.getPid().getRawPid());
+				flow = from.getOutgoing().stream().filter(out -> out.getPid().getRawPid().equals(flowIdFromOrverride)).findFirst();				
+			}
+			
+			//If it don't find out the flow from flowOverrides, it is base on the default flow in process
+			if(flow.isEmpty()) {
+				flow = getSequenceFlow(from, flowName);
+			}
+			
+			return flow.map(Arrays::asList).orElse(emptyList());
 		}
 	}
 	
