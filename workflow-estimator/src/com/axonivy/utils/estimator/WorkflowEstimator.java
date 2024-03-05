@@ -68,6 +68,18 @@ public class WorkflowEstimator {
 		
 		return total;
 	}
+	
+	public Duration calculateEstimatedDuration(List<BaseElement> startElements) throws Exception {
+		List<BaseElement> path = isNotEmpty(flowName) 
+				? graph.findPath(flowName, startElements.toArray(new BaseElement[0]))
+				: graph.findPath(startElements.toArray(new BaseElement[0]));
+		
+		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path);
+		
+		Duration total = estimatedTasks.stream().map(EstimatedTask::getEstimatedDuration).reduce((a,b) -> a.plus(b)).orElse(Duration.ZERO);
+		
+		return total;
+	}
 
 	public WorkflowEstimator setProcessFlowOverrides(HashMap<String, String> processFlowOverrides) {
 		graph.setProcessFlowOverrides(processFlowOverrides);
