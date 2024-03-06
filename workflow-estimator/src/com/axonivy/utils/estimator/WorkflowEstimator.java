@@ -27,36 +27,70 @@ public class WorkflowEstimator {
 	
 	public final ProcessGraph graph;
 	
+	/** 
+	 * @param process - The process that should be analyzed.
+	 * @param useCase - Use case that should be used to read duration values.
+	 * @param flowName - Tag name we want to follow at alternative gateways.
+	 */
 	public WorkflowEstimator(Process process, Enum<?> useCase, String flowName) {		
 		this.useCase = useCase;
 		this.flowName = flowName;
 		this.graph = new ProcessGraph(process);
 	}
 
+	/**
+	 * Return a list of all tasks in the process which can be reached from the starting element.
+	 * @param startAtElement – Element where we start traversing the process
+	 * @return
+	 * @throws Exception
+	 */
 	public List<EstimatedTask> findAllTasks(BaseElement startAtElement) throws Exception {
 		List<BaseElement> path = graph.findPath(startAtElement);
 		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path);
 		return estimatedTasks;
 	}
 	
+	/**
+	 * @param startAtElements - Elements where we start traversing the process. In case of parallel tasks, the list will contain multiple objects.
+	 * @return
+	 * @throws Exception
+	 */
 	public List<EstimatedTask> findAllTasks(List<BaseElement> startAtElements) throws Exception {
 		List<BaseElement> path = graph.findPath(startAtElements.toArray(new BaseElement[0]));
 		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path);
 		return estimatedTasks;
 	}
 
+	/**
+	 * Return a list of all tasks which are created when process follows the tagged flow. Uses the flow name set in the constructor.
+	 * @param startAtElement – Element where we start traversing the process
+	 * @return
+	 * @throws Exception
+	 */
 	public List<EstimatedTask> findTasksOnPath(BaseElement startAtElement) throws Exception {
 		List<BaseElement> path = graph.findPath(flowName, startAtElement);
 		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path);
 		return estimatedTasks;
 	}
 	
+	/**
+	 * @param startAtElements - Elements where we start traversing the process. In case of parallel tasks, the list will contain multiple objects.
+	 * @return
+	 * @throws Exception
+	 */
 	public List<EstimatedTask> findTasksOnPath(List<BaseElement> startAtElements) throws Exception {
 		List<BaseElement> path = graph.findPath(flowName, startAtElements.toArray(new BaseElement[0]));
 		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path);
 		return estimatedTasks;
 	}
 	
+	/**
+	 * This method can be used to calculate expected duration from a starting point in a process until all task are done and end of process is reached.
+	 * It will summarize duration of all tasks on the path. In case of parallel process flows, it will always use the “critical path” (which means path with longer duration).
+	 * @param startElement – Element where we start traversing the process
+	 * @return
+	 * @throws Exception
+	 */
 	public Duration calculateEstimatedDuration(BaseElement startElement) throws Exception {
 		List<BaseElement> path = isNotEmpty(flowName) 
 				? graph.findPath(flowName, startElement)
@@ -69,6 +103,12 @@ public class WorkflowEstimator {
 		return total;
 	}
 	
+	/** 
+	 * @param startElement – Elements where we start traversing the process. In case of parallel tasks, the list will contain multiple objects. 
+	 * @param startElements
+	 * @return
+	 * @throws Exception
+	 */
 	public Duration calculateEstimatedDuration(List<BaseElement> startElements) throws Exception {
 		List<BaseElement> path = isNotEmpty(flowName) 
 				? graph.findPath(flowName, startElements.toArray(new BaseElement[0]))
@@ -81,11 +121,25 @@ public class WorkflowEstimator {
 		return total;
 	}
 
+	/**
+	 * This method can be used to override configured path taken after an alternative gateway.
+	 * @param processFlowOverrides
+	 * key: element ID + task identifier (for support of callable sub-processes, we also need to add the path of parent elements. However, not needed in first versions.)
+	 * value: chosen output PID
+	 * @return
+	 */
 	public WorkflowEstimator setProcessFlowOverrides(HashMap<String, String> processFlowOverrides) {
 		graph.setProcessFlowOverrides(processFlowOverrides);
 		return this;
 	}
 	
+	/**
+	 * This method can be used to override configured task duration of the model by own values.
+	 * @param durationOverrides
+	 * key: element ID + task identifier (for support of callable sub-processes, we also need to add the path of parent elements. However, not needed in first versions.)
+	 * value: new duration
+	 * @return
+	 */
 	public WorkflowEstimator setDurationOverrides(HashMap<String, Duration> durationOverrides) {
 		graph.setDurationOverrides(durationOverrides);
 		return this;
