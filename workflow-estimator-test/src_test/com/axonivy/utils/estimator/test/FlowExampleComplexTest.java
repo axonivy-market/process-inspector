@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 
 import org.assertj.core.util.Arrays;
@@ -60,6 +61,18 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 	}
 	
 	@Test
+	void shouldFindAllTasksAtTaskFAndTaskE() throws Exception {
+		var workflowEstimator = new WorkflowEstimator(process, null, null);		
+		var taskF = graph.findByElementName("Task F");
+		
+		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(List.of(taskF, taskE));
+
+		var expected = Lists.list("Task F", "Task E", "Task2A", "Task2B", "Task G", "Task H", "Task K");
+		var taskNames = Lists.list(getTaskNames(estimatedTasks));
+		assertTrue(expected.containsAll(taskNames));
+	}
+	
+	@Test
 	void shouldFindAllTasksAtTaskD() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(taskD);
@@ -96,5 +109,20 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		Duration duration = workflowEstimator.calculateEstimatedDuration(List.of(taskD, taskE));
 		
 		assertEquals(Duration.ofHours(19), duration);
+	}
+	
+	@Test
+	void shouldFindAllTasksWitProcessFlowOverridesAtTaskE() throws Exception {
+		var workflowEstimator = new WorkflowEstimator(process, null, null);		
+		var flowOverrides = new HashMap<String, String>();
+		flowOverrides.put("18DF31B990019995-f47", "18DF31B990019995-f28");
+		flowOverrides.put("18DF31B990019995-f16", "18DF31B990019995-f21");
+		workflowEstimator.setProcessFlowOverrides(flowOverrides);
+				
+		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(taskE);
+
+		var expected = Arrays.array("Task E", "Task F");
+		var taskNames = getTaskNames(estimatedTasks);
+		assertArrayEquals(expected, taskNames);
 	}
 }
