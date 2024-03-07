@@ -1,0 +1,134 @@
+{
+  "$schema" : "https://json-schema.axonivy.com/process/11.2.2/process.json",
+  "id" : "18E180A64355D4D9",
+  "config" : {
+    "data" : "com.axonivy.utils.estimator.demo.Data",
+    "permissions" : {
+      "view" : {
+        "allowed" : false
+      }
+    }
+  },
+  "elements" : [ {
+      "id" : "f0",
+      "type" : "RequestStart",
+      "name" : "Start",
+      "config" : {
+        "signature" : "start",
+        "request" : {
+          "isVisibleOnStartList" : false
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 96, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f3", "to" : "f2" }
+      ]
+    }, {
+      "id" : "f1",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 1152, "y" : 64 }
+      }
+    }, {
+      "id" : "f2",
+      "type" : "UserTask",
+      "name" : "Task A",
+      "visual" : {
+        "at" : { "x" : 320, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f5", "to" : "f4" }
+      ]
+    }, {
+      "id" : "f4",
+      "type" : "Alternative",
+      "visual" : {
+        "at" : { "x" : 464, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f13", "to" : "f12" },
+        { "id" : "f15", "to" : "f7" }
+      ]
+    }, {
+      "id" : "f6",
+      "type" : "Alternative",
+      "visual" : {
+        "at" : { "x" : 768, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f9", "to" : "f8" }
+      ]
+    }, {
+      "id" : "f8",
+      "type" : "Alternative",
+      "visual" : {
+        "at" : { "x" : 960, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f10", "to" : "f1" }
+      ]
+    }, {
+      "id" : "f11",
+      "type" : "UserTask",
+      "name" : "Task C",
+      "visual" : {
+        "at" : { "x" : 616, "y" : 192 }
+      },
+      "connect" : [
+        { "id" : "f19", "to" : "f6", "via" : [ { "x" : 768, "y" : 192 } ] }
+      ]
+    }, {
+      "id" : "f12",
+      "type" : "Alternative",
+      "visual" : {
+        "at" : { "x" : 464, "y" : 192 }
+      },
+      "connect" : [
+        { "id" : "f14", "to" : "f11" },
+        { "id" : "f21", "to" : "f20", "via" : [ { "x" : 464, "y" : 328 } ] }
+      ]
+    }, {
+      "id" : "f7",
+      "type" : "UserTask",
+      "name" : "Task B",
+      "config" : {
+        "task" : {
+          "name" : "Task B"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 616, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f16", "to" : "f6" }
+      ]
+    }, {
+      "id" : "f17",
+      "type" : "RequestStart",
+      "name" : "NewStart",
+      "config" : {
+        "signature" : "start2",
+        "request" : {
+          "isVisibleOnStartList" : false
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 104, "y" : 192 }
+      },
+      "connect" : [
+        { "id" : "f18", "to" : "f12" }
+      ]
+    }, {
+      "id" : "f20",
+      "type" : "UserTask",
+      "name" : "Task D",
+      "visual" : {
+        "at" : { "x" : 616, "y" : 328 }
+      },
+      "connect" : [
+        { "id" : "f22", "to" : "f8", "via" : [ { "x" : 960, "y" : 328 } ] }
+      ]
+    } ]
+}
