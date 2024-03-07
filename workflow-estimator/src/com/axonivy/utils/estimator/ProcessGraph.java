@@ -11,6 +11,7 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -96,6 +97,27 @@ public class ProcessGraph {
 	
 	public static boolean isSystemTask(TaskAndCaseModifier task) {		
 		return task.getAllTaskConfigs().stream().anyMatch(it -> "SYSTEM".equals(it.getActivator().getName()));
+	}
+	
+	public List<String> getParentElementNames(TaskAndCaseModifier task){
+		List<String> parentElementNames = emptyList();
+		if(task.getParent() instanceof EmbeddedProcessElement) {
+			parentElementNames = getParentElementNamesEmbeddedProcessElement(task.getParent());
+		}
+		
+		Collections.reverse(parentElementNames);
+		return parentElementNames ;
+	}
+	
+	public List<String> getParentElementNamesEmbeddedProcessElement(BaseElement parentElement){
+		List<String> result = new ArrayList<>();	
+		if(parentElement instanceof EmbeddedProcessElement) {
+			result.add(parentElement.getName());
+			
+			List<String> parentElementNames = getParentElementNamesEmbeddedProcessElement(((EmbeddedProcessElement)parentElement).getParent());
+			result.addAll(parentElementNames);
+		}
+		return result;
 	}
 
 	private List<BaseElement> findPath(List<BaseElement> froms, String flowName, boolean isFindAllTasks, List<BaseElement> previousElements) throws Exception {
@@ -318,5 +340,5 @@ public class ProcessGraph {
 		}
 
 		return Duration.ofHours(0);
-	}	
+	}
 }

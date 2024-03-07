@@ -6,18 +6,20 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+
 import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.Process;
+import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
-
 
 @SuppressWarnings("restriction")
 public class WorkflowEstimator {
@@ -128,12 +130,12 @@ public class WorkflowEstimator {
 		List<TaskConfig> taskConfigs = task.getAllTaskConfigs();
 		
 		List<EstimatedTask> estimatedTasks = new ArrayList<>();
-		
+				
 		taskConfigs.forEach(taskConfig -> {
 			EstimatedTask estimatedTask = new EstimatedTask();
 			
 			estimatedTask.setPid(graph.getTaskId(task, taskConfig));		
-			estimatedTask.setParentElementNames(emptyList());
+			estimatedTask.setParentElementNames(graph.getParentElementNames(task));
 			estimatedTask.setTaskName(defaultIfEmpty(taskConfig.getName().getRawMacro(), task.getName()));
 			Duration estimatedDuration = graph.getDuration(task, taskConfig);				
 			estimatedTask.setEstimatedDuration(estimatedDuration);
