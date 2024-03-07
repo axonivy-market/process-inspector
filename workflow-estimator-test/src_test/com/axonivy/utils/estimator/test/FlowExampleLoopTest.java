@@ -24,7 +24,7 @@ public class FlowExampleLoopTest extends FlowExampleTest {
 	@BeforeAll
 	public static void setup() {
 		setup(PROCESS_NAME);
-		start = graph.findByElementName("start");
+		start = ProcessGraphHelper.findByElementName(process, "start");
 	}
 	
 	@Test

@@ -6,25 +6,20 @@ import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 
 @SuppressWarnings("restriction")
-public class ProcessGraph {
-	public final Process process;
-
-	public ProcessGraph(Process process) {
-		this.process = process;
-	}
-
-	public RequestStart findStart() {
+public class ProcessGraphHelper {
+	
+	public static RequestStart findStart(Process process) {
 		return process.search().type(RequestStart.class).findOne();
 	}
 
-	public BaseElement findByElementName(String name) {
+	public static BaseElement findByElementName(Process process, String name) {
 		return process.getElements().stream()
 				.filter(el -> el.getName().equals(name))
 				.findFirst()
 				.orElse(null);
 	}
 	
-	public BaseElement findByTaskName(String name) {
+	public static BaseElement findByTaskName(Process process, String name) {
 		return process.getElements().stream()
 				.filter(el -> {return el instanceof SingleTaskCreator;})
 				.filter(el ->((SingleTaskCreator) el).getTaskConfig().getName().getRawMacro().equals(name))

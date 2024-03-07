@@ -11,13 +11,11 @@ import ch.ivyteam.ivy.process.rdm.IProcessManager;
 public abstract class FlowExampleTest {
 	
 	protected static Process process;
-	protected static ProcessGraph graph;
 
 	protected static void setup(String processName) {
 		var pmv = Ivy.request().getProcessModelVersion();
 		var manager = IProcessManager.instance().getProjectDataModelFor(pmv);
-		process = manager.findProcessByPath(processName).getModel();
-		graph = new ProcessGraph(process);
+		process = manager.findProcessByPath(processName).getModel();		
 	}
 	
 	protected String[] getTaskNames(List<EstimatedTask> tasks ) {
