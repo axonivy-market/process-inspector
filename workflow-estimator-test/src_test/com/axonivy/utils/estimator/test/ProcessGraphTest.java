@@ -83,5 +83,15 @@ public class ProcessGraphTest {
 		
 		assertTrue(result);
 	}
+	
+	@Test
+	void shouldGetParentElementNames() throws Exception {
+		Process process = getProcessByName(FLOW_SUB_PROCESS);
+		TaskAndCaseModifier joinTask = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task A");
+		var processGraph = new ProcessGraph(process);
+		var result = processGraph.getParentElementNames(joinTask);
+		
+		assertEquals("[sub with two levels, 2nd level sub]", result.toString());
+	}
 }
  
