@@ -31,9 +31,9 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 	@BeforeAll
 	public static void setup() {
 		setup(PROCESS_NAME);
-		start = graph.findByElementName("start");
-		taskD = graph.findByElementName("Task D");
-		taskE = graph.findByElementName("Task E");
+		start = ProcessGraphHelper.findByElementName(process, "start");
+		taskD = ProcessGraphHelper.findByElementName(process, "Task D");
+		taskE = ProcessGraphHelper.findByElementName(process, "Task E");
 	}
 
 	@Test
@@ -50,8 +50,8 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 	@Test
 	void shouldFindAllTasksAtTaskKAndTaskF() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
-		var taskK = graph.findByElementName("Task K");
-		var taskF = graph.findByElementName("Task F");
+		var taskK = ProcessGraphHelper.findByElementName(process, "Task K");
+		var taskF = ProcessGraphHelper.findByElementName(process, "Task F");
 		
 		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(List.of(taskK, taskF));
 
@@ -63,7 +63,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 	@Test
 	void shouldFindAllTasksAtTaskFAndTaskE() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);		
-		var taskF = graph.findByElementName("Task F");
+		var taskF = ProcessGraphHelper.findByElementName(process, "Task F");
 		
 		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(List.of(taskF, taskE));
 

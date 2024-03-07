@@ -29,10 +29,10 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 	@BeforeAll
 	public static void setup() {
 		setup(PROCESS_NAME);
-		start = graph.findByElementName("start");
-		newStart = graph.findByElementName("NewStart");
-		taskB = graph.findByElementName("Task B");
-		taskC = graph.findByElementName("Task C");
+		start = ProcessGraphHelper.findByElementName(process, "start");
+		newStart = ProcessGraphHelper.findByElementName(process, "NewStart");
+		taskB = ProcessGraphHelper.findByElementName(process, "Task B");
+		taskC = ProcessGraphHelper.findByElementName(process, "Task C");
 	}
 
 	@Test
@@ -158,7 +158,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 	@Test
 	void shouldCalculateTotalDuration() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
-		Duration duration = workflowEstimator.calculateEstimatedDuration(graph.findStart());
+		Duration duration = workflowEstimator.calculateEstimatedDuration(start);
 		assertEquals(15, duration.toHours());
 	}
 	
