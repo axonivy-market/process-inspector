@@ -190,6 +190,7 @@
       "name" : "Task D",
       "config" : {
         "task" : {
+          "name" : "Task D",
           "code" : [
             "import java.util.concurrent.TimeUnit;",
             "",
@@ -209,6 +210,7 @@
       "name" : "Task E",
       "config" : {
         "task" : {
+          "name" : "Task E",
           "code" : [
             "import java.util.concurrent.TimeUnit;",
             "",
@@ -271,6 +273,7 @@
       "name" : "Task F",
       "config" : {
         "task" : {
+          "name" : "Task F",
           "code" : [
             "import java.util.concurrent.TimeUnit;",
             "",
@@ -290,6 +293,7 @@
       "name" : "Task H",
       "config" : {
         "task" : {
+          "name" : "Task H",
           "code" : [
             "import java.util.concurrent.TimeUnit;",
             "",
@@ -315,6 +319,7 @@
       "name" : "Task G",
       "config" : {
         "task" : {
+          "name" : "Task G",
           "code" : [
             "import java.util.concurrent.TimeUnit;",
             "",
@@ -348,6 +353,11 @@
       "id" : "f30",
       "type" : "UserTask",
       "name" : "Task K",
+      "config" : {
+        "task" : {
+          "name" : "Task K"
+        }
+      },
       "visual" : {
         "at" : { "x" : 1608, "y" : 64 }
       },
