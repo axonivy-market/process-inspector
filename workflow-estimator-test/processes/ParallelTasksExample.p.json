@@ -73,6 +73,11 @@
       "id" : "f7",
       "type" : "TaskSwitchEvent",
       "name" : "Task2",
+      "config" : {
+        "task" : {
+          "name" : "Task2"
+        }
+      },
       "visual" : {
         "at" : { "x" : 184, "y" : 136 },
         "labelOffset" : { "x" : 14, "y" : 34 }

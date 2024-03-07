@@ -190,7 +190,8 @@ public class WorkflowEstimator {
 			
 			estimatedTask.setPid(graph.getTaskId(task, taskConfig));		
 			estimatedTask.setParentElementNames(graph.getParentElementNames(task));
-			estimatedTask.setTaskName(defaultIfEmpty(taskConfig.getName().getRawMacro(), task.getName()));
+			estimatedTask.setTaskName(taskConfig.getName().getRawMacro());
+			estimatedTask.setElementName(task.getName());
 			Duration estimatedDuration = graph.getDuration(task, taskConfig);				
 			estimatedTask.setEstimatedDuration(estimatedDuration);
 			estimatedTask.setEstimatedStartTimestamp(startTimestamp);		

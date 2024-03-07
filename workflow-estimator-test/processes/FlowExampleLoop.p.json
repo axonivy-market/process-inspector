@@ -27,6 +27,11 @@
       "id" : "f3",
       "type" : "UserTask",
       "name" : "Task A",
+      "config" : {
+        "task" : {
+          "name" : "Task A"
+        }
+      },
       "visual" : {
         "at" : { "x" : 472, "y" : 64 }
       },
@@ -67,6 +72,11 @@
       "id" : "f9",
       "type" : "UserTask",
       "name" : "Task B",
+      "config" : {
+        "task" : {
+          "name" : "Task B"
+        }
+      },
       "visual" : {
         "at" : { "x" : 472, "y" : 184 }
       },
