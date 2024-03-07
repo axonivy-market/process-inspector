@@ -106,10 +106,10 @@
         { "id" : "f10", "to" : "f7", "color" : "default path", "label" : {
             "name" : "{internal}"
           } },
-        { "id" : "f12", "to" : "f11", "via" : [ { "x" : 480, "y" : 344 } ], "label" : {
+        { "id" : "f12", "to" : "f11", "via" : [ { "x" : 480, "y" : 312 } ], "label" : {
             "name" : "{external}",
-            "segment" : 1.1,
-            "offset" : { "x" : 73, "y" : 1 }
+            "segment" : 1.14,
+            "offset" : { "x" : 67, "y" : -2 }
           } }
       ]
     }, {
@@ -127,7 +127,7 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 696, "y" : 344 }
+        "at" : { "x" : 696, "y" : 312 }
       },
       "connect" : [
         { "id" : "f22", "to" : "f13", "var" : "in1" }
@@ -154,16 +154,14 @@
       "id" : "f18",
       "type" : "ProcessAnnotation",
       "name" : [
-        "useCase=null / flowName = null",
-        "",
         "findAllTasks( start ) => Task A, Task C, Task1A, Task1B, Task D, Task E, Task2A, Task2B, Task G, Task H, Task F, Task K, Task B",
         "",
         "useCase=null / flowName = internal",
-        "findTasksOnPath( start ) => Task A, Task B, Task E, Task2A, Task2B, Task G, Task H"
+        "findTasksOnPath( start ) => Task A, Task B, Task2A, Task2B, Task G, Task H"
       ],
       "visual" : {
-        "at" : { "x" : 507, "y" : 547 },
-        "size" : { "width" : 773, "height" : 247 }
+        "at" : { "x" : 509, "y" : 464 },
+        "size" : { "width" : 776, "height" : 80 }
       }
     }, {
       "id" : "f13",
@@ -179,12 +177,12 @@
           } ]
       },
       "visual" : {
-        "at" : { "x" : 912, "y" : 344 },
-        "labelOffset" : { "x" : 56, "y" : -8 }
+        "at" : { "x" : 848, "y" : 312 },
+        "labelOffset" : { "x" : -16, "y" : -8 }
       },
       "connect" : [
-        { "id" : "f24", "to" : "f25", "via" : [ { "x" : 912, "y" : 456 } ], "condition" : "ivp==\"TaskA.ivp\"" },
-        { "id" : "f26", "to" : "f23", "condition" : "ivp==\"TaskB.ivp\"" }
+        { "id" : "f24", "to" : "f25", "via" : [ { "x" : 848, "y" : 360 } ], "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f26", "to" : "f23", "via" : [ { "x" : 848, "y" : 256 } ], "condition" : "ivp==\"TaskB.ivp\"" }
       ]
     }, {
       "id" : "f23",
@@ -200,10 +198,10 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 912, "y" : 168 }
+        "at" : { "x" : 952, "y" : 256 }
       },
       "connect" : [
-        { "id" : "f31", "to" : "f16" }
+        { "id" : "f31", "to" : "f33", "via" : [ { "x" : 1048, "y" : 256 } ], "var" : "in1" }
       ]
     }, {
       "id" : "f25",
@@ -219,10 +217,10 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 1096, "y" : 456 }
+        "at" : { "x" : 952, "y" : 360 }
       },
       "connect" : [
-        { "id" : "f27", "to" : "f47" }
+        { "id" : "f27", "to" : "f33", "via" : [ { "x" : 1048, "y" : 360 } ], "var" : "in2" }
       ]
     }, {
       "id" : "f16",
@@ -234,11 +232,11 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 1096, "y" : 64 }
+        "at" : { "x" : 1128, "y" : 64 }
       },
       "connect" : [
         { "id" : "f40", "to" : "f30", "color" : "default path" },
-        { "id" : "f21", "to" : "f25", "label" : {
+        { "id" : "f21", "to" : "f47", "label" : {
             "name" : [
               "{internal}",
               "{external}",
@@ -281,10 +279,10 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 1248, "y" : 256 }
+        "at" : { "x" : 1248, "y" : 312 }
       },
       "connect" : [
-        { "id" : "f41", "to" : "f39", "var" : "in1" }
+        { "id" : "f41", "to" : "f19", "via" : [ { "x" : 1248, "y" : 224 } ] }
       ]
     }, {
       "id" : "f35",
@@ -309,30 +307,8 @@
       "id" : "f37",
       "type" : "TaskEnd",
       "visual" : {
-        "at" : { "x" : 1816, "y" : 456 }
+        "at" : { "x" : 1736, "y" : 456 }
       }
-    }, {
-      "id" : "f39",
-      "type" : "TaskSwitchGateway",
-      "name" : "Join",
-      "config" : {
-        "tasks" : [ {
-            "id" : "TaskA",
-            "name" : "JoiningTask",
-            "responsible" : {
-              "activator" : "SYSTEM"
-            }
-          }, {
-            "id" : "TaskB"
-          } ]
-      },
-      "visual" : {
-        "at" : { "x" : 1432, "y" : 256 }
-      },
-      "connect" : [
-        { "id" : "f46", "to" : "f45", "condition" : "ivp==\"TaskA.ivp\"" },
-        { "id" : "f33", "to" : "f16", "condition" : "ivp==\"TaskB.ivp\"" }
-      ]
     }, {
       "id" : "f42",
       "type" : "UserTask",
@@ -347,17 +323,11 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 1432, "y" : 344 }
+        "at" : { "x" : 1432, "y" : 312 }
       },
       "connect" : [
-        { "id" : "f44", "to" : "f39", "var" : "in2" }
+        { "id" : "f44", "to" : "f19", "via" : [ { "x" : 1552, "y" : 312 } ] }
       ]
-    }, {
-      "id" : "f45",
-      "type" : "TaskEnd",
-      "visual" : {
-        "at" : { "x" : 1736, "y" : 256 }
-      }
     }, {
       "id" : "f47",
       "type" : "Alternative",
@@ -368,10 +338,10 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 1248, "y" : 456 }
+        "at" : { "x" : 1128, "y" : 312 }
       },
       "connect" : [
-        { "id" : "f48", "to" : "f32", "color" : "default path", "var" : "in1" },
+        { "id" : "f48", "to" : "f32", "via" : [ { "x" : 1128, "y" : 456 } ], "color" : "default path", "var" : "in1" },
         { "id" : "f28", "to" : "f34" }
       ]
     }, {
@@ -379,10 +349,38 @@
       "type" : "UserTask",
       "name" : "Task K",
       "visual" : {
-        "at" : { "x" : 1480, "y" : 64 }
+        "at" : { "x" : 1608, "y" : 64 }
       },
       "connect" : [
         { "id" : "f49", "to" : "f1" }
+      ]
+    }, {
+      "id" : "f19",
+      "type" : "Alternative",
+      "visual" : {
+        "at" : { "x" : 1552, "y" : 224 }
+      },
+      "connect" : [
+        { "id" : "f20", "to" : "f16" }
+      ]
+    }, {
+      "id" : "f33",
+      "type" : "TaskSwitchGateway",
+      "name" : "join",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 1048, "y" : 312 },
+        "labelOffset" : { "x" : -8, "y" : -8 }
+      },
+      "connect" : [
+        { "id" : "f39", "to" : "f47", "condition" : "ivp==\"TaskA.ivp\"" }
       ]
     } ],
   "layout" : {
