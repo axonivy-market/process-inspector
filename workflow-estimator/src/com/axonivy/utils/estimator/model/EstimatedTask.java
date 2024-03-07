@@ -13,6 +13,7 @@ public class EstimatedTask {
 	
 	private String pid;
 	private String taskName;
+	private String elementName;
 	private Duration estimatedDuration;
 	private List<String> parentElementNames;
 	private Date estimatedStartTimestamp;
@@ -66,6 +67,14 @@ public class EstimatedTask {
 		this.customInfo = customInfo;
 	}
 	
+	public String getElementName() {
+		return elementName;
+	}
+
+	public void setElementName(String elementName) {
+		this.elementName = elementName;
+	}
+
 	public Date calculateEstimatedEndTimestamp() {
 		int durationInSecond = Optional.ofNullable(this.estimatedDuration)
 				.map(Duration::getSeconds)

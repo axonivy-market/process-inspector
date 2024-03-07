@@ -1,8 +1,10 @@
 package com.axonivy.utils.estimator.test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
@@ -41,6 +43,15 @@ public class FlowSubProcessTest extends FlowExampleTest {
 		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(start);
 		
 		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(estimatedTasks));
+	}
+	
+	@Test
+	void shouldFindTaskParentNames() throws Exception {
+		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(start);
+		Optional<EstimatedTask> taskA = estimatedTasks.stream().filter(item -> item.getTaskName().equals("Task A")).findFirst();
+		
+		assertEquals(java.util.Arrays.asList("sub with two levels", "2nd level sub") , taskA.get().getParentElementNames());
 	}
 
 }
