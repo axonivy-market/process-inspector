@@ -107,7 +107,7 @@ public class ProcessGraph {
 		return parentElementNames ;
 	}
 	
-	public List<String> getParentElementNamesEmbeddedProcessElement(BaseElement parentElement){
+	private List<String> getParentElementNamesEmbeddedProcessElement(BaseElement parentElement){
 		List<String> result = new ArrayList<>();	
 		if(parentElement instanceof EmbeddedProcessElement) {
 			result.add(parentElement.getName());
