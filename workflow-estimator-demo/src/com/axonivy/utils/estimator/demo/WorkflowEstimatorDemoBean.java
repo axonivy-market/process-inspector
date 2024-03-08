@@ -55,6 +55,10 @@ public class WorkflowEstimatorDemoBean {
 		estimators.add(new Estimator());
 	}
 	
+	public void onDeleteEstimator(Estimator estimator) {
+		estimators.remove(estimator);
+	}
+	
 	public void onSelectedProcess() {
 		
 	}

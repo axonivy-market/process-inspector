@@ -8,13 +8,21 @@
   "elements" : [ {
       "id" : "f0",
       "type" : "HtmlDialogStart",
-      "name" : "start()",
+      "name" : "start(WorkflowEstimatorDemoBean)",
       "config" : {
         "signature" : "start",
+        "input" : {
+          "params" : [
+            { "name" : "workflowEstimatorDemoBean", "type" : "com.axonivy.utils.estimator.demo.WorkflowEstimatorDemoBean", "desc" : "" }
+          ],
+          "map" : {
+            "out.workflowEstimatorDemoBean" : "param. workflowEstimatorDemoBean"
+          }
+        },
         "guid" : "18E18129A262E35E"
       },
       "visual" : {
-        "at" : { "x" : 96, "y" : 64 }
+        "at" : { "x" : 112, "y" : 64 }
       },
       "connect" : [
         { "id" : "f2", "to" : "f1" }
@@ -63,7 +71,7 @@
       "name" : "add estimator",
       "config" : {
         "output" : {
-          "code" : "in.workflowEstimatorBean.onAddEstimator();"
+          "code" : "in.workflowEstimatorDemoBean.onAddEstimator();"
         }
       },
       "visual" : {

@@ -8,9 +8,17 @@
   "elements" : [ {
       "id" : "f0",
       "type" : "HtmlDialogStart",
-      "name" : "start()",
+      "name" : "start(WorkflowEstimatorDemoBean)",
       "config" : {
         "signature" : "start",
+        "input" : {
+          "params" : [
+            { "name" : "workflowEstimatorDemoBean", "type" : "com.axonivy.utils.estimator.demo.WorkflowEstimatorDemoBean", "desc" : "" }
+          ],
+          "map" : {
+            "out.workflowEstimatorDemoBean" : "param.workflowEstimatorDemoBean"
+          }
+        },
         "guid" : "18E1C085F4DDCE95"
       },
       "visual" : {
@@ -44,5 +52,48 @@
       "visual" : {
         "at" : { "x" : 224, "y" : 160 }
       }
+    }, {
+      "id" : "f7",
+      "type" : "Script",
+      "name" : "delete estimator",
+      "config" : {
+        "output" : {
+          "code" : "in.workflowEstimatorDemoBean.onDeleteEstimator(in.deletedEstimator);"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 288, "y" : 280 }
+      },
+      "connect" : [
+        { "id" : "f10", "to" : "f9" }
+      ]
+    }, {
+      "id" : "f9",
+      "type" : "HtmlDialogEnd",
+      "visual" : {
+        "at" : { "x" : 480, "y" : 280 }
+      }
+    }, {
+      "id" : "f11",
+      "type" : "HtmlDialogMethodStart",
+      "name" : "deleteEstimator(Estimator)",
+      "config" : {
+        "signature" : "deleteEstimator",
+        "input" : {
+          "params" : [
+            { "name" : "estimator", "type" : "com.axonivy.utils.estimator.demo.model.Estimator", "desc" : "" }
+          ],
+          "map" : {
+            "out.deletedEstimator" : "param.estimator"
+          }
+        },
+        "guid" : "18E1C27977F782B7"
+      },
+      "visual" : {
+        "at" : { "x" : 96, "y" : 280 }
+      },
+      "connect" : [
+        { "id" : "f12", "to" : "f7" }
+      ]
     } ]
 }

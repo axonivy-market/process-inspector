@@ -1,2 +1,6 @@
 EstimatorDetailData #class
 com.axonivy.utils.estimator.component.EstimatorDetail #namespace
+workflowEstimatorDemoBean com.axonivy.utils.estimator.demo.WorkflowEstimatorDemoBean #field
+workflowEstimatorDemoBean PERSISTENT #fieldModifier
+deletedEstimator com.axonivy.utils.estimator.demo.model.Estimator #field
+deletedEstimator PERSISTENT #fieldModifier

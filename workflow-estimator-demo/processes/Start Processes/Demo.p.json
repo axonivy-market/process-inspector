@@ -31,7 +31,12 @@
       "type" : "DialogCall",
       "name" : "Table Show",
       "config" : {
-        "dialog" : "com.axonivy.utils.estimator.WorkflowEstimatorTable:start()"
+        "dialog" : "com.axonivy.utils.estimator.WorkflowEstimatorTable:start(com.axonivy.utils.estimator.demo.WorkflowEstimatorDemoBean)",
+        "call" : {
+          "map" : {
+            "param.workflowEstimatorDemoBean" : "in.bean"
+          }
+        }
       },
       "visual" : {
         "at" : { "x" : 408, "y" : 64 }
@@ -45,7 +50,11 @@
       "name" : "init data",
       "config" : {
         "output" : {
-          "code" : "in.bean.initData();"
+          "code" : [
+            "import com.axonivy.utils.estimator.demo.WorkflowEstimatorDemoBean;",
+            "import com.axonivy.utils.estimator.demo.WorkflowEstimatorDemoBean;",
+            "in.bean = new WorkflowEstimatorDemoBean();"
+          ]
         }
       },
       "visual" : {
