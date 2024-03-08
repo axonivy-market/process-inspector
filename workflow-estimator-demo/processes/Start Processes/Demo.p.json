@@ -9,10 +9,13 @@
       "type" : "RequestStart",
       "name" : "start",
       "config" : {
-        "signature" : "start"
+        "signature" : "start",
+        "request" : {
+          "name" : "WorkflowEstimatorDemo"
+        }
       },
       "visual" : {
-        "at" : { "x" : 96, "y" : 64 }
+        "at" : { "x" : 80, "y" : 64 }
       },
       "connect" : [
         { "id" : "f2", "to" : "f5" }
@@ -42,7 +45,7 @@
       "name" : "init data",
       "config" : {
         "output" : {
-          "code" : "in.bean.getAllProcesses();"
+          "code" : "in.bean.initData();"
         }
       },
       "visual" : {
