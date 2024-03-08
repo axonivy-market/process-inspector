@@ -52,7 +52,6 @@
         "output" : {
           "code" : [
             "import com.axonivy.utils.estimator.demo.WorkflowEstimatorDemoBean;",
-            "import com.axonivy.utils.estimator.demo.WorkflowEstimatorDemoBean;",
             "in.bean = new WorkflowEstimatorDemoBean();"
           ]
         }
