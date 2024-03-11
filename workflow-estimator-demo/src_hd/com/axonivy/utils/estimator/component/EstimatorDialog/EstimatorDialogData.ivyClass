@@ -1,0 +1,4 @@
+EstimatorDialogData #class
+com.axonivy.utils.estimator.component.EstimatorDialog #namespace
+workflowEstimatorDemoBean com.axonivy.utils.estimator.demo.WorkflowEstimatorDemoBean #field
+workflowEstimatorDemoBean PERSISTENT #fieldModifier

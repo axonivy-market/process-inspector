@@ -13,20 +13,19 @@
 
 			<h2>Workflow Estimator Demo</h2>
 
-			<h:form id="form">
+			<h:form id="workflow-estimator">
 				<p:messages />
 				<div class="command-btns">
-					<p:commandButton id="addEstimator"
-						actionListener="#{logic.addEstimator}" value="Add Estimator"
-						update="form" icon="fa-solid fa-add" />
+					<p:commandButton id="addEstimator" value="Add Estimator" oncomplete="PF('estimatorDialog').show()"  icon="fa-solid fa-add" />
 				</div>
 
-				<c:forEach var="estimator"
-					items="#{data.workflowEstimatorDemoBean.estimators}" varStatus="status">
-					<ic:com.axonivy.utils.estimator.component.EstimatorDetail
-						estimator="#{estimator}" workflowEstimatorDemoBean="#{data.workflowEstimatorDemoBean}"/>
-				</c:forEach>
+<!-- 				<c:forEach var="estimator" items="#{data.workflowEstimatorDemoBean.estimators}" varStatus="status">					 -->
+<!-- 				</c:forEach>				 -->
 			</h:form>
+			
+			<ic:com.axonivy.utils.estimator.component.EstimatorDialog id="estimator-dialog"
+			dialogWidgetVarId="estimatorDialog"  workflowEstimatorDemoBean="#{data.workflowEstimatorDemoBean}"/>
+			
 		</ui:define>
 	</ui:composition>
 </h:body>
