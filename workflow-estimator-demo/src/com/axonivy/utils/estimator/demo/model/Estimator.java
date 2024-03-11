@@ -6,12 +6,14 @@ import com.axonivy.utils.estimator.demo.constant.FindType;
 import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.process.model.Process;
-import ch.ivyteam.ivy.process.model.element.TaskModifier;
+import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 
 public class Estimator {
+	private String flowName;
 	private Process process;
-	private TaskModifier from;
+	private List<SingleTaskCreator> elements;
 	private FindType findType;
+	private SingleTaskCreator startElement;
 	private List<EstimatedTask> tasks;
 
 	public Process getProcess() {
@@ -22,12 +24,20 @@ public class Estimator {
 		this.process = process;
 	}
 
-	public TaskModifier getFrom() {
-		return from;
+	public List<SingleTaskCreator> getElements() {
+		return elements;
 	}
 
-	public void setFrom(TaskModifier from) {
-		this.from = from;
+	public void setElements(List<SingleTaskCreator> elements) {
+		this.elements = elements;
+	}
+
+	public SingleTaskCreator getStartElement() {
+		return startElement;
+	}
+
+	public void setStartElement(SingleTaskCreator startElement) {
+		this.startElement = startElement;
 	}
 
 	public FindType getFindType() {
@@ -44,5 +54,13 @@ public class Estimator {
 
 	public void setTasks(List<EstimatedTask> tasks) {
 		this.tasks = tasks;
+	}
+
+	public String getFlowName() {
+		return flowName;
+	}
+
+	public void setFlowName(String flowName) {
+		this.flowName = flowName;
 	}
 }

@@ -58,7 +58,7 @@
       "name" : "delete estimator",
       "config" : {
         "output" : {
-          "code" : "in.workflowEstimatorDemoBean.onDeleteEstimator(in.deletedEstimator);"
+          "code" : "in.workflowEstimatorDemoBean.onDeleteEstimator(in.selectedEstimator);"
         }
       },
       "visual" : {
@@ -84,7 +84,7 @@
             { "name" : "estimator", "type" : "com.axonivy.utils.estimator.demo.model.Estimator", "desc" : "" }
           ],
           "map" : {
-            "out.deletedEstimator" : "param.estimator"
+            "out.selectedEstimator" : "param.estimator"
           }
         },
         "guid" : "18E1C27977F782B7"
@@ -95,5 +95,91 @@
       "connect" : [
         { "id" : "f12", "to" : "f7" }
       ]
+    }, {
+      "id" : "f6",
+      "type" : "HtmlDialogMethodStart",
+      "name" : "onChooseProcess(Estimator)",
+      "config" : {
+        "signature" : "onChooseProcess",
+        "input" : {
+          "params" : [
+            { "name" : "estimator", "type" : "com.axonivy.utils.estimator.demo.model.Estimator", "desc" : "" }
+          ],
+          "map" : {
+            "out.selectedEstimator" : "param.estimator"
+          }
+        },
+        "guid" : "18E1D2C4C70FD6CC"
+      },
+      "visual" : {
+        "at" : { "x" : 96, "y" : 384 }
+      },
+      "connect" : [
+        { "id" : "f13", "to" : "f8" }
+      ]
+    }, {
+      "id" : "f8",
+      "type" : "Script",
+      "name" : "init list start element",
+      "config" : {
+        "output" : {
+          "code" : "in.selectedEstimator.elements = in.workflowEstimatorDemoBean.getAllTaskModifier(in.selectedEstimator.process);"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 288, "y" : 384 }
+      },
+      "connect" : [
+        { "id" : "f15", "to" : "f14" }
+      ]
+    }, {
+      "id" : "f14",
+      "type" : "HtmlDialogEnd",
+      "visual" : {
+        "at" : { "x" : 496, "y" : 384 }
+      }
+    }, {
+      "id" : "f16",
+      "type" : "HtmlDialogMethodStart",
+      "name" : "onGenerate(Estimator)",
+      "config" : {
+        "signature" : "onGenerate",
+        "input" : {
+          "params" : [
+            { "name" : "estimator", "type" : "com.axonivy.utils.estimator.demo.model.Estimator", "desc" : "" }
+          ],
+          "map" : {
+            "out.selectedEstimator" : "param.estimator"
+          }
+        },
+        "guid" : "18E1D7E219D8AD8C"
+      },
+      "visual" : {
+        "at" : { "x" : 96, "y" : 536 }
+      },
+      "connect" : [
+        { "id" : "f18", "to" : "f17" }
+      ]
+    }, {
+      "id" : "f17",
+      "type" : "Script",
+      "name" : "generate estimated task",
+      "config" : {
+        "output" : {
+          "code" : "in.selectedEstimator.tasks = in.workflowEstimatorDemoBean.getEstimatedtask(in.selectedEstimator);"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 288, "y" : 536 }
+      },
+      "connect" : [
+        { "id" : "f20", "to" : "f19" }
+      ]
+    }, {
+      "id" : "f19",
+      "type" : "HtmlDialogEnd",
+      "visual" : {
+        "at" : { "x" : 480, "y" : 536 }
+      }
     } ]
 }

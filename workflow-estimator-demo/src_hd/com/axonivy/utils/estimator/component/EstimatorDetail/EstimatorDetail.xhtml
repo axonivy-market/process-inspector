@@ -1,27 +1,90 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:f="http://xmlns.jcp.org/jsf/core"
-	xmlns:h="http://xmlns.jcp.org/jsf/html"
-	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-	xmlns:cc="http://xmlns.jcp.org/jsf/composite"
-	xmlns:ic="http://ivyteam.ch/jsf/component"
-	xmlns:p="http://primefaces.org/ui"
-	xmlns:pe="http://primefaces.org/ui/extensions">
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:cc="http://xmlns.jcp.org/jsf/composite"
+    xmlns:ic="http://ivyteam.ch/jsf/component"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:pe="http://primefaces.org/ui/extensions"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 <cc:interface componentType="IvyComponent">
-	<cc:attribute name="estimator" required="true" />
+    <cc:attribute name="estimator" required="true" />
 </cc:interface>
 
 
 <cc:implementation>
-	<h3>Estimator Demo</h3>
+    <p:fieldset>
+        <h3>Estimator Demo</h3>
 
-		<p:messages />
-		<div class="command-btns">
-			<p:commandButton id="deleteEstimator"
-				actionListener="#{logic.deleteEstimator(cc.attributes.estimator)}" value="Delete Estimator"
-				update="form" icon="fa-solid fa-remove" />
-		</div>
+        <p:panelGrid columns="4" layout="flex"
+            columnClasses="col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9, col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9"
+            styleClass="customPanelGrid" contentStyleClass="ui-fluid">
+            <p:outputLabel for="selectOneProcess" value="Process:" />
+            <p:selectOneMenu id="selectOneProcess"
+                value="#{cc.attrs.estimator.process}"
+                converter="pojoConverter">
+                <f:selectItem itemLabel="Select process" itemValue=""
+                    noSelectionOption="true" />
+                <f:selectItems
+                    value="#{data.workflowEstimatorDemoBean.processes}"
+                    var="process" itemLabel="#{process.name}"
+                    itemValue="#{process}" />
+                <p:ajax event="valueChange"
+                    listener="#{logic.onChooseProcess(cc.attributes.estimator)}"
+                    update="form" process="@this" />
+            </p:selectOneMenu>
 
+            <p:outputLabel for="SelectOneElement"
+                value="Start Elements:" />
+            <p:selectOneMenu id="SelectOneElement"
+                converter="pojoConverter"
+                value="#{cc.attrs.estimator.startElement}">
+                <f:selectItem itemLabel="Select elements" itemValue="" />
+                <f:selectItems
+                    value="#{cc.attributes.estimator.elements}"
+                    var="element" itemLabel="#{element.name}"
+                    itemValue="#{element}" />
+            </p:selectOneMenu>
+
+            <p:outputLabel for="SelectOneFindType" value="Find type:" />
+            <p:selectOneMenu id="SelectOneFindType"
+                converter="pojoConverter"
+                value="#{cc.attrs.estimator.findType}">
+                 <f:selectItem itemLabel="Select find type" itemValue=""
+                    noSelectionOption="true" />
+                <f:selectItems
+                    value="#{data.workflowEstimatorDemoBean.allFindType}"
+                    var="type" itemLabel="#{type.findType}"
+                    itemValue="#{type}" />
+            </p:selectOneMenu>
+
+            <p:outputLabel for="flowName" value="Flow name:" />
+            <p:inputText id="flowName" value="#{cc.attrs.flowName}" />
+        </p:panelGrid>
+
+        <p:panel id="tasks"
+            rendered="#{cc.attributes.estimator.tasks ne null}">
+            <c:forEach var="task"
+                items="#{cc.attributes.estimator.tasks}"
+                varStatus="status">
+                <p:outputLabel value="task.elementName" />
+            </c:forEach>
+        </p:panel>
+
+        <div class="command-btns">
+            <p:commandButton id="generate"
+                actionListener="#{logic.onGenerate(cc.attributes.estimator)}"
+                value="Generate" update="form" process="@form"
+                icon="fa-solid fa-check" />
+
+            <p:commandButton id="deleteEstimator"
+                actionListener="#{logic.deleteEstimator(cc.attributes.estimator)}"
+                value="Delete Estimator" update="form" process="@this"
+                icon="fa-solid fa-remove" />
+        </div>
+
+    </p:fieldset>
 </cc:implementation>
 
 </html>

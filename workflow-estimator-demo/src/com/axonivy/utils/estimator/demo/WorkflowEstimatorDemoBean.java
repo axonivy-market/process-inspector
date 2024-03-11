@@ -7,13 +7,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.axonivy.utils.estimator.WorkflowEstimator;
+import com.axonivy.utils.estimator.demo.constant.FindType;
 import com.axonivy.utils.estimator.demo.model.Estimator;
+import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.application.IProcessModelVersion;
-import ch.ivyteam.ivy.environment.Ivy;
-import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.Process;
-import ch.ivyteam.ivy.process.model.element.TaskModifier;
+import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.rdm.IProcessManager;
 
 @SuppressWarnings("restriction")
@@ -24,7 +25,7 @@ public class WorkflowEstimatorDemoBean {
 	private List<Process> processes = emptyList();
 
 	public WorkflowEstimatorDemoBean() {
-		
+		processes = getAllProcesses();
 	}
 	
 	public List<Estimator> getEstimators() {
@@ -41,16 +42,6 @@ public class WorkflowEstimatorDemoBean {
 		return processes;
 	}
 
-
-	public void setProcesses(List<Process> processes) {
-		this.processes = processes;
-	}
-
-
-	public void initData() {
-		processes = getAllProcesses();
-	}
-
 	public void onAddEstimator() {
 		estimators.add(new Estimator());
 	}
@@ -63,9 +54,27 @@ public class WorkflowEstimatorDemoBean {
 		
 	}
 
-	public List<TaskModifier> getAllTaskModifier(Process process) {
+	public List<SingleTaskCreator> getAllTaskModifier(Process process) {
+		return process.getElements().stream()
+			.filter(item -> item instanceof SingleTaskCreator)
+			.map(SingleTaskCreator.class::cast)
+			.toList();
+	}
+	
+	public List<FindType> getAllFindType(){
+		return  Arrays.stream(FindType.values()).toList();
+	}
+	
+	public List<EstimatedTask> getEstimatedtask(Estimator estimator) throws Exception{
+		var workflowEstimator = new WorkflowEstimator(estimator.getProcess(), null, estimator.getFlowName());
+		List<EstimatedTask> estimatedTasks = null;
+		if(FindType.ALL_TASK.equals(estimator.getFindType())) {
+			estimatedTasks = workflowEstimator.findAllTasks(estimator.getStartElement());
+		} else {
+			estimatedTasks = workflowEstimator.findTasksOnPath(estimator.getStartElement());
+		}
 		
-		return emptyList();
+		return estimatedTasks;
 	}
 
 	private List<Process> getAllProcesses() {
