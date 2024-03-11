@@ -51,8 +51,11 @@
       "config" : {
         "output" : {
           "code" : [
+            "import com.axonivy.utils.estimator.demo.model.Estimator;",
             "import com.axonivy.utils.estimator.demo.WorkflowEstimatorDemoBean;",
-            "in.bean = new WorkflowEstimatorDemoBean();"
+            "",
+            "in.bean = new WorkflowEstimatorDemoBean();",
+            "in.bean.seletedEstimator = new Estimator();"
           ]
         }
       },

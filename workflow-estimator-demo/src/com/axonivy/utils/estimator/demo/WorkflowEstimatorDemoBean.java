@@ -2,6 +2,7 @@ package com.axonivy.utils.estimator.demo;
 
 import static java.util.Collections.emptyList;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +24,8 @@ public class WorkflowEstimatorDemoBean {
 
 	private List<Estimator> estimators = new ArrayList<>();
 	private List<Process> processes = emptyList();
+	
+	private Estimator seletedEstimator = null;
 
 	public WorkflowEstimatorDemoBean() {
 		processes = getAllProcesses();
@@ -48,8 +51,16 @@ public class WorkflowEstimatorDemoBean {
 	
 	public void onDeleteEstimator(Estimator estimator) {
 		estimators.remove(estimator);
-	}
+	}	
 	
+	public Estimator getSeletedEstimator() {
+		return seletedEstimator;
+	}
+
+	public void setSeletedEstimator(Estimator seletedEstimator) {
+		this.seletedEstimator = seletedEstimator;
+	}
+
 	public void onSelectedProcess() {
 		
 	}
@@ -65,7 +76,7 @@ public class WorkflowEstimatorDemoBean {
 		return  Arrays.stream(FindType.values()).toList();
 	}
 	
-	public List<EstimatedTask> getEstimatedtask(Estimator estimator) throws Exception{
+	public List<EstimatedTask> getEstimatedTask(Estimator estimator) throws Exception{
 		var workflowEstimator = new WorkflowEstimator(estimator.getProcess(), null, estimator.getFlowName());
 		List<EstimatedTask> estimatedTasks = null;
 		if(FindType.ALL_TASK.equals(estimator.getFindType())) {
@@ -77,6 +88,18 @@ public class WorkflowEstimatorDemoBean {
 		return estimatedTasks;
 	}
 
+	public Duration getEstimatedTaskCalculate(Estimator estimator) throws Exception{
+		var workflowEstimator = new WorkflowEstimator(estimator.getProcess(), null, estimator.getFlowName());
+		Duration total = Duration.ZERO;
+		if(FindType.ALL_TASK.equals(estimator.getFindType())) {
+			total = workflowEstimator.calculateEstimatedDuration(estimator.getStartElement());
+		} else {
+			total = workflowEstimator.calculateEstimatedDuration(estimator.getStartElement());
+		}
+		
+		return total;
+	}
+	
 	private List<Process> getAllProcesses() {
 		var manager = IProcessManager.instance().getProjectDataModelFor(IProcessModelVersion.current());
 		List<Process> processes = manager.search().find().stream()
