@@ -41,7 +41,7 @@
 						var="element" itemLabel="#{element.name}" itemValue="#{element}" />
 				</p:selectOneMenu>
 
-				<p:outputLabel for="SelectOneFindType" value="Find type:" />
+				<p:outputLabel for="SelectOneFindType" value="Find Type:" />
 				<p:selectOneMenu id="SelectOneFindType" converter="pojoConverter"
 					value="#{data.workflowEstimatorDemoBean.selectedEstimator.findType}">
 					<f:selectItem itemLabel="Select find type" itemValue=""
@@ -51,20 +51,18 @@
 						itemLabel="#{type.findType}" itemValue="#{type}" />
 				</p:selectOneMenu>
 
-				<p:outputLabel for="flowName" value="Flow name:" />
+				<p:outputLabel for="flowName" value="Flow Name:" />
 				<p:inputText id="flowName"
 					value="#{data.workflowEstimatorDemoBean.selectedEstimator.flowName}" />
 			</p:panelGrid>
 
-			<p:panelGrid columns="1" layout="flex" id="tasks">
-				<p:panelGrid columns="1" 
-					rendered="#{not empty data.workflowEstimatorDemoBean.selectedEstimator.tasks }">
-					<p:outputLabel
-						value="Path: #{data.workflowEstimatorDemoBean.selectedEstimator.elementNames}" />
-					<p:outputLabel
-						value="Total Duration: #{data.workflowEstimatorDemoBean.selectedEstimator.totalDurationInHours}" />
-				</p:panelGrid>
-			</p:panelGrid>
+			<p:outputPanel id="tasks">
+				<p:outputLabel value="Estimated Task: " styleClass="text-bold" />
+				<p:outputLabel value="#{data.workflowEstimatorDemoBean.selectedEstimator.elementNames}" />
+				<br />
+				<p:outputLabel value="Total Duration: " styleClass="text-bold" />
+				<p:outputLabel value="#{data.workflowEstimatorDemoBean.selectedEstimator.totalDurationInHours}" />
+			</p:outputPanel>
 
 			<p:panel id="process-viewer-diagram" header="Process diagram"
 				toggleable="true" toggleSpeed="500" closeSpeed="500"

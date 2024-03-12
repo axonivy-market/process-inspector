@@ -17,7 +17,7 @@
         "signature" : "start"
       },
       "visual" : {
-        "at" : { "x" : 96, "y" : 64 }
+        "at" : { "x" : 192, "y" : 64 }
       },
       "connect" : [
         { "id" : "f3", "to" : "f2" }
@@ -26,12 +26,21 @@
       "id" : "f1",
       "type" : "TaskEnd",
       "visual" : {
-        "at" : { "x" : 1152, "y" : 64 }
+        "at" : { "x" : 1104, "y" : 64 }
       }
     }, {
       "id" : "f2",
       "type" : "UserTask",
       "name" : "Task A",
+      "config" : {
+        "task" : {
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
+        }
+      },
       "visual" : {
         "at" : { "x" : 320, "y" : 64 }
       },
@@ -47,17 +56,23 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 464, "y" : 64 }
+        "at" : { "x" : 440, "y" : 64 }
       },
       "connect" : [
-        { "id" : "f13", "to" : "f12" },
+        { "id" : "f13", "to" : "f12", "label" : {
+            "name" : [
+              "{internal}",
+              "{external}",
+              "{mixed}"
+            ]
+          } },
         { "id" : "f15", "to" : "f7", "color" : "default path" }
       ]
     }, {
       "id" : "f6",
       "type" : "Alternative",
       "visual" : {
-        "at" : { "x" : 768, "y" : 64 }
+        "at" : { "x" : 720, "y" : 64 }
       },
       "connect" : [
         { "id" : "f9", "to" : "f8" }
@@ -66,7 +81,7 @@
       "id" : "f8",
       "type" : "Alternative",
       "visual" : {
-        "at" : { "x" : 960, "y" : 64 }
+        "at" : { "x" : 912, "y" : 64 }
       },
       "connect" : [
         { "id" : "f10", "to" : "f1" }
@@ -75,26 +90,41 @@
       "id" : "f11",
       "type" : "UserTask",
       "name" : "Task C",
+      "config" : {
+        "task" : {
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(8,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
+        }
+      },
       "visual" : {
-        "at" : { "x" : 616, "y" : 192 }
+        "at" : { "x" : 624, "y" : 192 }
       },
       "connect" : [
-        { "id" : "f19", "to" : "f6", "via" : [ { "x" : 768, "y" : 192 } ] }
+        { "id" : "f19", "to" : "f6", "via" : [ { "x" : 720, "y" : 192 } ] }
       ]
     }, {
       "id" : "f12",
       "type" : "Alternative",
+      "name" : "int/ext?",
       "config" : {
         "conditions" : {
           "f14" : "true"
         }
       },
       "visual" : {
-        "at" : { "x" : 464, "y" : 192 }
+        "at" : { "x" : 440, "y" : 192 },
+        "labelOffset" : { "x" : -32, "y" : -8 }
       },
       "connect" : [
-        { "id" : "f14", "to" : "f11" },
-        { "id" : "f21", "to" : "f20", "via" : [ { "x" : 464, "y" : 328 } ], "color" : "default path" }
+        { "id" : "f14", "to" : "f11", "label" : {
+            "name" : "{internal}"
+          } },
+        { "id" : "f21", "to" : "f20", "color" : "default path", "label" : {
+            "name" : "{external}"
+          } }
       ]
     }, {
       "id" : "f7",
@@ -102,11 +132,16 @@
       "name" : "Task B",
       "config" : {
         "task" : {
-          "name" : "Task B"
+          "name" : "Task B",
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(3,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
         }
       },
       "visual" : {
-        "at" : { "x" : 616, "y" : 64 }
+        "at" : { "x" : 568, "y" : 64 }
       },
       "connect" : [
         { "id" : "f16", "to" : "f6" }
@@ -119,7 +154,7 @@
         "signature" : "start2"
       },
       "visual" : {
-        "at" : { "x" : 104, "y" : 192 }
+        "at" : { "x" : 192, "y" : 192 }
       },
       "connect" : [
         { "id" : "f18", "to" : "f12" }
@@ -128,11 +163,109 @@
       "id" : "f20",
       "type" : "UserTask",
       "name" : "Task D",
+      "config" : {
+        "task" : {
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(9,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
+        }
+      },
       "visual" : {
-        "at" : { "x" : 616, "y" : 328 }
+        "at" : { "x" : 440, "y" : 376 }
       },
       "connect" : [
-        { "id" : "f22", "to" : "f8", "via" : [ { "x" : 960, "y" : 328 } ] }
+        { "id" : "f26", "to" : "f22", "var" : "in1" }
+      ]
+    }, {
+      "id" : "f22",
+      "type" : "TaskSwitchGateway",
+      "name" : "Task1",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "name" : "Task1A"
+          }, {
+            "id" : "TaskB",
+            "name" : "Task1B"
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 560, "y" : 376 },
+        "labelOffset" : { "x" : -16, "y" : -32 }
+      },
+      "connect" : [
+        { "id" : "f27", "to" : "f23", "via" : [ { "x" : 560, "y" : 320 } ], "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f28", "to" : "f24", "via" : [ { "x" : 560, "y" : 432 } ], "condition" : "ivp==\"TaskB.ivp\"" }
+      ]
+    }, {
+      "id" : "f23",
+      "type" : "UserTask",
+      "name" : "Task K",
+      "config" : {
+        "task" : {
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(6,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 680, "y" : 320 }
+      },
+      "connect" : [
+        { "id" : "f29", "to" : "f25", "via" : [ { "x" : 816, "y" : 320 } ], "var" : "in1" }
+      ]
+    }, {
+      "id" : "f24",
+      "type" : "UserTask",
+      "name" : "Task G",
+      "config" : {
+        "task" : {
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(2,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 680, "y" : 432 }
+      },
+      "connect" : [
+        { "id" : "f30", "to" : "f25", "via" : [ { "x" : 816, "y" : 432 } ], "var" : "in2" }
+      ]
+    }, {
+      "id" : "f25",
+      "type" : "TaskSwitchGateway",
+      "name" : "Join",
+      "config" : {
+        "tasks" : [ ]
+      },
+      "visual" : {
+        "at" : { "x" : 816, "y" : 368 },
+        "labelOffset" : { "x" : -16, "y" : 8 }
+      },
+      "connect" : [
+        { "id" : "f32", "to" : "f31", "via" : [ { "x" : 912, "y" : 368 } ], "condition" : "ivp==\"TaskA.ivp\"" }
+      ]
+    }, {
+      "id" : "f31",
+      "type" : "Alternative",
+      "config" : {
+        "conditions" : {
+          "f34" : "true",
+          "f33" : ""
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 912, "y" : 248 }
+      },
+      "connect" : [
+        { "id" : "f33", "to" : "f8", "color" : "default path" },
+        { "id" : "f34", "to" : "f12", "via" : [ { "x" : 472, "y" : 248 } ] }
       ]
     } ],
   "layout" : {

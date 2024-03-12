@@ -18,7 +18,12 @@
 				<div class="command-btns">
 					<p:commandButton id="addEstimator" value="Add Estimator"
 						oncomplete="PF('estimatorDialog').show()"
+<<<<<<< HEAD
 						actionListener="#{logic.addEstimator}" update="estimator-dialog:estimator-dialog-content"
+=======
+						actionListener="#{logic.addEstimator}"
+						update="estimator-dialog:estimator-dialog-content"
+>>>>>>> ca5373d (TE-538: Add process diagram)
 						icon="fa-solid fa-add" />
 				</div>
 
@@ -26,6 +31,7 @@
 					items="#{data.workflowEstimatorDemoBean.estimators}"
 					varStatus="status">
 					<p:fieldset>
+<<<<<<< HEAD
 						<p:outputLabel value="Process: " style="font-weight: bold;" />
 						<p:outputLabel value="#{estimator.process.name}" />
 						<br />
@@ -52,6 +58,34 @@
 						<p:panel id="process-diagram-#{estimator.id}"
 							header="Process diagram" widgetVar="panel-#{estimator.id}" toggleable="true"
 							toggleSpeed="500" collapsed="true">
+=======
+						<p:panelGrid columns="4" layout="flex"
+							columnClasses="col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9, col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9"
+							contentStyleClass="ui-fluid">
+							<p:outputLabel value="Process: " styleClass="text-bold" />
+							<p:outputLabel value="#{estimator.process.name}" />
+
+							<p:outputLabel value="Start Elements: " styleClass="text-bold" />
+							<p:outputLabel value="#{estimator.startElement.name}" />
+
+							<p:outputLabel value="Find Type: " styleClass="text-bold" />
+							<p:outputLabel value="#{estimator.findType}" />
+
+							<p:outputLabel value="Flow Name: " styleClass="text-bold" />
+							<p:outputLabel value="#{estimator.flowName}" />
+
+						</p:panelGrid>
+						<p:outputPanel rendered="#{not empty estimator.tasks}">
+							<p:outputLabel value="Estimated Task: " styleClass="text-bold" />
+							<p:outputLabel value="#{estimator.elementNames}" styleClass="text-bold" />
+							<br/>
+							<p:outputLabel value="Total Duration: " styleClass="text-bold" />
+							<p:outputLabel value="#{estimator.totalDurationInHours}" styleClass="text-bold" />
+						</p:outputPanel>
+
+						<p:panel id="process-diagram-#{estimator.id}" header="Process diagram" widgetVar="panel-#{estimator.id}"
+							toggleable="true" toggleSpeed="500" collapsed="true">
+							
 							<iframe id="process-viewer" style="width: 100%; height: 400px"
 								src="#{estimator.processPath}" />
 						</p:panel>
@@ -68,8 +102,7 @@
 						</div>
 
 					</p:fieldset>
-					<br />
-					<br />
+					<br />					
 				</c:forEach>
 			</h:form>
 
