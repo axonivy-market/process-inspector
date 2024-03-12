@@ -23,6 +23,7 @@ public class WorkflowEstimatorDemoBean {
 	private static final List<String> PROCESS_FOLDERS = Arrays.asList("Bussiness Processes");
 
 	private List<Estimator> estimators = new ArrayList<>();
+	
 	private List<Process> processes = emptyList();
 	
 	private Estimator seletedEstimator = null;
@@ -35,11 +36,9 @@ public class WorkflowEstimatorDemoBean {
 		return estimators;
 	}
 
-
 	public void setEstimators(List<Estimator> estimators) {
 		this.estimators = estimators;
 	}
-
 
 	public List<Process> getProcesses() {
 		return processes;

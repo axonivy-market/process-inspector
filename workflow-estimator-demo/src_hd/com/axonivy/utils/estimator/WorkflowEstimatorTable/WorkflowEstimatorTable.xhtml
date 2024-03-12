@@ -19,11 +19,39 @@
 					<p:commandButton id="addEstimator" value="Add Estimator" oncomplete="PF('estimatorDialog').show()"  icon="fa-solid fa-add" />
 				</div>
 
-<!-- 				<c:forEach var="estimator" items="#{data.workflowEstimatorDemoBean.estimators}" varStatus="status">					 -->
-<!-- 				</c:forEach>				 -->
+				<c:forEach var="estimator" items="#{data.workflowEstimatorDemoBean.estimators}" varStatus="status">					
+                    <p:panel>
+                        <p:outputLabel value="Process: " style="font-weight: bold;" />
+                        <p:outputLabel value="#{estimator.process.name}"/> <br/>
+                        
+                        <p:outputLabel value="Start Elements: " style="font-weight: bold;"/>
+                        <p:outputLabel value="#{estimator.startElement.name}"/> <br/>
+                        
+                        <p:outputLabel value="Find type: " style="font-weight: bold;"/>
+                        <p:outputLabel value="#{estimator.findType}"/> <br/>
+                        
+                        <p:outputLabel value="Flow name: " style="font-weight: bold;"/>
+                        <p:outputLabel value="#{estimator.flowName}"/> <br/>
+                        
+                        <p:outputPanel rendered="#{not empty estimator.tasks}">
+                            <p:outputLabel value="Path: #{estimator.elementNames}" />
+                            <br />
+                            <p:outputLabel value="Total Duration: #{estimator.totalDurationInHours}" />
+                        </p:outputPanel> 
+                    
+                        <div style="float: right">
+<!--                             <p:commandButton id="edit" actionListener="#{logic.onGenerate}" -->
+<!--                                 value="Edit" process="@form" update="@form" -->
+<!--                                 icon="fa-solid fa-edit" /> -->
+            
+                            <p:commandButton actionListener="#{logic.deleteEstimator(estimator)}" update="workflow-estimator"
+                                value="Delete" process="workflow-estimator" icon="si si-delete-2" />
+                        </div>  
+                    </p:panel><br/> <br/>
+				</c:forEach>				
 			</h:form>
 			
-			<ic:com.axonivy.utils.estimator.component.EstimatorDialog id="estimator-dialog"
+			<ic:com.axonivy.utils.estimator.component.EstimatorDialog id="estimator-dialog" updateFormId="workflow-estimator"
 			dialogWidgetVarId="estimatorDialog"  workflowEstimatorDemoBean="#{data.workflowEstimatorDemoBean}"/>
 			
 		</ui:define>
