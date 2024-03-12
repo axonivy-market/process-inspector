@@ -10,6 +10,7 @@
 
 <cc:interface componentType="IvyComponent">
 	<cc:attribute name="dialogWidgetVarId" required="true" />
+    <cc:attribute name="updateFormId"/>
 </cc:interface>
 
 
@@ -71,7 +72,7 @@
 					value="Generate" process="@form" update="@form"
 					icon="fa-solid fa-check" />
 
-				<p:commandButton id="save-estimator" actionListener="#{logic.onSaveEstimator}"
+				<p:commandButton id="save-estimator" actionListener="#{logic.onSaveEstimator}" update="#{cc.attrs.updateFormId}"
 					value="Save Estimator" process="@this" icon="fa-solid fa-save" oncomplete="PF('estimatorDialog').hide()"  />
 			</div>
 
