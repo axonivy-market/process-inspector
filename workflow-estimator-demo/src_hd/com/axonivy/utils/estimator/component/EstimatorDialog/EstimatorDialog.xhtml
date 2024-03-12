@@ -10,41 +10,40 @@
 
 <cc:interface componentType="IvyComponent">
 	<cc:attribute name="dialogWidgetVarId" required="true" />
-    <cc:attribute name="updateFormId"/>
+	<cc:attribute name="updateFormId" />
 </cc:interface>
-
-
 <cc:implementation>
-	<p:dialog widgetVar="#{cc.attrs.dialogWidgetVarId}" width="95%"
-		header="Workflow Estimator Demo" appendTo="@(body)">
+
+	<p:dialog widgetVar="#{cc.attrs.dialogWidgetVarId}" width="95%" cache="false"
+		position="20" header="Workflow Estimator Demo" appendTo="@(body)">
 		<h:form id="estimator-dialog-content">
 			<p:panelGrid columns="4" layout="flex"
-				columnClasses="col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9, col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9"
+				 columnClasses="col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9, col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9"
 				styleClass="customPanelGrid" contentStyleClass="ui-fluid">
 				<p:outputLabel for="selectOneProcess" value="Process:" />
 				<p:selectOneMenu id="selectOneProcess" converter="pojoConverter"
-					value="#{data.workflowEstimatorDemoBean.seletedEstimator.process}">
+					value="#{data.workflowEstimatorDemoBean.selectedEstimator.process}">
 					<f:selectItem itemLabel="Select process" itemValue="null"
 						noSelectionOption="true" />
 					<f:selectItems value="#{data.workflowEstimatorDemoBean.processes}"
 						var="process" itemLabel="#{process.name}" itemValue="#{process}" />
 					<p:ajax event="change" listener="#{logic.onChooseProcess}"
-						update="estimator-dialog:estimator-dialog-content:selectOneElement"
+						update="estimator-dialog:estimator-dialog-content:selectOneElement estimator-dialog:estimator-dialog-content:process-viewer-diagram"
 						process="@this" />
 				</p:selectOneMenu>
 
 				<p:outputLabel for="selectOneElement" value="Start Elements:" />
 				<p:selectOneMenu id="selectOneElement" converter="pojoConverter"
-					value="#{data.workflowEstimatorDemoBean.seletedEstimator.startElement}">
+					value="#{data.workflowEstimatorDemoBean.selectedEstimator.startElement}">
 					<f:selectItem itemLabel="Select elements" itemValue="" />
 					<f:selectItems
-						value="#{data.workflowEstimatorDemoBean.seletedEstimator.elements}"
+						value="#{data.workflowEstimatorDemoBean.selectedEstimator.elements}"
 						var="element" itemLabel="#{element.name}" itemValue="#{element}" />
 				</p:selectOneMenu>
 
 				<p:outputLabel for="SelectOneFindType" value="Find type:" />
 				<p:selectOneMenu id="SelectOneFindType" converter="pojoConverter"
-					value="#{data.workflowEstimatorDemoBean.seletedEstimator.findType}">
+					value="#{data.workflowEstimatorDemoBean.selectedEstimator.findType}">
 					<f:selectItem itemLabel="Select find type" itemValue=""
 						noSelectionOption="true" />
 					<f:selectItems
@@ -54,29 +53,39 @@
 
 				<p:outputLabel for="flowName" value="Flow name:" />
 				<p:inputText id="flowName"
-					value="#{data.workflowEstimatorDemoBean.seletedEstimator.flowName}" />
+					value="#{data.workflowEstimatorDemoBean.selectedEstimator.flowName}" />
 			</p:panelGrid>
 
-			<p:panel id="tasks"
-				rendered="#{not empty data.workflowEstimatorDemoBean.seletedEstimator.tasks }">
-				<p:outputLabel
-					value="Path: #{data.workflowEstimatorDemoBean.seletedEstimator.elementNames}" />
-				<br />
-				<p:outputLabel
-					value="Total Duration: #{data.workflowEstimatorDemoBean.seletedEstimator.totalDurationInHours}" />
-			</p:panel>
+			<p:panelGrid columns="1" layout="flex" id="tasks">
+				<p:panelGrid columns="1" 
+					rendered="#{not empty data.workflowEstimatorDemoBean.selectedEstimator.tasks }">
+					<p:outputLabel
+						value="Path: #{data.workflowEstimatorDemoBean.selectedEstimator.elementNames}" />
+					<p:outputLabel
+						value="Total Duration: #{data.workflowEstimatorDemoBean.selectedEstimator.totalDurationInHours}" />
+				</p:panelGrid>
+			</p:panelGrid>
 
+			<p:panel id="process-viewer-diagram" header="Process diagram"
+				toggleable="true" toggleSpeed="500" closeSpeed="500"
+				widgetVar="panel"
+				collapsed="#{ data.workflowEstimatorDemoBean.selectedEstimator.processPath eq null ? 'true' : 'false'}">
+				<iframe id="process-viewer" style="width: 100%; height: 300px"
+					src="#{data.workflowEstimatorDemoBean.selectedEstimator.processPath}" />
+			</p:panel>
 
 			<div style="display: flex; float: right; margin-top: 20px">
 				<p:commandButton id="generate" actionListener="#{logic.onGenerate}"
-					value="Generate" process="@form" update="@form"
+					value="Generate" process="@form"
+					update="estimator-dialog:estimator-dialog-content:tasks"
 					icon="fa-solid fa-check" />
 
-				<p:commandButton id="save-estimator" actionListener="#{logic.onSaveEstimator}" update="#{cc.attrs.updateFormId}"
-					value="Save Estimator" process="@this" icon="fa-solid fa-save" oncomplete="PF('estimatorDialog').hide()"  />
+				<p:commandButton id="save-estimator"
+					actionListener="#{logic.onSaveEstimator}"
+					update="#{cc.attrs.updateFormId}" value="Save Estimator"
+					process="@this" icon="fa-solid fa-save"
+					oncomplete="PF('estimatorDialog').hide()" />
 			</div>
-
-
 		</h:form>
 	</p:dialog>
 </cc:implementation>

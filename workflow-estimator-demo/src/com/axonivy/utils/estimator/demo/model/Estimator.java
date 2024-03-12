@@ -1,5 +1,7 @@
 package com.axonivy.utils.estimator.demo.model;
 
+import static java.util.Collections.emptyList;
+
 import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +17,7 @@ public class Estimator {
 	private String id;
 	private String flowName;
 	private Process process;
+	private String processPath;
 	private List<SingleTaskCreator> elements;
 	private FindType findType;
 	private SingleTaskCreator startElement;
@@ -23,6 +26,14 @@ public class Estimator {
 
 	public Estimator() {
 		this.id = UUID.randomUUID().toString();
+		this.flowName = null;
+		this.process = null;
+		this.processPath = null;
+		this.elements = emptyList();
+		this.findType = null;
+		this.startElement = null;
+		this.tasks = emptyList();
+		this.totalDuration = Duration.ZERO;
 	}
 
 	public String getId() {
@@ -35,6 +46,14 @@ public class Estimator {
 
 	public void setProcess(Process process) {
 		this.process = process;
+	}
+
+	public String getProcessPath() {
+		return processPath;
+	}
+
+	public void setProcessPath(String processPath) {
+		this.processPath = processPath;
 	}
 
 	public List<SingleTaskCreator> getElements() {

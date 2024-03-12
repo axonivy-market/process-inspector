@@ -14,10 +14,7 @@
       "type" : "RequestStart",
       "name" : "Start",
       "config" : {
-        "signature" : "start",
-        "request" : {
-          "isVisibleOnStartList" : false
-        }
+        "signature" : "start"
       },
       "visual" : {
         "at" : { "x" : 96, "y" : 64 }
@@ -44,12 +41,17 @@
     }, {
       "id" : "f4",
       "type" : "Alternative",
+      "config" : {
+        "conditions" : {
+          "f13" : "true"
+        }
+      },
       "visual" : {
         "at" : { "x" : 464, "y" : 64 }
       },
       "connect" : [
         { "id" : "f13", "to" : "f12" },
-        { "id" : "f15", "to" : "f7" }
+        { "id" : "f15", "to" : "f7", "color" : "default path" }
       ]
     }, {
       "id" : "f6",
@@ -82,12 +84,17 @@
     }, {
       "id" : "f12",
       "type" : "Alternative",
+      "config" : {
+        "conditions" : {
+          "f14" : "true"
+        }
+      },
       "visual" : {
         "at" : { "x" : 464, "y" : 192 }
       },
       "connect" : [
         { "id" : "f14", "to" : "f11" },
-        { "id" : "f21", "to" : "f20", "via" : [ { "x" : 464, "y" : 328 } ] }
+        { "id" : "f21", "to" : "f20", "via" : [ { "x" : 464, "y" : 328 } ], "color" : "default path" }
       ]
     }, {
       "id" : "f7",
@@ -109,10 +116,7 @@
       "type" : "RequestStart",
       "name" : "NewStart",
       "config" : {
-        "signature" : "start2",
-        "request" : {
-          "isVisibleOnStartList" : false
-        }
+        "signature" : "start2"
       },
       "visual" : {
         "at" : { "x" : 104, "y" : 192 }
@@ -130,5 +134,10 @@
       "connect" : [
         { "id" : "f22", "to" : "f8", "via" : [ { "x" : 960, "y" : 328 } ] }
       ]
-    } ]
+    } ],
+  "layout" : {
+    "colors" : {
+      "default path" : "#1af929"
+    }
+  }
 }
