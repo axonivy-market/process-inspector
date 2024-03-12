@@ -55,7 +55,7 @@
             "import com.axonivy.utils.estimator.demo.WorkflowEstimatorDemoBean;",
             "",
             "in.bean = new WorkflowEstimatorDemoBean();",
-            "in.bean.seletedEstimator = new Estimator();"
+            "in.bean.selectedEstimator = new Estimator();"
           ]
         }
       },

@@ -14,9 +14,13 @@ import com.axonivy.utils.estimator.demo.model.Estimator;
 import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.application.IProcessModelVersion;
+import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.rdm.IProcessManager;
+import ch.ivyteam.ivy.process.viewer.api.ProcessViewer;
+import ch.ivyteam.ivy.workflow.start.IProcessWebStartable;
+import ch.ivyteam.ivy.workflow.start.IWebStartable;
 
 @SuppressWarnings("restriction")
 public class WorkflowEstimatorDemoBean {
@@ -26,7 +30,7 @@ public class WorkflowEstimatorDemoBean {
 	
 	private List<Process> processes = emptyList();
 	
-	private Estimator seletedEstimator = null;
+	private Estimator selectedEstimator = null;
 
 	public WorkflowEstimatorDemoBean() {
 		processes = getAllProcesses();
@@ -44,24 +48,26 @@ public class WorkflowEstimatorDemoBean {
 		return processes;
 	}
 
-	public void onAddEstimator() {
-		estimators.add(new Estimator());
+	public void onAddEstimator(Estimator estimator) {
+		int index = estimators.indexOf(estimator);
+		if(index > -1) {
+			estimators.remove(index);
+			estimators.add(index, estimator);
+		} else {
+			estimators.add(estimator);	
+		}		
 	}
 	
 	public void onDeleteEstimator(Estimator estimator) {
 		estimators.remove(estimator);
 	}	
 	
-	public Estimator getSeletedEstimator() {
-		return seletedEstimator;
+	public Estimator getSelectedEstimator() {
+		return selectedEstimator;
 	}
 
-	public void setSeletedEstimator(Estimator seletedEstimator) {
-		this.seletedEstimator = seletedEstimator;
-	}
-
-	public void onSelectedProcess() {
-		
+	public void setSelectedEstimator(Estimator selectedEstimator) {
+		this.selectedEstimator = selectedEstimator;
 	}
 
 	public List<SingleTaskCreator> getAllTaskModifier(Process process) {
@@ -98,16 +104,27 @@ public class WorkflowEstimatorDemoBean {
 		
 		return total;
 	}
-	
+
 	private List<Process> getAllProcesses() {
 		var manager = IProcessManager.instance().getProjectDataModelFor(IProcessModelVersion.current());
 		List<Process> processes = manager.search().find().stream()
 				.map(start -> start.getRootProcess())
 				.filter(process -> isAcceptedProcess(PROCESS_FOLDERS, process.getFullQualifiedName().getName()))
 				.distinct()
-				.collect(Collectors.toList());		
-
+				.collect(Collectors.toList());
+		
 		return processes;
+	}
+	
+	public String getProcessWebLink(Process process) {
+		String guid = processes.get(0).getPid().getProcessGuid();
+		IWebStartable webStartable = Ivy.session().getStartables().stream().filter(it -> it.getLink().toRelativeUri().getPath().contains(guid)).findFirst().orElse(null);
+		
+		if(webStartable != null) {
+			return ProcessViewer.of((IProcessWebStartable) webStartable).url().toWebLink().getRelative();	
+		}
+		
+		return null;
 	}
 	
 	private boolean isAcceptedProcess(List<String>folders, String fullQualifiedName) {

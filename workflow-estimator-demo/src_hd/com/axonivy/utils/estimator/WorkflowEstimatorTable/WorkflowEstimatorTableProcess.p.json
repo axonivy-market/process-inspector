@@ -68,10 +68,10 @@
     }, {
       "id" : "f7",
       "type" : "Script",
-      "name" : "add estimator",
+      "name" : "init estimator",
       "config" : {
         "output" : {
-          "code" : "in.workflowEstimatorDemoBean.onAddEstimator();"
+          "code" : "in.workflowEstimatorDemoBean.selectedEstimator = new com.axonivy.utils.estimator.demo.model.Estimator();"
         }
       },
       "visual" : {
@@ -92,7 +92,7 @@
       "name" : "delete estimator",
       "config" : {
         "output" : {
-          "code" : "in.workflowEstimatorDemoBean.estimators.remove(in.workflowEstimatorDemoBean.seletedEstimator);"
+          "code" : "in.workflowEstimatorDemoBean.estimators.remove(in.workflowEstimatorDemoBean.selectedEstimator);"
         }
       },
       "visual" : {
@@ -118,7 +118,7 @@
             { "name" : "estimator", "type" : "com.axonivy.utils.estimator.demo.model.Estimator", "desc" : "" }
           ],
           "map" : {
-            "out.workflowEstimatorDemoBean.seletedEstimator" : "param.estimator"
+            "out.workflowEstimatorDemoBean.selectedEstimator" : "param.estimator"
           }
         },
         "guid" : "18E303AA97F682BA"

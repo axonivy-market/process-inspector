@@ -73,8 +73,9 @@
       "config" : {
         "output" : {
           "code" : [
-            "if(in.workflowEstimatorDemoBean.seletedEstimator is initialized) {",
-            " in.workflowEstimatorDemoBean.seletedEstimator.elements = in.workflowEstimatorDemoBean.getAllTaskModifier(in.workflowEstimatorDemoBean.seletedEstimator.process);  ",
+            "if(in.workflowEstimatorDemoBean.selectedEstimator is initialized) {",
+            " in.workflowEstimatorDemoBean.selectedEstimator.elements = in.workflowEstimatorDemoBean.getAllTaskModifier(in.workflowEstimatorDemoBean.selectedEstimator.process);",
+            " in.workflowEstimatorDemoBean.selectedEstimator.processPath = in.workflowEstimatorDemoBean.getProcessWebLink(in.workflowEstimatorDemoBean.selectedEstimator.process);  ",
             "}"
           ]
         }
@@ -111,8 +112,8 @@
       "config" : {
         "output" : {
           "code" : [
-            "in.workflowEstimatorDemoBean.seletedEstimator.tasks = in.workflowEstimatorDemoBean.getEstimatedTask(in.workflowEstimatorDemoBean.seletedEstimator);",
-            "in.workflowEstimatorDemoBean.seletedEstimator.totalDuration = in.workflowEstimatorDemoBean.getEstimatedTaskCalculate(in.workflowEstimatorDemoBean.seletedEstimator);"
+            "in.workflowEstimatorDemoBean.selectedEstimator.tasks = in.workflowEstimatorDemoBean.getEstimatedTask(in.workflowEstimatorDemoBean.selectedEstimator);",
+            "in.workflowEstimatorDemoBean.selectedEstimator.totalDuration = in.workflowEstimatorDemoBean.getEstimatedTaskCalculate(in.workflowEstimatorDemoBean.selectedEstimator);"
           ]
         }
       },
@@ -149,8 +150,8 @@
         "output" : {
           "code" : [
             "import com.axonivy.utils.estimator.demo.model.Estimator;",
-            "in.workflowEstimatorDemoBean.estimators.add(in.workflowEstimatorDemoBean.seletedEstimator);",
-            "in.workflowEstimatorDemoBean.seletedEstimator = new Estimator();"
+            "in.workflowEstimatorDemoBean.onAddEstimator(in.workflowEstimatorDemoBean.selectedEstimator);",
+            "in.workflowEstimatorDemoBean.selectedEstimator = new Estimator();"
           ]
         }
       },
