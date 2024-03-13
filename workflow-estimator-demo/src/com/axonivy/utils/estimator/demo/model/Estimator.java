@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import com.axonivy.utils.estimator.demo.constant.FindType;
 import com.axonivy.utils.estimator.model.EstimatedTask;
 
@@ -104,8 +106,11 @@ public class Estimator {
 		this.totalDuration = toDuration;
 	}
 	
-	public long getTotalDurationInHours() {
-		return totalDuration.toHours();
+	public String getTotalDurationInHours() {
+		if(totalDuration.isZero()) {
+			return StringUtils.EMPTY;
+		}
+		return  DurationFormatUtils.formatDuration(totalDuration.toMillis(), "H 'hours', m 'minutes', s 'seconds'");
 	}
 
 	public String getElementNames() {
