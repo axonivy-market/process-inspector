@@ -106,7 +106,7 @@ public class Estimator {
 		this.totalDuration = toDuration;
 	}
 	
-	public String getTotalDurationInHours() {
+	public String getDisplayTotalDuration() {
 		if(totalDuration.isZero()) {
 			return StringUtils.EMPTY;
 		}
