@@ -26,6 +26,7 @@
 				<c:forEach var="estimator"
 					items="#{data.workflowEstimatorDemoBean.estimators}"
 					varStatus="status">
+					<br />		
 					<p:fieldset>
 						<p:panelGrid columns="4" layout="flex"
 							columnClasses="col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9, col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9"
@@ -48,7 +49,7 @@
 							<p:outputLabel value="#{estimator.elementNames}" styleClass="text-bold" />
 							<br/>
 							<p:outputLabel value="Total Duration: " styleClass="text-bold" />
-							<p:outputLabel value="#{estimator.totalDurationInHours}" styleClass="text-bold" />
+							<p:outputLabel value="#{estimator.totalDurationInHours} hours" styleClass="text-bold" />
 						</p:outputPanel>
 
 						<p:panel id="process-diagram-#{estimator.id}" header="Process diagram" widgetVar="panel-#{estimator.id}"
@@ -58,7 +59,7 @@
 								src="#{estimator.processPath}" />
 						</p:panel>
 
-						<div style="float: right">
+						<div style="float: right; margin-top: 10px">
 							<!--                             <p:commandButton id="edit" actionListener="#{logic.onGenerate}" -->
 							<!--                                 value="Edit" process="@form" update="@form" -->
 							<!--                                 icon="fa-solid fa-edit" /> -->
@@ -70,7 +71,7 @@
 						</div>
 
 					</p:fieldset>
-					<br />					
+								
 				</c:forEach>
 			</h:form>
 
