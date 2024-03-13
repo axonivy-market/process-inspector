@@ -117,7 +117,7 @@ public class WorkflowEstimatorDemoBean {
 	}
 	
 	public String getProcessWebLink(Process process) {
-		String guid = processes.get(0).getPid().getProcessGuid();
+		String guid = process.getPid().getProcessGuid();
 		IWebStartable webStartable = Ivy.session().getStartables().stream().filter(it -> it.getLink().toRelativeUri().getPath().contains(guid)).findFirst().orElse(null);
 		
 		if(webStartable != null) {
