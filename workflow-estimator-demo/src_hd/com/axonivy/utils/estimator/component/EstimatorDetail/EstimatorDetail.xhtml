@@ -1,0 +1,87 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:cc="http://xmlns.jcp.org/jsf/composite"
+	xmlns:ic="http://ivyteam.ch/jsf/component"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+<cc:interface componentType="IvyComponent">
+	<cc:attribute name="estimator" required="true" />
+</cc:interface>
+
+<cc:implementation>
+	<h:outputStylesheet name="estimator-detail.css" library="ivy-dialog" />
+	<c:set var="estimator" value="#{cc.attrs.estimator}" />
+	
+	<p:fieldset legend="Process Id: #{estimator.process.pid.rawPid}">
+		<p:panelGrid columns="4" layout="flex"
+			columnClasses="col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9, col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9"
+			contentStyleClass="ui-fluid">
+			<p:outputLabel value="Process: " styleClass="text-bold" />
+			<p:outputLabel value="#{estimator.process.name}" />
+
+			<p:outputLabel value="Start Elements: " styleClass="text-bold" />
+			<p:outputLabel value="#{estimator.startElement.name}" />
+
+			<p:outputLabel value="Find Type: " styleClass="text-bold" />
+			<p:outputLabel value="#{estimator.findType}" />
+
+			<p:outputLabel value="Flow Name: " styleClass="text-bold" />
+			<p:outputLabel value="#{estimator.flowName}" />
+
+		</p:panelGrid>
+
+		<p:dataTable value="#{estimator.tasks}" var="task" stripedRows="true"
+			resizableColumns="true" rowIndexVar="row"
+			styleClass="ui-datatable-sm ui-datatable-gridlines">
+			<p:column headerText="#" width="20px">
+				<h:outputText value="#{row + 1}" />
+			</p:column>
+
+			<p:column headerText="PID">
+				<h:outputText value="#{task.shortPid}" title="#{task.pid}" />
+			</p:column>
+
+			<p:column headerText="Task Name">
+				<h:outputText value="#{task.taskName}" />
+			</p:column>
+			
+			<p:column headerText="Element Name">
+				<h:outputText value="#{task.elementName}" />
+			</p:column>
+
+			<p:column headerText="Estimated Duration">
+				<h:outputText value="#{task.displayTotalDuration}" />
+			</p:column>
+
+			<p:column headerText="Parent Element Names" styleClass="text-overflow">
+				<h:outputText value="#{task.displayParentElementNames}" title="#{task.displayParentElementNames}"/>
+			</p:column>
+
+			<p:column headerText="Estimated Start Time">
+				<h:outputText value="#{task.estimatedStartTimestamp}">
+					<f:convertDateTime pattern="dd.MM.yyyy HH:mm" />
+				</h:outputText>
+
+			</p:column>
+			<p:column headerText="Custom Info">
+				<h:outputText value="#{task.customInfo}" />
+			</p:column>
+		</p:dataTable>
+
+		<p:panel id="process-diagram-#{estimator.id}" header="Process diagram"
+			widgetVar="panel-#{estimator.id}" toggleable="true" toggleSpeed="500"
+			collapsed="true">
+
+			<iframe id="process-viewer" style="width: 100%; height: 400px"
+				src="#{estimator.processPath}" />
+		</p:panel>
+
+	</p:fieldset>
+
+
+</cc:implementation>
+
+</html>

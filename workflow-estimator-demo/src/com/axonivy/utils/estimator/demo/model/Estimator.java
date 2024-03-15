@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import com.axonivy.utils.estimator.demo.constant.FindType;
+import com.axonivy.utils.estimator.helper.DateTimeHelper;
 import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.process.model.Process;
@@ -107,10 +108,7 @@ public class Estimator {
 	}
 	
 	public String getDisplayTotalDuration() {
-		if(totalDuration.isZero()) {
-			return StringUtils.EMPTY;
-		}
-		return  DurationFormatUtils.formatDuration(totalDuration.toMillis(), "H 'hours', m 'minutes', s 'seconds'");
+		return DateTimeHelper.getDisplayDuration (totalDuration);
 	}
 
 	public String getElementNames() {

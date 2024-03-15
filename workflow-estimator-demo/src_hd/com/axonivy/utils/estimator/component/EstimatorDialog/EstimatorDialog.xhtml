@@ -14,8 +14,10 @@
 </cc:interface>
 <cc:implementation>
 
-	<p:dialog widgetVar="#{cc.attrs.dialogWidgetVarId}" width="95%" cache="false"
+	<p:dialog id = "estimator-dialog" widgetVar="#{cc.attrs.dialogWidgetVarId}" width="95%" cache="false"
 		position="20" header="Workflow Estimator Demo" appendTo="@(body)">
+		<p:ajax event="close" update="estimator-dialog" resetValues="true" />
+		
 		<h:form id="estimator-dialog-content">
 			<p:panelGrid columns="4" layout="flex"
 				 columnClasses="col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9, col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9"

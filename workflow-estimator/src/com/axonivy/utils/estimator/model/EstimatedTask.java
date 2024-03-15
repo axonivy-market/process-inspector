@@ -9,6 +9,8 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.time.DateUtils;
 
+import com.axonivy.utils.estimator.helper.DateTimeHelper;
+
 public class EstimatedTask {
 	
 	private String pid;
@@ -62,6 +64,10 @@ public class EstimatedTask {
 		return parentElementNames;
 	}
 
+	public String getDisplayParentElementNames() {
+		return parentElementNames.stream().collect(Collectors.joining(", "));
+	}
+	
 	public void setParentElementNames(List<String> parentElementNames) {
 		this.parentElementNames = parentElementNames;
 	}
@@ -91,6 +97,15 @@ public class EstimatedTask {
 		return DateUtils.addSeconds(this.estimatedStartTimestamp, durationInSecond);
 	}
 
+	public String getDisplayTotalDuration() {
+		return DateTimeHelper.getDisplayDuration (estimatedDuration);
+	}
+	
+	public String getShortPid() {
+		int index = pid.indexOf("-");
+		return pid.substring(index + 1);
+	}
+	
 	@Override
 	public String toString() {
 		return Stream.of(pid, taskName).collect(Collectors.joining("-"));
