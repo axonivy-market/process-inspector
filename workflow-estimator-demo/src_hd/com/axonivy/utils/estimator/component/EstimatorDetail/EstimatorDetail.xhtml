@@ -14,10 +14,11 @@
 <cc:implementation>
 	<h:outputStylesheet name="estimator-detail.css" library="ivy-dialog" />
 	<c:set var="estimator" value="#{cc.attrs.estimator}" />
-	
-	<p:fieldset legend="Process Id: #{estimator.process.pid.rawPid}">
-		<p:panelGrid columns="4" layout="flex"
-			columnClasses="col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9, col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9"
+
+	<p:fieldset id="estimator-detail-fieldset"
+		legend="Process Id: #{estimator.process.pid.rawPid}">
+		<p:panelGrid columns="6" layout="flex"
+			columnClasses="col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9, col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9, col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9"
 			contentStyleClass="ui-fluid">
 			<p:outputLabel value="Process: " styleClass="text-bold" />
 			<p:outputLabel value="#{estimator.process.name}" />
@@ -27,6 +28,9 @@
 
 			<p:outputLabel value="Find Type: " styleClass="text-bold" />
 			<p:outputLabel value="#{estimator.findType}" />
+
+			<p:outputLabel value="Use case: " styleClass="text-bold" />
+			<p:outputLabel value="#{estimator.useCase.name()}" />
 
 			<p:outputLabel value="Flow Name: " styleClass="text-bold" />
 			<p:outputLabel value="#{estimator.flowName}" />
@@ -47,7 +51,7 @@
 			<p:column headerText="Task Name">
 				<h:outputText value="#{task.taskName}" />
 			</p:column>
-			
+
 			<p:column headerText="Element Name">
 				<h:outputText value="#{task.elementName}" />
 			</p:column>
@@ -56,8 +60,10 @@
 				<h:outputText value="#{task.displayTotalDuration}" />
 			</p:column>
 
-			<p:column headerText="Parent Element Names" styleClass="text-overflow">
-				<h:outputText value="#{task.displayParentElementNames}" title="#{task.displayParentElementNames}"/>
+			<p:column headerText="Parent Element Names"
+				styleClass="text-overflow">
+				<h:outputText value="#{task.displayParentElementNames}"
+					title="#{task.displayParentElementNames}" />
 			</p:column>
 
 			<p:column headerText="Estimated Start Time">

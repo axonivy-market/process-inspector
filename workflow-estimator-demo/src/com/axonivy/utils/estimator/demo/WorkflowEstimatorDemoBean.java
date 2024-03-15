@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.axonivy.utils.estimator.WorkflowEstimator;
+import com.axonivy.utils.estimator.constant.UseCase;
 import com.axonivy.utils.estimator.demo.constant.FindType;
 import com.axonivy.utils.estimator.demo.model.Estimator;
 import com.axonivy.utils.estimator.model.EstimatedTask;
@@ -81,8 +82,12 @@ public class WorkflowEstimatorDemoBean {
 		return  Arrays.stream(FindType.values()).toList();
 	}
 	
+	public List<UseCase> getAllUseCases(){
+		return  Arrays.stream(UseCase.values()).toList();
+	}
+	
 	public List<EstimatedTask> getEstimatedTask(Estimator estimator) throws Exception{
-		var workflowEstimator = new WorkflowEstimator(estimator.getProcess(), null, estimator.getFlowName());
+		var workflowEstimator = new WorkflowEstimator(estimator.getProcess(), estimator.getUseCase(), estimator.getFlowName());
 		List<EstimatedTask> estimatedTasks = null;
 		if(FindType.ALL_TASK.equals(estimator.getFindType())) {
 			estimatedTasks = workflowEstimator.findAllTasks(estimator.getStartElement());

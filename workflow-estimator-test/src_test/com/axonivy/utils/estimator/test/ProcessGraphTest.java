@@ -3,11 +3,13 @@ package com.axonivy.utils.estimator.test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Duration;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.estimator.ProcessGraph;
+import com.axonivy.utils.estimator.constant.UseCase;
 
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.environment.IvyTest;
@@ -78,9 +80,7 @@ public class ProcessGraphTest {
 	void shouldIsSystemTask() throws Exception {
 		Process process = getProcessByName(PARALLEL_TASKS_EXAMPLE);
 		TaskAndCaseModifier joinTask = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Join");
-		var processGraph = new ProcessGraph(process);
-		var result = processGraph.isSystemTask(joinTask);
-		
+		var result = ProcessGraph.isSystemTask(joinTask);
 		assertTrue(result);
 	}
 	
@@ -92,6 +92,36 @@ public class ProcessGraphTest {
 		var result = processGraph.getParentElementNames(joinTask);
 		
 		assertEquals("[sub with two levels, 2nd level sub]", result.toString());
+	}
+	
+	@Test
+	void shouldGetDurationOfTaskCWithUseCaseBIGPROJECT() throws Exception {
+		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
+		TaskAndCaseModifier taskC = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task C");
+		var processGraph = new ProcessGraph(process);
+		var result = processGraph.getDuration(taskC, taskC.getAllTaskConfigs().get(0), UseCase.BIGPROJECT);
+		
+		assertEquals(Duration.ofHours(4),  result);
+	}
+	
+	@Test
+	void shouldGetDurationOfTaskCWithUseCaseMEDIUMPROJECT() throws Exception {
+		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
+		TaskAndCaseModifier taskC = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task C");
+		var processGraph = new ProcessGraph(process);
+		var result = processGraph.getDuration(taskC, taskC.getAllTaskConfigs().get(0), UseCase.MEDIUMPROJECT);
+		
+		assertEquals(Duration.ofHours(3),  result);
+	}
+	
+	@Test
+	void shouldGetDurationOfTaskCWithUseCaseSMALLPROJECT() throws Exception {
+		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
+		TaskAndCaseModifier taskC = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task C");
+		var processGraph = new ProcessGraph(process);
+		var result = processGraph.getDuration(taskC, taskC.getAllTaskConfigs().get(0), UseCase.SMALLPROJECT);
+		
+		assertEquals(Duration.ofHours(2),  result);
 	}
 }
  

@@ -26,6 +26,8 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 
+import com.axonivy.utils.estimator.constant.UseCase;
+
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.NodeElement;
@@ -88,9 +90,9 @@ public class ProcessGraph {
 		}
 	}
 	
-	public Duration getDuration(TaskAndCaseModifier task, TaskConfig taskConfig) {
+	public Duration getDuration(TaskAndCaseModifier task, TaskConfig taskConfig, UseCase useCase) {
 		String key = getTaskId(task, taskConfig);		
-		return durationOverrides.getOrDefault(key, getDurationByTaskScript(taskConfig));	
+		return durationOverrides.getOrDefault(key, getDurationByTaskScript(taskConfig, useCase));	
 	}
 	
 	public static boolean isSystemTask(TaskAndCaseModifier task) {		
@@ -115,6 +117,7 @@ public class ProcessGraph {
 			List<String> parentElementNames = getParentElementNamesEmbeddedProcessElement(((EmbeddedProcessElement)parentElement).getParent());
 			result.addAll(parentElementNames);
 		}
+		
 		return result;
 	}
 
@@ -302,25 +305,31 @@ public class ProcessGraph {
 					return node instanceof RequestStart == false;
 				})
 				// Remove SYSTEM task
-				.filter(node -> {
-					return isSystemTask(node) == false;
-				}).isPresent();
+				.filter(node -> isSystemTask(node) == false)
+				.isPresent();
 	}
 	
-	private String getCodeLineByPrefix(TaskConfig task, String prefix) {
+	private String getCodeLineByPrefix(TaskConfig task, String... prefix) {
 		// strongly typed!
 		String script = Optional.of(task.getScript()).orElse(EMPTY);
 		String[] codeLines = script.split("\\n");
 		String wfEstimateCode = Arrays.stream(codeLines)
-				.filter(line -> line.contains(prefix))
+				.filter(line -> containtPrefixs(line, prefix))
 				.findFirst()
 				.orElse(EMPTY);
 		return wfEstimateCode;
 	}
 	
-	private Duration getDurationByTaskScript(TaskConfig task) {
-		
-		String wfEstimateCode = getCodeLineByPrefix(task, "WfEstimate.setEstimate");
+	private boolean containtPrefixs(String content, String... prefix) {
+		return List.of(prefix).stream().allMatch(it -> content.contains(it));
+	}
+	private Duration getDurationByTaskScript(TaskConfig task, UseCase useCase) {
+		List<String> prefixs = new ArrayList<String>(Arrays.asList("WfEstimate.setEstimate"));
+		if(useCase != null) {
+			prefixs.add("UseCase." + useCase.name());
+		}
+
+		String wfEstimateCode = getCodeLineByPrefix(task, prefixs.toArray(new String[0]));
 		if (StringUtils.isNotEmpty(wfEstimateCode)) {
 			String result = StringUtils.substringBetween(wfEstimateCode, "(", "UseCase");
 			int amount = Integer.parseInt(result.substring(0, result.indexOf(",")));

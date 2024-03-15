@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.estimator.WorkflowEstimator;
+import com.axonivy.utils.estimator.constant.UseCase;
 import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.environment.IvyTest;
@@ -156,10 +157,17 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 	}
 	
 	@Test
-	void shouldCalculateTotalDuration() throws Exception {
+	void shouldCalculateTotalDurationWithDefault() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		Duration duration = workflowEstimator.calculateEstimatedDuration(start);
 		assertEquals(15, duration.toHours());
+	}
+	
+	@Test
+	void shouldCalculateTotalDurationWithSMALPROJECT() throws Exception {
+		var workflowEstimator = new WorkflowEstimator(process, UseCase.SMALLPROJECT, null);
+		Duration duration = workflowEstimator.calculateEstimatedDuration(start);
+		assertEquals(5, duration.toHours());
 	}
 	
 	@Test

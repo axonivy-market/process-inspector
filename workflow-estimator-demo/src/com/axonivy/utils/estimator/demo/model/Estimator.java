@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
+
+import com.axonivy.utils.estimator.constant.UseCase;
 import com.axonivy.utils.estimator.demo.constant.FindType;
 import com.axonivy.utils.estimator.helper.DateTimeHelper;
 import com.axonivy.utils.estimator.model.EstimatedTask;
@@ -21,6 +23,7 @@ public class Estimator {
 	private String flowName;
 	private Process process;
 	private String processPath;
+	private UseCase useCase;
 	private List<SingleTaskCreator> elements;
 	private FindType findType;
 	private SingleTaskCreator startElement;
@@ -81,6 +84,14 @@ public class Estimator {
 
 	public void setFindType(FindType findType) {
 		this.findType = findType;
+	}
+
+	public UseCase getUseCase() {
+		return useCase;
+	}
+
+	public void setUseCase(UseCase useCase) {
+		this.useCase = useCase;
 	}
 
 	public List<EstimatedTask> getTasks() {
