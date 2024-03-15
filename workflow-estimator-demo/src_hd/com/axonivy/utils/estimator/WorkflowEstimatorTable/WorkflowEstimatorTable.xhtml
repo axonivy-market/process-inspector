@@ -22,12 +22,12 @@
 						update="estimator-dialog:estimator-dialog-content"
 						icon="fa-solid fa-add" />
 				</div>
-				
+
 				<c:forEach var="estimator"
 					items="#{data.workflowEstimatorDemoBean.estimators}"
 					varStatus="status">
 					<ic:com.axonivy.utils.estimator.component.EstimatorDetail
-						estimator="#{estimator}" />
+						id="estimator-detail" estimator="#{estimator}" />
 					<br />
 				</c:forEach>
 			</h:form>

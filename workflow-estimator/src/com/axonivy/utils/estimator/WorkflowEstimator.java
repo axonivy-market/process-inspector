@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import com.axonivy.utils.estimator.constant.UseCase;
 import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -20,7 +21,7 @@ import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 @SuppressWarnings("restriction")
 public class WorkflowEstimator {
 
-	private Enum<?> useCase;
+	private UseCase useCase;
 	private String flowName;
 	
 	public final ProcessGraph graph;
@@ -28,9 +29,10 @@ public class WorkflowEstimator {
 	/** 
 	 * @param process - The process that should be analyzed.
 	 * @param useCase - Use case that should be used to read duration values.
+	 * If it is null, it will get first duration configure line
 	 * @param flowName - Tag name we want to follow at alternative gateways.
 	 */
-	public WorkflowEstimator(Process process, Enum<?> useCase, String flowName) {		
+	public WorkflowEstimator(Process process, UseCase useCase, String flowName) {		
 		this.useCase = useCase;
 		this.flowName = flowName;
 		this.graph = new ProcessGraph(process);
@@ -44,7 +46,7 @@ public class WorkflowEstimator {
 	 */
 	public List<EstimatedTask> findAllTasks(BaseElement startAtElement) throws Exception {
 		List<BaseElement> path = graph.findPath(startAtElement);
-		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path);
+		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path, useCase);
 		return estimatedTasks;
 	}
 	
@@ -55,7 +57,7 @@ public class WorkflowEstimator {
 	 */
 	public List<EstimatedTask> findAllTasks(List<BaseElement> startAtElements) throws Exception {
 		List<BaseElement> path = graph.findPath(startAtElements.toArray(new BaseElement[0]));
-		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path);
+		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path, useCase);
 		return estimatedTasks;
 	}
 
@@ -67,7 +69,7 @@ public class WorkflowEstimator {
 	 */
 	public List<EstimatedTask> findTasksOnPath(BaseElement startAtElement) throws Exception {
 		List<BaseElement> path = graph.findPath(flowName, startAtElement);
-		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path);
+		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path, useCase);
 		return estimatedTasks;
 	}
 	
@@ -78,7 +80,7 @@ public class WorkflowEstimator {
 	 */
 	public List<EstimatedTask> findTasksOnPath(List<BaseElement> startAtElements) throws Exception {
 		List<BaseElement> path = graph.findPath(flowName, startAtElements.toArray(new BaseElement[0]));
-		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path);
+		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path, useCase);
 		return estimatedTasks;
 	}
 	
@@ -94,7 +96,7 @@ public class WorkflowEstimator {
 				? graph.findPath(flowName, startElement)
 				: graph.findPath(startElement);
 		
-		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path);
+		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path, useCase);
 		
 		Duration total = estimatedTasks.stream().map(EstimatedTask::getEstimatedDuration).reduce((a,b) -> a.plus(b)).orElse(Duration.ZERO);
 		
@@ -112,7 +114,7 @@ public class WorkflowEstimator {
 				? graph.findPath(flowName, startElements.toArray(new BaseElement[0]))
 				: graph.findPath(startElements.toArray(new BaseElement[0]));
 		
-		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path);
+		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path, useCase);
 		
 		Duration total = estimatedTasks.stream().map(EstimatedTask::getEstimatedDuration).reduce((a,b) -> a.plus(b)).orElse(Duration.ZERO);
 		
@@ -143,7 +145,7 @@ public class WorkflowEstimator {
 		return this;
 	}
 	
-	private List<EstimatedTask> convertToEstimatedTasks(List<BaseElement> path) {
+	private List<EstimatedTask> convertToEstimatedTasks(List<BaseElement> path, UseCase useCase) {
 
 		List<TaskAndCaseModifier> taskPath = filterAcceptedTask(path);
 
@@ -152,7 +154,7 @@ public class WorkflowEstimator {
 		for (int i = 0; i < taskPath.size(); i++) {
 			List<EstimatedTask> estimatedTaskResults = new ArrayList<>();
 			Date startTimestamp = i == 0 ? new Date() : estimatedTasks.get(estimatedTasks.size() - 1).calculateEstimatedEndTimestamp();
-			estimatedTaskResults = createEstimatedTask(taskPath.get(i), startTimestamp);
+			estimatedTaskResults = createEstimatedTask(taskPath.get(i), startTimestamp, useCase);
 
 			estimatedTasks.addAll(estimatedTaskResults);
 		}
@@ -176,7 +178,7 @@ public class WorkflowEstimator {
 				.toList();
 	}
 	
-	private List<EstimatedTask> createEstimatedTask(TaskAndCaseModifier task, Date startTimestamp) {
+	private List<EstimatedTask> createEstimatedTask(TaskAndCaseModifier task, Date startTimestamp, UseCase useCase) {
 		List<TaskConfig> taskConfigs = task.getAllTaskConfigs();
 		
 		List<EstimatedTask> estimatedTasks = new ArrayList<>();
@@ -188,7 +190,7 @@ public class WorkflowEstimator {
 			estimatedTask.setParentElementNames(graph.getParentElementNames(task));
 			estimatedTask.setTaskName(taskConfig.getName().getRawMacro());
 			estimatedTask.setElementName(task.getName());
-			Duration estimatedDuration = graph.getDuration(task, taskConfig);				
+			Duration estimatedDuration = graph.getDuration(task, taskConfig, useCase);				
 			estimatedTask.setEstimatedDuration(estimatedDuration);
 			estimatedTask.setEstimatedStartTimestamp(startTimestamp);		
 			String customerInfo = graph.getCustomInfoByCode(taskConfig);

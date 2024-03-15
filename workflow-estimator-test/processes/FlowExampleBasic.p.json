@@ -34,9 +34,11 @@
         "task" : {
           "name" : "Task A",
           "code" : [
+            "import com.axonivy.utils.estimator.constant.UseCase;",
             "import java.util.concurrent.TimeUnit;",
             "",
-            "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);",
+            "WfEstimate.setEstimate(3,TimeUnit.HOURS,UseCase.SMALLPROJECT);"
           ]
         }
       },
@@ -76,6 +78,7 @@
           "name" : "Task B",
           "code" : [
             "import java.util.concurrent.TimeUnit;",
+            "import com.axonivy.utils.estimator.constant.UseCase;",
             "",
             "WfEstimate.setEstimate(6,TimeUnit.HOURS,UseCase.BIGPROJECT);",
             "WfEstimate.setCustomInfo(\"abc\");"
@@ -120,9 +123,12 @@
         "task" : {
           "name" : "Task C",
           "code" : [
+            "import com.axonivy.utils.estimator.constant.UseCase;",
             "import java.util.concurrent.TimeUnit;",
             "",
-            "WfEstimate.setEstimate(4,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            "WfEstimate.setEstimate(4,TimeUnit.HOURS,UseCase.BIGPROJECT);",
+            "WfEstimate.setEstimate(2,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
+            "WfEstimate.setEstimate(3,TimeUnit.HOURS,UseCase.MEDIUMPROJECT);"
           ]
         }
       },
