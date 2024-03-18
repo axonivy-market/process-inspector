@@ -2,11 +2,14 @@ package com.axonivy.utils.estimator.test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 
 import org.assertj.core.util.Arrays;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -98,6 +101,20 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 		var estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
 	
 		assertArrayEquals(Arrays.array("Task B"), getTaskNames(estimatedTasks));
+	}
+	
+	@Test
+	void shouldFindTasksOnPathWithProcessFlowOverridesAtStart() throws Exception {
+		var workflowEstimator = new WorkflowEstimator(process, null, null);		
+		var flowOverrides = new HashMap<String, String>();
+		flowOverrides.put("18DC44E096FDFF75-f8", "18DC44E096FDFF75-f12");
+		workflowEstimator.setProcessFlowOverrides(flowOverrides);
+				
+		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
+
+		var expected = Lists.list("Task C",  "Task B");
+		var taskNames = Lists.list(getTaskNames(estimatedTasks));
+		assertTrue(expected.containsAll(taskNames) && taskNames.containsAll(expected));
 	}
 	
 	@Test
