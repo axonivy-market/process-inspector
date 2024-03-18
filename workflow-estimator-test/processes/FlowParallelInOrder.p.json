@@ -1,0 +1,289 @@
+{
+  "$schema" : "https://json-schema.axonivy.com/process/11.2.2/process.json",
+  "id" : "18E3BEFFB97FCA4D",
+  "config" : {
+    "data" : "com.axonivy.utils.estimator.test.Data"
+  },
+  "elements" : [ {
+      "id" : "f0",
+      "type" : "RequestStart",
+      "name" : "start",
+      "config" : {
+        "signature" : "start"
+      },
+      "visual" : {
+        "at" : { "x" : 128, "y" : 168 }
+      },
+      "connect" : [
+        { "id" : "f2", "to" : "f3", "var" : "in1" }
+      ]
+    }, {
+      "id" : "f1",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 920, "y" : 168 }
+      }
+    }, {
+      "id" : "f3",
+      "type" : "TaskSwitchGateway",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "name" : "Task 1A"
+          }, {
+            "id" : "TaskB",
+            "name" : "Task 1B"
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 256, "y" : 168 }
+      },
+      "connect" : [
+        { "id" : "f5", "to" : "f4", "via" : [ { "x" : 256, "y" : 112 } ], "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f9", "to" : "f8", "via" : [ { "x" : 256, "y" : 224 } ], "condition" : "ivp==\"TaskB.ivp\"" }
+      ]
+    }, {
+      "id" : "f4",
+      "type" : "UserTask",
+      "name" : "Task A",
+      "config" : {
+        "task" : {
+          "name" : "Task A"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 368, "y" : 112 }
+      },
+      "connect" : [
+        { "id" : "f7", "to" : "f6" }
+      ]
+    }, {
+      "id" : "f6",
+      "type" : "UserTask",
+      "name" : "Task B",
+      "config" : {
+        "task" : {
+          "name" : "Task B"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 536, "y" : 112 }
+      },
+      "connect" : [
+        { "id" : "f11", "to" : "f10", "via" : [ { "x" : 632, "y" : 112 } ], "var" : "in1" }
+      ]
+    }, {
+      "id" : "f8",
+      "type" : "UserTask",
+      "name" : "Task C",
+      "config" : {
+        "task" : {
+          "name" : "Task C"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 456, "y" : 224 }
+      },
+      "connect" : [
+        { "id" : "f12", "to" : "f10", "via" : [ { "x" : 632, "y" : 224 } ], "var" : "in2" }
+      ]
+    }, {
+      "id" : "f10",
+      "type" : "TaskSwitchGateway",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 632, "y" : 168 }
+      },
+      "connect" : [
+        { "id" : "f14", "to" : "f13", "condition" : "ivp==\"TaskA.ivp\"" }
+      ]
+    }, {
+      "id" : "f13",
+      "type" : "UserTask",
+      "name" : "Task D",
+      "config" : {
+        "task" : {
+          "name" : "Task D"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 768, "y" : 168 }
+      },
+      "connect" : [
+        { "id" : "f15", "to" : "f1" }
+      ]
+    }, {
+      "id" : "f16",
+      "type" : "RequestStart",
+      "name" : "start2",
+      "config" : {
+        "signature" : "start2"
+      },
+      "visual" : {
+        "at" : { "x" : 128, "y" : 416 }
+      },
+      "connect" : [
+        { "id" : "f18", "to" : "f17", "var" : "in1" }
+      ]
+    }, {
+      "id" : "f17",
+      "type" : "TaskSwitchGateway",
+      "name" : "Task2",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "name" : "Task 2A"
+          }, {
+            "id" : "TaskB",
+            "name" : "Task 2B"
+          }, {
+            "id" : "TaskC",
+            "name" : "Task 2C"
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 224, "y" : 416 },
+        "labelOffset" : { "x" : -8, "y" : -8 }
+      },
+      "connect" : [
+        { "id" : "f23", "to" : "f19", "via" : [ { "x" : 224, "y" : 336 } ], "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f24", "to" : "f20", "via" : [ { "x" : 224, "y" : 496 } ], "condition" : "ivp==\"TaskB.ivp\"" },
+        { "id" : "f34", "to" : "f33", "condition" : "ivp==\"TaskC.ivp\"" }
+      ]
+    }, {
+      "id" : "f19",
+      "type" : "UserTask",
+      "name" : "Task F",
+      "config" : {
+        "task" : {
+          "name" : "Task F"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 392, "y" : 336 }
+      },
+      "connect" : [
+        { "id" : "f22", "to" : "f21" }
+      ]
+    }, {
+      "id" : "f20",
+      "type" : "UserTask",
+      "name" : "Task G",
+      "config" : {
+        "task" : {
+          "name" : "Task G"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 392, "y" : 496 }
+      },
+      "connect" : [
+        { "id" : "f28", "to" : "f27" }
+      ]
+    }, {
+      "id" : "f25",
+      "type" : "UserTask",
+      "name" : "Task I",
+      "config" : {
+        "task" : {
+          "name" : "Task I"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 800, "y" : 416 }
+      },
+      "connect" : [
+        { "id" : "f30", "to" : "f29" }
+      ]
+    }, {
+      "id" : "f27",
+      "type" : "UserTask",
+      "name" : "Task K",
+      "config" : {
+        "task" : {
+          "name" : "Task K"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 600, "y" : 496 }
+      },
+      "connect" : [
+        { "id" : "f32", "to" : "f37" }
+      ]
+    }, {
+      "id" : "f29",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 928, "y" : 416 }
+      }
+    }, {
+      "id" : "f33",
+      "type" : "UserTask",
+      "name" : "Task E",
+      "config" : {
+        "task" : {
+          "name" : "Task E"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 392, "y" : 416 }
+      },
+      "connect" : [
+        { "id" : "f35", "to" : "f31", "var" : "in2" }
+      ]
+    }, {
+      "id" : "f31",
+      "type" : "TaskSwitchGateway",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 696, "y" : 416 }
+      },
+      "connect" : [
+        { "id" : "f36", "to" : "f25", "condition" : "ivp==\"TaskA.ivp\"" }
+      ]
+    }, {
+      "id" : "f21",
+      "type" : "UserTask",
+      "name" : "Task H",
+      "config" : {
+        "task" : {
+          "name" : "Task H"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 584, "y" : 336 }
+      },
+      "connect" : [
+        { "id" : "f26", "to" : "f31", "via" : [ { "x" : 696, "y" : 336 } ], "var" : "in1" }
+      ]
+    }, {
+      "id" : "f37",
+      "type" : "UserTask",
+      "name" : "Task M",
+      "config" : {
+        "task" : {
+          "name" : "Task M"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 800, "y" : 496 }
+      },
+      "connect" : [
+        { "id" : "f38", "to" : "f29" }
+      ]
+    } ]
+}

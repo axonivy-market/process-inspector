@@ -27,6 +27,7 @@ import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 
 import com.axonivy.utils.estimator.constant.UseCase;
+import com.google.common.collect.Lists;
 
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -147,10 +148,23 @@ public class ProcessGraph {
 			if(from instanceof EmbeddedProcessElement) {
 				List<BaseElement> pathFromSubProcess = findPathOfSubProcess((EmbeddedProcessElement) from, flowName, isFindAllTasks);
 				path.addAll(pathFromSubProcess);
+			}			
+
+			if(endParallel(from)) {
+				return path;
 			}
+						
+			if(startParallel(from)) {
+				List<BaseElement> pathFromParallel = getListElementInParallelTask((TaskSwitchGateway) from, flowName, isFindAllTasks, previousElements);
+				path.addAll(pathFromParallel);
+				
+				from = findEndTaskSwithGateWay(from, pathFromParallel);
+				if( from == null) {
+					return  path;
+				}				
+			}			
 			
-			List<SequenceFlow> outs = getSequenceFlows((NodeElement) from, flowName, isFindAllTasks);			
-			
+			List<SequenceFlow> outs = getSequenceFlows((NodeElement) from, flowName, isFindAllTasks);
 			if (from instanceof Alternative && outs.isEmpty()) {
 				Ivy.log().error("Can not found the out going from a alternative {0}", from.getPid().getRawPid());
 				throw new Exception("Not found path");
@@ -172,7 +186,29 @@ public class ProcessGraph {
 					});
 		}
 		
-		return path.stream().distinct().toList();
+		return path;
+	}
+	
+	private List<BaseElement> getListElementInParallelTask(TaskSwitchGateway from, String flowName, boolean isFindAllTasks, List<BaseElement> previousElements) throws Exception {
+		List<BaseElement> result = new ArrayList<>();
+		List<SequenceFlow> outs = getSequenceFlows((NodeElement) from, flowName, isFindAllTasks);
+		
+		Map<SequenceFlow, List<BaseElement>> paths = new HashedMap<>();
+		for (SequenceFlow out : outs) {
+			List<BaseElement> currentPath = ListUtils.union(previousElements, Arrays.asList(from));
+			List<BaseElement> nextOfPath = findPath(out.getTarget(), flowName, isFindAllTasks, currentPath);
+			paths.put(out, nextOfPath);
+		}
+
+		paths.entrySet().stream()
+		//Consider to count all element of remove this sort (what flow is drawn first it will go first  
+		.sorted(Map.Entry.comparingByValue(Comparator.comparing(ProcessGraph::countNumberAcceptedTasks, Comparator.reverseOrder())))
+		.forEach(entry -> {
+			result.add(entry.getKey());
+			result.addAll(entry.getValue()); 
+		});
+		
+		return result;
 	}
 	
 	/**
@@ -192,7 +228,7 @@ public class ProcessGraph {
 	}
 	
 	private List<SequenceFlow> getSequenceFlows(NodeElement from, String flowName, boolean isFindAllTasks) {
-		if (isFindAllTasks || from instanceof TaskSwitchGateway) {
+		if (isFindAllTasks || from instanceof TaskSwitchGateway && from != null) {
 			return from.getOutgoing();
 		} else {
 			Optional<SequenceFlow> flow = Optional.empty();
@@ -351,5 +387,17 @@ public class ProcessGraph {
 		}
 
 		return Duration.ofHours(0);
+	}
+	
+	private boolean startParallel(BaseElement task) {
+		return task instanceof TaskSwitchGateway &&  !isSystemTask((TaskAndCaseModifier) task);
+	}
+	
+	private boolean endParallel(BaseElement task) {
+		return task instanceof TaskSwitchGateway &&  isSystemTask((TaskAndCaseModifier) task);
+	}
+	
+	private BaseElement findEndTaskSwithGateWay(BaseElement task, List<BaseElement> elements) {
+		return (BaseElement) Lists.reverse(elements).stream().filter(item -> endParallel(item)).findFirst().orElse(null);  
 	}
 }
