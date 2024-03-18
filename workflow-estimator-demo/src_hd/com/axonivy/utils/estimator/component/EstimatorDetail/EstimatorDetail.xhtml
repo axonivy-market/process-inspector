@@ -18,8 +18,8 @@
 
 	<p:fieldset id="estimator-detail-fieldset"
 		legend="Process GUID: #{estimator.process.pid.processGuid}">
-		<p:panelGrid columns="6" layout="flex"
-			columnClasses="col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9, col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9, col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9"
+		<p:panelGrid columns="6" layout="grid"
+			columnClasses="ui-grid-col-2, ui-grid-col-4, ui-grid-col-2, ui-grid-col-4"
 			contentStyleClass="ui-fluid">
 			<p:outputLabel value="Process: " styleClass="text-bold" />
 			<p:outputLabel value="#{estimator.process.name}" />
@@ -35,7 +35,9 @@
 
 			<p:outputLabel value="Flow Name: " styleClass="text-bold" />
 			<p:outputLabel value="#{estimator.flowName}" />
-
+            
+            <p:outputLabel value="Execution time: " styleClass="text-bold" />
+            <p:outputLabel value="#{estimator.executionTime} miliseconds" />
 		</p:panelGrid>
 
 		<p:dataTable value="#{estimator.tasks}" var="task" stripedRows="true"
