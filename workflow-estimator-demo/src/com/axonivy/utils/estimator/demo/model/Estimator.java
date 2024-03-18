@@ -29,6 +29,7 @@ public class Estimator {
 	private SingleTaskCreator startElement;
 	private List<EstimatedTask> tasks;
 	private Duration totalDuration;
+	private long executionTime;
 
 	public Estimator() {
 		this.id = UUID.randomUUID().toString();
@@ -40,6 +41,7 @@ public class Estimator {
 		this.startElement = null;
 		this.tasks = emptyList();
 		this.totalDuration = Duration.ZERO;
+		this.executionTime = 0;
 	}
 
 	public String getId() {
@@ -124,5 +126,13 @@ public class Estimator {
 
 	public String getElementNames() {
 		return this.tasks.stream().map(EstimatedTask::getElementName).collect(Collectors.joining(" -> "));
+	}
+
+	public long getExecutionTime() {
+		return executionTime;
+	}
+
+	public void setExecutionTime(long executionTime) {
+		this.executionTime = executionTime;
 	}
 }

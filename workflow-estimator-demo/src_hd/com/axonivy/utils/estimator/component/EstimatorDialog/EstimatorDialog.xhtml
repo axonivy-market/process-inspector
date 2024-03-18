@@ -19,8 +19,8 @@
 		position="20" header="Workflow Estimator Demo" appendTo="@(body)">
 
 		<h:form id="estimator-dialog-content">
-			<p:panelGrid columns="6" layout="flex"
-				columnClasses="col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9, col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9, col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9"
+			<p:panelGrid columns="6" layout="grid"
+				columnClasses="ui-grid-col-1, ui-grid-col-3, ui-grid-col-1, ui-grid-col-3, ui-grid-col-1, ui-grid-col-3"
 				styleClass="customPanelGrid" contentStyleClass="ui-fluid">
 				<p:outputLabel for="selectOneProcess" value="Process:" />
 				<p:selectOneMenu id="selectOneProcess" converter="pojoConverter"
@@ -74,10 +74,14 @@
 				<p:outputLabel value="Estimated Task: " styleClass="text-bold" />
 				<p:outputLabel
 					value="#{data.workflowEstimatorDemoBean.selectedEstimator.elementNames}" />
-				<br />
+				<br/>
 				<p:outputLabel value="Total Duration: " styleClass="text-bold" />
 				<p:outputLabel
 					value="#{data.workflowEstimatorDemoBean.selectedEstimator.displayTotalDuration}" />
+                <br/>
+                <p:outputLabel value="Execution time: " styleClass="text-bold" />
+                <p:outputLabel
+                    value="#{data.workflowEstimatorDemoBean.selectedEstimator.executionTime}" />
 			</p:outputPanel>
 
 			<p:panel id="process-viewer-diagram" header="Process diagram"
