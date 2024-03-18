@@ -16,7 +16,7 @@
 
 	<p:dialog id="estimator-dialog"
 		widgetVar="#{cc.attrs.dialogWidgetVarId}" width="95%" cache="false"
-		position="20" header="Workflow Estimator Demo" appendTo="@(body)">
+		position="20" header="Create Workflow Estimator" appendTo="@(body)">
 
 		<h:form id="estimator-dialog-content">
 			<p:panelGrid columns="6" layout="grid"
@@ -79,9 +79,9 @@
 				<p:outputLabel
 					value="#{data.workflowEstimatorDemoBean.selectedEstimator.displayTotalDuration}" />
                 <br/>
-                <p:outputLabel value="Execution time: " styleClass="text-bold" />
+                <p:outputLabel value="Execution Time: " styleClass="text-bold" />
                 <p:outputLabel
-                    value="#{data.workflowEstimatorDemoBean.selectedEstimator.executionTime}" />
+                    value="#{data.workflowEstimatorDemoBean.selectedEstimator.executionTime} miliseconds" />
 			</p:outputPanel>
 
 			<p:panel id="process-viewer-diagram" header="Process diagram"
