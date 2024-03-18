@@ -26,52 +26,9 @@
 				<c:forEach var="estimator"
 					items="#{data.workflowEstimatorDemoBean.estimators}"
 					varStatus="status">
-					<br />		
-					<p:fieldset>
-						<p:panelGrid columns="4" layout="flex"
-							columnClasses="col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9, col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9"
-							contentStyleClass="ui-fluid">
-							<p:outputLabel value="Process: " styleClass="text-bold" />
-							<p:outputLabel value="#{estimator.process.name}" />
-
-							<p:outputLabel value="Start Elements: " styleClass="text-bold" />
-							<p:outputLabel value="#{estimator.startElement.name}" />
-
-							<p:outputLabel value="Find Type: " styleClass="text-bold" />
-							<p:outputLabel value="#{estimator.findType}" />
-
-							<p:outputLabel value="Flow Name: " styleClass="text-bold" />
-							<p:outputLabel value="#{estimator.flowName}" />
-
-						</p:panelGrid>
-						<p:outputPanel rendered="#{not empty estimator.tasks}">
-							<p:outputLabel value="Estimated Task: " styleClass="text-bold" />
-							<p:outputLabel value="#{estimator.elementNames}" styleClass="text-bold" />
-							<br/>
-							<p:outputLabel value="Total Duration: " styleClass="text-bold" />
-							<p:outputLabel value="#{estimator.displayTotalDuration}" styleClass="text-bold" />
-						</p:outputPanel>
-
-						<p:panel id="process-diagram-#{estimator.id}" header="Process diagram" widgetVar="panel-#{estimator.id}"
-							toggleable="true" toggleSpeed="500" collapsed="true">
-							
-							<iframe id="process-viewer" style="width: 100%; height: 400px"
-								src="#{estimator.processPath}" />
-						</p:panel>
-
-						<div style="float: right; margin-top: 10px">
-							<!--                             <p:commandButton id="edit" actionListener="#{logic.onGenerate}" -->
-							<!--                                 value="Edit" process="@form" update="@form" -->
-							<!--                                 icon="fa-solid fa-edit" /> -->
-
-							<p:commandButton
-								actionListener="#{logic.deleteEstimator(estimator)}"
-								update="workflow-estimator" value="Delete"
-								process="workflow-estimator" icon="si si-delete-2" />
-						</div>
-
-					</p:fieldset>
-								
+					<ic:com.axonivy.utils.estimator.component.EstimatorDetail
+						id="estimator-detail" estimator="#{estimator}" />
+					<br />
 				</c:forEach>
 			</h:form>
 

@@ -5,8 +5,7 @@ Bundle-SymbolicName: workflow-estimator-demo
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: workflow.estimator.demo
-Export-Package: com.axonivy.utils.estimator.WorkflowEstimatorTable,
- com.axonivy.utils.estimator.demo,
+Export-Package: com.axonivy.utils.estimator.demo,
  com.axonivy.utils.estimator.demo.constant,
  com.axonivy.utils.estimator.demo.model
 Require-Bundle: ch.ivyteam.ivy.process.rdm;bundle-version="11.2.1"
