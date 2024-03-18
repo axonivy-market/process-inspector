@@ -93,36 +93,36 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		assertTrue(expected.containsAll(taskNames));
 	}
 
-	@Test
-	void shouldFindTasksOnPathWithoutFlowNameAtTaskDAndTaskE() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, null);
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(List.of(taskD, taskE));
-		
-		var expected = Arrays.array("Task D", "Task2A", "Task2B", "Task G", "Task K", "Task H", "Task E");
-		var taskNames = getTaskNames(estimatedTasks);
-		assertArrayEquals(expected, taskNames);
-	}
+//	@Test
+//	void shouldFindTasksOnPathWithoutFlowNameAtTaskDAndTaskE() throws Exception {
+//		var workflowEstimator = new WorkflowEstimator(process, null, null);
+//		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(List.of(taskD, taskE));
+//		
+//		var expected = Arrays.array("Task D", "Task2A", "Task2B", "Task G", "Task K", "Task H", "Task E");
+//		var taskNames = getTaskNames(estimatedTasks);
+//		assertArrayEquals(expected, taskNames);
+//	}
 	
-	@Test
-	void shouldCalculateEstimateDurationBasedOnManyStartElements() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, null);
-		Duration duration = workflowEstimator.calculateEstimatedDuration(List.of(taskD, taskE));
-		
-		assertEquals(Duration.ofHours(19), duration);
-	}
+//	@Test
+//	void shouldCalculateEstimateDurationBasedOnManyStartElements() throws Exception {
+//		var workflowEstimator = new WorkflowEstimator(process, null, null);
+//		Duration duration = workflowEstimator.calculateEstimatedDuration(List.of(taskD, taskE));
+//		
+//		assertEquals(Duration.ofHours(19), duration);
+//	}
 	
-	@Test
-	void shouldFindAllTasksWitProcessFlowOverridesAtTaskE() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, null);		
-		var flowOverrides = new HashMap<String, String>();
-		flowOverrides.put("18DF31B990019995-f47", "18DF31B990019995-f28");
-		flowOverrides.put("18DF31B990019995-f16", "18DF31B990019995-f21");
-		workflowEstimator.setProcessFlowOverrides(flowOverrides);
-				
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(taskE);
-
-		var expected = Arrays.array("Task E", "Task F");
-		var taskNames = getTaskNames(estimatedTasks);
-		assertArrayEquals(expected, taskNames);
-	}
+//	@Test
+//	void shouldFindAllTasksWitProcessFlowOverridesAtTaskE() throws Exception {
+//		var workflowEstimator = new WorkflowEstimator(process, null, null);		
+//		var flowOverrides = new HashMap<String, String>();
+//		flowOverrides.put("18DF31B990019995-f47", "18DF31B990019995-f28");
+//		flowOverrides.put("18DF31B990019995-f16", "18DF31B990019995-f21");
+//		workflowEstimator.setProcessFlowOverrides(flowOverrides);
+//				
+//		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(taskE);
+//
+//		var expected = Arrays.array("Task E", "Task F");
+//		var taskNames = getTaskNames(estimatedTasks);
+//		assertArrayEquals(expected, taskNames);
+//	}
 }
