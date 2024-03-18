@@ -104,6 +104,20 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 	}
 	
 	@Test
+	void shouldFindTasksOnPathWithProcessFlowOverridesAtStart() throws Exception {
+		var workflowEstimator = new WorkflowEstimator(process, null, null);		
+		var flowOverrides = new HashMap<String, String>();
+		flowOverrides.put("18DC44E096FDFF75-f8", "18DC44E096FDFF75-f12");
+		workflowEstimator.setProcessFlowOverrides(flowOverrides);
+				
+		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
+
+		var expected = Lists.list("Task C",  "Task B");
+		var taskNames = Lists.list(getTaskNames(estimatedTasks));
+		assertTrue(expected.containsAll(taskNames) && taskNames.containsAll(expected));
+	}
+	
+	@Test
 	void shouldFindAllTasksOfInternalFlowAtStart() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, "internal");
 		var estimatedTasks = workflowEstimator.findAllTasks(start);
@@ -178,19 +192,5 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 		var workflowEstimator = new WorkflowEstimator(process, null, "internal");
 		var estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
 		assertEquals("abc", estimatedTasks.get(0).getCustomInfo());
-	}
-	
-	@Test
-	void shouldFindTasksOnPathWithProcessFlowOverridesAtStart() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, null);		
-		var flowOverrides = new HashMap<String, String>();
-		flowOverrides.put("18DC44E096FDFF75-f8", "18DC44E096FDFF75-f12");
-		workflowEstimator.setProcessFlowOverrides(flowOverrides);
-				
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
-
-		var expected = Lists.list("Task C",  "Task B");
-		var taskNames = Lists.list(getTaskNames(estimatedTasks));
-		assertTrue(expected.containsAll(taskNames) && taskNames.containsAll(expected));
 	}
 }
