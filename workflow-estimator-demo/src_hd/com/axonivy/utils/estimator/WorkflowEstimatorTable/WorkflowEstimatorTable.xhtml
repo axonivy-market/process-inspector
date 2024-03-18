@@ -12,8 +12,12 @@
 		<ui:define name="content">
 
 			<h2>Workflow Estimator Demo</h2>
-
+			
 			<h:form id="workflow-estimator">
+				<p:growl id="growlValidation" widgetVar="growlValidation"
+					showDetail="false" showSummary="true" sticky="true" escape="false">
+					<p:autoUpdate />
+				</p:growl>
 				<p:messages />
 				<div class="command-btns">
 					<p:commandButton id="addEstimator" value="Add Estimator"
@@ -23,13 +27,15 @@
 						icon="fa-solid fa-add" />
 				</div>
 
-				<c:forEach var="estimator"
-					items="#{data.workflowEstimatorDemoBean.estimators}"
+				<p:repeat var="estimator"
+					value="#{data.workflowEstimatorDemoBean.estimators}"
 					varStatus="status">
 					<ic:com.axonivy.utils.estimator.component.EstimatorDetail
-						id="estimator-detail" estimator="#{estimator}" />
+						id="estimator-detail-#{status.index}" estimator="#{estimator}"
+						updateId="workflow-estimator"
+						workflowEstimatorDemoBean="#{data.workflowEstimatorDemoBean}" />
 					<br />
-				</c:forEach>
+				</p:repeat>
 			</h:form>
 
 			<ic:com.axonivy.utils.estimator.component.EstimatorDialog
