@@ -150,11 +150,11 @@ public class ProcessGraph {
 				path.addAll(pathFromSubProcess);
 			}			
 
-			if(endParallel(from)) {
+			if(endTaskSwitchGateway(from)) {
 				return path;
 			}
 						
-			if(startParallel(from)) {
+			if(startTaskSwitchGateway(from)) {
 				List<BaseElement> pathFromParallel = getListElementInParallelTask((TaskSwitchGateway) from, flowName, isFindAllTasks, previousElements);
 				path.addAll(pathFromParallel);
 				
@@ -177,13 +177,7 @@ public class ProcessGraph {
 				paths.put(out, nextOfPath);
 			}
 
-			paths.entrySet().stream()
-					//Consider to count all element of remove this sort (what flow is drawn first it will go first  
-					.sorted(Map.Entry.comparingByValue(Comparator.comparing(ProcessGraph::countNumberAcceptedTasks, Comparator.reverseOrder())))
-					.forEach(entry -> {
-						path.add(entry.getKey());
-						path.addAll(entry.getValue()); 
-					});
+			path.addAll(getPathWithLongestFirst(paths));
 		}
 		
 		return path;
@@ -200,13 +194,7 @@ public class ProcessGraph {
 			paths.put(out, nextOfPath);
 		}
 
-		paths.entrySet().stream()
-		//Consider to count all element of remove this sort (what flow is drawn first it will go first  
-		.sorted(Map.Entry.comparingByValue(Comparator.comparing(ProcessGraph::countNumberAcceptedTasks, Comparator.reverseOrder())))
-		.forEach(entry -> {
-			result.add(entry.getKey());
-			result.addAll(entry.getValue()); 
-		});
+		result.addAll(getPathWithLongestFirst(paths));
 		
 		return result;
 	}
@@ -389,15 +377,30 @@ public class ProcessGraph {
 		return Duration.ofHours(0);
 	}
 	
-	private boolean startParallel(BaseElement task) {
+	private boolean startTaskSwitchGateway(BaseElement task) {
 		return task instanceof TaskSwitchGateway &&  !isSystemTask((TaskAndCaseModifier) task);
 	}
 	
-	private boolean endParallel(BaseElement task) {
+	private boolean endTaskSwitchGateway(BaseElement task) {
 		return task instanceof TaskSwitchGateway &&  isSystemTask((TaskAndCaseModifier) task);
 	}
 	
 	private BaseElement findEndTaskSwithGateWay(BaseElement task, List<BaseElement> elements) {
-		return (BaseElement) Lists.reverse(elements).stream().filter(item -> endParallel(item)).findFirst().orElse(null);  
+		return (BaseElement) Lists.reverse(elements).stream().filter(item -> endTaskSwitchGateway(item)).findFirst().orElse(null);  
+	}
+	
+	private List<BaseElement> getPathWithLongestFirst(Map<SequenceFlow, List<BaseElement>> paths) {
+		List<BaseElement> result = new ArrayList<>();
+		paths.entrySet().stream()
+				// Consider to count all element of remove this sort (what flow is drawn first
+				// it will go first
+				.sorted(Map.Entry.comparingByValue(
+						Comparator.comparing(ProcessGraph::countNumberAcceptedTasks, Comparator.reverseOrder())))
+				.forEach(entry -> {
+					result.add(entry.getKey());
+					result.addAll(entry.getValue());
+				});
+		
+		return result;
 	}
 }
