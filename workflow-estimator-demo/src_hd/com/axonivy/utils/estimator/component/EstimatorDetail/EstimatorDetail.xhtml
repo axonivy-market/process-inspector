@@ -9,6 +9,7 @@
 	xmlns:pe="http://primefaces.org/ui/extensions">
 <cc:interface componentType="IvyComponent">
 	<cc:attribute name="estimator" required="true" />
+	<cc:attribute name="updateId" />
 </cc:interface>
 
 <cc:implementation>
@@ -16,7 +17,7 @@
 	<c:set var="estimator" value="#{cc.attrs.estimator}" />
 
 	<p:fieldset id="estimator-detail-fieldset"
-		legend="Process Id: #{estimator.process.pid.rawPid}">
+		legend="Process GUID: #{estimator.process.pid.processGuid}">
 		<p:panelGrid columns="6" layout="flex"
 			columnClasses="col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9, col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9, col-12 md:col-2 xl:col-3, col-12 md:col-4 xl:col-9"
 			contentStyleClass="ui-fluid">
@@ -84,6 +85,11 @@
 			<iframe id="process-viewer" style="width: 100%; height: 400px"
 				src="#{estimator.processPath}" />
 		</p:panel>
+		<div class="command-btns">
+			<p:commandButton id="delete-estimator-#{estimator.id}" value="Delete"
+				actionListener="#{logic.deleteEstimator(estimator)}" process="@form"
+				update="#{cc.attrs.updateId}" icon="fa-solid fa-remove" />
+		</div>
 
 	</p:fieldset>
 

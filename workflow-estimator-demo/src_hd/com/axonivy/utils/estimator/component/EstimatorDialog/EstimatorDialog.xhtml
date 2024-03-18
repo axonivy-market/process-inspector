@@ -17,7 +17,6 @@
 	<p:dialog id="estimator-dialog"
 		widgetVar="#{cc.attrs.dialogWidgetVarId}" width="95%" cache="false"
 		position="20" header="Workflow Estimator Demo" appendTo="@(body)">
-		<p:ajax event="close" update="estimator-dialog" resetValues="true" />
 
 		<h:form id="estimator-dialog-content">
 			<p:panelGrid columns="6" layout="flex"
@@ -25,8 +24,9 @@
 				styleClass="customPanelGrid" contentStyleClass="ui-fluid">
 				<p:outputLabel for="selectOneProcess" value="Process:" />
 				<p:selectOneMenu id="selectOneProcess" converter="pojoConverter"
+					required="true" requiredMessage="Process is required"
 					value="#{data.workflowEstimatorDemoBean.selectedEstimator.process}">
-					<f:selectItem itemLabel="Select process" itemValue="null"
+					<f:selectItem itemLabel="Select a process..." itemValue="null"
 						noSelectionOption="true" />
 					<f:selectItems value="#{data.workflowEstimatorDemoBean.processes}"
 						var="process" itemLabel="#{process.name}" itemValue="#{process}" />
@@ -37,8 +37,9 @@
 
 				<p:outputLabel for="selectOneElement" value="Start Elements:" />
 				<p:selectOneMenu id="selectOneElement" converter="pojoConverter"
+					required="true" requiredMessage="Start element is required"
 					value="#{data.workflowEstimatorDemoBean.selectedEstimator.startElement}">
-					<f:selectItem itemLabel="Select elements" itemValue="" />
+					<f:selectItem itemLabel="Select an elements..." itemValue="" />
 					<f:selectItems
 						value="#{data.workflowEstimatorDemoBean.selectedEstimator.elements}"
 						var="element" itemLabel="#{element.name}" itemValue="#{element}" />
@@ -46,22 +47,22 @@
 
 				<p:outputLabel for="selectOneFindType" value="Find Type:" />
 				<p:selectOneMenu id="selectOneFindType" converter="pojoConverter"
+					required="true" requiredMessage="Find type is required"
 					value="#{data.workflowEstimatorDemoBean.selectedEstimator.findType}">
-					<f:selectItem itemLabel="Select find type" itemValue=""
-						noSelectionOption="true" />
+					<f:selectItem itemLabel="Select an find type" itemValue="" />
 					<f:selectItems
 						value="#{data.workflowEstimatorDemoBean.allFindType}" var="type"
 						itemLabel="#{type.findType}" itemValue="#{type}" />
 				</p:selectOneMenu>
-				
+
 				<p:outputLabel for="selectOneUseCase" value="Use Case:" />
 				<p:selectOneMenu id="selectOneUseCase" converter="pojoConverter"
 					value="#{data.workflowEstimatorDemoBean.selectedEstimator.useCase}">
 					<f:selectItem itemLabel="Select use case" itemValue=""
 						noSelectionOption="true" />
 					<f:selectItems
-						value="#{data.workflowEstimatorDemoBean.allUseCases}" var="useCase"
-						itemLabel="#{useCase.name()}" itemValue="#{useCase}" />
+						value="#{data.workflowEstimatorDemoBean.allUseCases}"
+						var="useCase" itemLabel="#{useCase.name()}" itemValue="#{useCase}" />
 				</p:selectOneMenu>
 
 				<p:outputLabel for="flowName" value="Flow Name:" />
