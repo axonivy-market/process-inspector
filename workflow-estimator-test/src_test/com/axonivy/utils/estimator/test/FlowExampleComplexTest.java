@@ -1,6 +1,5 @@
 package com.axonivy.utils.estimator.test;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -8,13 +7,11 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 
-import org.assertj.core.util.Arrays;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.estimator.WorkflowEstimator;
-import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -39,7 +36,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 	@Test
 	void shouldFindAllTasksAtStart() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(start);
+		var estimatedTasks = workflowEstimator.findAllTasks(start);
 
 		var expected = Lists.list("Task A", "Task C", "Task1A", "Task1B", "Task D", "Task E", "Task2A", "Task2B",
 				"Task G", "Task H", "Task F", "Task K", "Task B");
@@ -53,7 +50,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		var taskK = ProcessGraphHelper.findByElementName(process, "Task K");
 		var taskF = ProcessGraphHelper.findByElementName(process, "Task F");
 		
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(List.of(taskK, taskF));
+		var estimatedTasks = workflowEstimator.findAllTasks(List.of(taskK, taskF));
 
 		var expected = Lists.list("Task K", "Task F", "Task E", "Task2A", "Task2B", "Task G", "Task H");
 		var taskNames = Lists.list(getTaskNames(estimatedTasks));
@@ -65,7 +62,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);		
 		var taskF = ProcessGraphHelper.findByElementName(process, "Task F");
 		
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(List.of(taskF, taskB));
+		var estimatedTasks = workflowEstimator.findAllTasks(List.of(taskF, taskB));
 		
 		var expected = Lists.list("Task F", "Task2A", "Task2B", "Task G", "Task H", "Task K", "Task B");
 		var taskNames = Lists.list(getTaskNames(estimatedTasks));
@@ -75,7 +72,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 	@Test
 	void shouldFindAllTasksAtTaskC() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(taskC);
+		var estimatedTasks = workflowEstimator.findAllTasks(taskC);
 
 		var expected = Lists.list("Task C", "Task1A", "Task1B", "Task D", "Task E", "Task2A", "Task2B", "Task G", "Task K", "Task H", "Task F");
 		var taskNames = Lists.list(getTaskNames(estimatedTasks));
@@ -86,7 +83,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 	@Test
 	void shouldFindTasksOnPathAtStart() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, "internal");
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(start);
+		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 
 		var expected = Lists.list("Task A", "Task B", "Task E", "Task2A", "Task2B", "Task G", "Task H");
 		var taskNames = Lists.list(getTaskNames(estimatedTasks));
@@ -108,7 +105,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		flowOverrides.put("18DF31B990019995-f47", "18DF31B990019995-f28");
 		workflowEstimator.setProcessFlowOverrides(flowOverrides);
 				
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(taskC);
+		var estimatedTasks = workflowEstimator.findTasksOnPath(taskC);
 
 		var expected = Lists.list("Task C", "Task1A", "Task1B", "Task D", "Task E", "Task F",  "Task K");
 		var taskNames = Lists.list(getTaskNames(estimatedTasks));

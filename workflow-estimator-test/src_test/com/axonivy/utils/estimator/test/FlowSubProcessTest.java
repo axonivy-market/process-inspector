@@ -1,10 +1,8 @@
 package com.axonivy.utils.estimator.test;
 
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.util.List;
-import java.util.Optional;
 
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
@@ -32,7 +30,7 @@ public class FlowSubProcessTest extends FlowExampleTest {
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameNull() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(start);
+		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 		
 		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(estimatedTasks));
 	}
@@ -40,7 +38,7 @@ public class FlowSubProcessTest extends FlowExampleTest {
 	@Test
 	void shouldFindAllTasksAtStartWithFlowNameNull() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(start);
+		var estimatedTasks = workflowEstimator.findAllTasks(start);
 		
 		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(estimatedTasks));
 	}
@@ -48,10 +46,11 @@ public class FlowSubProcessTest extends FlowExampleTest {
 	@Test
 	void shouldFindTaskParentNames() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(start);
-		Optional<EstimatedTask> taskA = estimatedTasks.stream().filter(item -> item.getTaskName().equals("Task A")).findFirst();
+		var estimatedTasks = workflowEstimator.findAllTasks(start);
+		var parentElementNames = estimatedTasks.stream().filter(item -> item.getTaskName().equals("Task A")).findFirst()
+				.map(EstimatedTask.class::cast).map(EstimatedTask::getParentElementNames)
+				.orElse(emptyList());
 		
-		assertEquals(java.util.Arrays.asList("sub with two levels", "2nd level sub") , taskA.get().getParentElementNames());
+		assertEquals(java.util.Arrays.asList("sub with two levels", "2nd level sub") , parentElementNames);
 	}
-
 }

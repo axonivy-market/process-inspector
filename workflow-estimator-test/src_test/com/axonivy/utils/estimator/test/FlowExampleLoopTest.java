@@ -2,14 +2,11 @@ package com.axonivy.utils.estimator.test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-import java.util.List;
-
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.estimator.WorkflowEstimator;
-import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -30,7 +27,7 @@ public class FlowExampleLoopTest extends FlowExampleTest {
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameNull() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(start);
+		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 		
 		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(estimatedTasks));
 	}
@@ -38,7 +35,7 @@ public class FlowExampleLoopTest extends FlowExampleTest {
 	@Test
 	void shouldFindAllTasksStartWithFlowNameNull() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(start);
+		var estimatedTasks = workflowEstimator.findAllTasks(start);
 
 		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(estimatedTasks));
 	}
@@ -46,7 +43,7 @@ public class FlowExampleLoopTest extends FlowExampleTest {
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameSuccess() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, "success");
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(start);
+		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 
 		assertArrayEquals(Arrays.array("Task A"), getTaskNames(estimatedTasks));
 	}
