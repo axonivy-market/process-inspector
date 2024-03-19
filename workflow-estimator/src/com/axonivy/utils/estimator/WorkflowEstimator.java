@@ -59,7 +59,7 @@ public class WorkflowEstimator extends AbstractWorkflow {
 
 	/**
 	 * Return a list of all tasks in the process which can be reached from the starting element.
-	 * @param startAtElement – Element where we start traversing the process
+	 * @param startAtElement ï¿½ Element where we start traversing the process
 	 * @return
 	 * @throws Exception
 	 */
@@ -82,7 +82,7 @@ public class WorkflowEstimator extends AbstractWorkflow {
 
 	/**
 	 * Return a list of all tasks which are created when process follows the tagged flow. Uses the flow name set in the constructor.
-	 * @param startAtElement – Element where we start traversing the process
+	 * @param startAtElement ï¿½ Element where we start traversing the process
 	 * @return
 	 * @throws Exception
 	 */
@@ -105,8 +105,8 @@ public class WorkflowEstimator extends AbstractWorkflow {
 	
 	/**
 	 * This method can be used to calculate expected duration from a starting point in a process until all task are done and end of process is reached.
-	 * It will summarize duration of all tasks on the path. In case of parallel process flows, it will always use the “critical path” (which means path with longer duration).
-	 * @param startElement – Element where we start traversing the process
+	 * It will summarize duration of all tasks on the path. In case of parallel process flows, it will always use the ï¿½critical path (which means path with longer duration).
+	 * @param startElement - Element where we start traversing the process
 	 * @return
 	 * @throws Exception
 	 */
@@ -121,7 +121,7 @@ public class WorkflowEstimator extends AbstractWorkflow {
 	}
 	
 	/** 
-	 * @param startElement – Elements where we start traversing the process. In case of parallel tasks, the list will contain multiple objects. 
+	 * @param startElement - Elements where we start traversing the process. In case of parallel tasks, the list will contain multiple objects. 
 	 * @param startElements
 	 * @return
 	 * @throws Exception
