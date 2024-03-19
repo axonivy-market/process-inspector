@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.axonivy.utils.estimator.constant.UseCase;
+import com.axonivy.utils.estimator.model.EstimatedElement;
 import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -44,7 +45,7 @@ public class WorkflowEstimator {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<EstimatedTask> findAllTasks(BaseElement startAtElement) throws Exception {
+	public List<? extends EstimatedElement> findAllTasks(BaseElement startAtElement) throws Exception {
 		List<BaseElement> path = graph.findPath(startAtElement);
 		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path, useCase);
 		return estimatedTasks;
@@ -55,7 +56,7 @@ public class WorkflowEstimator {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<EstimatedTask> findAllTasks(List<BaseElement> startAtElements) throws Exception {
+	public List<? extends EstimatedElement> findAllTasks(List<BaseElement> startAtElements) throws Exception {
 		List<BaseElement> path = graph.findPath(startAtElements.toArray(new BaseElement[0]));
 		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path, useCase);
 		return estimatedTasks;
@@ -67,7 +68,7 @@ public class WorkflowEstimator {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<EstimatedTask> findTasksOnPath(BaseElement startAtElement) throws Exception {
+	public List<? extends EstimatedElement> findTasksOnPath(BaseElement startAtElement) throws Exception {
 		List<BaseElement> path = graph.findPath(flowName, startAtElement);
 		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path, useCase);
 		return estimatedTasks;
@@ -78,7 +79,7 @@ public class WorkflowEstimator {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<EstimatedTask> findTasksOnPath(List<BaseElement> startAtElements) throws Exception {
+	public List<? extends EstimatedElement> findTasksOnPath(List<BaseElement> startAtElements) throws Exception {
 		List<BaseElement> path = graph.findPath(flowName, startAtElements.toArray(new BaseElement[0]));
 		List<EstimatedTask> estimatedTasks = convertToEstimatedTasks(path, useCase);
 		return estimatedTasks;

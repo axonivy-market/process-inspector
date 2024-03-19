@@ -90,10 +90,12 @@ public class WorkflowEstimatorDemoBean {
 		var workflowEstimator = new WorkflowEstimator(estimator.getProcess(), estimator.getUseCase(), estimator.getFlowName());
 		List<EstimatedTask> estimatedTasks = null;
 		long startTime = System.currentTimeMillis();
-		if(FindType.ALL_TASK.equals(estimator.getFindType())) {
-			estimatedTasks = workflowEstimator.findAllTasks(estimator.getStartElement());
+		if (FindType.ALL_TASK.equals(estimator.getFindType())) {
+			estimatedTasks = workflowEstimator.findAllTasks(estimator.getStartElement()).stream()
+					.map(EstimatedTask.class::cast).toList();
 		} else {
-			estimatedTasks = workflowEstimator.findTasksOnPath(estimator.getStartElement());
+			estimatedTasks = workflowEstimator.findTasksOnPath(estimator.getStartElement()).stream()
+					.map(EstimatedTask.class::cast).toList();
 		}
 		
 		long executionTime = System.currentTimeMillis() - startTime;

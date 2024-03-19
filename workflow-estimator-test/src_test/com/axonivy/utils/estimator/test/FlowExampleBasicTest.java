@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.util.HashMap;
-import java.util.List;
 
 import org.assertj.core.util.Arrays;
 import org.assertj.core.util.Lists;
@@ -42,7 +41,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 	@Test
 	void shouldFindAllTasksAtStart() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(start);
+		var estimatedTasks = workflowEstimator.findAllTasks(start);
 
 		assertArrayEquals(Arrays.array("Task A", "Task C", "Task B"), getTaskNames(estimatedTasks));
 	}
@@ -110,7 +109,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 		flowOverrides.put("18DC44E096FDFF75-f8", "18DC44E096FDFF75-f12");
 		workflowEstimator.setProcessFlowOverrides(flowOverrides);
 				
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
+		var estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
 
 		var expected = Lists.list("Task C",  "Task B");
 		var taskNames = Lists.list(getTaskNames(estimatedTasks));
@@ -191,6 +190,6 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 	void shouldCheckCustomInfo() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, "internal");
 		var estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
-		assertEquals("abc", estimatedTasks.get(0).getCustomInfo());
+		assertEquals("abc", ((EstimatedTask)estimatedTasks.get(0)).getCustomInfo());
 	}
 }

@@ -3,13 +3,10 @@ package com.axonivy.utils.estimator.test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.List;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.estimator.WorkflowEstimator;
-import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -30,7 +27,7 @@ public class FlowExampleErrorTest extends FlowExampleTest {
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameSuccess() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, "success");
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(start);
+		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 
 		assertEquals(1, estimatedTasks.size());
 		assertEquals("Task A", getTaskNames(estimatedTasks)[0]);

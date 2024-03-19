@@ -2,14 +2,11 @@ package com.axonivy.utils.estimator.test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-import java.util.List;
-
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.estimator.WorkflowEstimator;
-import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -30,7 +27,7 @@ public class TaskTypesExampleTest extends FlowExampleTest {
 	@Test
 	void shouldFindAllTasksOnPathAtStartWithFlowNameNull() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findTasksOnPath(start);
+		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 		
 		var names = getTaskNames(estimatedTasks);
 		assertArrayEquals(Arrays.array("UserTask", "Task", "Tasks-TaskA", "Tasks-TaskB"), names);
@@ -39,7 +36,7 @@ public class TaskTypesExampleTest extends FlowExampleTest {
 	@Test
 	void shouldFindAllTasksAtStartWithFlowNameNull() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
-		List<EstimatedTask> estimatedTasks = workflowEstimator.findAllTasks(start);
+		var estimatedTasks = workflowEstimator.findAllTasks(start);
 		
 		var names = getTaskNames(estimatedTasks);
 		assertArrayEquals(Arrays.array("UserTask", "Task", "Tasks-TaskA", "Tasks-TaskB"), names);

@@ -11,11 +11,9 @@ import org.apache.commons.lang3.time.DateUtils;
 
 import com.axonivy.utils.estimator.helper.DateTimeHelper;
 
-public class EstimatedTask {
+public class EstimatedTask extends EstimatedElement {
 	
-	private String pid;
-	private String taskName;
-	private String elementName;
+	
 	private Duration estimatedDuration;
 	/**
 	 * Names of parent process elements in the order they appeared.
@@ -27,22 +25,6 @@ public class EstimatedTask {
 	 * Custom string which can be set on the task element
 	 */
 	private String customInfo;
-
-	public String getPid() {
-		return pid;
-	}
-
-	public void setPid(String pid) {
-		this.pid = pid;
-	}
-
-	public String getTaskName() {
-		return taskName;
-	}
-
-	public void setTaskName(String taskName) {
-		this.taskName = taskName;
-	}
 
 	public Date getEstimatedStartTimestamp() {
 		return estimatedStartTimestamp;
@@ -78,15 +60,7 @@ public class EstimatedTask {
 
 	public void setCustomInfo(String customInfo) {
 		this.customInfo = customInfo;
-	}
-	
-	public String getElementName() {
-		return elementName;
-	}
-
-	public void setElementName(String elementName) {
-		this.elementName = elementName;
-	}
+	}	
 
 	public Date calculateEstimatedEndTimestamp() {
 		int durationInSecond = Optional.ofNullable(this.estimatedDuration)
@@ -100,14 +74,9 @@ public class EstimatedTask {
 	public String getDisplayTotalDuration() {
 		return DateTimeHelper.getDisplayDuration (estimatedDuration);
 	}
-	
-	public String getShortPid() {
-		int index = pid.indexOf("-");
-		return pid.substring(index + 1);
-	}
-	
+		
 	@Override
 	public String toString() {
-		return Stream.of(pid, taskName).collect(Collectors.joining("-"));
+		return Stream.of(getPid(), getTaskName()).collect(Collectors.joining("-"));
 	}
 }
