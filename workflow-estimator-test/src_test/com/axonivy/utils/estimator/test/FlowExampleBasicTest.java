@@ -44,7 +44,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 		workflowEstimator.enableDescribeAlternativeElements();
 		var estimatedTasks = workflowEstimator.findAllTasks(start);
 
-		assertArrayEquals(Arrays.array("Task A", "Task K", "Task B", "Task C"), getTaskNames(estimatedTasks));
+		assertArrayEquals(Arrays.array("Task A", "Alter", "int/ext?", "Task C", "Task B", "Alter2"), getTaskNames(estimatedTasks));
 	}
 
 	@Test
