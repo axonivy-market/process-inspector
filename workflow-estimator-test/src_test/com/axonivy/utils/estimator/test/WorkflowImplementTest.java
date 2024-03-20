@@ -6,9 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.Duration;
 import java.util.Arrays;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.axonivy.utils.estimator.ProcessGraph;
+import com.axonivy.utils.estimator.WorkflowImplement;
 import com.axonivy.utils.estimator.constant.UseCase;
 
 import ch.ivyteam.ivy.environment.Ivy;
@@ -19,10 +20,12 @@ import ch.ivyteam.ivy.process.rdm.IProcessManager;
 
 @IvyTest
 @SuppressWarnings("restriction")
-public class ProcessGraphTest {
+public class WorkflowImplementTest{
 	private static final String FLOW_EXAMPLE_BASIC = "FlowExampleBasic";
 	private static final String PARALLEL_TASKS_EXAMPLE = "ParallelTasksExample";
 	private static final String FLOW_SUB_PROCESS = "FlowSubprocess";
+	
+	private static WorkflowImplement workflowImplement;
 	
 	private Process getProcessByName(String processName) {
 		var pmv = Ivy.request().getProcessModelVersion();
@@ -30,12 +33,16 @@ public class ProcessGraphTest {
 		return manager.findProcessByPath(processName).getModel();		
 	}
 	
+	@BeforeAll
+	public static void setup() {
+		workflowImplement = new WorkflowImplement();
+	}
+
 	@Test
 	void shouldFindPathAtStart() throws Exception {
 		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
-		var start = ProcessGraphHelper.findByElementName(process, "start");
-		var processGraph = new ProcessGraph(process);
-		var result = processGraph.findPath("internal", start);
+		var start = ProcessGraphHelper.findByElementName(process, "start");		
+		var result = workflowImplement.findPath("internal", start);
 		
 		var expected = Arrays.asList(
 				"RequestStartZ:start (18DC44E096FDFF75-f0)",
@@ -59,9 +66,8 @@ public class ProcessGraphTest {
 	@Test
 	void shouldGetTaskId() throws Exception {
 		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
-		TaskAndCaseModifier taskB = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task B");
-		var processGraph = new ProcessGraph(process);
-		var result = processGraph.getTaskId(taskB, taskB.getAllTaskConfigs().get(0));
+		var taskB = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task B");		
+		var result = workflowImplement.getTaskId(taskB, taskB.getAllTaskConfigs().get(0));
 		
 		assertEquals("18DC44E096FDFF75-f7", result);
 	}
@@ -69,9 +75,8 @@ public class ProcessGraphTest {
 	@Test
 	void shouldGetTaskIdOfMultiTask() throws Exception {
 		Process process = getProcessByName(PARALLEL_TASKS_EXAMPLE);
-		TaskAndCaseModifier task1 = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task1");
-		var processGraph = new ProcessGraph(process);
-		var result = processGraph.getTaskId(task1, task1.getAllTaskConfigs().get(0));
+		var task1 = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task1");
+		var result = workflowImplement.getTaskId(task1, task1.getAllTaskConfigs().get(0));
 		
 		assertEquals("18DD185B60B6E769-f2-TaskA", result);
 	}
@@ -79,17 +84,16 @@ public class ProcessGraphTest {
 	@Test
 	void shouldIsSystemTask() throws Exception {
 		Process process = getProcessByName(PARALLEL_TASKS_EXAMPLE);
-		TaskAndCaseModifier joinTask = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Join");
-		var result = ProcessGraph.isSystemTask(joinTask);
+		var joinTask = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Join");
+		var result = workflowImplement.isSystemTask(joinTask);
 		assertTrue(result);
 	}
 	
 	@Test
 	void shouldGetParentElementNames() throws Exception {
 		Process process = getProcessByName(FLOW_SUB_PROCESS);
-		TaskAndCaseModifier joinTask = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task A");
-		var processGraph = new ProcessGraph(process);
-		var result = processGraph.getParentElementNames(joinTask);
+		var joinTask = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task A");		
+		var result = workflowImplement.getParentElementNames(joinTask);
 		
 		assertEquals("[sub with two levels, 2nd level sub]", result.toString());
 	}
@@ -97,9 +101,8 @@ public class ProcessGraphTest {
 	@Test
 	void shouldGetDurationOfTaskCWithUseCaseBIGPROJECT() throws Exception {
 		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
-		TaskAndCaseModifier taskC = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task C");
-		var processGraph = new ProcessGraph(process);
-		var result = processGraph.getDuration(taskC, taskC.getAllTaskConfigs().get(0), UseCase.BIGPROJECT);
+		var taskC = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task C");		
+		var result = workflowImplement.getDuration(taskC, taskC.getAllTaskConfigs().get(0), UseCase.BIGPROJECT);
 		
 		assertEquals(Duration.ofHours(4),  result);
 	}
@@ -107,9 +110,8 @@ public class ProcessGraphTest {
 	@Test
 	void shouldGetDurationOfTaskCWithUseCaseMEDIUMPROJECT() throws Exception {
 		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
-		TaskAndCaseModifier taskC = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task C");
-		var processGraph = new ProcessGraph(process);
-		var result = processGraph.getDuration(taskC, taskC.getAllTaskConfigs().get(0), UseCase.MEDIUMPROJECT);
+		TaskAndCaseModifier taskC = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task C");	
+		var result = workflowImplement.getDuration(taskC, taskC.getAllTaskConfigs().get(0), UseCase.MEDIUMPROJECT);
 		
 		assertEquals(Duration.ofHours(3),  result);
 	}
@@ -118,8 +120,7 @@ public class ProcessGraphTest {
 	void shouldGetDurationOfTaskCWithUseCaseSMALLPROJECT() throws Exception {
 		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
 		TaskAndCaseModifier taskC = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task C");
-		var processGraph = new ProcessGraph(process);
-		var result = processGraph.getDuration(taskC, taskC.getAllTaskConfigs().get(0), UseCase.SMALLPROJECT);
+		var result = workflowImplement.getDuration(taskC, taskC.getAllTaskConfigs().get(0), UseCase.SMALLPROJECT);
 		
 		assertEquals(Duration.ofHours(2),  result);
 	}

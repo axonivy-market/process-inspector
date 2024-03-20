@@ -34,11 +34,13 @@
       "name" : "Task A",
       "config" : {
         "task" : {
+          "name" : "Task A",
           "code" : [
             "import com.axonivy.utils.estimator.constant.UseCase;",
             "import java.util.concurrent.TimeUnit;",
             "",
-            "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);",
+            "WfEstimate.setEstimate(3,TimeUnit.HOURS,UseCase.SMALLPROJECT);"
           ]
         }
       },
@@ -93,6 +95,7 @@
       "name" : "Task C",
       "config" : {
         "task" : {
+          "name" : "Task C",
           "code" : [
             "import java.util.concurrent.TimeUnit;",
             "import com.axonivy.utils.estimator.constant.UseCase;",
@@ -138,7 +141,8 @@
           "code" : [
             "import java.util.concurrent.TimeUnit;",
             "import com.axonivy.utils.estimator.constant.UseCase;",
-            "WfEstimate.setEstimate(3,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            "WfEstimate.setEstimate(3,TimeUnit.HOURS,UseCase.BIGPROJECT);",
+            "WfEstimate.setEstimate(1,TimeUnit.HOURS,UseCase.SMALLPROJECT);"
           ]
         }
       },
@@ -207,6 +211,7 @@
       "name" : "Task K",
       "config" : {
         "task" : {
+          "name" : "Task K",
           "code" : [
             "import java.util.concurrent.TimeUnit;",
             "import com.axonivy.utils.estimator.constant.UseCase;",
@@ -226,6 +231,7 @@
       "name" : "Task G",
       "config" : {
         "task" : {
+          "name" : "Task G",
           "code" : [
             "import java.util.concurrent.TimeUnit;",
             "import com.axonivy.utils.estimator.constant.UseCase;",

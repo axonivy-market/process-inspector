@@ -128,6 +128,11 @@ public class Estimator {
 		return this.tasks.stream().map(EstimatedTask::getElementName).collect(Collectors.joining(" -> "));
 	}
 
+	public String getTaskNames() {
+		return this.tasks.stream().map(EstimatedTask::getTaskName).collect(Collectors.joining(" -> "));
+	}
+
+	
 	public long getExecutionTime() {
 		return executionTime;
 	}
