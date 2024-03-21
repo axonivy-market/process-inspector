@@ -3,12 +3,13 @@ package com.axonivy.utils.estimator.demo.constant;
 public enum FindType {
 	ALL_TASK("Find All Task"), TASK_ON_PATH("Find Task On Path");
 
-	private final String findType;
+	private final String displayName;
 
-	private FindType(String findType) {
-		this.findType = findType;
+	private FindType(String displayName) {
+		this.displayName = displayName;
 	}
-	public String getFindType() {
-		return this.findType;
+	
+	public String getDisplayName() {
+		return this.displayName;
 	}
 }
