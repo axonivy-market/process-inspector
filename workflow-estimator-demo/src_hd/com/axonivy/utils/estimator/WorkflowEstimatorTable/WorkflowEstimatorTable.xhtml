@@ -1,49 +1,40 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:f="http://xmlns.jcp.org/jsf/core"
-	xmlns:h="http://xmlns.jcp.org/jsf/html"
-	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-	xmlns:ic="http://ivyteam.ch/jsf/component"
-	xmlns:p="http://primefaces.org/ui"
-	xmlns:pe="http://primefaces.org/ui/extensions"
-	xmlns:c="http://java.sun.com/jsp/jstl/core">
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:ic="http://ivyteam.ch/jsf/component"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:pe="http://primefaces.org/ui/extensions"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
 <h:body>
-	<ui:composition template="/layouts/frame-10-full-width.xhtml">
-		<ui:define name="title">WorkflowEstimatorTable</ui:define>
-		<ui:define name="content">
+    <ui:composition template="/layouts/frame-10-full-width.xhtml">
+        <ui:define name="title">WorkflowEstimatorTable</ui:define>
+        <ui:define name="content">
 
-			<h2>Workflow Estimators</h2>
-			
-			<h:form id="workflow-estimator">
-				<p:growl id="growlValidation" widgetVar="growlValidation"
-					showDetail="false" showSummary="true" sticky="true" escape="false">
-					<p:autoUpdate />
-				</p:growl>
-				<p:messages />
-				<div class="command-btns">
-					<p:commandButton id="addEstimator" value="Add Estimator"
-						oncomplete="PF('estimatorDialog').show()"
-						actionListener="#{logic.addEstimator}"
-						update="estimator-dialog:estimator-dialog-content"
-						icon="fa-solid fa-add" />
-				</div>
+            <h2>Workflow Estimators</h2>
 
-				<p:repeat var="estimator"
-					value="#{data.workflowEstimatorDemoBean.estimators}"
-					varStatus="status">
-					<ic:com.axonivy.utils.estimator.component.EstimatorDetail
-						id="estimator-detail-#{status.index}" estimator="#{estimator}"
-						updateId="workflow-estimator"
-						workflowEstimatorDemoBean="#{data.workflowEstimatorDemoBean}" />
-					<br />
-				</p:repeat>
-			</h:form>
+            <h:form id="workflow-estimator">
+                <p:growl id="growlValidation"
+                    widgetVar="growlValidation" showDetail="false"
+                    showSummary="true" sticky="true" escape="false">
+                    <p:autoUpdate />
+                </p:growl>
 
-			<ic:com.axonivy.utils.estimator.component.EstimatorDialog
-				id="estimator-dialog" updateFormId="workflow-estimator"
-				dialogWidgetVarId="estimatorDialog"
-				workflowEstimatorDemoBean="#{data.workflowEstimatorDemoBean}" />
-		</ui:define>
-	</ui:composition>
+                <ic:com.axonivy.utils.estimator.component.EstimatorSelection
+                    id="estimator-dialog"
+                    updateFormId="workflow-estimator:estimator-detail-group"
+                    dialogWidgetVarId="estimatorDialog"
+                    workflowEstimatorDemoBean="#{data.workflowEstimatorDemoBean}" />
+
+                <h:panelGroup id="estimator-detail-group">
+                    <ic:com.axonivy.utils.estimator.component.EstimatorDetail
+                        id="estimator-detail"
+                        estimator="#{data.workflowEstimatorDemoBean.selectedEstimator}"
+                        workflowEstimatorDemoBean="#{data.workflowEstimatorDemoBean}" />
+                </h:panelGroup>
+            </h:form>
+        </ui:define>
+    </ui:composition>
 </h:body>
 
 </html>

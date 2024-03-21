@@ -52,48 +52,5 @@
       "visual" : {
         "at" : { "x" : 224, "y" : 160 }
       }
-    }, {
-      "id" : "f6",
-      "type" : "HtmlDialogMethodStart",
-      "name" : "deleteEstimator(Estimator)",
-      "config" : {
-        "signature" : "deleteEstimator",
-        "input" : {
-          "params" : [
-            { "name" : "estimator", "type" : "com.axonivy.utils.estimator.demo.model.Estimator", "desc" : "" }
-          ],
-          "map" : {
-            "out.estimator" : "param.estimator"
-          }
-        },
-        "guid" : "18E41B1EDAB7523A"
-      },
-      "visual" : {
-        "at" : { "x" : 96, "y" : 224 }
-      },
-      "connect" : [
-        { "id" : "f8", "to" : "f7" }
-      ]
-    }, {
-      "id" : "f7",
-      "type" : "Script",
-      "name" : "delete estimator",
-      "config" : {
-        "output" : {
-          "code" : "in.workflowEstimatorDemoBean.onDeleteEstimator(in.estimator);"
-        }
-      },
-      "visual" : {
-        "at" : { "x" : 288, "y" : 224 }
-      },
-      "connect" : [
-        { "id" : "f10", "to" : "f9" }
-      ]
-    }, {
-      "id" : "f9",
-      "type" : "HtmlDialogEnd",
-      "visual" : {
-        "at" : { "x" : 480, "y" : 224 }
-      }
     } ]
 }

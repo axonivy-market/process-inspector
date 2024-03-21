@@ -48,20 +48,6 @@ public class WorkflowEstimatorDemoBean {
 	public List<Process> getProcesses() {
 		return processes;
 	}
-
-	public void onAddEstimator(Estimator estimator) {
-		int index = estimators.indexOf(estimator);
-		if(index > -1) {
-			estimators.remove(index);
-			estimators.add(index, estimator);
-		} else {
-			estimators.add(estimator);	
-		}		
-	}
-	
-	public void onDeleteEstimator(Estimator estimator) {
-		estimators.remove(estimator);
-	}	
 	
 	public Estimator getSelectedEstimator() {
 		return selectedEstimator;
