@@ -49,13 +49,13 @@ public class WorkflowImplementTest{
 				"SequenceFlowZ:RequestStartZ->UserTaskZ",
 				"UserTaskZ:Task A\n(Element Label) (18DC44E096FDFF75-f2)",
 				"SequenceFlowZ:UserTaskZ->AlternativeZ",
-				"AlternativeZ: (18DC44E096FDFF75-f4)", 
+				"AlternativeZ:Alter (18DC44E096FDFF75-f4)", 
 				"SequenceFlowZ:AlternativeZ->AlternativeZ", 
 				"AlternativeZ:int/ext? (18DC44E096FDFF75-f8)",
 				"SequenceFlowZ:AlternativeZ->UserTaskZ",
 				"UserTaskZ:Task B (18DC44E096FDFF75-f7)",
 				"SequenceFlowZ:UserTaskZ->AlternativeZ",
-				"AlternativeZ: (18DC44E096FDFF75-f6)",
+				"AlternativeZ:Alter2 (18DC44E096FDFF75-f6)",
 				"SequenceFlowZ:AlternativeZ->TaskEndZ",
 				"TaskEndZ: (18DC44E096FDFF75-f1)");
 		for(int i = 0; i <expected.size(); i++) {

@@ -51,13 +51,15 @@
     }, {
       "id" : "f4",
       "type" : "Alternative",
+      "name" : "Alter",
       "config" : {
         "conditions" : {
           "f9" : "true"
         }
       },
       "visual" : {
-        "at" : { "x" : 480, "y" : 64 }
+        "at" : { "x" : 480, "y" : 64 },
+        "labelOffset" : { "x" : 0, "y" : 32 }
       },
       "connect" : [
         { "id" : "f9", "to" : "f8", "label" : {
@@ -141,8 +143,10 @@
     }, {
       "id" : "f6",
       "type" : "Alternative",
+      "name" : "Alter2",
       "visual" : {
-        "at" : { "x" : 808, "y" : 64 }
+        "at" : { "x" : 808, "y" : 64 },
+        "labelOffset" : { "x" : -16, "y" : 32 }
       },
       "connect" : [
         { "id" : "f16", "to" : "f1" }

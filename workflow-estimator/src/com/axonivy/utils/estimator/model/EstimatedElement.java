@@ -1,6 +1,6 @@
 package com.axonivy.utils.estimator.model;
 
-public abstract class  EstimatedElement {
+public abstract class EstimatedElement {
 	private String pid;
 	private String taskName;
 	private String elementName;

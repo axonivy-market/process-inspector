@@ -37,6 +37,15 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 		taskB = ProcessGraphHelper.findByElementName(process, "Task B");
 		taskC = ProcessGraphHelper.findByElementName(process, "Task C");
 	}
+	
+	@Test
+	void shouldFindAllTasksAtStartIncludeGateway() throws Exception {
+		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		workflowEstimator.enableDescribeAlternativeElements();
+		var estimatedTasks = workflowEstimator.findAllTasks(start);
+
+		assertArrayEquals(Arrays.array("Task A", "Alter", "int/ext?", "Task C", "Task B", "Alter2"), getTaskNames(estimatedTasks));
+	}
 
 	@Test
 	void shouldFindAllTasksAtStart() throws Exception {
