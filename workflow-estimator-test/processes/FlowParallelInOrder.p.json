@@ -285,5 +285,217 @@
       "connect" : [
         { "id" : "f38", "to" : "f29" }
       ]
+    }, {
+      "id" : "f39",
+      "type" : "RequestStart",
+      "name" : "start3",
+      "config" : {
+        "signature" : "start3"
+      },
+      "visual" : {
+        "at" : { "x" : 128, "y" : 784 }
+      },
+      "connect" : [
+        { "id" : "f41", "to" : "f40", "var" : "in1" }
+      ]
+    }, {
+      "id" : "f40",
+      "type" : "TaskSwitchGateway",
+      "name" : "Task 1",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "name" : "Task1A"
+          }, {
+            "id" : "TaskB",
+            "name" : "Task1B"
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 248, "y" : 784 },
+        "labelOffset" : { "x" : -8, "y" : -8 }
+      },
+      "connect" : [
+        { "id" : "f43", "to" : "f44", "via" : [ { "x" : 248, "y" : 824 } ], "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f45", "to" : "f42", "via" : [ { "x" : 248, "y" : 744 } ], "condition" : "ivp==\"TaskB.ivp\"" }
+      ]
+    }, {
+      "id" : "f42",
+      "type" : "UserTask",
+      "name" : "Task A",
+      "config" : {
+        "task" : {
+          "name" : "Task A"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 360, "y" : 744 }
+      },
+      "connect" : [
+        { "id" : "f47", "to" : "f46", "via" : [ { "x" : 472, "y" : 744 } ], "var" : "in1" }
+      ]
+    }, {
+      "id" : "f44",
+      "type" : "UserTask",
+      "name" : "Task B",
+      "config" : {
+        "task" : {
+          "name" : "Task B"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 360, "y" : 824 }
+      },
+      "connect" : [
+        { "id" : "f48", "to" : "f46", "via" : [ { "x" : 472, "y" : 824 } ], "var" : "in2" }
+      ]
+    }, {
+      "id" : "f46",
+      "type" : "TaskSwitchGateway",
+      "name" : "Task 2",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskB",
+            "name" : "Task2B"
+          }, {
+            "id" : "TaskA",
+            "name" : "Task2A"
+          }, {
+            "id" : "TaskC",
+            "name" : "Task2C"
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 488, "y" : 784 },
+        "labelOffset" : { "x" : -24, "y" : 16 }
+      },
+      "connect" : [
+        { "id" : "f52", "to" : "f49", "via" : [ { "x" : 512, "y" : 816 } ], "condition" : "ivp==\"TaskB.ivp\"" },
+        { "id" : "f50", "to" : "f51", "via" : [ { "x" : 512, "y" : 744 } ], "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f60", "to" : "f63", "condition" : "ivp==\"TaskC.ivp\"" }
+      ]
+    }, {
+      "id" : "f49",
+      "type" : "UserTask",
+      "name" : "Task D",
+      "config" : {
+        "task" : {
+          "name" : "Task D"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 600, "y" : 824 }
+      },
+      "connect" : [
+        { "id" : "f55", "to" : "f53", "var" : "in2" }
+      ]
+    }, {
+      "id" : "f51",
+      "type" : "UserTask",
+      "name" : "Task C",
+      "config" : {
+        "task" : {
+          "name" : "Task C"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 600, "y" : 744 }
+      },
+      "connect" : [
+        { "id" : "f61", "to" : "f54" }
+      ]
+    }, {
+      "id" : "f53",
+      "type" : "TaskSwitchGateway",
+      "name" : "Task 3",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "name" : "Task3A"
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 1032, "y" : 824 },
+        "labelOffset" : { "x" : 48, "y" : 32 }
+      },
+      "connect" : [
+        { "id" : "f57", "to" : "f56", "condition" : "ivp==\"TaskA.ivp\"" }
+      ]
+    }, {
+      "id" : "f56",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 1144, "y" : 824 }
+      }
+    }, {
+      "id" : "f58",
+      "type" : "UserTask",
+      "name" : "Task E",
+      "config" : {
+        "task" : {
+          "name" : "Task E"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 608, "y" : 944 }
+      },
+      "connect" : [
+        { "id" : "f59", "to" : "f53", "via" : [ { "x" : 1032, "y" : 944 } ], "var" : "in3" }
+      ]
+    }, {
+      "id" : "f63",
+      "type" : "Alternative",
+      "config" : {
+        "conditions" : {
+          "f64" : "true"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 488, "y" : 880 }
+      },
+      "connect" : [
+        { "id" : "f64", "to" : "f58", "via" : [ { "x" : 488, "y" : 944 } ] },
+        { "id" : "f65", "to" : "f53", "via" : [ { "x" : 984, "y" : 880 } ], "var" : "in4" }
+      ]
+    }, {
+      "id" : "f54",
+      "type" : "Alternative",
+      "visual" : {
+        "at" : { "x" : 720, "y" : 744 }
+      },
+      "connect" : [
+        { "id" : "f66", "to" : "f62" },
+        { "id" : "f69", "to" : "f68", "via" : [ { "x" : 720, "y" : 664 } ] }
+      ]
+    }, {
+      "id" : "f62",
+      "type" : "UserTask",
+      "name" : "Task F",
+      "config" : {
+        "task" : {
+          "name" : "Task F"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 824, "y" : 744 }
+      },
+      "connect" : [
+        { "id" : "f67", "to" : "f53", "via" : [ { "x" : 984, "y" : 744 } ], "var" : "in1" }
+      ]
+    }, {
+      "id" : "f68",
+      "type" : "UserTask",
+      "name" : "Task K",
+      "config" : {
+        "task" : {
+          "name" : "Task K"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 824, "y" : 664 }
+      },
+      "connect" : [
+        { "id" : "f70", "to" : "f53", "via" : [ { "x" : 1032, "y" : 664 } ], "var" : "in5" }
+      ]
     } ]
 }
