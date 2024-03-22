@@ -16,8 +16,13 @@ import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.application.IProcessModelVersion;
 import ch.ivyteam.ivy.environment.Ivy;
+import ch.ivyteam.ivy.process.model.BaseElement;
+import ch.ivyteam.ivy.process.model.EmbeddedProcess;
 import ch.ivyteam.ivy.process.model.Process;
+import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
+import ch.ivyteam.ivy.process.model.element.ProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
+import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.rdm.IProcessManager;
 import ch.ivyteam.ivy.process.viewer.api.ProcessViewer;
 import ch.ivyteam.ivy.workflow.start.IProcessWebStartable;
@@ -58,7 +63,7 @@ public class WorkflowEstimatorDemoBean {
 	}
 
 	public List<SingleTaskCreator> getAllTaskModifier(Process process) {
-		return process.getElements().stream()
+		return  getElementOfProcess(process).stream()
 			.filter(item -> item instanceof SingleTaskCreator)
 			.map(SingleTaskCreator.class::cast)
 			.toList();
@@ -70,6 +75,15 @@ public class WorkflowEstimatorDemoBean {
 	
 	public List<UseCase> getAllUseCases(){
 		return  Arrays.stream(UseCase.values()).toList();
+	}
+	
+	public List<Alternative> getAllALternative(Process process){
+		List<Alternative> alternatives = getElementOfProcess(process).stream()
+				.filter(item -> item instanceof Alternative)
+				.map(Alternative.class::cast)
+				.filter(item -> item.getOutgoing().size() > 1)
+				.toList();
+		return alternatives;	
 	}
 	
 	public List<EstimatedTask> getEstimatedTask(Estimator estimator) throws Exception{
@@ -125,5 +139,41 @@ public class WorkflowEstimatorDemoBean {
 	
 	private boolean isAcceptedProcess(List<String>folders, String fullQualifiedName) {
 		return folders.stream().anyMatch(folder -> fullQualifiedName.contains(folder));
+	}
+	
+	private static List<BaseElement> getElementOfProcess (Process process) {
+		var processElements = process.getProcessElements();
+		var childElments = getElementOfProcesses(processElements);
+		var elements = process.getElements();
+		elements.addAll(childElments);
+		
+		return elements;
+	}
+	
+	private static List<BaseElement> getElementOfProcesses (List<ProcessElement> processElements) {
+		if(processElements.isEmpty()) {
+			return emptyList();
+		}
+		var embeddedProcess = processElements.stream()
+				.filter(it -> it instanceof EmbeddedProcessElement == true)
+				.map(EmbeddedProcessElement.class::cast)
+				.map(it -> it.getEmbeddedProcess())
+				.collect(Collectors.toList());
+
+		var elememets = embeddedProcess.stream()
+				.map(EmbeddedProcess::getElements)
+				.flatMap(List::stream)
+				.collect(Collectors.toList());
+		
+		var childProcessElements = embeddedProcess.stream()
+				.map(EmbeddedProcess::getProcessElements)
+				.flatMap(List::stream)
+				.collect(Collectors.toList());
+		
+		var childElememts = getElementOfProcesses(childProcessElements);
+		
+		elememets.addAll(childElememts);
+		
+		return elememets;
 	}
 }

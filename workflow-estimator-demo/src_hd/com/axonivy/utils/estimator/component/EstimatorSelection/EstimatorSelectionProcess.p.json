@@ -69,13 +69,14 @@
     }, {
       "id" : "f7",
       "type" : "Script",
-      "name" : "init start elements",
+      "name" : "init start elements and alternative",
       "config" : {
         "output" : {
           "code" : [
             "if(in.workflowEstimatorDemoBean.selectedEstimator is initialized) {",
-            " in.workflowEstimatorDemoBean.selectedEstimator.elements = in.workflowEstimatorDemoBean.getAllTaskModifier(in.workflowEstimatorDemoBean.selectedEstimator.process);",
-            " in.workflowEstimatorDemoBean.selectedEstimator.processPath = in.workflowEstimatorDemoBean.getProcessWebLink(in.workflowEstimatorDemoBean.selectedEstimator.process);  ",
+            "  in.workflowEstimatorDemoBean.selectedEstimator.elements = in.workflowEstimatorDemoBean.getAllTaskModifier(in.workflowEstimatorDemoBean.selectedEstimator.process);",
+            "  in.workflowEstimatorDemoBean.selectedEstimator.processPath = in.workflowEstimatorDemoBean.getProcessWebLink(in.workflowEstimatorDemoBean.selectedEstimator.process);",
+            "  in.workflowEstimatorDemoBean.selectedEstimator.alternatives = in.workflowEstimatorDemoBean.getAllALternative(in.workflowEstimatorDemoBean.selectedEstimator.process);",
             "}"
           ]
         }

@@ -78,11 +78,22 @@
             <p:inputText id="flowName"
                 value="#{data.workflowEstimatorDemoBean.selectedEstimator.flowName}" />
         </p:panelGrid>
+        
+        <h5>Select process override</h5>
+        <p:selectCheckboxMenu id="processOverride"
+                      multiple="true" emptyLabel="Please select..." updateLabel="true"
+                      style="min-width: 15rem" panelStyle="width: 30rem" scrollHeight="250">                
+                <f:selectItems value="#{data.workflowEstimatorDemoBean.selectedEstimator.getAllSequenceFlow()}" 
+                var="sequenceFlow" 
+                itemLabel="#{sequenceFlow.source.name}: #{sequenceFlow.name} -> #{sequenceFlow.target.name}  "
+                itemValue="#{sequenceFlow}"/>
+                <p:ajax event="itemUnselect" listener="#{checkboxView.onItemUnselect}"/>
+        </p:selectCheckboxMenu>
 
         <p:panel id="process-viewer-diagram" header="Process diagram"
             toggleable="true" toggleSpeed="500" closeSpeed="500"
             widgetVar="panel"
-            collapsed="#{ data.workflowEstimatorDemoBean.selectedEstimator.processPath eq null ? 'true' : 'false'}">
+            collapsed="#{data.workflowEstimatorDemoBean.selectedEstimator.processPath eq null ? 'true' : 'false'}">
             <iframe id="process-viewer"
                 style="width: 100%; height: 300px"
                 src="#{data.workflowEstimatorDemoBean.selectedEstimator.processPath}" />

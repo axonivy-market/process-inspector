@@ -4,11 +4,9 @@ import static java.util.Collections.emptyList;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import com.axonivy.utils.estimator.constant.UseCase;
 import com.axonivy.utils.estimator.demo.constant.FindType;
@@ -16,7 +14,9 @@ import com.axonivy.utils.estimator.helper.DateTimeHelper;
 import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.process.model.Process;
+import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
+import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 
 public class Estimator {
 	private String id;
@@ -30,6 +30,7 @@ public class Estimator {
 	private List<EstimatedTask> tasks;
 	private Duration totalDuration;
 	private long executionTime;
+	private List<Alternative> alternatives;
 
 	public Estimator() {
 		this.id = UUID.randomUUID().toString();
@@ -119,7 +120,7 @@ public class Estimator {
 	public void setTotalDuration(Duration toDuration) {
 		this.totalDuration = toDuration;
 	}
-	
+
 	public String getDisplayTotalDuration() {
 		return DateTimeHelper.getDisplayDuration (totalDuration);
 	}
@@ -132,12 +133,25 @@ public class Estimator {
 		return this.tasks.stream().map(EstimatedTask::getTaskName).collect(Collectors.joining(" -> "));
 	}
 
-	
 	public long getExecutionTime() {
 		return executionTime;
 	}
 
 	public void setExecutionTime(long executionTime) {
 		this.executionTime = executionTime;
+	}
+
+	public List<Alternative> getAlternatives() {
+		return alternatives;
+	}
+
+	public void setAlternatives(List<Alternative> alternatives) {
+		this.alternatives = alternatives;
+	}
+	
+	public List<SequenceFlow> getAllSequenceFlow() {
+		return Optional.ofNullable(alternatives)
+				.map(it -> it.stream().flatMap(alternative -> alternative.getOutgoing().stream()).toList())
+				.orElse(emptyList());
 	}
 }
