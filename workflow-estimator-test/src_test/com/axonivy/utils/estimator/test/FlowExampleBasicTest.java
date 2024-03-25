@@ -44,7 +44,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 		workflowEstimator.enableDescribeAlternativeElements();
 		var estimatedTasks = workflowEstimator.findAllTasks(start);
 
-		assertArrayEquals(Arrays.array("Task A", "Alter", "int/ext?", "Task C", "Task B", "Alter2"), getTaskNames(estimatedTasks));
+		assertArrayEquals(Arrays.array("Task A", "Alter", "int/ext?", "Task B", "Alter2", "Task C"), getTaskNames(estimatedTasks));
 	}
 
 	@Test
@@ -52,7 +52,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		var estimatedTasks = workflowEstimator.findAllTasks(start);
 
-		assertArrayEquals(Arrays.array("Task A", "Task C", "Task B"), getTaskNames(estimatedTasks));
+		assertArrayEquals(Arrays.array("Task A", "Task B", "Task C"), getTaskNames(estimatedTasks));
 	}
 
 	@Test
@@ -76,7 +76,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		var estimatedTasks = workflowEstimator.findAllTasks(newStart);
 	
-		assertArrayEquals(Arrays.array("Task C", "Task B"), getTaskNames(estimatedTasks));
+		assertArrayEquals(Arrays.array("Task B", "Task C"), getTaskNames(estimatedTasks));
 	}
 	
 	@Test
@@ -130,7 +130,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 		var workflowEstimator = new WorkflowEstimator(process, null, "internal");
 		var estimatedTasks = workflowEstimator.findAllTasks(start);
 
-		assertArrayEquals(Arrays.array("Task A", "Task C", "Task B"), getTaskNames(estimatedTasks));		
+		assertArrayEquals(Arrays.array("Task A", "Task B", "Task C"), getTaskNames(estimatedTasks));		
 	}
 
 	@Test
