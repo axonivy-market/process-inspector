@@ -31,7 +31,7 @@
                     itemValue="#{process}" />
                 <p:ajax event="change"
                     listener="#{logic.onChooseProcess}"
-                    update="workflow-estimator:estimator-dialog:selectOneElement workflow-estimator:estimator-dialog:process-viewer-diagram"
+                    update="workflow-estimator:estimator-dialog:selectOneElement workflow-estimator:estimator-dialog:process-viewer-diagram @parent:alternative-selection"
                     process="@this" />
             </p:selectOneMenu>
 
@@ -79,16 +79,22 @@
                 value="#{data.workflowEstimatorDemoBean.selectedEstimator.flowName}" />
         </p:panelGrid>
         
-        <h5>Select process override</h5>
-        <p:selectCheckboxMenu id="processOverride"
-                      multiple="true" emptyLabel="Please select..." updateLabel="true"
-                      style="min-width: 15rem" panelStyle="width: 30rem" scrollHeight="250">                
-                <f:selectItems value="#{data.workflowEstimatorDemoBean.selectedEstimator.getAllSequenceFlow()}" 
-                var="sequenceFlow" 
-                itemLabel="#{sequenceFlow.source.name}: #{sequenceFlow.name} -> #{sequenceFlow.target.name}  "
-                itemValue="#{sequenceFlow}"/>
-                <p:ajax event="itemUnselect" listener="#{checkboxView.onItemUnselect}"/>
-        </p:selectCheckboxMenu>
+        <h5>Select process override:</h5>
+        <h:panelGroup id="alternative-selection">
+            <p:repeat var="alternative"
+                value="#{data.workflowEstimatorDemoBean.selectedEstimator.alternatives}">
+                <h:panelGroup>
+                    <p:outputLabel value="#{alternative.name}"
+                        styleClass="text-bold" title="#{alternative.pid.rawPid}"/>
+                    <p:selectOneRadio layout="lineDirection" converter="pojoConverter">
+                        <f:selectItems value="#{alternative.outgoing}"
+                            var="out" itemValue="#{out}"
+                            itemLabel="#{out.name} -> #{out.target.name}" itemDescription="#{out.pid.rawPid}"/>
+                        <p:ajax listener="#{logic.onSelect}" event="change"/>
+                    </p:selectOneRadio>
+                </h:panelGroup>
+            </p:repeat>
+        </h:panelGroup>
 
         <p:panel id="process-viewer-diagram" header="Process diagram"
             toggleable="true" toggleSpeed="500" closeSpeed="500"

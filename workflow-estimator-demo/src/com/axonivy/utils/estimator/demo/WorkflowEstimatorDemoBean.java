@@ -5,20 +5,25 @@ import static java.util.Collections.emptyList;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.faces.event.AjaxBehaviorEvent;
+import org.primefaces.component.selectoneradio.SelectOneRadio;
 
 import com.axonivy.utils.estimator.WorkflowEstimator;
 import com.axonivy.utils.estimator.constant.UseCase;
 import com.axonivy.utils.estimator.demo.constant.FindType;
 import com.axonivy.utils.estimator.demo.model.Estimator;
-import com.axonivy.utils.estimator.model.EstimatedTask;
-
+import com.axonivy.utils.estimator.model.EstimatedElement;
 import ch.ivyteam.ivy.application.IProcessModelVersion;
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.EmbeddedProcess;
 import ch.ivyteam.ivy.process.model.Process;
+import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.ProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
@@ -62,8 +67,8 @@ public class WorkflowEstimatorDemoBean {
 		this.selectedEstimator = selectedEstimator;
 	}
 
-	public List<SingleTaskCreator> getAllTaskModifier(Process process) {
-		return  getElementOfProcess(process).stream()
+	public List<SingleTaskCreator> getAllTaskModifier() {
+		return  getElementOfProcess(this.selectedEstimator.getProcess()).stream()
 			.filter(item -> item instanceof SingleTaskCreator)
 			.map(SingleTaskCreator.class::cast)
 			.toList();
@@ -77,8 +82,8 @@ public class WorkflowEstimatorDemoBean {
 		return  Arrays.stream(UseCase.values()).toList();
 	}
 	
-	public List<Alternative> getAllALternative(Process process){
-		List<Alternative> alternatives = getElementOfProcess(process).stream()
+	public List<Alternative> getALternativeWithMoreThanOneOutgoing(){
+		List<Alternative> alternatives = getElementOfProcess(this.selectedEstimator.getProcess()).stream()
 				.filter(item -> item instanceof Alternative)
 				.map(Alternative.class::cast)
 				.filter(item -> item.getOutgoing().size() > 1)
@@ -86,35 +91,70 @@ public class WorkflowEstimatorDemoBean {
 		return alternatives;	
 	}
 	
-	public List<EstimatedTask> getEstimatedTask(Estimator estimator) throws Exception{
-		var workflowEstimator = new WorkflowEstimator(estimator.getProcess(), estimator.getUseCase(), estimator.getFlowName());
-		List<EstimatedTask> estimatedTasks = null;
-		long startTime = System.currentTimeMillis();
-		if (FindType.ALL_TASK.equals(estimator.getFindType())) {
-			estimatedTasks = workflowEstimator.findAllTasks(estimator.getStartElement()).stream()
-					.map(EstimatedTask.class::cast).toList();
-		} else {
-			estimatedTasks = workflowEstimator.findTasksOnPath(estimator.getStartElement()).stream()
-					.map(EstimatedTask.class::cast).toList();
+	public void onSelectSequenceFlow(AjaxBehaviorEvent event) {
+		if (event.getSource() != null) {
+			SequenceFlow newSequenceFlow = (SequenceFlow) ((SelectOneRadio) event.getSource()).getValue();
+			if (newSequenceFlow != null) {
+				if (newSequenceFlow.getSource() instanceof Alternative) {
+					Alternative alternative = (Alternative) newSequenceFlow.getSource();
+					selectedEstimator.getAlternativeFlows().put(alternative, newSequenceFlow);
+				}
+			}
 		}
-		
+	}
+	
+	public List<EstimatedElement> getEstimatedTask() throws Exception {
+		WorkflowEstimator workflowEstimator = createWorkflowEstimator(selectedEstimator);
+
+		long startTime = System.currentTimeMillis();
+		List<EstimatedElement> estimatedElements = null;
+		if (FindType.ALL_TASK.equals(selectedEstimator.getFindType())) {
+			estimatedElements = workflowEstimator.findAllTasks(selectedEstimator.getStartElement()).stream()
+					.map(EstimatedElement.class::cast).toList();
+		} else {
+			estimatedElements = workflowEstimator.findTasksOnPath(selectedEstimator.getStartElement()).stream()
+					.map(EstimatedElement.class::cast).toList();
+		}
+
 		long executionTime = System.currentTimeMillis() - startTime;
-		estimator.setExecutionTime(executionTime);
-		return estimatedTasks;
+		selectedEstimator.setExecutionTime(executionTime);
+
+		return estimatedElements;
 	}
 
-	public Duration getEstimatedTaskCalculate(Estimator estimator) throws Exception{
-		var workflowEstimator = new WorkflowEstimator(estimator.getProcess(), null, estimator.getFlowName());
-		Duration total = Duration.ZERO;
-		if(FindType.ALL_TASK.equals(estimator.getFindType())) {
-			total = workflowEstimator.calculateEstimatedDuration(estimator.getStartElement());
-		} else {
-			total = workflowEstimator.calculateEstimatedDuration(estimator.getStartElement());
-		}
+	public Duration getEstimatedTaskCalculate() throws Exception{
+		WorkflowEstimator workflowEstimator = createWorkflowEstimator(selectedEstimator);
 		
+		Duration total = Duration.ZERO;
+		if(FindType.ALL_TASK.equals(selectedEstimator.getFindType())) {
+			total = workflowEstimator.calculateEstimatedDuration(selectedEstimator.getStartElement());
+		} else {
+			total = workflowEstimator.calculateEstimatedDuration(selectedEstimator.getStartElement());
+		}
 		return total;
 	}
 
+	private WorkflowEstimator createWorkflowEstimator(Estimator estimator) {
+		WorkflowEstimator workflowEstimator = new WorkflowEstimator(selectedEstimator.getProcess(), selectedEstimator.getUseCase(), selectedEstimator.getFlowName());
+
+		HashMap<String, String> flowOverrides = getProcessFlowOverride(selectedEstimator);
+		workflowEstimator.setProcessFlowOverrides(flowOverrides);
+		
+		return workflowEstimator;
+	}
+
+	private HashMap<String, String> getProcessFlowOverride(Estimator estimator) {		
+		Map<Alternative, SequenceFlow> alternativeFlows = selectedEstimator.getAlternativeFlows();
+		HashMap<String, String> processFlowOverride = new HashMap<String, String>();
+
+		for (Alternative item : alternativeFlows.keySet()) {
+			if (alternativeFlows.get(item) != null) {
+				processFlowOverride.put(item.getPid().getRawPid(), alternativeFlows.get(item).getPid().getRawPid());
+			}
+		}
+		return processFlowOverride;
+	}
+	
 	private List<Process> getAllProcesses() {
 		var manager = IProcessManager.instance().getProjectDataModelFor(IProcessModelVersion.current());
 		List<Process> processes = manager.search().find().stream()
@@ -122,18 +162,16 @@ public class WorkflowEstimatorDemoBean {
 				.filter(process -> isAcceptedProcess(PROCESS_FOLDERS, process.getFullQualifiedName().getName()))
 				.distinct()
 				.collect(Collectors.toList());
-		
 		return processes;
 	}
 	
-	public String getProcessWebLink(Process process) {
-		String guid = process.getPid().getProcessGuid();
+	public String getProcessWebLink() {
+		String guid = this.selectedEstimator.getProcess().getPid().getProcessGuid();
 		IWebStartable webStartable = Ivy.session().getStartables().stream().filter(it -> it.getLink().toRelativeUri().getPath().contains(guid)).findFirst().orElse(null);
 		
 		if(webStartable != null) {
 			return ProcessViewer.of((IProcessWebStartable) webStartable).url().toWebLink().getRelative();	
-		}
-		
+		}	
 		return null;
 	}
 	
