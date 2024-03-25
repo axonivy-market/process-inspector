@@ -9,7 +9,6 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,6 @@ import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
-import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
@@ -129,7 +127,7 @@ abstract class AbstractWorkflow {
 				return path;
 			}
 			
-			while(isStartTaskSwitchGateway(from)) {				
+			while(isStartTaskSwitchGateway(from)) {
 				List<BaseElement> pathFromParallel = getListElementInParallelTask((TaskSwitchGateway) from, flowName, findType, previousElements);
 				path.addAll(removeDuplicateTaskSwitchGateway(pathFromParallel));
 				from = findEndTaskSwithGateWay(from, pathFromParallel);				
@@ -274,17 +272,6 @@ abstract class AbstractWorkflow {
 		return Objects.equals(currentElementId, nextTargetId);
 	}
 	
-	private boolean isAcceptedTask(BaseElement element) {
-		return Optional.ofNullable(element)
-				// filter to get task only
-				.filter(node -> node instanceof TaskAndCaseModifier)
-				.map(TaskAndCaseModifier.class::cast)
-				.filter(node -> node instanceof RequestStart == false)
-				// Remove SYSTEM task
-				.filter(node -> isSystemTask(node) == false)
-				.isPresent();
-	}	
-	
 	private Duration getDurationByTaskScript(TaskConfig task, UseCase useCase) {
 		List<String> prefixs = new ArrayList<String>(Arrays.asList("WfEstimate.setEstimate"));
 		if(useCase != null) {
@@ -341,6 +328,7 @@ abstract class AbstractWorkflow {
 		return false;
 	}
 
+	// It might be remove this function to keep all element for calculation max total duration on each parallel path
 	private List<BaseElement> removeDuplicateTaskSwitchGateway(List<BaseElement> elements) {
 		
 		Map<BaseElement, Integer> lastIndexOfTaskSwitchGateways = new HashedMap<>();
