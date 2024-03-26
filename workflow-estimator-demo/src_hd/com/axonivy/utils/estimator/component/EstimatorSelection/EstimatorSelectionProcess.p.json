@@ -69,13 +69,14 @@
     }, {
       "id" : "f7",
       "type" : "Script",
-      "name" : "init start elements",
+      "name" : "init start elements and alternative",
       "config" : {
         "output" : {
           "code" : [
             "if(in.workflowEstimatorDemoBean.selectedEstimator is initialized) {",
-            " in.workflowEstimatorDemoBean.selectedEstimator.elements = in.workflowEstimatorDemoBean.getAllTaskModifier(in.workflowEstimatorDemoBean.selectedEstimator.process);",
-            " in.workflowEstimatorDemoBean.selectedEstimator.processPath = in.workflowEstimatorDemoBean.getProcessWebLink(in.workflowEstimatorDemoBean.selectedEstimator.process);  ",
+            "  in.workflowEstimatorDemoBean.selectedEstimator.elements = in.workflowEstimatorDemoBean.getAllTaskModifier();",
+            "  in.workflowEstimatorDemoBean.selectedEstimator.processPath = in.workflowEstimatorDemoBean.getProcessWebLink();",
+            "  in.workflowEstimatorDemoBean.selectedEstimator.alternatives = in.workflowEstimatorDemoBean.getALternativeWithMoreThanOneOutgoing();",
             "}"
           ]
         }
@@ -100,7 +101,7 @@
         "guid" : "18E2C4112161A72E"
       },
       "visual" : {
-        "at" : { "x" : 96, "y" : 336 }
+        "at" : { "x" : 96, "y" : 360 }
       },
       "connect" : [
         { "id" : "f13", "to" : "f12" }
@@ -112,13 +113,13 @@
       "config" : {
         "output" : {
           "code" : [
-            "in.workflowEstimatorDemoBean.selectedEstimator.tasks = in.workflowEstimatorDemoBean.getEstimatedTask(in.workflowEstimatorDemoBean.selectedEstimator);",
-            "in.workflowEstimatorDemoBean.selectedEstimator.totalDuration = in.workflowEstimatorDemoBean.getEstimatedTaskCalculate(in.workflowEstimatorDemoBean.selectedEstimator);"
+            "in.workflowEstimatorDemoBean.selectedEstimator.tasks = in.workflowEstimatorDemoBean.getEstimatedTask();",
+            "in.workflowEstimatorDemoBean.selectedEstimator.totalDuration = in.workflowEstimatorDemoBean.getEstimatedTaskCalculate();"
           ]
         }
       },
       "visual" : {
-        "at" : { "x" : 288, "y" : 336 }
+        "at" : { "x" : 288, "y" : 360 }
       },
       "connect" : [
         { "id" : "f15", "to" : "f14" }
@@ -127,7 +128,50 @@
       "id" : "f14",
       "type" : "HtmlDialogEnd",
       "visual" : {
-        "at" : { "x" : 480, "y" : 336 }
+        "at" : { "x" : 488, "y" : 360 }
       }
+    }, {
+      "id" : "f17",
+      "type" : "HtmlDialogEnd",
+      "visual" : {
+        "at" : { "x" : 480, "y" : 480 }
+      }
+    }, {
+      "id" : "f19",
+      "type" : "Script",
+      "name" : "select process override",
+      "config" : {
+        "output" : {
+          "code" : "in.workflowEstimatorDemoBean.onSelectSequenceFlow(in.event);"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 288, "y" : 480 }
+      },
+      "connect" : [
+        { "id" : "f20", "to" : "f17" }
+      ]
+    }, {
+      "id" : "f16",
+      "type" : "HtmlDialogMethodStart",
+      "name" : "onSelect(AjaxBehaviorEvent)",
+      "config" : {
+        "signature" : "onSelect",
+        "input" : {
+          "params" : [
+            { "name" : "event", "type" : "javax.faces.event.AjaxBehaviorEvent", "desc" : "" }
+          ],
+          "map" : {
+            "out.event" : "param.event"
+          }
+        },
+        "guid" : "18E74D298A4744BC"
+      },
+      "visual" : {
+        "at" : { "x" : 96, "y" : 480 }
+      },
+      "connect" : [
+        { "id" : "f18", "to" : "f19" }
+      ]
     } ]
 }
