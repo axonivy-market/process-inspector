@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.estimator.constant.UseCase;
+import com.axonivy.utils.estimator.internal.model.CommonElement;
 
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.environment.IvyTest;
@@ -41,7 +42,7 @@ public class WorkflowImplementTest{
 	void shouldFindPathAtStart() throws Exception {
 		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
 		var start = ProcessGraphHelper.findByElementName(process, "start");		
-		var result = workflowImplement.findPath("internal", start);
+		var result = workflowImplement.findPath("internal", new CommonElement(start));
 		
 		var expected = Arrays.asList(
 				"RequestStartZ:start (18DC44E096FDFF75-f0)",

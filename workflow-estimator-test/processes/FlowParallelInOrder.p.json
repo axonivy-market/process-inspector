@@ -258,6 +258,7 @@
       "config" : {
         "tasks" : [ {
             "id" : "TaskA",
+            "name" : "Task 3A",
             "responsible" : {
               "activator" : "SYSTEM"
             }
@@ -436,17 +437,17 @@
           } ]
       },
       "visual" : {
-        "at" : { "x" : 1032, "y" : 824 },
-        "labelOffset" : { "x" : 48, "y" : 32 }
+        "at" : { "x" : 944, "y" : 824 },
+        "labelOffset" : { "x" : 56, "y" : -8 }
       },
       "connect" : [
-        { "id" : "f57", "to" : "f56", "condition" : "ivp==\"TaskA.ivp\"" }
+        { "id" : "f57", "to" : "f71", "condition" : "ivp==\"TaskA.ivp\"" }
       ]
     }, {
       "id" : "f56",
       "type" : "TaskEnd",
       "visual" : {
-        "at" : { "x" : 1144, "y" : 824 }
+        "at" : { "x" : 1248, "y" : 824 }
       }
     }, {
       "id" : "f58",
@@ -459,28 +460,10 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 608, "y" : 944 }
+        "at" : { "x" : 608, "y" : 976 }
       },
       "connect" : [
-        { "id" : "f59", "to" : "f53", "via" : [ { "x" : 1032, "y" : 944 } ], "var" : "in3" }
-      ]
-    }, {
-      "id" : "f63",
-      "type" : "Alternative",
-      "config" : {
-        "conditions" : {
-          "f64" : "true"
-        }
-      },
-      "visual" : {
-        "at" : { "x" : 488, "y" : 880 }
-      },
-      "connect" : [
-        { "id" : "f64", "to" : "f58", "via" : [ { "x" : 488, "y" : 944 } ] },
-        { "id" : "f65", "to" : "f53", "via" : [ { "x" : 984, "y" : 880 } ], "color" : "default path", "label" : {
-            "name" : "{internal}",
-            "segment" : 0.57
-          }, "var" : "in4" }
+        { "id" : "f59", "to" : "f65", "via" : [ { "x" : 944, "y" : 976 } ] }
       ]
     }, {
       "id" : "f54",
@@ -515,7 +498,7 @@
         "at" : { "x" : 824, "y" : 744 }
       },
       "connect" : [
-        { "id" : "f67", "to" : "f53", "via" : [ { "x" : 984, "y" : 744 } ], "var" : "in1" }
+        { "id" : "f67", "to" : "f76" }
       ]
     }, {
       "id" : "f68",
@@ -531,7 +514,58 @@
         "at" : { "x" : 824, "y" : 664 }
       },
       "connect" : [
-        { "id" : "f70", "to" : "f53", "via" : [ { "x" : 1032, "y" : 664 } ], "var" : "in5" }
+        { "id" : "f70", "to" : "f76", "via" : [ { "x" : 944, "y" : 664 } ] }
+      ]
+    }, {
+      "id" : "f71",
+      "type" : "UserTask",
+      "name" : "Task I",
+      "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
+        "task" : {
+          "name" : "Task I"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 1088, "y" : 824 }
+      },
+      "connect" : [
+        { "id" : "f72", "to" : "f56" }
+      ]
+    }, {
+      "id" : "f76",
+      "type" : "Alternative",
+      "visual" : {
+        "at" : { "x" : 944, "y" : 744 }
+      },
+      "connect" : [
+        { "id" : "f77", "to" : "f53", "var" : "in5" }
+      ]
+    }, {
+      "id" : "f63",
+      "type" : "Alternative",
+      "config" : {
+        "conditions" : {
+          "f64" : "true"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 488, "y" : 896 }
+      },
+      "connect" : [
+        { "id" : "f64", "to" : "f58", "via" : [ { "x" : 488, "y" : 976 } ] },
+        { "id" : "f79", "to" : "f65", "color" : "default path", "label" : {
+            "name" : "{internal}"
+          } }
+      ]
+    }, {
+      "id" : "f65",
+      "type" : "Alternative",
+      "visual" : {
+        "at" : { "x" : 944, "y" : 896 }
+      },
+      "connect" : [
+        { "id" : "f78", "to" : "f53", "var" : "in1" }
       ]
     } ],
   "layout" : {
