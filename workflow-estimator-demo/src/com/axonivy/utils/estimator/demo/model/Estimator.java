@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import com.axonivy.utils.estimator.constant.UseCase;
 import com.axonivy.utils.estimator.demo.constant.FindType;
-import com.axonivy.utils.estimator.helper.DateTimeHelper;
+import com.axonivy.utils.estimator.demo.helper.DateTimeHelper;
 import com.axonivy.utils.estimator.model.EstimatedElement;
 import com.axonivy.utils.estimator.model.EstimatedTask;
 

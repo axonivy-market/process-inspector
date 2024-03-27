@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator.helper;
+package com.axonivy.utils.estimator.demo.helper;
 
 import java.time.Duration;
 

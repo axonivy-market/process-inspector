@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator;
+package com.axonivy.utils.estimator.internal;
 
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -34,7 +34,7 @@ import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 
 @SuppressWarnings("restriction")
-abstract class AbstractWorkflow {
+public abstract class AbstractWorkflow {
 
 	private enum FindType {
 		ALL_TASKS, TASKS_ON_PATH

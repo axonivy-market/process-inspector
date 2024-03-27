@@ -64,7 +64,7 @@
             </p:column>
 
             <p:column headerText="Estimated Duration">
-                <h:outputText value="#{task.displayTotalDuration}" />
+                <h:outputText value="#{data.workflowEstimatorDemoBean.getDisplayDuration(task.estimatedDuration)}" />
             </p:column>
 
             <p:column headerText="Parent Element Names"
