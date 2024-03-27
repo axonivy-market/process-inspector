@@ -27,6 +27,12 @@
       "id" : "f2",
       "type" : "UserTask",
       "name" : "TaskA",
+      "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
+        "task" : {
+          "name" : "TaskA"
+        }
+      },
       "visual" : {
         "at" : { "x" : 288, "y" : 64 }
       },

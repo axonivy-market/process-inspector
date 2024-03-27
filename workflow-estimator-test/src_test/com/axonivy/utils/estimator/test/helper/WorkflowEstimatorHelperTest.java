@@ -21,6 +21,7 @@ import ch.ivyteam.ivy.workflow.ITask;
 public class WorkflowEstimatorHelperTest {
 	private static final BpmProcess FLOW_EXAMPLE_COMMON = BpmProcess.name("FlowExampleCommon");
 	private static final BpmElement FLOW_EXAMPLE_COMMON_START = FLOW_EXAMPLE_COMMON.elementName("start");
+	private static final BpmElement FLOW_EXAMPLE_COMMON_TASKA = FLOW_EXAMPLE_COMMON.elementName("TaskA");
 
 	@Test
 	void shouldGetBaseElementOfTaskB(BpmClient bpmClient) {
@@ -30,19 +31,21 @@ public class WorkflowEstimatorHelperTest {
 		BaseElement startElement = WorkflowEstimatorHelper.getBaseElementOf(startTask);
 		assertNotNull(startElement);
 		assertEquals("start", startElement.getName());
-	
+
+		bpmClient.mock().uiOf(FLOW_EXAMPLE_COMMON_TASKA).withNoAction();
+
 		result = bpmClient.start().anyActiveTask(result).as().everybody().execute();
 		ITask taskA = result.workflow().executedTask();
-		
+
 		BaseElement taskAElement = WorkflowEstimatorHelper.getBaseElementOf(taskA);
 		assertNotNull(taskA);
 		assertEquals("TaskA", taskAElement.getName());
 	}
-	
+
 	@Test
 	void shouldGetBaseElementOfIsNull(BpmClient bpmClient) {
-		
+
 		BaseElement startElement = WorkflowEstimatorHelper.getBaseElementOf(null);
-		assertNull(startElement);		
+		assertNull(startElement);
 	}
 }
