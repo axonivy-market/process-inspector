@@ -16,8 +16,10 @@ import org.primefaces.component.selectoneradio.SelectOneRadio;
 import com.axonivy.utils.estimator.WorkflowEstimator;
 import com.axonivy.utils.estimator.constant.UseCase;
 import com.axonivy.utils.estimator.demo.constant.FindType;
+import com.axonivy.utils.estimator.demo.helper.DateTimeHelper;
 import com.axonivy.utils.estimator.demo.model.Estimator;
 import com.axonivy.utils.estimator.model.EstimatedElement;
+
 import ch.ivyteam.ivy.application.IProcessModelVersion;
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -213,5 +215,9 @@ public class WorkflowEstimatorDemoBean {
 		elememets.addAll(childElememts);
 		
 		return elememets;
+	}
+	
+	public String getDisplayDuration(Duration duration) {
+		return DateTimeHelper.getDisplayDuration(duration);
 	}
 }

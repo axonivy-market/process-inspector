@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator;
+package com.axonivy.utils.estimator.test;
 
 import static java.util.Collections.emptyMap;
 
@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.axonivy.utils.estimator.constant.UseCase;
+import com.axonivy.utils.estimator.internal.AbstractWorkflow;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.axonivy.utils.estimator.constant.UseCase;
+import com.axonivy.utils.estimator.internal.AbstractWorkflow;
 import com.axonivy.utils.estimator.model.EstimatedAlternative;
 import com.axonivy.utils.estimator.model.EstimatedElement;
 import com.axonivy.utils.estimator.model.EstimatedTask;

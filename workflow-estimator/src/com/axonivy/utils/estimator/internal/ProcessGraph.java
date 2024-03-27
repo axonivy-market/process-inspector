@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator;
+package com.axonivy.utils.estimator.internal;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultString;

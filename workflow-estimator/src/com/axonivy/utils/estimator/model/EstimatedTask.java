@@ -9,15 +9,12 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.time.DateUtils;
 
-import com.axonivy.utils.estimator.helper.DateTimeHelper;
-
 public class EstimatedTask extends EstimatedElement {
-	
-	
+
 	private Duration estimatedDuration;
 	/**
-	 * Names of parent process elements in the order they appeared.
-	 * In case the task is not inside of a sub-process element, list will be empty.
+	 * Names of parent process elements in the order they appeared. In case the task
+	 * is not inside of a sub-process element, list will be empty.
 	 */
 	private List<String> parentElementNames;
 	private Date estimatedStartTimestamp;
@@ -49,32 +46,26 @@ public class EstimatedTask extends EstimatedElement {
 	public String getDisplayParentElementNames() {
 		return parentElementNames.stream().collect(Collectors.joining(", "));
 	}
-	
+
 	public void setParentElementNames(List<String> parentElementNames) {
 		this.parentElementNames = parentElementNames;
 	}
-	
+
 	public String getCustomInfo() {
 		return customInfo;
 	}
 
 	public void setCustomInfo(String customInfo) {
 		this.customInfo = customInfo;
-	}	
+	}
 
 	public Date calculateEstimatedEndTimestamp() {
-		int durationInSecond = Optional.ofNullable(this.estimatedDuration)
-				.map(Duration::getSeconds)
-				.map(se -> Long.valueOf(se).intValue())
-				.orElse(0);
-		
+		int durationInSecond = Optional.ofNullable(this.estimatedDuration).map(Duration::getSeconds)
+				.map(se -> Long.valueOf(se).intValue()).orElse(0);
+
 		return DateUtils.addSeconds(this.estimatedStartTimestamp, durationInSecond);
 	}
 
-	public String getDisplayTotalDuration() {
-		return DateTimeHelper.getDisplayDuration (estimatedDuration);
-	}
-		
 	@Override
 	public String toString() {
 		return Stream.of(getPid(), getTaskName()).collect(Collectors.joining("-"));
