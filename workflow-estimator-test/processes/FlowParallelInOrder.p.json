@@ -26,6 +26,7 @@
     }, {
       "id" : "f3",
       "type" : "TaskSwitchGateway",
+      "name" : "Task1",
       "config" : {
         "tasks" : [ {
             "id" : "TaskA",
@@ -36,7 +37,8 @@
           } ]
       },
       "visual" : {
-        "at" : { "x" : 256, "y" : 168 }
+        "at" : { "x" : 256, "y" : 168 },
+        "labelOffset" : { "x" : -8, "y" : -8 }
       },
       "connect" : [
         { "id" : "f5", "to" : "f4", "via" : [ { "x" : 256, "y" : 112 } ], "condition" : "ivp==\"TaskA.ivp\"" },
@@ -47,6 +49,7 @@
       "type" : "UserTask",
       "name" : "Task A",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task A"
         }
@@ -62,6 +65,7 @@
       "type" : "UserTask",
       "name" : "Task B",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task B"
         }
@@ -77,6 +81,7 @@
       "type" : "UserTask",
       "name" : "Task C",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task C"
         }
@@ -90,6 +95,7 @@
     }, {
       "id" : "f10",
       "type" : "TaskSwitchGateway",
+      "name" : "Task2",
       "config" : {
         "tasks" : [ {
             "id" : "TaskA",
@@ -99,7 +105,8 @@
           } ]
       },
       "visual" : {
-        "at" : { "x" : 632, "y" : 168 }
+        "at" : { "x" : 632, "y" : 168 },
+        "labelOffset" : { "x" : -16, "y" : 24 }
       },
       "connect" : [
         { "id" : "f14", "to" : "f13", "condition" : "ivp==\"TaskA.ivp\"" }
@@ -109,6 +116,7 @@
       "type" : "UserTask",
       "name" : "Task D",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task D"
         }
@@ -162,6 +170,7 @@
       "type" : "UserTask",
       "name" : "Task F",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task F"
         }
@@ -177,6 +186,7 @@
       "type" : "UserTask",
       "name" : "Task G",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task G"
         }
@@ -192,6 +202,7 @@
       "type" : "UserTask",
       "name" : "Task I",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task I"
         }
@@ -207,6 +218,7 @@
       "type" : "UserTask",
       "name" : "Task K",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task K"
         }
@@ -228,6 +240,7 @@
       "type" : "UserTask",
       "name" : "Task E",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task E"
         }
@@ -241,6 +254,7 @@
     }, {
       "id" : "f31",
       "type" : "TaskSwitchGateway",
+      "name" : "Task3",
       "config" : {
         "tasks" : [ {
             "id" : "TaskA",
@@ -250,7 +264,8 @@
           } ]
       },
       "visual" : {
-        "at" : { "x" : 696, "y" : 416 }
+        "at" : { "x" : 696, "y" : 416 },
+        "labelOffset" : { "x" : 14, "y" : 34 }
       },
       "connect" : [
         { "id" : "f36", "to" : "f25", "condition" : "ivp==\"TaskA.ivp\"" }
@@ -260,6 +275,7 @@
       "type" : "UserTask",
       "name" : "Task H",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task H"
         }
@@ -275,6 +291,7 @@
       "type" : "UserTask",
       "name" : "Task M",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task M"
         }
@@ -324,6 +341,7 @@
       "type" : "UserTask",
       "name" : "Task A",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task A"
         }
@@ -339,6 +357,7 @@
       "type" : "UserTask",
       "name" : "Task B",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task B"
         }
@@ -379,6 +398,7 @@
       "type" : "UserTask",
       "name" : "Task D",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task D"
         }
@@ -394,6 +414,7 @@
       "type" : "UserTask",
       "name" : "Task C",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task C"
         }
@@ -432,6 +453,7 @@
       "type" : "UserTask",
       "name" : "Task E",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task E"
         }
@@ -455,7 +477,7 @@
       },
       "connect" : [
         { "id" : "f64", "to" : "f58", "via" : [ { "x" : 488, "y" : 944 } ] },
-        { "id" : "f65", "to" : "f53", "via" : [ { "x" : 984, "y" : 880 } ], "label" : {
+        { "id" : "f65", "to" : "f53", "via" : [ { "x" : 984, "y" : 880 } ], "color" : "default path", "label" : {
             "name" : "{internal}",
             "segment" : 0.57
           }, "var" : "in4" }
@@ -463,11 +485,17 @@
     }, {
       "id" : "f54",
       "type" : "Alternative",
+      "config" : {
+        "conditions" : {
+          "f69" : "true",
+          "f66" : ""
+        }
+      },
       "visual" : {
         "at" : { "x" : 720, "y" : 744 }
       },
       "connect" : [
-        { "id" : "f66", "to" : "f62" },
+        { "id" : "f66", "to" : "f62", "color" : "default path" },
         { "id" : "f69", "to" : "f68", "via" : [ { "x" : 720, "y" : 664 } ], "label" : {
             "name" : "{internal}",
             "segment" : 0.99
@@ -478,6 +506,7 @@
       "type" : "UserTask",
       "name" : "Task F",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task F"
         }
@@ -493,6 +522,7 @@
       "type" : "UserTask",
       "name" : "Task K",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task K"
         }
@@ -503,5 +533,10 @@
       "connect" : [
         { "id" : "f70", "to" : "f53", "via" : [ { "x" : 1032, "y" : 664 } ], "var" : "in5" }
       ]
-    } ]
+    } ],
+  "layout" : {
+    "colors" : {
+      "default path" : "#06f416"
+    }
+  }
 }

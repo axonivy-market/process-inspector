@@ -33,6 +33,7 @@
       "type" : "UserTask",
       "name" : "Task A",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.Dummy:start()",
         "task" : {
           "name" : "Task A",
           "code" : [
@@ -100,6 +101,7 @@
       "type" : "UserTask",
       "name" : "Task C",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.Dummy:start()",
         "task" : {
           "name" : "Task C",
           "code" : [
@@ -142,6 +144,7 @@
       "type" : "UserTask",
       "name" : "Task B",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.Dummy:start()",
         "task" : {
           "name" : "Task B",
           "code" : [
@@ -176,6 +179,7 @@
       "type" : "UserTask",
       "name" : "Task D",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.Dummy:start()",
         "task" : {
           "code" : [
             "import java.util.concurrent.TimeUnit;",
@@ -216,6 +220,7 @@
       "type" : "UserTask",
       "name" : "Task K",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.Dummy:start()",
         "task" : {
           "name" : "Task K",
           "code" : [
@@ -236,6 +241,7 @@
       "type" : "UserTask",
       "name" : "Task G",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.Dummy:start()",
         "task" : {
           "name" : "Task G",
           "code" : [

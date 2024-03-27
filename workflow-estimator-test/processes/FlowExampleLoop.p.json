@@ -28,6 +28,7 @@
       "type" : "UserTask",
       "name" : "Task A",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task A"
         }
@@ -73,6 +74,7 @@
       "type" : "UserTask",
       "name" : "Task B",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task B"
         }

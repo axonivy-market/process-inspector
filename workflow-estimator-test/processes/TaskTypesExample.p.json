@@ -27,6 +27,9 @@
       "id" : "f3",
       "type" : "DialogCall",
       "name" : "UserDialog",
+      "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()"
+      },
       "visual" : {
         "at" : { "x" : 224, "y" : 64 }
       },
@@ -38,6 +41,7 @@
       "type" : "UserTask",
       "name" : "UserTask",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "UserTask"
         }

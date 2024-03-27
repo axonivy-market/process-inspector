@@ -31,6 +31,7 @@
         "(Element Label)"
       ],
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task A",
           "code" : [
@@ -76,6 +77,7 @@
       "type" : "UserTask",
       "name" : "Task B",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task B",
           "code" : [
@@ -122,6 +124,7 @@
       "type" : "UserTask",
       "name" : "Task C",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task C",
           "code" : [

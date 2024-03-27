@@ -28,6 +28,7 @@
       "type" : "UserTask",
       "name" : "Task A",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task A"
         }
@@ -60,6 +61,9 @@
       "id" : "f9",
       "type" : "UserTask",
       "name" : "Task B",
+      "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()"
+      },
       "visual" : {
         "at" : { "x" : 552, "y" : 184 }
       },

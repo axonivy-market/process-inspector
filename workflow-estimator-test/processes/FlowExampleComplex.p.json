@@ -31,6 +31,7 @@
         "(Element Label)"
       ],
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task A",
           "code" : [
@@ -73,6 +74,7 @@
       "type" : "UserTask",
       "name" : "Task B",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task B",
           "code" : [
@@ -118,6 +120,7 @@
       "type" : "UserTask",
       "name" : "Task C",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task C",
           "code" : [
@@ -190,6 +193,7 @@
       "type" : "UserTask",
       "name" : "Task D",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task D",
           "code" : [
@@ -210,6 +214,7 @@
       "type" : "UserTask",
       "name" : "Task E",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task E",
           "code" : [
@@ -273,6 +278,7 @@
       "type" : "UserTask",
       "name" : "Task F",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task F",
           "code" : [
@@ -293,6 +299,7 @@
       "type" : "UserTask",
       "name" : "Task H",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task H",
           "code" : [
@@ -319,6 +326,7 @@
       "type" : "UserTask",
       "name" : "Task G",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task G",
           "code" : [
@@ -355,6 +363,7 @@
       "type" : "UserTask",
       "name" : "Task K",
       "config" : {
+        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
           "name" : "Task K"
         }

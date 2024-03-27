@@ -70,6 +70,7 @@
               "type" : "UserTask",
               "name" : "Task A",
               "config" : {
+                "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
                 "task" : {
                   "name" : "Task A"
                 }
