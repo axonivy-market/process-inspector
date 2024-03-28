@@ -5,28 +5,49 @@ import java.util.Map;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
+import ch.ivyteam.ivy.process.model.value.PID;
 
 @SuppressWarnings("restriction")
-public class TaskParallelGroup extends CommonElement {
-
-	private Map<SequenceFlow, List<CommonElement>> internalPaths;
+public class TaskParallelGroup implements ProcessElement {
+	private BaseElement element;
+	private Map<SequenceFlow, List<ProcessElement>> internalPaths;
 
 	public TaskParallelGroup(BaseElement element) {
-		super(element);
+		this.element = element;	
 	}
 
-	public Map<SequenceFlow, List<CommonElement>> getInternalPaths() {
+	public Map<SequenceFlow, List<ProcessElement>> getInternalPaths() {
 		return internalPaths;
 	}
 
-
-	public void setInternalPaths(Map<SequenceFlow, List<CommonElement>> internalPaths) {
+	public void setInternalPaths(Map<SequenceFlow, List<ProcessElement>> internalPaths) {
 		this.internalPaths = internalPaths;
 	}
-
-
+	@Override
+	public int hashCode() {		
+		return element.hashCode();
+	}
+	
+	@Override
+	public String toString() {
+		return element.toString();
+	}
+	
 	@Override
 	public boolean equals(Object obj) {	
-		return super.equals(obj);
+		if(obj instanceof TaskParallelGroup) {
+			return ((TaskParallelGroup)obj).element.equals(element);
+		}
+		return false;
+	}
+
+	@Override
+	public PID getPid() {		
+		return element.getPid();
+	}
+
+	@Override
+	public BaseElement getElement() {		
+		return element;
 	}
 }

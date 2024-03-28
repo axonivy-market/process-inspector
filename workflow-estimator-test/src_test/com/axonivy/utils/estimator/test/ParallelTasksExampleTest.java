@@ -35,7 +35,7 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 		var estimatedTasks = workflowEstimator.findAllTasks(start);
 
 		var names = getTaskNames(estimatedTasks);
-		assertArrayEquals(Arrays.array("Task1A", "Task1B", "Task2", "Task3A", "Task3B"), names);
+		assertArrayEquals(Arrays.array("Task1A", "Task1B", "Task2", "Task3B", "Task3A"), names);
 	}
 	
 	@Test
@@ -44,7 +44,7 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 
 		var names = getTaskNames(estimatedTasks);
-		assertArrayEquals(Arrays.array("Task1A", "Task1B", "Task2", "Task3A", "Task3B"), names);
+		assertArrayEquals(Arrays.array("Task1A", "Task1B", "Task2", "Task3B", "Task3A"), names);
 	}
 	
 	@Test
@@ -60,12 +60,17 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 	void shouldFindOverrideDuration() throws Exception {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		
-		HashMap<String, Duration> durationOverride = new HashMap<>();
+		HashMap<String, Duration> durationOverride = new HashMap<>(); 
 		durationOverride.put("18DD185B60B6E769-f15-TaskA", Duration.ofHours(10));
 		workflowEstimator.setDurationOverrides(durationOverride);
 		
 		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
-		assertEquals(((EstimatedTask)estimatedTasks.get(3)).getEstimatedDuration().toHours(), 10);
+		var duration = estimatedTasks.stream()
+				.filter(it -> it.getPid().contains("18DD185B60B6E769-f15-TaskA"))
+				.findFirst()
+				.map(it -> ((EstimatedTask)it).getEstimatedDuration())
+				.orElse(null);
+		assertEquals(duration.toHours(), 10);
 	}
 	
 	@Test
@@ -73,7 +78,13 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);	
 		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 		
-		assertEquals(((EstimatedTask)estimatedTasks.get(3)).getEstimatedDuration().toHours(), 5);
+		var duration = estimatedTasks.stream()
+				.filter(it -> it.getPid().contains("18DD185B60B6E769-f15-TaskA"))
+				.findFirst()
+				.map(it -> ((EstimatedTask)it).getEstimatedDuration())
+				.orElse(null);
+		
+		assertEquals(duration.toHours(), 5);
 	}
 
 }

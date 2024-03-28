@@ -438,7 +438,7 @@
       },
       "visual" : {
         "at" : { "x" : 944, "y" : 824 },
-        "labelOffset" : { "x" : 56, "y" : -8 }
+        "labelOffset" : { "x" : 56, "y" : 16 }
       },
       "connect" : [
         { "id" : "f57", "to" : "f71", "condition" : "ivp==\"TaskA.ivp\"" }
