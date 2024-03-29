@@ -3,7 +3,6 @@ package com.axonivy.utils.estimator.test;
 import java.util.List;
 
 import com.axonivy.utils.estimator.model.EstimatedElement;
-
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.rdm.IProcessManager;

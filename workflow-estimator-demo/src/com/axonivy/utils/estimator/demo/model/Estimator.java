@@ -6,7 +6,6 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -14,8 +13,6 @@ import com.axonivy.utils.estimator.constant.UseCase;
 import com.axonivy.utils.estimator.demo.constant.FindType;
 import com.axonivy.utils.estimator.demo.helper.DateTimeHelper;
 import com.axonivy.utils.estimator.model.EstimatedElement;
-import com.axonivy.utils.estimator.model.EstimatedTask;
-
 import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;

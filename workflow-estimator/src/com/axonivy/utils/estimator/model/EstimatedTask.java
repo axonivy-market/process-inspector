@@ -13,8 +13,8 @@ public class EstimatedTask extends EstimatedElement {
 
 	private Duration estimatedDuration;
 	/**
-	 * Names of parent process elements in the order they appeared. In case the task
-	 * is not inside of a sub-process element, list will be empty.
+	 * Names of parent process elements in the order they appeared.
+	 * In case the task is not inside of a sub-process element, list will be empty.
 	 */
 	private List<String> parentElementNames;
 	private Date estimatedStartTimestamp;
@@ -60,9 +60,11 @@ public class EstimatedTask extends EstimatedElement {
 	}
 
 	public Date calculateEstimatedEndTimestamp() {
-		int durationInSecond = Optional.ofNullable(this.estimatedDuration).map(Duration::getSeconds)
-				.map(se -> Long.valueOf(se).intValue()).orElse(0);
-
+		int durationInSecond = Optional.ofNullable(this.estimatedDuration)
+				.map(Duration::getSeconds)
+				.map(se -> Long.valueOf(se).intValue())
+				.orElse(0);
+		
 		return DateUtils.addSeconds(this.estimatedStartTimestamp, durationInSecond);
 	}
 

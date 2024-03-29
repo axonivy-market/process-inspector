@@ -14,13 +14,11 @@ import java.util.Map;
 
 import com.axonivy.utils.estimator.constant.UseCase;
 import com.axonivy.utils.estimator.internal.AbstractWorkflow;
-import com.axonivy.utils.estimator.model.EstimatedAlternative;
 import com.axonivy.utils.estimator.model.EstimatedElement;
 import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.Process;
-import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.ProcessElement;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
@@ -33,7 +31,6 @@ public class WorkflowEstimator extends AbstractWorkflow {
 	private Process process;
 	private UseCase useCase;
 	private String flowName;
-	private boolean isEnableDescribeAlternative;
 	private Map<String, Duration> durationOverrides;
 	// It only impart to find task base in flowName
 	private Map<String, String> processFlowOverrides;
@@ -49,7 +46,6 @@ public class WorkflowEstimator extends AbstractWorkflow {
 		this.process = process;
 		this.useCase = useCase;
 		this.flowName = flowName;
-		this.isEnableDescribeAlternative = false;
 		this.durationOverrides = emptyMap();
 		this.processFlowOverrides = emptyMap();		
 	}
@@ -176,29 +172,14 @@ public class WorkflowEstimator extends AbstractWorkflow {
 		return this;
 	}
 	
-	public void enableDescribeAlternativeElements() {
-		this.isEnableDescribeAlternative = true;
-	}
-	
-	public void disableDescribeAlternativeElements() {
-		this.isEnableDescribeAlternative = false;
-	}
-	
 	private List<EstimatedElement> convertToEstimatedElements(List<BaseElement> path, UseCase useCase) {	
 		List<ProcessElement> taskPath = filterAcceptedTask(path);
-		// convert to both Estimated Task and alternative
+		// convert to Estimated Task 
 		List<EstimatedElement> result = new ArrayList<>();
-		for (int i = 0; i < taskPath.size(); i++) {
-			if(taskPath.get(i) instanceof Alternative) {
-				if(this.isEnableDescribeAlternative) {
-					EstimatedAlternative alternativeResult = createEstimatedAlternative(taskPath.get(i));
-					result.add(alternativeResult);
-				}				
-			} else {
-				Date startTimestamp = getEstimatedEndTimestamp(result);
-				List<EstimatedTask> estimatedTaskResults = createEstimatedTask(taskPath.get(i), startTimestamp, useCase);
-				result.addAll(estimatedTaskResults);
-			}
+		for (int i = 0; i < taskPath.size(); i++) {	
+			Date startTimestamp = getEstimatedEndTimestamp(result);
+			List<EstimatedTask> estimatedTaskResults = createEstimatedTask(taskPath.get(i), startTimestamp, useCase);
+			result.addAll(estimatedTaskResults);
 		}
 		return result.stream().filter(item -> item != null).toList();		
 	}
@@ -210,29 +191,6 @@ public class WorkflowEstimator extends AbstractWorkflow {
 				.toList();
 		int size =  estimatedTasks.size();
 		return size > 0 ? estimatedTasks.get(size - 1).calculateEstimatedEndTimestamp() : new Date();
-	}
-
-	private EstimatedAlternative createEstimatedAlternative(ProcessElement processElement) {
-		if(processElement instanceof Alternative) {
-			Alternative alternative = (Alternative) processElement;
-			EstimatedAlternative result = new EstimatedAlternative();
-			result.setTaskName(alternative.getName());
-			result.setPid(alternative.getPid().getRawPid());
-			List<EstimatedElement> options = alternative.getOutgoing()
-					.stream()
-					.map(item -> convertToEstimatedElement(item))
-					.toList();
-			result.setOptions(options);
-			return result;
-		}
-		return null;
-	}
-	
-	private EstimatedElement convertToEstimatedElement(SequenceFlow outcome) {
-		EstimatedElement element = new EstimatedElement() {};
-		element.setPid(outcome.getPid().getRawPid());
-		element.setElementName(outcome.getName());;
-		return element;
 	}
 
 	private List<ProcessElement> filterAcceptedTask(List<BaseElement> path) {
@@ -256,8 +214,7 @@ public class WorkflowEstimator extends AbstractWorkflow {
 		return false;
 	}
 	
-	private List<EstimatedTask> createEstimatedTask(ProcessElement element, Date startTimestamp, UseCase useCase) {
-		
+	private List<EstimatedTask> createEstimatedTask(ProcessElement element, Date startTimestamp, UseCase useCase) {	
 		if(element instanceof TaskAndCaseModifier) {
 			TaskAndCaseModifier task = (TaskAndCaseModifier) element;
 			
