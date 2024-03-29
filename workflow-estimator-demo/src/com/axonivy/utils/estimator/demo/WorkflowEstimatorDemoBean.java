@@ -19,7 +19,6 @@ import com.axonivy.utils.estimator.demo.constant.FindType;
 import com.axonivy.utils.estimator.demo.helper.DateTimeHelper;
 import com.axonivy.utils.estimator.demo.model.Estimator;
 import com.axonivy.utils.estimator.model.EstimatedElement;
-
 import ch.ivyteam.ivy.application.IProcessModelVersion;
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.BaseElement;
