@@ -8,8 +8,9 @@ import java.util.Map;
 
 import com.axonivy.utils.estimator.constant.UseCase;
 import com.axonivy.utils.estimator.internal.AbstractWorkflow;
+import com.axonivy.utils.estimator.internal.model.CommonElement;
+import com.axonivy.utils.estimator.internal.model.ProcessElement;
 
-import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 
@@ -26,7 +27,7 @@ public class WorkflowImplement extends AbstractWorkflow{
 		return emptyMap();
 	}
 
-	public List<BaseElement> findPath(String flowName, BaseElement... from) throws Exception {
+	public List<ProcessElement> findPath(String flowName, CommonElement... from) throws Exception {
 		return super.findPath(flowName, from);		
 	}
 	

@@ -111,9 +111,9 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 				
 		var estimatedTasks = workflowEstimator.findTasksOnPath(newStart);
 
-		var expected = Lists.list("Task C",  "Task B");
-		var taskNames = Lists.list(getTaskNames(estimatedTasks));
-		assertTrue(expected.containsAll(taskNames) && taskNames.containsAll(expected));
+		var expected = Arrays.array("Task C",  "Task B");
+		var taskNames = getTaskNames(estimatedTasks);
+		assertArrayEquals(expected, taskNames);
 	}
 	
 	@Test

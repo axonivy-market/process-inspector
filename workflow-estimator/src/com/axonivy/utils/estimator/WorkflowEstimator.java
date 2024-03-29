@@ -5,24 +5,29 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.axonivy.utils.estimator.constant.UseCase;
 import com.axonivy.utils.estimator.internal.AbstractWorkflow;
+import com.axonivy.utils.estimator.internal.model.CommonElement;
+import com.axonivy.utils.estimator.internal.model.ProcessElement;
+import com.axonivy.utils.estimator.internal.model.TaskParallelGroup;
 import com.axonivy.utils.estimator.model.EstimatedElement;
 import com.axonivy.utils.estimator.model.EstimatedTask;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.Process;
-import ch.ivyteam.ivy.process.model.element.ProcessElement;
+import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
+import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
+import ch.ivyteam.ivy.process.model.element.event.end.TaskEnd;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
-import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
+import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 
 @SuppressWarnings("restriction")
@@ -67,7 +72,7 @@ public class WorkflowEstimator extends AbstractWorkflow {
 	 * @throws Exception
 	 */
 	public List<? extends EstimatedElement> findAllTasks(BaseElement startAtElement) throws Exception {
-		List<BaseElement> path = findPath(startAtElement);
+		List<ProcessElement> path = findPath(new CommonElement(startAtElement));
 		List<EstimatedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
 		return estimatedTasks;
 	}
@@ -78,7 +83,8 @@ public class WorkflowEstimator extends AbstractWorkflow {
 	 * @throws Exception
 	 */
 	public List<? extends EstimatedElement> findAllTasks(List<BaseElement> startAtElements) throws Exception {
-		List<BaseElement> path = findPath(startAtElements.toArray(new BaseElement[0]));
+		CommonElement[] elements = startAtElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
+		List<ProcessElement> path = findPath(elements);
 		List<EstimatedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
 		return estimatedTasks;
 	}
@@ -90,7 +96,7 @@ public class WorkflowEstimator extends AbstractWorkflow {
 	 * @throws Exception
 	 */
 	public List<? extends EstimatedElement> findTasksOnPath(BaseElement startAtElement) throws Exception {
-		List<BaseElement> path = findPath(flowName, startAtElement);
+		List<ProcessElement> path = findPath(flowName, new CommonElement(startAtElement));
 		List<EstimatedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
 		return estimatedTasks;
 	}
@@ -101,7 +107,8 @@ public class WorkflowEstimator extends AbstractWorkflow {
 	 * @throws Exception
 	 */
 	public List<? extends EstimatedElement> findTasksOnPath(List<BaseElement> startAtElements) throws Exception {
-		List<BaseElement> path = findPath(flowName, startAtElements.toArray(new BaseElement[0]));
+		ProcessElement[] elements = startAtElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
+		List<ProcessElement> path = findPath(flowName, elements);
 		List<EstimatedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
 		return estimatedTasks;
 	}
@@ -114,7 +121,8 @@ public class WorkflowEstimator extends AbstractWorkflow {
 	 * @throws Exception
 	 */
 	public Duration calculateEstimatedDuration(BaseElement startElement) throws Exception {
-		List<BaseElement> path = isNotEmpty(flowName) ? findPath(flowName, startElement) : findPath(startElement);
+		ProcessElement element = new CommonElement(startElement);
+		List<ProcessElement> path = isNotEmpty(flowName) ? findPath(flowName, element) : findPath(element);
 		
 		List<EstimatedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
 		
@@ -134,8 +142,8 @@ public class WorkflowEstimator extends AbstractWorkflow {
 	 * @throws Exception
 	 */
 	public Duration calculateEstimatedDuration(List<BaseElement> startElements) throws Exception {
-		BaseElement[] elements = startElements.toArray(new BaseElement[0]);
-		List<BaseElement> path = isNotEmpty(flowName) ? findPath(flowName, elements) : findPath(elements);
+		ProcessElement[] elements = startElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
+		List<ProcessElement> path = isNotEmpty(flowName) ? findPath(flowName, elements) : findPath(elements);
 		
 		List<EstimatedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
 		
@@ -172,16 +180,88 @@ public class WorkflowEstimator extends AbstractWorkflow {
 		return this;
 	}
 	
-	private List<EstimatedElement> convertToEstimatedElements(List<BaseElement> path, UseCase useCase) {	
-		List<ProcessElement> taskPath = filterAcceptedTask(path);
-		// convert to Estimated Task 
+	private List<EstimatedElement> convertToEstimatedElements(List<ProcessElement> path, UseCase useCase) {
+		List<EstimatedElement> result = convertToEstimatedElements(path, useCase, new Date());
+		return result;
+	}
+	
+	private List<EstimatedElement> convertToEstimatedElements(List<ProcessElement> path, UseCase useCase, Date startedAt) {
+
+		// convert to both Estimated Task and alternative
 		List<EstimatedElement> result = new ArrayList<>();
-		for (int i = 0; i < taskPath.size(); i++) {	
-			Date startTimestamp = getEstimatedEndTimestamp(result);
-			List<EstimatedTask> estimatedTaskResults = createEstimatedTask(taskPath.get(i), startTimestamp, useCase);
-			result.addAll(estimatedTaskResults);
+		Date start = getEstimatedEndTimestamp(result);
+		
+		for(int i = 0; i < path.size(); i++) {
+			ProcessElement element = path.get(i);
+		
+			// CommonElement(RequestStart)
+			if (element.getElement() instanceof RequestStart) {
+				continue;
+			}
+			
+			if (element.getElement()instanceof TaskAndCaseModifier && isSystemTask((TaskAndCaseModifier) element.getElement())) {
+				continue;
+			}
+			
+			if (element instanceof TaskParallelGroup) {
+				var tasks = convertToEstimatedElementFromTaskParallelGroup((TaskParallelGroup) element, useCase, startedAt);
+				result.addAll(tasks);
+				continue;
+			}
+			
+			// CommonElement(SingleTaskCreator)
+			if (element.getElement() instanceof SingleTaskCreator) {
+				SingleTaskCreator singleTask = (SingleTaskCreator)element.getElement();
+				var estimatedTask = createEstimatedTask(singleTask, singleTask.getTaskConfig(), startedAt, useCase);
+				result.add(estimatedTask);
+				continue;
+			}
+			
+			if (element instanceof CommonElement && element.getElement() instanceof SequenceFlow) {
+				SequenceFlow sequenceFlow = (SequenceFlow) element.getElement();
+				if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
+					var startTask = createStartTaskFromTaskSwitchGateway(sequenceFlow, startedAt, useCase);
+					result.add(startTask);
+					continue;
+				}
+			}
 		}
+		
 		return result.stream().filter(item -> item != null).toList();		
+	}
+	
+	private List<EstimatedElement> convertToEstimatedElementFromTaskParallelGroup(TaskParallelGroup group, UseCase useCase, Date startedAt) {	
+			
+		Map<SequenceFlow, List<ProcessElement>> internalPath = sortInternalPath(group.getInternalPaths());
+		
+		List<EstimatedElement> result = new ArrayList<>();
+		for (Entry<SequenceFlow, List<ProcessElement>> entry : internalPath.entrySet()) {
+			var startTask = createStartTaskFromTaskSwitchGateway(entry.getKey(), startedAt, useCase);
+			var tasks = convertToEstimatedElements(entry.getValue(), useCase, startedAt);
+			
+			result.add(startTask);
+			result.addAll(tasks);
+		}
+		
+		return result;
+	}
+	
+	private Map<SequenceFlow, List<ProcessElement>> sortInternalPath(Map<SequenceFlow, List<ProcessElement>> internalPath){		
+		Map<SequenceFlow, List<ProcessElement>> pathWithEnd = new LinkedHashMap<>();
+		Map<SequenceFlow, List<ProcessElement>> pathWithOther = new LinkedHashMap<>();
+		
+		//Priority the path go to end first
+		for(SequenceFlow sf : internalPath.keySet()) {
+			ProcessElement last = getLast(internalPath.get(sf));
+			if(last.getElement() instanceof TaskEnd) {
+				pathWithEnd.put(sf, internalPath.get(sf));
+			} else {
+				pathWithOther.put(sf, internalPath.get(sf));
+			}
+		}
+		pathWithEnd.putAll(pathWithOther);
+		
+		return pathWithEnd;
 	}
 	
 	private Date getEstimatedEndTimestamp(List<EstimatedElement> estimatedElements) {
@@ -192,56 +272,34 @@ public class WorkflowEstimator extends AbstractWorkflow {
 		int size =  estimatedTasks.size();
 		return size > 0 ? estimatedTasks.get(size - 1).calculateEstimatedEndTimestamp() : new Date();
 	}
+	
+	private EstimatedElement createStartTaskFromTaskSwitchGateway(SequenceFlow sequenceFlow, Date startTimestamp, UseCase useCase) {
 
-	private List<ProcessElement> filterAcceptedTask(List<BaseElement> path) {
-		return path.stream()
-				// filter to get accepted task 
-				.filter(node -> isAcceptedElement(node))
-				.map(ProcessElement.class::cast)
-				.toList();
+		EstimatedElement task = null;
+		if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
+			TaskSwitchGateway taskSwitchGateway = (TaskSwitchGateway) sequenceFlow.getSource();
+			if (!isSystemTask(taskSwitchGateway)) {
+				TaskConfig startTask = getStartTaskConfigFromTaskSwitchGateway(sequenceFlow);
+				task = createEstimatedTask((TaskAndCaseModifier) taskSwitchGateway, startTask, startTimestamp, useCase);
+			}
+		}
+		return task;
 	}
 	
-	private boolean isAcceptedElement(BaseElement element) {
-		if(element instanceof RequestStart) {
-			return false;
-		}
-		if(element instanceof TaskAndCaseModifier) {
-			return !isSystemTask((TaskAndCaseModifier)element);
-		}
-		if(element instanceof TaskAndCaseModifier || element instanceof Alternative) {
-			return true;
-		}
-		return false;
-	}
-	
-	private List<EstimatedTask> createEstimatedTask(ProcessElement element, Date startTimestamp, UseCase useCase) {	
-		if(element instanceof TaskAndCaseModifier) {
-			TaskAndCaseModifier task = (TaskAndCaseModifier) element;
-			
-			List<TaskConfig> taskConfigs = task.getAllTaskConfigs();
-			
-			List<EstimatedTask> estimatedTasks = new ArrayList<>();
-					
-			taskConfigs.forEach(taskConfig -> {
-				EstimatedTask estimatedTask = new EstimatedTask();
-				
-				estimatedTask.setPid(getTaskId(task, taskConfig));		
-				estimatedTask.setParentElementNames(getParentElementNames(task));
-				estimatedTask.setTaskName(taskConfig.getName().getRawMacro());
-				estimatedTask.setElementName(task.getName());
-				Duration estimatedDuration = getDuration(task, taskConfig, useCase);				
-				estimatedTask.setEstimatedDuration(estimatedDuration);
-				estimatedTask.setEstimatedStartTimestamp(startTimestamp);		
-				String customerInfo = getCustomInfoByCode(taskConfig);
-				estimatedTask.setCustomInfo(customerInfo);
-				estimatedTasks.add(estimatedTask);
-			});
-			
-			return estimatedTasks.stream()
-					.sorted(Comparator.comparing(EstimatedTask::getTaskName))
-					.toList();
-		}
+	private EstimatedElement createEstimatedTask(TaskAndCaseModifier task, TaskConfig taskConfig, Date startTimestamp, UseCase useCase) {
 		
-		return Collections.emptyList();	
+		EstimatedTask estimatedTask = new EstimatedTask();
+		
+		estimatedTask.setPid(getTaskId(task, taskConfig));		
+		estimatedTask.setParentElementNames(getParentElementNames(task));
+		estimatedTask.setTaskName(taskConfig.getName().getRawMacro());
+		estimatedTask.setElementName(task.getName());
+		Duration estimatedDuration = getDuration(task, taskConfig, useCase);				
+		estimatedTask.setEstimatedDuration(estimatedDuration);
+		estimatedTask.setEstimatedStartTimestamp(startTimestamp);		
+		String customerInfo = getCustomInfoByCode(taskConfig);
+		estimatedTask.setCustomInfo(customerInfo);		
+		
+		return estimatedTask;
 	}
 }

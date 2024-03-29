@@ -1,7 +1,9 @@
 package com.axonivy.utils.estimator.test;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.assertj.core.util.Arrays;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -27,9 +29,9 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 		var start = ProcessGraphHelper.findByElementName(process, "start");
 		var estimatedTasks = workflowEstimator.findAllTasks(start);
 
-		var expected = Lists.list("Task 1A", "Task 1B", "Task A", "Task B", "Task C", "Task D");
-		var taskNames = Lists.list(getTaskNames(estimatedTasks));
-		assertEquals(expected, taskNames);
+		var expected = Arrays.array("Task 1A", "Task A", "Task B", "Task 1B",  "Task C", "Task D");
+		var taskNames = getTaskNames(estimatedTasks);
+		assertArrayEquals(expected, taskNames);
 	}
 	
 	@Test
@@ -38,9 +40,9 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 		var start2 = ProcessGraphHelper.findByElementName(process, "start2");
 		var estimatedTasks = workflowEstimator.findAllTasks(start2);
 		
-		var expected = Lists.list("Task 2A", "Task 2B", "Task 2C", "Task F", "Task H", "Task G", "Task K", "Task M", "Task E", "Task I");
-		var taskNames = Lists.list(getTaskNames(estimatedTasks));
-		assertEquals(expected, taskNames);
+		var expected = Arrays.array("Task 2B", "Task G", "Task K", "Task M", "Task 2A", "Task F", "Task H", "Task 2C", "Task E", "Task I");
+		var taskNames = getTaskNames(estimatedTasks);
+		assertArrayEquals(expected, taskNames);
 	}
 
 	@Test
@@ -49,9 +51,9 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 		var start3 = ProcessGraphHelper.findByElementName(process, "start3");
 		var estimatedTasks = workflowEstimator.findAllTasks(start3);		
 		
-		var expected = Lists.list("Task1A", "Task1B", "Task B", "Task A", "Task2A", "Task2B", "Task2C", "Task D", "Task C", "Task F", "Task K", "Task E", "Task3A");
-		var taskNames = Lists.list(getTaskNames(estimatedTasks));
-		assertEquals(expected, taskNames);
+		var expected = Arrays.array("Task1A", "Task B", "Task1B", "Task A", "Task2B", "Task D", "Task2A", "Task C", "Task F", "Task K", "Task2C", "Task E", "Task3A", "Task I");
+		var taskNames = getTaskNames(estimatedTasks);
+		assertArrayEquals(expected, taskNames);
 	}
 	
 	@Test
@@ -60,8 +62,8 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 		var start3 = ProcessGraphHelper.findByElementName(process, "start3");
 		var estimatedTasks = workflowEstimator.findTasksOnPath(start3);		
 		
-		var expected = Lists.list("Task1A", "Task1B", "Task B", "Task A", "Task2A", "Task2B", "Task2C", "Task D", "Task C", "Task K", "Task3A");
-		var taskNames = Lists.list(getTaskNames(estimatedTasks));
-		assertEquals(expected, taskNames);
+		var expected = Arrays.array("Task1A", "Task B", "Task1B", "Task A", "Task2B", "Task D", "Task2A", "Task C", "Task K", "Task2C", "Task3A", "Task I");
+		var taskNames = getTaskNames(estimatedTasks);
+		assertArrayEquals(expected, taskNames);
 	}
 }

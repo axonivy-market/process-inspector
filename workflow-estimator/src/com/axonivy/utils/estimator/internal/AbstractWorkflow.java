@@ -18,10 +18,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 
 import com.axonivy.utils.estimator.constant.UseCase;
+import com.axonivy.utils.estimator.internal.model.CommonElement;
+import com.axonivy.utils.estimator.internal.model.ProcessElement;
+import com.axonivy.utils.estimator.internal.model.TaskParallelGroup;
 
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -40,7 +42,7 @@ public abstract class AbstractWorkflow {
 		ALL_TASKS, TASKS_ON_PATH
 	};
 
-	private ProcessGraph processGraph;
+	protected ProcessGraph processGraph;
 
 	protected AbstractWorkflow() {
 		this.processGraph = new ProcessGraph();
@@ -49,13 +51,13 @@ public abstract class AbstractWorkflow {
 	protected abstract Map<String, Duration> getDurationOverrides();
 	protected abstract Map<String, String> getProcessFlowOverrides();
 
-	protected List<BaseElement> findPath(BaseElement... from) throws Exception {
-		List<BaseElement> path = findPath(Arrays.asList(from), null, FindType.ALL_TASKS,  emptyList());		
-		return path;
+	protected List<ProcessElement> findPath(ProcessElement... from) throws Exception {
+		List<ProcessElement> path = findPath(Arrays.asList(from), null, FindType.ALL_TASKS,  emptyList());		
+		return path.stream().distinct().toList();
 	}
 	
-	protected List<BaseElement> findPath(String flowName, BaseElement... from) throws Exception {
-		List<BaseElement> path = findPath(Arrays.asList(from), flowName, FindType.TASKS_ON_PATH, emptyList());
+	protected List<ProcessElement> findPath(String flowName, ProcessElement... from) throws Exception {
+		List<ProcessElement> path = findPath(Arrays.asList(from), flowName, FindType.TASKS_ON_PATH, emptyList());
 		return path;
 	}
 	
@@ -95,57 +97,80 @@ public abstract class AbstractWorkflow {
 		return parentElementNames ;
 	}
 	
-	private List<BaseElement> findPath(List<BaseElement> froms, String flowName, FindType findType, List<BaseElement> previousElements) throws Exception {
-		List<BaseElement> result = new ArrayList<>();
-		for(BaseElement from : froms) {
+	protected TaskConfig getStartTaskConfigFromTaskSwitchGateway(SequenceFlow sequenceFlow) {
+		return processGraph.getStartTaskConfig(sequenceFlow);
+	}
+	
+	protected<T> T getLast(List<T> elements) {
+		return elements.stream().reduce((first, second) -> second).orElse(null);
+	}
+
+	protected<T> int getLastIndex(List<T> elements) {		
+		return elements.size() == 0 ? 0 : elements.size() - 1;		
+	}
+	
+	private List<ProcessElement> findPath(List<ProcessElement> froms, String flowName, FindType findType, List<ProcessElement> previousElements) throws Exception {
+		List<ProcessElement> result = new ArrayList<>();
+		for(ProcessElement from : froms) {
 			var path = findPath(from, flowName, findType, emptyList());
 			result.addAll(path);
 		}
 				
-		return result.stream().distinct().toList();
+		return result;
 	}
-	
+
 	/**
 	 * Using Recursion Algorithm To Find Tasks On Graph.
 	 */
-	private List<BaseElement> findPath(BaseElement from, String flowName, FindType findType, List<BaseElement> previousElements) throws Exception {
+	private List<ProcessElement> findPath(ProcessElement from, String flowName, FindType findType, List<ProcessElement> previousElements) throws Exception {
 		// Prevent loop
-		if (previousElements.indexOf(from) >= 0) {
+		if (isContains(previousElements, from)) {
 			return emptyList();
 		}
 
-		List<BaseElement> path = new ArrayList<>();
+		List<ProcessElement> path = new ArrayList<>();
 		path.add(from);
+		
+		if (from.getElement() instanceof NodeElement) {
+				
+			if (from.getElement() instanceof EmbeddedProcessElement) {
+				List<ProcessElement> pathFromSubProcess = findPathOfSubProcess(from, flowName, findType);				
+				path.addAll(pathFromSubProcess);				
+			}
 
-		if (from instanceof NodeElement) {
-			if(from instanceof EmbeddedProcessElement) {
-				List<BaseElement> pathFromSubProcess = findPathOfSubProcess((EmbeddedProcessElement) from, flowName, findType);
-				path.addAll(pathFromSubProcess);
-			}			
-
-			if(isEndTaskSwitchGatewayAndWaiting(previousElements, from)) {
+			if(isEndTaskSwitchGatewayAndWaiting(previousElements, from)) {				
 				return path;
 			}
 			
 			while(isStartTaskSwitchGateway(from)) {
-				List<BaseElement> pathFromParallel = getListElementInParallelTask((TaskSwitchGateway) from, flowName, findType, previousElements);
-				path.addAll(removeDuplicateTaskSwitchGateway(pathFromParallel));
-				from = findEndTaskSwithGateWay(from, pathFromParallel);				
+				
+				var taskParallelGroup = getTaskParallelGroup(from, flowName, findType, previousElements);
+				
+				//If last element is CommonElement(TaskSwitchGateway)-> We will remove it.
+				int lastIndex =  getLastIndex(path);
+				if(path.get(lastIndex) instanceof CommonElement && path.get(lastIndex).getElement() instanceof TaskSwitchGateway) {
+					path.remove(lastIndex);
+				}
+				
+				path.add(taskParallelGroup);
+				from = getEndTaskSwithGateWay(taskParallelGroup);
+				
 				if( from == null) {
 					return  path;
 				}
 			}
-			
-			List<SequenceFlow> outs = getSequenceFlows((NodeElement) from, flowName, findType);
-			if (from instanceof Alternative && outs.isEmpty()) {
+
+			List<SequenceFlow> outs = getSequenceFlows((NodeElement) from.getElement(), flowName, findType);
+			if (from.getElement() instanceof Alternative && outs.isEmpty()) {
 				Ivy.log().error("Can not found the out going from a alternative {0}", from.getPid().getRawPid());
 				throw new Exception("Not found path");
 			}
 						
-			Map<SequenceFlow, List<BaseElement>> paths = new LinkedHashMap<>();
+			Map<SequenceFlow, List<ProcessElement>> paths = new LinkedHashMap<>();
 			for (SequenceFlow out : outs) {
-				List<BaseElement> currentPath = ListUtils.union(previousElements, Arrays.asList(from));
-				List<BaseElement> nextOfPath = findPath(out.getTarget(), flowName, findType, currentPath);
+				CommonElement outElement = new CommonElement(out);
+				List<ProcessElement> currentPath = ListUtils.union(previousElements, Arrays.asList(from, outElement));
+				List<ProcessElement> nextOfPath = findPath(new CommonElement(out.getTarget()), flowName, findType, currentPath);
 				paths.put(out, nextOfPath);
 			}
 
@@ -154,19 +179,24 @@ public abstract class AbstractWorkflow {
 		
 		return path;
 	}
-	
-	private List<BaseElement> getListElementInParallelTask(TaskSwitchGateway from, String flowName, FindType findType, List<BaseElement> previousElements) throws Exception {
-		List<BaseElement> result = new ArrayList<>();
-		List<SequenceFlow> outs = getSequenceFlows((NodeElement) from, flowName, findType);
 		
-		Map<SequenceFlow, List<BaseElement>> paths = new LinkedHashMap<>();
+	private boolean isContains(List<ProcessElement> previousElements, final ProcessElement element) {
+		return previousElements.stream().map(ProcessElement::getElement).anyMatch(it -> it.equals(element.getElement()));
+	}
+	
+	private TaskParallelGroup getTaskParallelGroup(ProcessElement from, String flowName, FindType findType, List<ProcessElement> previousElements) throws Exception {
+		TaskParallelGroup result = new TaskParallelGroup(from.getElement());		
+		List<SequenceFlow> outs = getSequenceFlows((NodeElement) from.getElement(), flowName, findType);
+		
+		Map<SequenceFlow, List<ProcessElement>> paths = new LinkedHashMap<>();
 		for (SequenceFlow out : outs) {
-			List<BaseElement> currentPath = ListUtils.union(previousElements, Arrays.asList(from));
-			List<BaseElement> nextOfPath = findPath(out.getTarget(), flowName, findType, currentPath);
+			CommonElement outElement = new CommonElement(out);
+			List<ProcessElement> currentPath = ListUtils.union(previousElements, Arrays.asList(from, outElement));
+			List<ProcessElement> nextOfPath = findPath(new CommonElement(out.getTarget()), flowName, findType, currentPath);
 			paths.put(out, nextOfPath);
 		}
 
-		result.addAll(getPath(paths));
+		result.setInternalPaths(paths);
 		
 		return result;
 	}
@@ -174,10 +204,11 @@ public abstract class AbstractWorkflow {
 	/**
 	 * Find path on sub process
 	 */	
-	private List<BaseElement> findPathOfSubProcess(EmbeddedProcessElement subProcessElement, String flowName, FindType findType) throws Exception {
-		// find start element
-		BaseElement start = processGraph.findOneStartElementOfProcess(subProcessElement.getEmbeddedProcess());
-		List<BaseElement> path = findPath(start, flowName, findType, emptyList());		
+	private List<ProcessElement> findPathOfSubProcess(ProcessElement subProcessElement, String flowName, FindType findType) throws Exception {
+		// find start element EmbeddedProcessElement subProcessElement.getEmbeddedProcess()
+		EmbeddedProcessElement processElement = (EmbeddedProcessElement)subProcessElement.getElement();
+		BaseElement start = processGraph.findOneStartElementOfProcess(processElement.getEmbeddedProcess());
+		List<ProcessElement> path = findPath(new CommonElement(start), flowName, findType, emptyList());		
 		return path;
 	}	
 	
@@ -302,16 +333,18 @@ public abstract class AbstractWorkflow {
 		return Duration.ofHours(0);
 	}
 	
-	private boolean isStartTaskSwitchGateway(BaseElement element) {
-		return element instanceof TaskSwitchGateway && ((TaskSwitchGateway)element).getOutgoing().size() > 1;
+	private boolean isStartTaskSwitchGateway(ProcessElement element) {
+		return element.getElement() instanceof TaskSwitchGateway
+				&& ((TaskSwitchGateway) element.getElement()).getOutgoing().size() > 1;
 	}
 
-	private boolean isEndTaskSwitchGatewayAndWaiting(List<BaseElement> elements, BaseElement element) {
-
-		if (element instanceof TaskSwitchGateway) {
+	private boolean isEndTaskSwitchGatewayAndWaiting(List<ProcessElement> elements, ProcessElement from) {
+		BaseElement baseElement = from.getElement();
+		boolean result =  false;
+		if (baseElement instanceof TaskSwitchGateway && ((TaskSwitchGateway) baseElement).getIncoming().size() > 1) {
 			boolean hasFullInComing = false;
-			long count = elements.stream().filter(el -> el.equals(element)).count();
-			if (element instanceof TaskSwitchGateway && count == ((TaskSwitchGateway) element).getIncoming().size()) {
+			long count = elements.stream().filter(el -> el.equals(from)).count();
+			if (baseElement instanceof TaskSwitchGateway && count == ((TaskSwitchGateway) baseElement).getIncoming().size()) {
 				hasFullInComing = true;
 			}
 
@@ -323,45 +356,27 @@ public abstract class AbstractWorkflow {
 				}
 			}
 
-			return hasStartBefore && !hasFullInComing;
+			result = hasStartBefore && !hasFullInComing;
+			
 		}
-		return false;
-	}
-
-	// It might be remove this function to keep all element for calculation max total duration on each parallel path
-	private List<BaseElement> removeDuplicateTaskSwitchGateway(List<BaseElement> elements) {
-		
-		Map<BaseElement, Integer> lastIndexOfTaskSwitchGateways = new HashedMap<>();
-		elements.stream().filter(TaskSwitchGateway.class::isInstance).forEach(element -> {
-			lastIndexOfTaskSwitchGateways.put(element, elements.lastIndexOf(element));
-		});
-		
-		List<BaseElement> result = new ArrayList<>();
-		for(int i = 0; i < elements.size(); i++) {
-			Integer lastIndex = lastIndexOfTaskSwitchGateways.get(elements.get(i));			
-			if(lastIndex == null || lastIndex == -1 || lastIndex.intValue() == i) {
-				result.add(elements.get(i));
-			}
-		}
-						
 		return result;
 	}
-	
-	private BaseElement findEndTaskSwithGateWay(BaseElement task, List<BaseElement> elements) {
+
+	private ProcessElement getEndTaskSwithGateWay(TaskParallelGroup taskParallelGroup) {
+		List<ProcessElement> elements = taskParallelGroup.getInternalPaths().entrySet().stream().findFirst()
+				.map(it -> it.getValue()).orElse(emptyList());
 		int size = elements.size();
-		BaseElement end = size > 0 ? elements.get(size - 1): null;
-		return end instanceof TaskSwitchGateway ? end : null;
+		return size > 0 ? elements.get(size - 1) : null;
 	}
 	
-	private List<BaseElement> getPath(Map<SequenceFlow, List<BaseElement>> paths) {
-		List<BaseElement> result = new ArrayList<>();
-		paths.entrySet().stream()
-				// Consider to count all element of remove this sort (what flow is drawn first				
+	private List<ProcessElement> getPath(Map<SequenceFlow, List<ProcessElement>> paths) {
+		List<ProcessElement> result = new ArrayList<>();
+		paths.entrySet().stream()				
 				.forEach(entry -> {
-					result.add(entry.getKey());
+					result.add(new CommonElement(entry.getKey()));
 					result.addAll(entry.getValue());
 				});
 		
 		return result;
-	}
+	}	
 }

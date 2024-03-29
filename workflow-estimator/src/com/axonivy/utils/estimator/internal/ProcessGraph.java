@@ -11,9 +11,11 @@ import java.util.Optional;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.Process;
+import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.event.start.StartEvent;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
+import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.IvyScriptExpression;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 
@@ -69,6 +71,22 @@ class ProcessGraph {
 		return nextTargetId;
 	}
 	
+	protected TaskConfig getStartTaskConfig(SequenceFlow sequenceFlow) {
+		BaseElement taskSwitchGateway = sequenceFlow.getSource();
+		TaskConfig taskConfig = null;
+		if (taskSwitchGateway instanceof TaskSwitchGateway) {
+			// ivp=="TaskA.ivp"
+			String condition = sequenceFlow.getCondition();
+			// "TaskA.ivp"
+			String startTask = Arrays.stream(condition.split("==")).skip(1).limit(1).findFirst().orElse(null);
+
+			taskConfig = ((TaskSwitchGateway) taskSwitchGateway).getAllTaskConfigs().stream()
+					.filter(it -> startTask.contains(it.getTaskIdentifier().getTaskIvpLinkName()))
+					.findFirst()
+					.orElse(null);
+		}
+		return taskConfig;
+	}
 	
 	private boolean containtPrefixs(String content, String... prefix) {
 		return List.of(prefix).stream().allMatch(it -> content.contains(it));
