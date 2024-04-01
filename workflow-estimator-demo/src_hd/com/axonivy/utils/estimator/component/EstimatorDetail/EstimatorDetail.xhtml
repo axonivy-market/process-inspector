@@ -17,30 +17,30 @@
 
     <p:fieldset id="estimator-detail-fieldset" style="width: 100%"
         legend="Process GUID: #{estimator.process.pid.processGuid}">
-        <p:panelGrid columns="6" layout="grid"
+		<p:panelGrid columns="6" layout="grid"
             columnClasses="ui-grid-col-2, ui-grid-col-4, ui-grid-col-2, ui-grid-col-4"
             contentStyleClass="ui-fluid">
-            <p:outputLabel value="Process: " styleClass="text-bold" />
-            <p:outputLabel value="#{estimator.process.name}" />
+			<p:outputLabel value="Process: " styleClass="text-bold" />
+			<p:outputLabel value="#{estimator.process.name}" />
 
-            <p:outputLabel value="Start Elements: "
-                styleClass="text-bold" />
-            <p:outputLabel value="#{estimator.startElement.name}" />
+			<p:outputLabel value="Start Elements: " styleClass="text-bold" />
+			<p:outputLabel value="#{estimator.startElement.name}" />
 
-            <p:outputLabel value="Find Type: " styleClass="text-bold" />
-            <p:outputLabel value="#{estimator.findType.displayName}" />
+			<p:outputLabel value="Find Type: " styleClass="text-bold" />
+			<p:outputLabel value="#{estimator.findType.displayName}" />
 
-            <p:outputLabel value="Use case: " styleClass="text-bold" />
-            <p:outputLabel value="#{estimator.useCase.name()}" />
+			<p:outputLabel value="Use case: " styleClass="text-bold" />
+			<p:outputLabel value="#{estimator.useCase.name()}" />
 
-            <p:outputLabel value="Flow Name: " styleClass="text-bold" />
-            <p:outputLabel value="#{estimator.flowName}" />
+			<p:outputLabel value="Flow Name: " styleClass="text-bold" />
+			<p:outputLabel value="#{estimator.flowName}" />
 
-            <p:outputLabel value="Calculation Time: "
-                styleClass="text-bold" />
-            <p:outputLabel
-                value="#{estimator.executionTime} miliseconds" />
-        </p:panelGrid>
+			<p:outputLabel value="Calculation Time: " styleClass="text-bold" />
+			<p:outputLabel value="#{estimator.executionTime} miliseconds" />
+
+			<p:outputLabel value="Total Duration: " styleClass="text-bold" />
+			<p:outputLabel value="#{estimator.displayTotalDuration}" />
+		</p:panelGrid>
 
         <p:dataTable value="#{estimator.tasks}" var="task"
             stripedRows="true" lazy="false" resizableColumns="true"
