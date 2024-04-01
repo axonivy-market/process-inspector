@@ -78,27 +78,27 @@
             <p:inputText id="flowName"
                 value="#{data.workflowEstimatorDemoBean.selectedEstimator.flowName}" />
         </p:panelGrid>
-        
-        <h5>Select process override:</h5>
-        <h:panelGroup id="alternative-selection">
-            <p:repeat var="alternative"
-                value="#{data.workflowEstimatorDemoBean.selectedEstimator.alternatives}">
-                <h:panelGroup>
-                    <p:outputLabel value="#{alternative.name}"
-                        styleClass="text-bold" title="#{alternative.pid.rawPid}"/>
-                    <p:selectOneRadio layout="lineDirection" converter="pojoConverter">
-                        <f:selectItems value="#{alternative.outgoing}"
-                            var="out" itemValue="#{out}"
-                            itemLabel="#{out.name} -> #{out.target.name}" itemDescription="#{out.pid.rawPid}"/>
-                        <p:ajax listener="#{logic.onSelect}" event="change"/>
-                    </p:selectOneRadio>
-                </h:panelGroup>
-            </p:repeat>
-        </h:panelGroup>
 
-        <p:panel id="process-viewer-diagram" header="Process diagram"
+		<p:panel id="alternative-selection" header="Select process override"
+		 toggleable="true" toggleSpeed="500" closeSpeed="500" collapsed="true">
+			<p:repeat var="alternative"
+				value="#{data.workflowEstimatorDemoBean.selectedEstimator.alternatives}">
+				<h:panelGroup>
+					<p:outputLabel value="#{alternative.name}" styleClass="text-bold"
+						title="#{alternative.pid.rawPid}" />
+					<p:selectOneRadio layout="lineDirection" converter="pojoConverter">
+						<f:selectItems value="#{alternative.outgoing}" var="out"
+							itemValue="#{out}" itemLabel="#{out.name} -> #{out.target.name}"
+							itemDescription="#{out.pid.rawPid}" />
+						<p:ajax listener="#{logic.onSelect}" event="change" />
+					</p:selectOneRadio>
+				</h:panelGroup>
+			</p:repeat>
+		</p:panel>
+
+		<p:panel id="process-viewer-diagram" header="Process diagram"
             toggleable="true" toggleSpeed="500" closeSpeed="500"
-            widgetVar="panel"
+            widgetVar="panel"  style="margin-top: 20px"
             collapsed="#{data.workflowEstimatorDemoBean.selectedEstimator.processPath eq null ? 'true' : 'false'}">
             <iframe id="process-viewer"
                 style="width: 100%; height: 300px"

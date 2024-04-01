@@ -90,7 +90,7 @@
       "type" : "Alternative",
       "name" : "alter3",
       "visual" : {
-        "at" : { "x" : 912, "y" : 64 },
+        "at" : { "x" : 952, "y" : 64 },
         "labelOffset" : { "x" : 16, "y" : -16 }
       },
       "connect" : [
@@ -181,6 +181,7 @@
       "config" : {
         "dialog" : "com.axonivy.utils.estimator.Dummy:start()",
         "task" : {
+          "name" : "Task D",
           "code" : [
             "import java.util.concurrent.TimeUnit;",
             "import com.axonivy.utils.estimator.constant.UseCase;",
@@ -262,14 +263,19 @@
       "type" : "TaskSwitchGateway",
       "name" : "Join",
       "config" : {
-        "tasks" : [ ]
+        "tasks" : [ {
+            "id" : "TaskA",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          } ]
       },
       "visual" : {
         "at" : { "x" : 816, "y" : 368 },
         "labelOffset" : { "x" : -16, "y" : 8 }
       },
       "connect" : [
-        { "id" : "f32", "to" : "f31", "via" : [ { "x" : 912, "y" : 368 } ], "condition" : "ivp==\"TaskA.ivp\"" }
+        { "id" : "f32", "to" : "f35", "condition" : "ivp==\"TaskA.ivp\"" }
       ]
     }, {
       "id" : "f31",
@@ -282,12 +288,28 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 912, "y" : 248 },
+        "at" : { "x" : 952, "y" : 248 },
         "labelOffset" : { "x" : 48, "y" : 8 }
       },
       "connect" : [
         { "id" : "f33", "to" : "f8", "color" : "default path" },
         { "id" : "f34", "to" : "f12", "via" : [ { "x" : 472, "y" : 248 } ] }
+      ]
+    }, {
+      "id" : "f35",
+      "type" : "UserTask",
+      "name" : "Task F",
+      "config" : {
+        "dialog" : "com.axonivy.utils.estimator.Dummy:start()",
+        "task" : {
+          "name" : "Task F"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 952, "y" : 368 }
+      },
+      "connect" : [
+        { "id" : "f36", "to" : "f31" }
       ]
     } ],
   "layout" : {
