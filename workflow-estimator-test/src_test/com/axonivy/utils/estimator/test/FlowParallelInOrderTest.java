@@ -3,12 +3,15 @@ package com.axonivy.utils.estimator.test;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.Duration;
+
 import org.assertj.core.util.Arrays;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.estimator.WorkflowEstimator;
+import com.axonivy.utils.estimator.constant.UseCase;
 
 import ch.ivyteam.ivy.environment.IvyTest;
 
@@ -65,5 +68,21 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 		var expected = Arrays.array("Task1A", "Task B", "Task1B", "Task A", "Task2B", "Task D", "Task2A", "Task C", "Task K", "Task2C", "Task3A", "Task I");
 		var taskNames = getTaskNames(estimatedTasks);
 		assertArrayEquals(expected, taskNames);
+	}
+	
+	@Test
+	void shouldCalculateTotalDurationWithSMALPROJECT() throws Exception {
+		var workflowEstimator = new WorkflowEstimator(process, UseCase.SMALLPROJECT, null);
+		var start2 = ProcessGraphHelper.findByElementName(process, "start2");
+		Duration duration = workflowEstimator.calculateEstimatedDuration(start2);
+		assertEquals(10, duration.toHours());
+	}
+	
+	@Test
+	void shouldCalculateTotalDurationWithBIGPROJECT() throws Exception {
+		var workflowEstimator = new WorkflowEstimator(process, UseCase.BIGPROJECT, null);
+		var start2 = ProcessGraphHelper.findByElementName(process, "start2");
+		Duration duration = workflowEstimator.calculateEstimatedDuration(start2);
+		assertEquals(15, duration.toHours());
 	}
 }

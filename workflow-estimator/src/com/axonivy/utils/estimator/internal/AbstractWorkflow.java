@@ -153,7 +153,7 @@ public abstract class AbstractWorkflow {
 				}
 				
 				path.add(taskParallelGroup);
-				from = getJoinTaskSwithGateway(taskParallelGroup);
+				from = getJoinTaskSwithGateWay(taskParallelGroup);
 				
 				if( from == null) {
 					return  path;
@@ -362,7 +362,7 @@ public abstract class AbstractWorkflow {
 		return result;
 	}
 
-	private ProcessElement getJoinTaskSwithGateway(TaskParallelGroup taskParallelGroup) {
+	private ProcessElement getJoinTaskSwithGateWay(TaskParallelGroup taskParallelGroup) {
 		List<ProcessElement> elements = taskParallelGroup.getInternalPaths().entrySet().stream().findFirst()
 				.map(it -> it.getValue()).orElse(emptyList());
 		int size = elements.size();

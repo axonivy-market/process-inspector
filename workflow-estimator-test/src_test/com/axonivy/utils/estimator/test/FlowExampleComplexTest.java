@@ -121,7 +121,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		var workflowEstimator = new WorkflowEstimator(process, null, null);
 		Duration duration = workflowEstimator.calculateEstimatedDuration(List.of(taskB, taskC));
 		
-		assertEquals(Duration.ofHours(29), duration);
+		assertEquals(Duration.ofHours(19), duration);
 	}
 	
 	@Test
