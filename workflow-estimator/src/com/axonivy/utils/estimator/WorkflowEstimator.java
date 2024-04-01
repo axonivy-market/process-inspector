@@ -5,12 +5,14 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 import com.axonivy.utils.estimator.constant.UseCase;
 import com.axonivy.utils.estimator.internal.AbstractWorkflow;
@@ -124,13 +126,7 @@ public class WorkflowEstimator extends AbstractWorkflow {
 		ProcessElement element = new CommonElement(startElement);
 		List<ProcessElement> path = isNotEmpty(flowName) ? findPath(flowName, element) : findPath(element);
 		
-		List<EstimatedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
-		
-		Duration total = estimatedTasks.stream()
-				.filter(node -> node instanceof EstimatedTask)
-				.map(EstimatedTask.class::cast)
-				.map(EstimatedTask::getEstimatedDuration)
-				.reduce((a,b) -> a.plus(b)).orElse(Duration.ZERO);
+		Duration total = calculateTotalDuration(path, useCase);
 		
 		return total;
 	}
@@ -145,13 +141,7 @@ public class WorkflowEstimator extends AbstractWorkflow {
 		ProcessElement[] elements = startElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
 		List<ProcessElement> path = isNotEmpty(flowName) ? findPath(flowName, elements) : findPath(elements);
 		
-		List<EstimatedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
-		
-		Duration total = estimatedTasks.stream()
-				.filter(node -> node instanceof EstimatedTask)
-				.map(EstimatedTask.class::cast)
-				.map(EstimatedTask::getEstimatedDuration)
-				.reduce((a,b) -> a.plus(b)).orElse(Duration.ZERO);
+		Duration total = calculateTotalDuration(path, useCase);
 		
 		return total;
 	}
@@ -230,12 +220,64 @@ public class WorkflowEstimator extends AbstractWorkflow {
 		return result.stream().filter(item -> item != null).toList();		
 	}
 	
+	private Duration calculateTotalDuration(List<ProcessElement> path, UseCase useCase) {
+
+		// convert to both Estimated Task and alternative
+		List<Duration> totalWithEnd = new ArrayList<>();		
+		Duration total = Duration.ZERO;
+				
+		for(int i = 0; i < path.size(); i++) {
+			ProcessElement element = path.get(i);
+		
+			// CommonElement(RequestStart)
+			if (element.getElement() instanceof RequestStart) {
+				continue;
+			}
+			
+			if (element.getElement()instanceof TaskAndCaseModifier && isSystemTask((TaskAndCaseModifier) element.getElement())) {
+				continue;
+			}
+			
+			if (element instanceof TaskParallelGroup) {
+				Duration durationWithEndTask = getMaxTotalFromTaskParallelGroup((TaskParallelGroup) element, useCase, true);
+				totalWithEnd.add(durationWithEndTask);
+				
+				Duration maxDuration = getMaxTotalFromTaskParallelGroup((TaskParallelGroup) element, useCase, false);
+				total = total.plus(maxDuration);
+				continue;
+			}
+			
+			// CommonElement(SingleTaskCreator)
+			if (element.getElement() instanceof SingleTaskCreator) {				
+				SingleTaskCreator singleTask = (SingleTaskCreator)element.getElement();
+				Duration taskDuration = getDuration(singleTask, singleTask.getTaskConfig(), useCase);
+				total = total.plus(taskDuration);
+				continue;
+			}
+			
+			if (element instanceof CommonElement && element.getElement() instanceof SequenceFlow) {
+				SequenceFlow sequenceFlow = (SequenceFlow) element.getElement();
+				if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
+					TaskConfig startTask = getStartTaskConfigFromTaskSwitchGateway(sequenceFlow);					
+					Duration startTaskDuration = getDuration((TaskAndCaseModifier)sequenceFlow.getSource(), startTask, useCase);
+					total = total.plus(startTaskDuration);
+					continue;
+				}
+			}
+		}
+		
+		Duration maxTotal = Stream.concat(totalWithEnd.stream(), Stream.of(total)).max(Comparator.naturalOrder()).orElse(Duration.ZERO);
+		return maxTotal;		
+	}
+	
 	private List<EstimatedElement> convertToEstimatedElementFromTaskParallelGroup(TaskParallelGroup group, UseCase useCase, Date startedAt) {	
 			
-		Map<SequenceFlow, List<ProcessElement>> internalPath = sortInternalPath(group.getInternalPaths());
+		Map<SequenceFlow, List<ProcessElement>> sortedInternalPath =  new LinkedHashMap<>();
+		sortedInternalPath.putAll(getInternalPath(group.getInternalPaths(), true));
+		sortedInternalPath.putAll(getInternalPath(group.getInternalPaths(), false));
 		
 		List<EstimatedElement> result = new ArrayList<>();
-		for (Entry<SequenceFlow, List<ProcessElement>> entry : internalPath.entrySet()) {
+		for (Entry<SequenceFlow, List<ProcessElement>> entry : sortedInternalPath.entrySet()) {
 			var startTask = createStartTaskFromTaskSwitchGateway(entry.getKey(), startedAt, useCase);
 			var tasks = convertToEstimatedElements(entry.getValue(), useCase, startedAt);
 			
@@ -246,22 +288,35 @@ public class WorkflowEstimator extends AbstractWorkflow {
 		return result;
 	}
 	
-	private Map<SequenceFlow, List<ProcessElement>> sortInternalPath(Map<SequenceFlow, List<ProcessElement>> internalPath){		
-		Map<SequenceFlow, List<ProcessElement>> pathWithEnd = new LinkedHashMap<>();
-		Map<SequenceFlow, List<ProcessElement>> pathWithOther = new LinkedHashMap<>();
+	private Duration getMaxTotalFromTaskParallelGroup(TaskParallelGroup group, UseCase useCase, boolean withTaskEnd) {
+		Map<SequenceFlow, List<ProcessElement>> internalPath = getInternalPath(group.getInternalPaths(), withTaskEnd);
+		Map<SequenceFlow, Duration> result = new HashMap<>();
 		
+		for (Entry<SequenceFlow, List<ProcessElement>> entry : internalPath.entrySet()) {
+			 Duration total = calculateTotalDuration(entry.getValue(), useCase);
+			 result.put(entry.getKey(), total);
+		}
+		
+		Duration maxTotal = result.values().stream().max(Comparator.naturalOrder()).orElse(Duration.ZERO);
+		
+		return maxTotal;
+	}
+
+	
+	private Map<SequenceFlow, List<ProcessElement>> getInternalPath(Map<SequenceFlow, List<ProcessElement>> internalPath, boolean withTaskEnd){		
+		Map<SequenceFlow, List<ProcessElement>> path = new LinkedHashMap<>();
+				
 		//Priority the path go to end first
 		for(SequenceFlow sf : internalPath.keySet()) {
 			ProcessElement last = getLast(internalPath.get(sf));
-			if(last.getElement() instanceof TaskEnd) {
-				pathWithEnd.put(sf, internalPath.get(sf));
-			} else {
-				pathWithOther.put(sf, internalPath.get(sf));
+			if(withTaskEnd && last.getElement() instanceof TaskEnd) {
+				path.put(sf, internalPath.get(sf));
+			} else if (!withTaskEnd && last.getElement() instanceof TaskEnd == false){
+				path.put(sf, internalPath.get(sf));
 			}
 		}
-		pathWithEnd.putAll(pathWithOther);
 		
-		return pathWithEnd;
+		return path;
 	}
 	
 	private Date getEstimatedEndTimestamp(List<EstimatedElement> estimatedElements) {

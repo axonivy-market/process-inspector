@@ -172,7 +172,14 @@
       "config" : {
         "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
-          "name" : "Task F"
+          "name" : "Task F",
+          "code" : [
+            "import com.axonivy.utils.estimator.constant.UseCase;",
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(2,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
+            "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
         }
       },
       "visual" : {
@@ -188,7 +195,14 @@
       "config" : {
         "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
-          "name" : "Task G"
+          "name" : "Task G",
+          "code" : [
+            "import com.axonivy.utils.estimator.constant.UseCase;",
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(4,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
+            "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
         }
       },
       "visual" : {
@@ -204,7 +218,14 @@
       "config" : {
         "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
-          "name" : "Task I"
+          "name" : "Task I",
+          "code" : [
+            "import com.axonivy.utils.estimator.constant.UseCase;",
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(2,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
+            "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
         }
       },
       "visual" : {
@@ -220,7 +241,14 @@
       "config" : {
         "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
-          "name" : "Task K"
+          "name" : "Task K",
+          "code" : [
+            "import com.axonivy.utils.estimator.constant.UseCase;",
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(3,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
+            "WfEstimate.setEstimate(4,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
         }
       },
       "visual" : {
@@ -242,7 +270,13 @@
       "config" : {
         "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
-          "name" : "Task E"
+          "name" : "Task E",
+          "code" : [
+            "import com.axonivy.utils.estimator.constant.UseCase;",
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
         }
       },
       "visual" : {
@@ -278,7 +312,14 @@
       "config" : {
         "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
-          "name" : "Task H"
+          "name" : "Task H",
+          "code" : [
+            "import com.axonivy.utils.estimator.constant.UseCase;",
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(2,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
+            "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
         }
       },
       "visual" : {
@@ -294,7 +335,14 @@
       "config" : {
         "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
         "task" : {
-          "name" : "Task M"
+          "name" : "Task M",
+          "code" : [
+            "import com.axonivy.utils.estimator.constant.UseCase;",
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "WfEstimate.setEstimate(3,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
+            "WfEstimate.setEstimate(4,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
         }
       },
       "visual" : {
