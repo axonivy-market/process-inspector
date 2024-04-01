@@ -138,7 +138,7 @@ public abstract class AbstractWorkflow {
 				path.addAll(pathFromSubProcess);				
 			}
 
-			if(isEndTaskSwitchGatewayAndWaiting(previousElements, from)) {				
+			if(isJoinTaskSwitchGateway(previousElements, from)) {				
 				return path;
 			}
 			
@@ -153,7 +153,7 @@ public abstract class AbstractWorkflow {
 				}
 				
 				path.add(taskParallelGroup);
-				from = getEndTaskSwithGateWay(taskParallelGroup);
+				from = getJoinTaskSwithGateway(taskParallelGroup);
 				
 				if( from == null) {
 					return  path;
@@ -338,7 +338,7 @@ public abstract class AbstractWorkflow {
 				&& ((TaskSwitchGateway) element.getElement()).getOutgoing().size() > 1;
 	}
 
-	private boolean isEndTaskSwitchGatewayAndWaiting(List<ProcessElement> elements, ProcessElement from) {
+	private boolean isJoinTaskSwitchGateway(List<ProcessElement> elements, ProcessElement from) {
 		BaseElement baseElement = from.getElement();
 		boolean result =  false;
 		if (baseElement instanceof TaskSwitchGateway && ((TaskSwitchGateway) baseElement).getIncoming().size() > 1) {
@@ -362,7 +362,7 @@ public abstract class AbstractWorkflow {
 		return result;
 	}
 
-	private ProcessElement getEndTaskSwithGateWay(TaskParallelGroup taskParallelGroup) {
+	private ProcessElement getJoinTaskSwithGateway(TaskParallelGroup taskParallelGroup) {
 		List<ProcessElement> elements = taskParallelGroup.getInternalPaths().entrySet().stream().findFirst()
 				.map(it -> it.getValue()).orElse(emptyList());
 		int size = elements.size();
