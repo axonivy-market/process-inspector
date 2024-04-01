@@ -178,10 +178,10 @@ public class WorkflowEstimator extends AbstractWorkflow {
 	private List<EstimatedElement> convertToEstimatedElements(List<ProcessElement> path, UseCase useCase, Date startedAt) {
 
 		// convert to both Estimated Task and alternative
-		List<EstimatedElement> result = new ArrayList<>();
-		Date start = getEstimatedEndTimestamp(result);
+		List<EstimatedElement> result = new ArrayList<>();		
 		
 		for(int i = 0; i < path.size(); i++) {
+			Date startAtTime = getEstimatedEndTimestamp(result, startedAt);
 			ProcessElement element = path.get(i);
 		
 			// CommonElement(RequestStart)
@@ -194,7 +194,7 @@ public class WorkflowEstimator extends AbstractWorkflow {
 			}
 			
 			if (element instanceof TaskParallelGroup) {
-				var tasks = convertToEstimatedElementFromTaskParallelGroup((TaskParallelGroup) element, useCase, startedAt);
+				var tasks = convertToEstimatedElementFromTaskParallelGroup((TaskParallelGroup) element, useCase, startAtTime);
 				result.addAll(tasks);
 				continue;
 			}
@@ -202,7 +202,7 @@ public class WorkflowEstimator extends AbstractWorkflow {
 			// CommonElement(SingleTaskCreator)
 			if (element.getElement() instanceof SingleTaskCreator) {
 				SingleTaskCreator singleTask = (SingleTaskCreator)element.getElement();
-				var estimatedTask = createEstimatedTask(singleTask, singleTask.getTaskConfig(), startedAt, useCase);
+				var estimatedTask = createEstimatedTask(singleTask, singleTask.getTaskConfig(), startAtTime, useCase);
 				result.add(estimatedTask);
 				continue;
 			}
@@ -210,7 +210,7 @@ public class WorkflowEstimator extends AbstractWorkflow {
 			if (element instanceof CommonElement && element.getElement() instanceof SequenceFlow) {
 				SequenceFlow sequenceFlow = (SequenceFlow) element.getElement();
 				if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
-					var startTask = createStartTaskFromTaskSwitchGateway(sequenceFlow, startedAt, useCase);
+					var startTask = createStartTaskFromTaskSwitchGateway(sequenceFlow, startAtTime, useCase);
 					result.add(startTask);
 					continue;
 				}
@@ -279,7 +279,7 @@ public class WorkflowEstimator extends AbstractWorkflow {
 		List<EstimatedElement> result = new ArrayList<>();
 		for (Entry<SequenceFlow, List<ProcessElement>> entry : sortedInternalPath.entrySet()) {
 			var startTask = createStartTaskFromTaskSwitchGateway(entry.getKey(), startedAt, useCase);
-			var tasks = convertToEstimatedElements(entry.getValue(), useCase, startedAt);
+			var tasks = convertToEstimatedElements(entry.getValue(), useCase, ((EstimatedTask)startTask).calculateEstimatedEndTimestamp());
 			
 			result.add(startTask);
 			result.addAll(tasks);
@@ -319,29 +319,29 @@ public class WorkflowEstimator extends AbstractWorkflow {
 		return path;
 	}
 	
-	private Date getEstimatedEndTimestamp(List<EstimatedElement> estimatedElements) {
+	private Date getEstimatedEndTimestamp(List<EstimatedElement> estimatedElements, Date defaultAt) {
 		List<EstimatedTask> estimatedTasks = estimatedElements.stream()
 				.filter(item -> item instanceof EstimatedTask)
 				.map(EstimatedTask.class::cast)
 				.toList();
 		int size =  estimatedTasks.size();
-		return size > 0 ? estimatedTasks.get(size - 1).calculateEstimatedEndTimestamp() : new Date();
+		return size > 0 ? estimatedTasks.get(size - 1).calculateEstimatedEndTimestamp() : defaultAt;
 	}
 	
-	private EstimatedElement createStartTaskFromTaskSwitchGateway(SequenceFlow sequenceFlow, Date startTimestamp, UseCase useCase) {
+	private EstimatedElement createStartTaskFromTaskSwitchGateway(SequenceFlow sequenceFlow, Date startedAt, UseCase useCase) {
 
 		EstimatedElement task = null;
 		if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
 			TaskSwitchGateway taskSwitchGateway = (TaskSwitchGateway) sequenceFlow.getSource();
 			if (!isSystemTask(taskSwitchGateway)) {
 				TaskConfig startTask = getStartTaskConfigFromTaskSwitchGateway(sequenceFlow);
-				task = createEstimatedTask((TaskAndCaseModifier) taskSwitchGateway, startTask, startTimestamp, useCase);
+				task = createEstimatedTask((TaskAndCaseModifier) taskSwitchGateway, startTask, startedAt, useCase);
 			}
 		}
 		return task;
 	}
 	
-	private EstimatedElement createEstimatedTask(TaskAndCaseModifier task, TaskConfig taskConfig, Date startTimestamp, UseCase useCase) {
+	private EstimatedElement createEstimatedTask(TaskAndCaseModifier task, TaskConfig taskConfig, Date startedAt, UseCase useCase) {
 		
 		EstimatedTask estimatedTask = new EstimatedTask();
 		
@@ -351,7 +351,7 @@ public class WorkflowEstimator extends AbstractWorkflow {
 		estimatedTask.setElementName(task.getName());
 		Duration estimatedDuration = getDuration(task, taskConfig, useCase);				
 		estimatedTask.setEstimatedDuration(estimatedDuration);
-		estimatedTask.setEstimatedStartTimestamp(startTimestamp);		
+		estimatedTask.setEstimatedStartTimestamp(startedAt);		
 		String customerInfo = getCustomInfoByCode(taskConfig);
 		estimatedTask.setCustomInfo(customerInfo);		
 		
