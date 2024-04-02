@@ -13,6 +13,7 @@ import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
+import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 import ch.ivyteam.ivy.process.model.element.event.start.StartEvent;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
@@ -20,12 +21,13 @@ import ch.ivyteam.ivy.process.model.element.value.IvyScriptExpression;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 
 @SuppressWarnings("restriction")
-class ProcessGraph {
+public class ProcessGraph {
 
-	protected ProcessGraph() {
-	}
+	private enum Role {
+		SYSTEM
+	};
 	
-	protected String getCodeLineByPrefix(TaskConfig task, String... prefix) {
+	public String getCodeLineByPrefix(TaskConfig task, String... prefix) {
 		// strongly typed!
 		String script = Optional.of(task.getScript()).orElse(EMPTY);
 		String[] codeLines = script.split("\\n");
@@ -36,7 +38,7 @@ class ProcessGraph {
 		return wfEstimateCode;
 	}
 	
-	protected List<String> getParentElementNamesEmbeddedProcessElement(BaseElement parentElement){
+	public List<String> getParentElementNamesEmbeddedProcessElement(BaseElement parentElement){
 		List<String> result = new ArrayList<>();
 		if(parentElement instanceof EmbeddedProcessElement) {
 			EmbeddedProcessElement processElement = (EmbeddedProcessElement)parentElement;
@@ -51,7 +53,7 @@ class ProcessGraph {
 		return result;
 	}
 	
-	protected BaseElement findOneStartElementOfProcess(Process process) {
+	public BaseElement findOneStartElementOfProcess(Process process) {
 		BaseElement start = process.getElements().stream()
 				.filter(item -> item instanceof StartEvent)
 				.findFirst()
@@ -60,7 +62,7 @@ class ProcessGraph {
 		return start;
 	}
 	
-	protected String getNextTargetIdByCondition(Alternative alternative, String condition) {
+	public String getNextTargetIdByCondition(Alternative alternative, String condition) {
 		IvyScriptExpression script = IvyScriptExpression.script(defaultString(condition));
 		String nextTargetId = alternative.getConditions().conditions().entrySet().stream()
 				.filter(entry -> script.equals(entry.getValue()))
@@ -71,7 +73,7 @@ class ProcessGraph {
 		return nextTargetId;
 	}
 	
-	protected TaskConfig getStartTaskConfig(SequenceFlow sequenceFlow) {
+	public TaskConfig getStartTaskConfig(SequenceFlow sequenceFlow) {
 		BaseElement taskSwitchGateway = sequenceFlow.getSource();
 		TaskConfig taskConfig = null;
 		if (taskSwitchGateway instanceof TaskSwitchGateway) {
@@ -86,6 +88,19 @@ class ProcessGraph {
 					.orElse(null);
 		}
 		return taskConfig;
+	}
+	
+	public boolean isSystemTask(TaskAndCaseModifier task) {		
+		return task.getAllTaskConfigs().stream().anyMatch(it -> Role.SYSTEM.name().equals(it.getActivator().getName()));
+	}
+	
+	public String getTaskId(TaskAndCaseModifier task, TaskConfig taskConfig) {
+		String id = task.getPid().getRawPid();
+		if (task instanceof TaskSwitchGateway) {
+			return id + "-" + taskConfig.getTaskIdentifier().getRawIdentifier();
+		} else {
+			return id;
+		}
 	}
 	
 	private boolean containtPrefixs(String content, String... prefix) {
