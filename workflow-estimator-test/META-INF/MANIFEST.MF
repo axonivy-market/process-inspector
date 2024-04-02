@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: workflow-estimator-test
-Bundle-SymbolicName: workflow-estimator-test
+Bundle-SymbolicName: process-analyzer-test
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: workflow.estimator.test
-Export-Package: com.axonivy.utils.estimator.test
+Export-Package: com.axonivy.utils.process.analyzer.test
 Require-Bundle: ch.ivyteam.ivy.process.rdm;bundle-version="11.2.1"

@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator.test.internal;
+package com.axonivy.utils.process.analyzer.test.internal;
 
 import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -8,9 +8,9 @@ import java.time.Duration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.axonivy.utils.estimator.test.ProcessGraphHelper;
 import com.axonivy.utils.process.analyzer.constant.UseCase;
 import com.axonivy.utils.process.analyzer.internal.WorkflowTime;
+import com.axonivy.utils.process.analyzer.test.ProcessGraphHelper;
 
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.Process;

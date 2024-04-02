@@ -2,7 +2,7 @@
   "$schema" : "https://json-schema.axonivy.com/process/11.2.2/process.json",
   "id" : "18DD17872B3D53E2",
   "config" : {
-    "data" : "com.axonivy.utils.estimator.test.Data"
+    "data" : "com.axonivy.utils.process.analyzer.test.Data"
   },
   "elements" : [ {
       "id" : "f0",
@@ -28,7 +28,7 @@
       "type" : "UserTask",
       "name" : "Task A",
       "config" : {
-        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
+        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
         "task" : {
           "name" : "Task A"
         }
@@ -74,7 +74,7 @@
       "type" : "UserTask",
       "name" : "Task B",
       "config" : {
-        "dialog" : "com.axonivy.utils.estimator.test.Dummy:start()",
+        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
         "task" : {
           "name" : "Task B"
         }

@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator.test;
+package com.axonivy.utils.process.analyzer.test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
-
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.BaseElement;
 
@@ -26,19 +25,19 @@ public class TaskTypesExampleTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindAllTasksOnPathAtStartWithFlowNameNull() throws Exception {
-		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
-		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
+		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
+		var detectedTasks = processAnalyzer.findTasksOnPath(start);
 		
-		var names = getTaskNames(estimatedTasks);
+		var names = getTaskNames(detectedTasks);
 		assertArrayEquals(Arrays.array("UserTask", "Task", "Tasks-TaskA", "Tasks-TaskB"), names);
 	}
 	
 	@Test
 	void shouldFindAllTasksAtStartWithFlowNameNull() throws Exception {
-		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
-		var estimatedTasks = workflowEstimator.findAllTasks(start);
+		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
+		var detectedTasks = processAnalyzer.findAllTasks(start);
 		
-		var names = getTaskNames(estimatedTasks);
+		var names = getTaskNames(detectedTasks);
 		assertArrayEquals(Arrays.array("UserTask", "Task", "Tasks-TaskA", "Tasks-TaskB"), names);
 	}
 

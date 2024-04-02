@@ -3,7 +3,7 @@
   "id" : "18E7E407FCC91D18",
   "kind" : "HTML_DIALOG",
   "config" : {
-    "data" : "com.axonivy.utils.estimator.test.Dummy.DummyData"
+    "data" : "com.axonivy.utils.process.analyzer.test.Dummy.DummyData"
   },
   "elements" : [ {
       "id" : "f0",

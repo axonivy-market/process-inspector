@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator.test;
+package com.axonivy.utils.process.analyzer.test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
-
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.BaseElement;
 
@@ -26,26 +25,26 @@ public class FlowExampleLoopTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameNull() throws Exception {
-		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
-		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
+		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
+		var detectedTasks = processAnalyzer.findTasksOnPath(start);
 		
-		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(estimatedTasks));
+		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(detectedTasks));
 	}
 	
 	@Test
 	void shouldFindAllTasksStartWithFlowNameNull() throws Exception {
-		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
-		var estimatedTasks = workflowEstimator.findAllTasks(start);
+		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
+		var detectedTasks = processAnalyzer.findAllTasks(start);
 
-		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(estimatedTasks));
+		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(detectedTasks));
 	}
 	
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameSuccess() throws Exception {
-		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, "success");
-		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
+		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, "success");
+		var detectedTasks = processAnalyzer.findTasksOnPath(start);
 
-		assertArrayEquals(Arrays.array("Task A"), getTaskNames(estimatedTasks));
+		assertArrayEquals(Arrays.array("Task A"), getTaskNames(detectedTasks));
 	}
 	
 }

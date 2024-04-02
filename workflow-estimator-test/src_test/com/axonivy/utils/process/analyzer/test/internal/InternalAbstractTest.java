@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator.test.internal;
+package com.axonivy.utils.process.analyzer.test.internal;
 
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.Process;
