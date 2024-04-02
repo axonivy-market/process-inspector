@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator.internal.model;
+package com.axonivy.utils.process.analyzer.internal.model;
 
 import java.util.List;
 import java.util.Map;

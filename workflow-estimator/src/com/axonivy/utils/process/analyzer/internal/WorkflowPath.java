@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator.internal;
+package com.axonivy.utils.process.analyzer.internal;
 
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -17,9 +17,9 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.map.HashedMap;
 
-import com.axonivy.utils.estimator.internal.model.CommonElement;
-import com.axonivy.utils.estimator.internal.model.ProcessElement;
-import com.axonivy.utils.estimator.internal.model.TaskParallelGroup;
+import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
+import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
+import com.axonivy.utils.process.analyzer.internal.model.TaskParallelGroup;
 
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.BaseElement;

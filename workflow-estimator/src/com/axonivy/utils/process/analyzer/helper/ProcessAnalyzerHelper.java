@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator.helper;
+package com.axonivy.utils.process.analyzer.helper;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.Process;
@@ -7,7 +7,7 @@ import ch.ivyteam.ivy.workflow.ITask;
 import ch.ivyteam.ivy.workflow.IWorkflowProcessModelVersion;
 
 @SuppressWarnings("restriction")
-public class WorkflowEstimatorHelper {
+public class ProcessAnalyzerHelper {
 	
 	public static BaseElement getBaseElementOf(ITask task) {
 		if(task == null) {

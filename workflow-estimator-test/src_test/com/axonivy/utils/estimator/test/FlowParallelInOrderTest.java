@@ -6,12 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.time.Duration;
 
 import org.assertj.core.util.Arrays;
-import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.axonivy.utils.estimator.WorkflowEstimator;
-import com.axonivy.utils.estimator.constant.UseCase;
+import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
+import com.axonivy.utils.process.analyzer.constant.UseCase;
 
 import ch.ivyteam.ivy.environment.IvyTest;
 
@@ -28,7 +27,7 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindAllTasksAtStart() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
 		var start = ProcessGraphHelper.findByElementName(process, "start");
 		var estimatedTasks = workflowEstimator.findAllTasks(start);
 
@@ -39,7 +38,7 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindAllTasksAtStart2() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
 		var start2 = ProcessGraphHelper.findByElementName(process, "start2");
 		var estimatedTasks = workflowEstimator.findAllTasks(start2);
 		
@@ -50,7 +49,7 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 
 	@Test
 	void shouldFindAllTasksAtStart3() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
 		var start3 = ProcessGraphHelper.findByElementName(process, "start3");
 		var estimatedTasks = workflowEstimator.findAllTasks(start3);		
 		
@@ -61,7 +60,7 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindTasksOnPathAtStart3() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, "internal");
+		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, "internal");
 		var start3 = ProcessGraphHelper.findByElementName(process, "start3");
 		var estimatedTasks = workflowEstimator.findTasksOnPath(start3);		
 		
@@ -72,7 +71,7 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 	
 	@Test
 	void shouldCalculateTotalDurationWithSMALPROJECT() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, UseCase.SMALLPROJECT, null);
+		var workflowEstimator = new AdvancedProcessAnalyzer(process, UseCase.SMALLPROJECT, null);
 		var start2 = ProcessGraphHelper.findByElementName(process, "start2");
 		Duration duration = workflowEstimator.calculateEstimatedDuration(start2);
 		assertEquals(10, duration.toHours());
@@ -80,7 +79,7 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 	
 	@Test
 	void shouldCalculateTotalDurationWithBIGPROJECT() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, UseCase.BIGPROJECT, null);
+		var workflowEstimator = new AdvancedProcessAnalyzer(process, UseCase.BIGPROJECT, null);
 		var start2 = ProcessGraphHelper.findByElementName(process, "start2");
 		Duration duration = workflowEstimator.calculateEstimatedDuration(start2);
 		assertEquals(15, duration.toHours());

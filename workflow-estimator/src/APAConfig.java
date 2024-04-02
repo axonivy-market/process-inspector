@@ -1,8 +1,8 @@
 import java.util.concurrent.TimeUnit;
 
-import com.axonivy.utils.estimator.constant.UseCase;
+import com.axonivy.utils.process.analyzer.constant.UseCase;
 
-public class WfEstimate {
+public class APAConfig {
 
   public static void setEstimate(int amound, TimeUnit unit, UseCase useCase) {};
   

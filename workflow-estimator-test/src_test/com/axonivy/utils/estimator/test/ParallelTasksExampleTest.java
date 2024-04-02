@@ -10,8 +10,8 @@ import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.axonivy.utils.estimator.WorkflowEstimator;
-import com.axonivy.utils.estimator.model.EstimatedTask;
+import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
+import com.axonivy.utils.process.analyzer.model.DetectedTask;
 
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -31,7 +31,7 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindAllTasksAtStartWithFlowNameNull() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
 		var estimatedTasks = workflowEstimator.findAllTasks(start);
 
 		var names = getTaskNames(estimatedTasks);
@@ -40,7 +40,7 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameNull() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
 		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 
 		var names = getTaskNames(estimatedTasks);
@@ -49,7 +49,7 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameShortcut() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, "shortcut");
+		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, "shortcut");
 		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 
 		var names = getTaskNames(estimatedTasks);
@@ -58,7 +58,7 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindOverrideDuration() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
 		
 		HashMap<String, Duration> durationOverride = new HashMap<>(); 
 		durationOverride.put("18DD185B60B6E769-f15-TaskA", Duration.ofHours(10));
@@ -68,20 +68,20 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 		var duration = estimatedTasks.stream()
 				.filter(it -> it.getPid().contains("18DD185B60B6E769-f15-TaskA"))
 				.findFirst()
-				.map(it -> ((EstimatedTask)it).getEstimatedDuration())
+				.map(it -> ((DetectedTask)it).getEstimatedDuration())
 				.orElse(null);
 		assertEquals(duration.toHours(), 10);
 	}
 	
 	@Test
 	void shouldFindDefaultDuration() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, null);	
+		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);	
 		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 		
 		var duration = estimatedTasks.stream()
 				.filter(it -> it.getPid().contains("18DD185B60B6E769-f15-TaskA"))
 				.findFirst()
-				.map(it -> ((EstimatedTask)it).getEstimatedDuration())
+				.map(it -> ((DetectedTask)it).getEstimatedDuration())
 				.orElse(null);
 		
 		assertEquals(duration.toHours(), 5);

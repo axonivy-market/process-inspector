@@ -9,10 +9,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.axonivy.utils.estimator.constant.UseCase;
 import com.axonivy.utils.estimator.demo.constant.FindType;
 import com.axonivy.utils.estimator.demo.helper.DateTimeHelper;
-import com.axonivy.utils.estimator.model.EstimatedElement;
+import com.axonivy.utils.process.analyzer.constant.UseCase;
+import com.axonivy.utils.process.analyzer.model.DetectedElement;
+
 import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
@@ -27,7 +28,7 @@ public class Estimator {
 	private List<SingleTaskCreator> elements;
 	private FindType findType;
 	private SingleTaskCreator startElement;
-	private List<EstimatedElement> tasks;
+	private List<DetectedElement> tasks;
 	private Duration totalDuration;
 	private long executionTime;
 	private List<Alternative> alternatives;
@@ -99,11 +100,11 @@ public class Estimator {
 		this.useCase = useCase;
 	}
 
-	public List<EstimatedElement> getTasks() {
+	public List<DetectedElement> getTasks() {
 		return tasks;
 	}
 
-	public void setTasks(List<EstimatedElement> tasks) {
+	public void setTasks(List<DetectedElement> tasks) {
 		this.tasks = tasks;
 	}
 
@@ -128,11 +129,11 @@ public class Estimator {
 	}
 
 	public String getElementNames() {
-		return this.tasks.stream().map(EstimatedElement::getElementName).collect(Collectors.joining(" -> "));
+		return this.tasks.stream().map(DetectedElement::getElementName).collect(Collectors.joining(" -> "));
 	}
 
 	public String getTaskNames() {
-		return this.tasks.stream().map(EstimatedElement::getTaskName).collect(Collectors.joining(" -> "));
+		return this.tasks.stream().map(DetectedElement::getTaskName).collect(Collectors.joining(" -> "));
 	}
 
 	public long getExecutionTime() {

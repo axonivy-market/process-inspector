@@ -2,7 +2,8 @@ package com.axonivy.utils.estimator.test;
 
 import java.util.List;
 
-import com.axonivy.utils.estimator.model.EstimatedElement;
+import com.axonivy.utils.process.analyzer.model.DetectedElement;
+
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.rdm.IProcessManager;
@@ -17,7 +18,7 @@ public abstract class FlowExampleTest {
 		process = manager.findProcessByPath(processName).getModel();		
 	}
 	
-	protected String[] getTaskNames(List<? extends EstimatedElement> tasks ) {
-		return tasks.stream().map(EstimatedElement::getTaskName).toArray(String[]::new);
+	protected String[] getTaskNames(List<? extends DetectedElement> tasks ) {
+		return tasks.stream().map(DetectedElement::getTaskName).toArray(String[]::new);
 	}
 }
