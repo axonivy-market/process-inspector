@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator;
+package com.axonivy.utils.process.analyzer;
 
 import static java.util.Collections.emptyMap;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -8,17 +8,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.axonivy.utils.estimator.constant.UseCase;
-import com.axonivy.utils.estimator.internal.AbstractWorkflow;
-import com.axonivy.utils.estimator.internal.model.CommonElement;
-import com.axonivy.utils.estimator.internal.model.ProcessElement;
-import com.axonivy.utils.estimator.model.EstimatedElement;
+import com.axonivy.utils.process.analyzer.constant.UseCase;
+import com.axonivy.utils.process.analyzer.internal.ProcessAnalyzer;
+import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
+import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
+import com.axonivy.utils.process.analyzer.model.DetectedElement;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.Process;
 
 @SuppressWarnings("restriction")
-public class WorkflowEstimator extends AbstractWorkflow {
+public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 
 	private Process process;
 	private UseCase useCase;
@@ -33,7 +33,7 @@ public class WorkflowEstimator extends AbstractWorkflow {
 	 * If it is null, it will get first duration configure line
 	 * @param flowName - Tag name we want to follow at alternative gateways.
 	 */
-	public WorkflowEstimator(Process process, UseCase useCase, String flowName) {
+	public AdvancedProcessAnalyzer(Process process, UseCase useCase, String flowName) {
 		super();
 		this.process = process;
 		this.useCase = useCase;
@@ -58,9 +58,9 @@ public class WorkflowEstimator extends AbstractWorkflow {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<? extends EstimatedElement> findAllTasks(BaseElement startAtElement) throws Exception {
+	public List<? extends DetectedElement> findAllTasks(BaseElement startAtElement) throws Exception {
 		List<ProcessElement> path = findPath(new CommonElement(startAtElement));
-		List<EstimatedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
+		List<DetectedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
 		return estimatedTasks;
 	}
 	
@@ -69,10 +69,10 @@ public class WorkflowEstimator extends AbstractWorkflow {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<? extends EstimatedElement> findAllTasks(List<BaseElement> startAtElements) throws Exception {
+	public List<? extends DetectedElement> findAllTasks(List<BaseElement> startAtElements) throws Exception {
 		CommonElement[] elements = startAtElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
 		List<ProcessElement> path = findPath(elements);
-		List<EstimatedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
+		List<DetectedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
 		return estimatedTasks;
 	}
 
@@ -82,9 +82,9 @@ public class WorkflowEstimator extends AbstractWorkflow {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<? extends EstimatedElement> findTasksOnPath(BaseElement startAtElement) throws Exception {
+	public List<? extends DetectedElement> findTasksOnPath(BaseElement startAtElement) throws Exception {
 		List<ProcessElement> path = findPath(flowName, new CommonElement(startAtElement));
-		List<EstimatedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
+		List<DetectedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
 		return estimatedTasks;
 	}
 	
@@ -93,10 +93,10 @@ public class WorkflowEstimator extends AbstractWorkflow {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<? extends EstimatedElement> findTasksOnPath(List<BaseElement> startAtElements) throws Exception {
+	public List<? extends DetectedElement> findTasksOnPath(List<BaseElement> startAtElements) throws Exception {
 		ProcessElement[] elements = startAtElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
 		List<ProcessElement> path = findPath(flowName, elements);
-		List<EstimatedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
+		List<DetectedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
 		return estimatedTasks;
 	}
 	
@@ -138,7 +138,7 @@ public class WorkflowEstimator extends AbstractWorkflow {
 	 * value: chosen output PID
 	 * @return
 	 */
-	public WorkflowEstimator setProcessFlowOverrides(HashMap<String, String> processFlowOverrides) {
+	public AdvancedProcessAnalyzer setProcessFlowOverrides(HashMap<String, String> processFlowOverrides) {
 		this.processFlowOverrides = processFlowOverrides;
 		return this;
 	}
@@ -150,7 +150,7 @@ public class WorkflowEstimator extends AbstractWorkflow {
 	 * value: new duration
 	 * @return
 	 */
-	public WorkflowEstimator setDurationOverrides(HashMap<String, Duration> durationOverrides) {
+	public AdvancedProcessAnalyzer setDurationOverrides(HashMap<String, Duration> durationOverrides) {
 		this.durationOverrides = durationOverrides;
 		return this;
 	}

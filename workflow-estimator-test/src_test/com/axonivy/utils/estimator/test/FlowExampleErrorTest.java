@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.axonivy.utils.estimator.WorkflowEstimator;
+import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
 
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -26,7 +26,7 @@ public class FlowExampleErrorTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameSuccess() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, "success");
+		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, "success");
 		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 
 		assertEquals(1, estimatedTasks.size());
@@ -35,7 +35,7 @@ public class FlowExampleErrorTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameNull()  {
-		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
 		
 		Exception exception = assertThrows(Exception.class, () -> {
 			workflowEstimator.findTasksOnPath(start);

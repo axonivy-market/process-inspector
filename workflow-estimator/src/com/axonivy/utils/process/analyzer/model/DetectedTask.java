@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator.model;
+package com.axonivy.utils.process.analyzer.model;
 
 import java.time.Duration;
 import java.util.Date;
@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.time.DateUtils;
 
-public class EstimatedTask extends EstimatedElement {
+public class DetectedTask extends DetectedElement {
 
 	private Duration estimatedDuration;
 	/**

@@ -8,9 +8,9 @@ import java.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.axonivy.utils.estimator.internal.WorkflowPath;
-import com.axonivy.utils.estimator.internal.model.CommonElement;
 import com.axonivy.utils.estimator.test.ProcessGraphHelper;
+import com.axonivy.utils.process.analyzer.internal.WorkflowPath;
+import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.Process;

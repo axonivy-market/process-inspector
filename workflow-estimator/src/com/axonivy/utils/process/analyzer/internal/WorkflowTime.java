@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator.internal;
+package com.axonivy.utils.process.analyzer.internal;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
@@ -16,10 +16,10 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.axonivy.utils.estimator.constant.UseCase;
-import com.axonivy.utils.estimator.internal.model.CommonElement;
-import com.axonivy.utils.estimator.internal.model.ProcessElement;
-import com.axonivy.utils.estimator.internal.model.TaskParallelGroup;
+import com.axonivy.utils.process.analyzer.constant.UseCase;
+import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
+import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
+import com.axonivy.utils.process.analyzer.internal.model.TaskParallelGroup;
 
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
@@ -137,7 +137,7 @@ public class WorkflowTime {
 	}
 	
 	private Duration getDurationByTaskScript(TaskConfig task, UseCase useCase) {
-		List<String> prefixs = new ArrayList<String>(Arrays.asList("WfEstimate.setEstimate"));
+		List<String> prefixs = new ArrayList<String>(Arrays.asList("APAConfig.setEstimate"));
 		if(useCase != null) {
 			prefixs.add("UseCase." + useCase.name());
 		}

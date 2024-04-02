@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-import com.axonivy.utils.estimator.helper.WorkflowEstimatorHelper;
+import com.axonivy.utils.process.analyzer.helper.ProcessAnalyzerHelper;
 
 import ch.ivyteam.ivy.bpm.engine.client.BpmClient;
 import ch.ivyteam.ivy.bpm.engine.client.ExecutionResult;
@@ -28,7 +28,7 @@ public class WorkflowEstimatorHelperTest {
 		ExecutionResult result = bpmClient.start().process(FLOW_EXAMPLE_COMMON_START).execute();
 		ITask startTask = result.workflow().executedTask();
 
-		BaseElement startElement = WorkflowEstimatorHelper.getBaseElementOf(startTask);
+		BaseElement startElement = ProcessAnalyzerHelper.getBaseElementOf(startTask);
 		assertNotNull(startElement);
 		assertEquals("start", startElement.getName());
 
@@ -37,7 +37,7 @@ public class WorkflowEstimatorHelperTest {
 		result = bpmClient.start().anyActiveTask(result).as().everybody().execute();
 		ITask taskA = result.workflow().executedTask();
 
-		BaseElement taskAElement = WorkflowEstimatorHelper.getBaseElementOf(taskA);
+		BaseElement taskAElement = ProcessAnalyzerHelper.getBaseElementOf(taskA);
 		assertNotNull(taskA);
 		assertEquals("TaskA", taskAElement.getName());
 	}
@@ -45,7 +45,7 @@ public class WorkflowEstimatorHelperTest {
 	@Test
 	void shouldGetBaseElementOfIsNull(BpmClient bpmClient) {
 
-		BaseElement startElement = WorkflowEstimatorHelper.getBaseElementOf(null);
+		BaseElement startElement = ProcessAnalyzerHelper.getBaseElementOf(null);
 		assertNull(startElement);
 	}
 }

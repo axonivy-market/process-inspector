@@ -6,7 +6,7 @@ import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.axonivy.utils.estimator.WorkflowEstimator;
+import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
 
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -26,7 +26,7 @@ public class FlowExampleLoopTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameNull() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
 		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 		
 		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(estimatedTasks));
@@ -34,7 +34,7 @@ public class FlowExampleLoopTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindAllTasksStartWithFlowNameNull() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
 		var estimatedTasks = workflowEstimator.findAllTasks(start);
 
 		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(estimatedTasks));
@@ -42,7 +42,7 @@ public class FlowExampleLoopTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameSuccess() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, "success");
+		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, "success");
 		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 
 		assertArrayEquals(Arrays.array("Task A"), getTaskNames(estimatedTasks));

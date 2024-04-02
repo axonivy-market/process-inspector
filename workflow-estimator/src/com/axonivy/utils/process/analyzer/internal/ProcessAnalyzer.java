@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator.internal;
+package com.axonivy.utils.process.analyzer.internal;
 
 import static java.util.Collections.emptyList;
 
@@ -13,12 +13,12 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.axonivy.utils.estimator.constant.UseCase;
-import com.axonivy.utils.estimator.internal.model.CommonElement;
-import com.axonivy.utils.estimator.internal.model.ProcessElement;
-import com.axonivy.utils.estimator.internal.model.TaskParallelGroup;
-import com.axonivy.utils.estimator.model.EstimatedElement;
-import com.axonivy.utils.estimator.model.EstimatedTask;
+import com.axonivy.utils.process.analyzer.constant.UseCase;
+import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
+import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
+import com.axonivy.utils.process.analyzer.internal.model.TaskParallelGroup;
+import com.axonivy.utils.process.analyzer.model.DetectedElement;
+import com.axonivy.utils.process.analyzer.model.DetectedTask;
 
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
@@ -29,11 +29,11 @@ import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 
 @SuppressWarnings("restriction")
-public abstract class AbstractWorkflow {
+public abstract class ProcessAnalyzer {
 
 	protected ProcessGraph processGraph;
 	
-	protected AbstractWorkflow() {
+	protected ProcessAnalyzer() {
 		this.processGraph = new ProcessGraph();
 	}
 
@@ -66,15 +66,15 @@ public abstract class AbstractWorkflow {
 		return processGraph.getStartTaskConfig(sequenceFlow);
 	}
 	
-	protected List<EstimatedElement> convertToEstimatedElements(List<ProcessElement> path, UseCase useCase) {
-		List<EstimatedElement> result = convertToEstimatedElements(path, useCase, new Date());
+	protected List<DetectedElement> convertToEstimatedElements(List<ProcessElement> path, UseCase useCase) {
+		List<DetectedElement> result = convertToEstimatedElements(path, useCase, new Date());
 		return result;
 	}
 	
-	private List<EstimatedElement> convertToEstimatedElements(List<ProcessElement> path, UseCase useCase, Date startedAt) {
+	private List<DetectedElement> convertToEstimatedElements(List<ProcessElement> path, UseCase useCase, Date startedAt) {
 
 		// convert to both Estimated Task and alternative
-		List<EstimatedElement> result = new ArrayList<>();		
+		List<DetectedElement> result = new ArrayList<>();		
 		
 		for(int i = 0; i < path.size(); i++) {
 			Date startAtTime = getEstimatedEndTimestamp(result, startedAt);
@@ -116,16 +116,16 @@ public abstract class AbstractWorkflow {
 		return result.stream().filter(item -> item != null).toList();		
 	}
 	
-	private List<EstimatedElement> convertToEstimatedElementFromTaskParallelGroup(TaskParallelGroup group, UseCase useCase, Date startedAt) {	
+	private List<DetectedElement> convertToEstimatedElementFromTaskParallelGroup(TaskParallelGroup group, UseCase useCase, Date startedAt) {	
 		WorkflowTime workflowTime = new WorkflowTime(getDurationOverrides());
 		Map<SequenceFlow, List<ProcessElement>> sortedInternalPath =  new LinkedHashMap<>();
 		sortedInternalPath.putAll(workflowTime.getInternalPath(group.getInternalPaths(), true));
 		sortedInternalPath.putAll(workflowTime.getInternalPath(group.getInternalPaths(), false));
 		
-		List<EstimatedElement> result = new ArrayList<>();
+		List<DetectedElement> result = new ArrayList<>();
 		for (Entry<SequenceFlow, List<ProcessElement>> entry : sortedInternalPath.entrySet()) {
 			var startTask = createStartTaskFromTaskSwitchGateway(entry.getKey(), startedAt, useCase);
-			var tasks = convertToEstimatedElements(entry.getValue(), useCase, ((EstimatedTask)startTask).calculateEstimatedEndTimestamp());
+			var tasks = convertToEstimatedElements(entry.getValue(), useCase, ((DetectedTask)startTask).calculateEstimatedEndTimestamp());
 			
 			result.add(startTask);
 			result.addAll(tasks);
@@ -134,18 +134,18 @@ public abstract class AbstractWorkflow {
 		return result;
 	}
 		
-	private Date getEstimatedEndTimestamp(List<EstimatedElement> estimatedElements, Date defaultAt) {
-		List<EstimatedTask> estimatedTasks = estimatedElements.stream()
-				.filter(item -> item instanceof EstimatedTask)
-				.map(EstimatedTask.class::cast)
+	private Date getEstimatedEndTimestamp(List<DetectedElement> estimatedElements, Date defaultAt) {
+		List<DetectedTask> estimatedTasks = estimatedElements.stream()
+				.filter(item -> item instanceof DetectedTask)
+				.map(DetectedTask.class::cast)
 				.toList();
 		int size =  estimatedTasks.size();
 		return size > 0 ? estimatedTasks.get(size - 1).calculateEstimatedEndTimestamp() : defaultAt;
 	}
 	
-	private EstimatedElement createStartTaskFromTaskSwitchGateway(SequenceFlow sequenceFlow, Date startedAt, UseCase useCase) {
+	private DetectedElement createStartTaskFromTaskSwitchGateway(SequenceFlow sequenceFlow, Date startedAt, UseCase useCase) {
 
-		EstimatedElement task = null;
+		DetectedElement task = null;
 		if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
 			TaskSwitchGateway taskSwitchGateway = (TaskSwitchGateway) sequenceFlow.getSource();
 			if (!isSystemTask(taskSwitchGateway)) {
@@ -156,9 +156,9 @@ public abstract class AbstractWorkflow {
 		return task;
 	}
 	
-	private EstimatedElement createEstimatedTask(TaskAndCaseModifier task, TaskConfig taskConfig, Date startedAt, UseCase useCase) {
+	private DetectedElement createEstimatedTask(TaskAndCaseModifier task, TaskConfig taskConfig, Date startedAt, UseCase useCase) {
 		WorkflowTime workflowTime = new WorkflowTime(getDurationOverrides());
-		EstimatedTask estimatedTask = new EstimatedTask();
+		DetectedTask estimatedTask = new DetectedTask();
 		
 		estimatedTask.setPid(processGraph.getTaskId(task, taskConfig));		
 		estimatedTask.setParentElementNames(getParentElementNames(task));
@@ -182,7 +182,7 @@ public abstract class AbstractWorkflow {
 	}
 	
 	private String getCustomInfoByCode(TaskConfig task) {
-		String wfEstimateCode = processGraph.getCodeLineByPrefix(task, "WfEstimate.setCustomInfo");		
+		String wfEstimateCode = processGraph.getCodeLineByPrefix(task, "APAConfig.setCustomInfo");		
 		String result = Optional.ofNullable(wfEstimateCode)
 				.filter(StringUtils::isNotEmpty)
 				.map(it -> StringUtils.substringBetween(it, "(\"", "\")"))

@@ -8,8 +8,8 @@ import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.axonivy.utils.estimator.WorkflowEstimator;
-import com.axonivy.utils.estimator.model.EstimatedTask;
+import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
+import com.axonivy.utils.process.analyzer.model.DetectedTask;
 
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -29,7 +29,7 @@ public class FlowSubProcessTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameNull() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
 		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
 		
 		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(estimatedTasks));
@@ -37,7 +37,7 @@ public class FlowSubProcessTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindAllTasksAtStartWithFlowNameNull() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
 		var estimatedTasks = workflowEstimator.findAllTasks(start);
 		
 		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(estimatedTasks));
@@ -45,10 +45,10 @@ public class FlowSubProcessTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindTaskParentNames() throws Exception {
-		var workflowEstimator = new WorkflowEstimator(process, null, null);
+		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
 		var estimatedTasks = workflowEstimator.findAllTasks(start);
 		var parentElementNames = estimatedTasks.stream().filter(item -> item.getTaskName().equals("Task A")).findFirst()
-				.map(EstimatedTask.class::cast).map(EstimatedTask::getParentElementNames)
+				.map(DetectedTask.class::cast).map(DetectedTask::getParentElementNames)
 				.orElse(emptyList());
 		
 		assertEquals(java.util.Arrays.asList("sub with two levels", "2nd level sub") , parentElementNames);

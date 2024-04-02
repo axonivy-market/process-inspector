@@ -1,6 +1,6 @@
-package com.axonivy.utils.estimator.model;
+package com.axonivy.utils.process.analyzer.model;
 
-public abstract class EstimatedElement {
+public abstract class DetectedElement {
 	private String pid;
 	private String taskName;
 	private String elementName;

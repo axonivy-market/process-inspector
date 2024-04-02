@@ -10,9 +10,9 @@
 	</properties>
 	<dependencies>
 		<dependency>
-			<groupId>com.axonivy.utils.estimator</groupId>
-			<artifactId>workflow-estimator</artifactId>
-			<version>${project.version}</version>
+			<groupId>com.axonivy.utils.process.analyzer</groupId>
+			<artifactId>process-analyzer</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
 			<type>iar</type>
 		</dependency>
 	</dependencies>

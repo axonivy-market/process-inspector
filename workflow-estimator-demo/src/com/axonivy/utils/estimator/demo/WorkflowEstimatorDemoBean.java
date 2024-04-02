@@ -13,12 +13,13 @@ import java.util.stream.Collectors;
 import javax.faces.event.AjaxBehaviorEvent;
 import org.primefaces.component.selectoneradio.SelectOneRadio;
 
-import com.axonivy.utils.estimator.WorkflowEstimator;
-import com.axonivy.utils.estimator.constant.UseCase;
 import com.axonivy.utils.estimator.demo.constant.FindType;
 import com.axonivy.utils.estimator.demo.helper.DateTimeHelper;
 import com.axonivy.utils.estimator.demo.model.Estimator;
-import com.axonivy.utils.estimator.model.EstimatedElement;
+import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
+import com.axonivy.utils.process.analyzer.constant.UseCase;
+import com.axonivy.utils.process.analyzer.model.DetectedElement;
+
 import ch.ivyteam.ivy.application.IProcessModelVersion;
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -104,17 +105,17 @@ public class WorkflowEstimatorDemoBean {
 		}
 	}
 	
-	public List<EstimatedElement> getEstimatedTask() throws Exception {
-		WorkflowEstimator workflowEstimator = createWorkflowEstimator(selectedEstimator);
+	public List<DetectedElement> getEstimatedTask() throws Exception {
+		AdvancedProcessAnalyzer workflowEstimator = createWorkflowEstimator(selectedEstimator);
 
 		long startTime = System.currentTimeMillis();
-		List<EstimatedElement> estimatedElements = null;
+		List<DetectedElement> estimatedElements = null;
 		if (FindType.ALL_TASK.equals(selectedEstimator.getFindType())) {
 			estimatedElements = workflowEstimator.findAllTasks(selectedEstimator.getStartElement()).stream()
-					.map(EstimatedElement.class::cast).toList();
+					.map(DetectedElement.class::cast).toList();
 		} else {
 			estimatedElements = workflowEstimator.findTasksOnPath(selectedEstimator.getStartElement()).stream()
-					.map(EstimatedElement.class::cast).toList();
+					.map(DetectedElement.class::cast).toList();
 		}
 
 		long executionTime = System.currentTimeMillis() - startTime;
@@ -124,7 +125,7 @@ public class WorkflowEstimatorDemoBean {
 	}
 
 	public Duration getEstimatedTaskCalculate() throws Exception{
-		WorkflowEstimator workflowEstimator = createWorkflowEstimator(selectedEstimator);
+		AdvancedProcessAnalyzer workflowEstimator = createWorkflowEstimator(selectedEstimator);
 		
 		Duration total = Duration.ZERO;
 		if(FindType.ALL_TASK.equals(selectedEstimator.getFindType())) {
@@ -135,8 +136,8 @@ public class WorkflowEstimatorDemoBean {
 		return total;
 	}
 
-	private WorkflowEstimator createWorkflowEstimator(Estimator estimator) {
-		WorkflowEstimator workflowEstimator = new WorkflowEstimator(selectedEstimator.getProcess(), selectedEstimator.getUseCase(), selectedEstimator.getFlowName());
+	private AdvancedProcessAnalyzer createWorkflowEstimator(Estimator estimator) {
+		AdvancedProcessAnalyzer workflowEstimator = new AdvancedProcessAnalyzer(selectedEstimator.getProcess(), selectedEstimator.getUseCase(), selectedEstimator.getFlowName());
 
 		HashMap<String, String> flowOverrides = getProcessFlowOverride(selectedEstimator);
 		workflowEstimator.setProcessFlowOverrides(flowOverrides);

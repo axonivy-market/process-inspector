@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator.internal.model;
+package com.axonivy.utils.process.analyzer.internal.model;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.value.PID;

@@ -174,11 +174,11 @@
         "task" : {
           "name" : "Task F",
           "code" : [
-            "import com.axonivy.utils.estimator.constant.UseCase;",
+            "import com.axonivy.utils.process.analyzer.constant.UseCase;",
             "import java.util.concurrent.TimeUnit;",
             "",
-            "WfEstimate.setEstimate(2,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
-            "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            "APAConfig.setEstimate(2,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
+            "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
           ]
         }
       },
@@ -197,11 +197,11 @@
         "task" : {
           "name" : "Task G",
           "code" : [
-            "import com.axonivy.utils.estimator.constant.UseCase;",
+            "import com.axonivy.utils.process.analyzer.constant.UseCase;",
             "import java.util.concurrent.TimeUnit;",
             "",
-            "WfEstimate.setEstimate(4,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
-            "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            "APAConfig.setEstimate(4,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
+            "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
           ]
         }
       },
@@ -220,11 +220,11 @@
         "task" : {
           "name" : "Task I",
           "code" : [
-            "import com.axonivy.utils.estimator.constant.UseCase;",
+            "import com.axonivy.utils.process.analyzer.constant.UseCase;",
             "import java.util.concurrent.TimeUnit;",
             "",
-            "WfEstimate.setEstimate(2,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
-            "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            "APAConfig.setEstimate(2,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
+            "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
           ]
         }
       },
@@ -243,11 +243,11 @@
         "task" : {
           "name" : "Task K",
           "code" : [
-            "import com.axonivy.utils.estimator.constant.UseCase;",
+            "import com.axonivy.utils.process.analyzer.constant.UseCase;",
             "import java.util.concurrent.TimeUnit;",
             "",
-            "WfEstimate.setEstimate(3,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
-            "WfEstimate.setEstimate(4,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            "APAConfig.setEstimate(3,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
+            "APAConfig.setEstimate(4,TimeUnit.HOURS,UseCase.BIGPROJECT);"
           ]
         }
       },
@@ -272,10 +272,10 @@
         "task" : {
           "name" : "Task E",
           "code" : [
-            "import com.axonivy.utils.estimator.constant.UseCase;",
+            "import com.axonivy.utils.process.analyzer.constant.UseCase;",
             "import java.util.concurrent.TimeUnit;",
             "",
-            "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
           ]
         }
       },
@@ -314,11 +314,11 @@
         "task" : {
           "name" : "Task H",
           "code" : [
-            "import com.axonivy.utils.estimator.constant.UseCase;",
+            "import com.axonivy.utils.process.analyzer.constant.UseCase;",
             "import java.util.concurrent.TimeUnit;",
             "",
-            "WfEstimate.setEstimate(2,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
-            "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            "APAConfig.setEstimate(2,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
+            "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
           ]
         }
       },
@@ -337,11 +337,11 @@
         "task" : {
           "name" : "Task M",
           "code" : [
-            "import com.axonivy.utils.estimator.constant.UseCase;",
+            "import com.axonivy.utils.process.analyzer.constant.UseCase;",
             "import java.util.concurrent.TimeUnit;",
             "",
-            "WfEstimate.setEstimate(3,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
-            "WfEstimate.setEstimate(4,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            "APAConfig.setEstimate(3,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
+            "APAConfig.setEstimate(4,TimeUnit.HOURS,UseCase.BIGPROJECT);"
           ]
         }
       },

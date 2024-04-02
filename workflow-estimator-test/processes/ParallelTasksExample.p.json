@@ -33,8 +33,8 @@
             "name" : "Task1A",
             "code" : [
               "import java.util.concurrent.TimeUnit;",
-              "import com.axonivy.utils.estimator.constant.UseCase;",
-              "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+              "import com.axonivy.utils.process.analyzer.constant.UseCase;",
+              "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
             ]
           }, {
             "id" : "TaskB",
@@ -116,8 +116,8 @@
             "name" : "Task3A",
             "code" : [
               "import java.util.concurrent.TimeUnit;",
-              "import com.axonivy.utils.estimator.constant.UseCase;",
-              "WfEstimate.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+              "import com.axonivy.utils.process.analyzer.constant.UseCase;",
+              "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
             ]
           } ],
         "output" : {
