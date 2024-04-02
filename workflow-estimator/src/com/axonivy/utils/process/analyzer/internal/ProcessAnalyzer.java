@@ -101,6 +101,7 @@ public abstract class ProcessAnalyzer {
 				SingleTaskCreator singleTask = (SingleTaskCreator)element.getElement();
 				var estimatedTask = createEstimatedTask(singleTask, singleTask.getTaskConfig(), startAtTime, useCase);
 				result.add(estimatedTask);
+				
 				continue;
 			}
 			
