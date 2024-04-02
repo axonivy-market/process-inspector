@@ -60,7 +60,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 */
 	public List<? extends DetectedElement> findAllTasks(BaseElement startAtElement) throws Exception {
 		List<ProcessElement> path = findPath(new CommonElement(startAtElement));
-		List<DetectedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
+		List<DetectedElement> estimatedTasks = convertToDetectedElements(path, useCase);
 		return estimatedTasks;
 	}
 	
@@ -72,7 +72,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	public List<? extends DetectedElement> findAllTasks(List<BaseElement> startAtElements) throws Exception {
 		CommonElement[] elements = startAtElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
 		List<ProcessElement> path = findPath(elements);
-		List<DetectedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
+		List<DetectedElement> estimatedTasks = convertToDetectedElements(path, useCase);
 		return estimatedTasks;
 	}
 
@@ -84,7 +84,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 */
 	public List<? extends DetectedElement> findTasksOnPath(BaseElement startAtElement) throws Exception {
 		List<ProcessElement> path = findPath(flowName, new CommonElement(startAtElement));
-		List<DetectedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
+		List<DetectedElement> estimatedTasks = convertToDetectedElements(path, useCase);
 		return estimatedTasks;
 	}
 	
@@ -96,7 +96,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	public List<? extends DetectedElement> findTasksOnPath(List<BaseElement> startAtElements) throws Exception {
 		ProcessElement[] elements = startAtElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
 		List<ProcessElement> path = findPath(flowName, elements);
-		List<DetectedElement> estimatedTasks = convertToEstimatedElements(path, useCase);
+		List<DetectedElement> estimatedTasks = convertToDetectedElements(path, useCase);
 		return estimatedTasks;
 	}
 	
