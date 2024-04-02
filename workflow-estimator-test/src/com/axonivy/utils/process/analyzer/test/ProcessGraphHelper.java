@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator.test;
+package com.axonivy.utils.process.analyzer.test;
 
 import static java.util.Collections.emptyList;
 

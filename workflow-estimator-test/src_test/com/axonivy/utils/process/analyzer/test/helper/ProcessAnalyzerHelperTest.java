@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator.test.helper;
+package com.axonivy.utils.process.analyzer.test.helper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -18,7 +18,7 @@ import ch.ivyteam.ivy.workflow.ITask;
 
 @IvyProcessTest
 @SuppressWarnings("restriction")
-public class WorkflowEstimatorHelperTest {
+public class ProcessAnalyzerHelperTest {
 	private static final BpmProcess FLOW_EXAMPLE_COMMON = BpmProcess.name("FlowExampleCommon");
 	private static final BpmElement FLOW_EXAMPLE_COMMON_START = FLOW_EXAMPLE_COMMON.elementName("start");
 	private static final BpmElement FLOW_EXAMPLE_COMMON_TASKA = FLOW_EXAMPLE_COMMON.elementName("TaskA");

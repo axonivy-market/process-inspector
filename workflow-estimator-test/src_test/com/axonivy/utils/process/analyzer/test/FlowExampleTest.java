@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator.test;
+package com.axonivy.utils.process.analyzer.test;
 
 import java.util.List;
 

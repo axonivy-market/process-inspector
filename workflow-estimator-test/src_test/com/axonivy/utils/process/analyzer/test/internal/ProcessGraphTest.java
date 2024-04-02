@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator.test.internal;
+package com.axonivy.utils.process.analyzer.test.internal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.axonivy.utils.estimator.test.ProcessGraphHelper;
 import com.axonivy.utils.process.analyzer.internal.ProcessGraph;
+import com.axonivy.utils.process.analyzer.test.ProcessGraphHelper;
 
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.Process;

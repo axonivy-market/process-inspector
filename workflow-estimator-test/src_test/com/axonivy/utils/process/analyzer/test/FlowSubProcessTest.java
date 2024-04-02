@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator.test;
+package com.axonivy.utils.process.analyzer.test;
 
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
 import com.axonivy.utils.process.analyzer.model.DetectedTask;
-
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.BaseElement;
 
@@ -29,25 +28,25 @@ public class FlowSubProcessTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameNull() throws Exception {
-		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
-		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
+		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
+		var detectedTasks = processAnalyzer.findTasksOnPath(start);
 		
-		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(estimatedTasks));
+		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(detectedTasks));
 	}
 	
 	@Test
 	void shouldFindAllTasksAtStartWithFlowNameNull() throws Exception {
-		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
-		var estimatedTasks = workflowEstimator.findAllTasks(start);
+		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
+		var detectedTasks = processAnalyzer.findAllTasks(start);
 		
-		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(estimatedTasks));
+		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(detectedTasks));
 	}
 	
 	@Test
 	void shouldFindTaskParentNames() throws Exception {
-		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
-		var estimatedTasks = workflowEstimator.findAllTasks(start);
-		var parentElementNames = estimatedTasks.stream().filter(item -> item.getTaskName().equals("Task A")).findFirst()
+		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
+		var detectedTasks = processAnalyzer.findAllTasks(start);
+		var parentElementNames = detectedTasks.stream().filter(item -> item.getTaskName().equals("Task A")).findFirst()
 				.map(DetectedTask.class::cast).map(DetectedTask::getParentElementNames)
 				.orElse(emptyList());
 		

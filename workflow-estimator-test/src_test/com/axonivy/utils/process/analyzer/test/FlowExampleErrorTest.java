@@ -1,4 +1,4 @@
-package com.axonivy.utils.estimator.test;
+package com.axonivy.utils.process.analyzer.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
-
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.BaseElement;
 
@@ -26,19 +25,19 @@ public class FlowExampleErrorTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameSuccess() throws Exception {
-		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, "success");
-		var estimatedTasks = workflowEstimator.findTasksOnPath(start);
+		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, "success");
+		var detectedTasks = processAnalyzer.findTasksOnPath(start);
 
-		assertEquals(1, estimatedTasks.size());
-		assertEquals("Task A", getTaskNames(estimatedTasks)[0]);
+		assertEquals(1, detectedTasks.size());
+		assertEquals("Task A", getTaskNames(detectedTasks)[0]);
 	}
 	
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameNull()  {
-		var workflowEstimator = new AdvancedProcessAnalyzer(process, null, null);
+		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
 		
 		Exception exception = assertThrows(Exception.class, () -> {
-			workflowEstimator.findTasksOnPath(start);
+			processAnalyzer.findTasksOnPath(start);
 	    });
 
 	    String expectedMessage = "Not found path";
