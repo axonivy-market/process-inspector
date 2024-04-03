@@ -1,4 +1,0 @@
-DemoData #class
-com.axonivy.utils.estimator.demo #namespace
-bean com.axonivy.utils.estimator.demo.WorkflowEstimatorDemoBean #field
-bean PERSISTENT #fieldModifier

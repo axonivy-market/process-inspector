@@ -2,7 +2,7 @@
   "$schema" : "https://json-schema.axonivy.com/process/11.2.2/process.json",
   "id" : "18E180F943F963D5",
   "config" : {
-    "data" : "com.axonivy.utils.estimator.demo.DemoData"
+    "data" : "com.axonivy.utils.process.analyzer.demo.DemoData"
   },
   "elements" : [ {
       "id" : "f0",
@@ -11,7 +11,7 @@
       "config" : {
         "signature" : "start",
         "request" : {
-          "name" : "WorkflowEstimatorDemo"
+          "name" : "ProcessAnalyzerDemo"
         }
       },
       "visual" : {
@@ -31,10 +31,10 @@
       "type" : "DialogCall",
       "name" : "Table Show",
       "config" : {
-        "dialog" : "com.axonivy.utils.estimator.WorkflowEstimatorTable:start(com.axonivy.utils.estimator.demo.WorkflowEstimatorDemoBean)",
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.ProcessAnalyzerTable:start(com.axonivy.utils.process.analyzer.demo.ProcessAnalyzerBean)",
         "call" : {
           "map" : {
-            "param.workflowEstimatorDemoBean" : "in.bean"
+            "param.processAnalyzerBean" : "in.bean"
           }
         }
       },
@@ -51,11 +51,11 @@
       "config" : {
         "output" : {
           "code" : [
-            "import com.axonivy.utils.estimator.demo.model.Estimator;",
-            "import com.axonivy.utils.estimator.demo.WorkflowEstimatorDemoBean;",
+            "import com.axonivy.utils.process.analyzer.demo.model.Analyzer;",
+            "import com.axonivy.utils.process.analyzer.demo.ProcessAnalyzerBean;",
             "",
-            "in.bean = new WorkflowEstimatorDemoBean();",
-            "in.bean.selectedEstimator = new Estimator();"
+            "in.bean = new ProcessAnalyzerBean();",
+            "in.bean.selectedAnalyzer = new Analyzer();"
           ]
         }
       },

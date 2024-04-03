@@ -2,7 +2,7 @@
   "$schema" : "https://json-schema.axonivy.com/process/11.2.2/process.json",
   "id" : "18E31D6BC0E4B857",
   "config" : {
-    "data" : "com.axonivy.utils.estimator.demo.Data"
+    "data" : "com.axonivy.utils.process.analyzer.demo.Data"
   },
   "elements" : [ {
       "id" : "f0",
@@ -70,7 +70,7 @@
               "type" : "UserTask",
               "name" : "Task A",
               "config" : {
-                "dialog" : "com.axonivy.utils.estimator.Dummy:start()",
+                "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
                 "task" : {
                   "name" : "Task A",
                   "code" : [
@@ -113,7 +113,7 @@
                   "type" : "UserTask",
                   "name" : "Task B",
                   "config" : {
-                    "dialog" : "com.axonivy.utils.estimator.Dummy:start()",
+                    "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
                     "task" : {
                       "code" : [
                         "import java.util.concurrent.TimeUnit;",
@@ -176,7 +176,7 @@
           "type" : "UserTask",
           "name" : "Task C",
           "config" : {
-            "dialog" : "com.axonivy.utils.estimator.Dummy:start()",
+            "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
             "task" : {
               "code" : [
                 "import java.util.concurrent.TimeUnit;",

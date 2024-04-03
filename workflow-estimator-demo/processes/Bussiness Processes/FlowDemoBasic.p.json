@@ -2,7 +2,7 @@
   "$schema" : "https://json-schema.axonivy.com/process/11.2.2/process.json",
   "id" : "18E180A64355D4D9",
   "config" : {
-    "data" : "com.axonivy.utils.estimator.demo.Data",
+    "data" : "com.axonivy.utils.process.analyzer.demo.Data",
     "permissions" : {
       "view" : {
         "allowed" : false
@@ -33,7 +33,7 @@
       "type" : "UserTask",
       "name" : "Task A",
       "config" : {
-        "dialog" : "com.axonivy.utils.estimator.Dummy:start()",
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
         "task" : {
           "name" : "Task A",
           "code" : [
@@ -101,7 +101,7 @@
       "type" : "UserTask",
       "name" : "Task C",
       "config" : {
-        "dialog" : "com.axonivy.utils.estimator.Dummy:start()",
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
         "task" : {
           "name" : "Task C",
           "code" : [
@@ -145,7 +145,7 @@
       "type" : "UserTask",
       "name" : "Task B",
       "config" : {
-        "dialog" : "com.axonivy.utils.estimator.Dummy:start()",
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
         "task" : {
           "name" : "Task B",
           "code" : [
@@ -181,7 +181,7 @@
       "type" : "UserTask",
       "name" : "Task D",
       "config" : {
-        "dialog" : "com.axonivy.utils.estimator.Dummy:start()",
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
         "task" : {
           "name" : "Task D",
           "code" : [
@@ -236,7 +236,7 @@
       "type" : "UserTask",
       "name" : "Task K",
       "config" : {
-        "dialog" : "com.axonivy.utils.estimator.Dummy:start()",
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
         "task" : {
           "name" : "Task K",
           "code" : [
@@ -258,7 +258,7 @@
       "type" : "UserTask",
       "name" : "Task G",
       "config" : {
-        "dialog" : "com.axonivy.utils.estimator.Dummy:start()",
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
         "task" : {
           "name" : "Task G",
           "code" : [
@@ -317,7 +317,7 @@
       "type" : "UserTask",
       "name" : "Task F",
       "config" : {
-        "dialog" : "com.axonivy.utils.estimator.Dummy:start()",
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
         "task" : {
           "name" : "Task F"
         }

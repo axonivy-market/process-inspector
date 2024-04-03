@@ -1,4 +1,0 @@
-WorkflowEstimatorTableData #class
-com.axonivy.utils.estimator.WorkflowEstimatorTable #namespace
-workflowEstimatorDemoBean com.axonivy.utils.estimator.demo.WorkflowEstimatorDemoBean #field
-workflowEstimatorDemoBean PERSISTENT #fieldModifier

@@ -1,0 +1,4 @@
+ProcessAnalyzerTableData #class
+com.axonivy.utils.process.analyzer.demo.ProcessAnalyzerTable #namespace
+processAnalyzerBean com.axonivy.utils.process.analyzer.demo.ProcessAnalyzerBean #field
+processAnalyzerBean PERSISTENT #fieldModifier
