@@ -1,6 +1,7 @@
 package com.axonivy.utils.process.analyzer.internal;
 
 import static java.util.Collections.emptyList;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.axonivy.utils.process.analyzer.constant.UseCase;
@@ -57,27 +59,23 @@ public abstract class ProcessAnalyzer {
 		return workflowTime.calculateTotalDuration(path, useCase);
 	}
 	
-	protected boolean isSystemTask(TaskAndCaseModifier task) {		
-		return task.getAllTaskConfigs().stream().anyMatch(it -> "SYSTEM".equals(it.getActivator().getName()));
-	}
-	
-	
 	protected TaskConfig getStartTaskConfigFromTaskSwitchGateway(SequenceFlow sequenceFlow) {
 		return processGraph.getStartTaskConfig(sequenceFlow);
 	}
 	
-	protected List<DetectedElement> convertToEstimatedElements(List<ProcessElement> path, UseCase useCase) {
-		List<DetectedElement> result = convertToEstimatedElements(path, useCase, new Date());
+	protected List<DetectedElement> convertToDetectedElements(List<ProcessElement> path, UseCase useCase) {
+		List<DetectedElement> result = convertToDetectedElements(path, useCase, new Date());
 		return result;
 	}
 	
-	private List<DetectedElement> convertToEstimatedElements(List<ProcessElement> path, UseCase useCase, Date startedAt) {
+	private List<DetectedElement> convertToDetectedElements(List<ProcessElement> path, UseCase useCase, Date startedAt) {
 
 		// convert to both Estimated Task and alternative
 		List<DetectedElement> result = new ArrayList<>();		
+		Date startAtTime = getEndTimestamp(result, startedAt);
 		
 		for(int i = 0; i < path.size(); i++) {
-			Date startAtTime = getEstimatedEndTimestamp(result, startedAt);
+			
 			ProcessElement element = path.get(i);
 		
 			// CommonElement(RequestStart)
@@ -85,13 +83,16 @@ public abstract class ProcessAnalyzer {
 				continue;
 			}
 			
-			if (element.getElement()instanceof TaskAndCaseModifier && isSystemTask((TaskAndCaseModifier) element.getElement())) {
+			if (element.getElement()instanceof TaskAndCaseModifier && processGraph.isSystemTask((TaskAndCaseModifier) element.getElement())) {
 				continue;
 			}
 			
 			if (element instanceof TaskParallelGroup) {
-				var tasks = convertToEstimatedElementFromTaskParallelGroup((TaskParallelGroup) element, useCase, startAtTime);
-				result.addAll(tasks);
+				var tasks = convertToDetectedElementFromTaskParallelGroup((TaskParallelGroup) element, useCase, startAtTime);
+				if (isNotEmpty(tasks)) {
+					result.addAll(tasks);
+					startAtTime = getMaxEndTimestamp(result);
+				}
 				continue;
 			}
 			
@@ -107,7 +108,8 @@ public abstract class ProcessAnalyzer {
 				SequenceFlow sequenceFlow = (SequenceFlow) element.getElement();
 				if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
 					var startTask = createStartTaskFromTaskSwitchGateway(sequenceFlow, startAtTime, useCase);
-					result.add(startTask);
+					result.add(startTask);					
+					startAtTime = getEndTimestamp(result, startedAt);
 					continue;
 				}
 			}
@@ -116,7 +118,7 @@ public abstract class ProcessAnalyzer {
 		return result.stream().filter(item -> item != null).toList();		
 	}
 	
-	private List<DetectedElement> convertToEstimatedElementFromTaskParallelGroup(TaskParallelGroup group, UseCase useCase, Date startedAt) {	
+	private List<DetectedElement> convertToDetectedElementFromTaskParallelGroup(TaskParallelGroup group, UseCase useCase, Date startedAt) {	
 		WorkflowTime workflowTime = new WorkflowTime(getDurationOverrides());
 		Map<SequenceFlow, List<ProcessElement>> sortedInternalPath =  new LinkedHashMap<>();
 		sortedInternalPath.putAll(workflowTime.getInternalPath(group.getInternalPaths(), true));
@@ -125,7 +127,7 @@ public abstract class ProcessAnalyzer {
 		List<DetectedElement> result = new ArrayList<>();
 		for (Entry<SequenceFlow, List<ProcessElement>> entry : sortedInternalPath.entrySet()) {
 			var startTask = createStartTaskFromTaskSwitchGateway(entry.getKey(), startedAt, useCase);
-			var tasks = convertToEstimatedElements(entry.getValue(), useCase, ((DetectedTask)startTask).calculateEstimatedEndTimestamp());
+			var tasks = convertToDetectedElements(entry.getValue(), useCase, ((DetectedTask)startTask).calculateEstimatedEndTimestamp());
 			
 			result.add(startTask);
 			result.addAll(tasks);
@@ -134,13 +136,24 @@ public abstract class ProcessAnalyzer {
 		return result;
 	}
 		
-	private Date getEstimatedEndTimestamp(List<DetectedElement> estimatedElements, Date defaultAt) {
-		List<DetectedTask> estimatedTasks = estimatedElements.stream()
+	private Date getEndTimestamp(List<DetectedElement> detectedElements, Date defaultAt) {
+		List<DetectedTask> detectedTasks = detectedElements.stream()
 				.filter(item -> item instanceof DetectedTask)
 				.map(DetectedTask.class::cast)
 				.toList();
-		int size =  estimatedTasks.size();
-		return size > 0 ? estimatedTasks.get(size - 1).calculateEstimatedEndTimestamp() : defaultAt;
+		int size =  detectedTasks.size();
+		return size > 0 ? detectedTasks.get(size - 1).calculateEstimatedEndTimestamp() : defaultAt;
+	}
+	
+	private Date getMaxEndTimestamp(List<DetectedElement> detectedElements) {
+		Date maxEndTimeStamp = detectedElements.stream()
+				.filter(item -> item instanceof DetectedTask == true)
+				.map(DetectedTask.class::cast)
+				.map(DetectedTask::calculateEstimatedEndTimestamp)				
+				.max(Date::compareTo)
+				.orElse(null);
+				
+		return maxEndTimeStamp;
 	}
 	
 	private DetectedElement createStartTaskFromTaskSwitchGateway(SequenceFlow sequenceFlow, Date startedAt, UseCase useCase) {
@@ -148,7 +161,7 @@ public abstract class ProcessAnalyzer {
 		DetectedElement task = null;
 		if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
 			TaskSwitchGateway taskSwitchGateway = (TaskSwitchGateway) sequenceFlow.getSource();
-			if (!isSystemTask(taskSwitchGateway)) {
+			if (!processGraph.isSystemTask(taskSwitchGateway)) {
 				TaskConfig startTask = getStartTaskConfigFromTaskSwitchGateway(sequenceFlow);
 				task = createEstimatedTask((TaskAndCaseModifier) taskSwitchGateway, startTask, startedAt, useCase);
 			}

@@ -205,15 +205,27 @@
       "config" : {
         "tasks" : [ {
             "id" : "TaskA",
-            "name" : "Task1A"
+            "name" : "Task1A",
+            "code" : [
+              "import java.util.concurrent.TimeUnit;",
+              "import com.axonivy.utils.process.analyzer.constant.UseCase;",
+              "",
+              "APAConfig.setEstimate(1,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            ]
           }, {
             "id" : "TaskB",
-            "name" : "Task1B"
+            "name" : "Task1B",
+            "code" : [
+              "import java.util.concurrent.TimeUnit;",
+              "import com.axonivy.utils.process.analyzer.constant.UseCase;",
+              "",
+              "APAConfig.setEstimate(2,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            ]
           } ]
       },
       "visual" : {
         "at" : { "x" : 560, "y" : 376 },
-        "labelOffset" : { "x" : -16, "y" : -32 }
+        "labelOffset" : { "x" : -16, "y" : -16 }
       },
       "connect" : [
         { "id" : "f27", "to" : "f23", "via" : [ { "x" : 560, "y" : 320 } ], "condition" : "ivp==\"TaskA.ivp\"" },

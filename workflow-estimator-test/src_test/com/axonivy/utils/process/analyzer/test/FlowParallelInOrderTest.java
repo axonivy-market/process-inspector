@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Duration;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Stream;
 
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
@@ -11,6 +14,8 @@ import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
 import com.axonivy.utils.process.analyzer.constant.UseCase;
+import com.axonivy.utils.process.analyzer.model.DetectedTask;
+
 import ch.ivyteam.ivy.environment.IvyTest;
 
 @IvyTest
@@ -28,11 +33,20 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 	void shouldFindAllTasksAtStart() throws Exception {
 		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
 		var start = ProcessGraphHelper.findByElementName(process, "start");
-		var detectedTasks = processAnalyzer.findAllTasks(start);
+		List<DetectedTask> detectedTasks = processAnalyzer.findAllTasks(start).stream().map(DetectedTask.class::cast).toList();
 
 		var expected = Arrays.array("Task 1A", "Task A", "Task B", "Task 1B",  "Task C", "Task D");
 		var taskNames = getTaskNames(detectedTasks);
 		assertArrayEquals(expected, taskNames);
+		
+		DetectedTask taskD = detectedTasks.stream().filter(it -> it.getTaskName().equals("Task D")).findFirst().orElse(null);
+		DetectedTask taskB = detectedTasks.stream().filter(it -> it.getTaskName().equals("Task B")).findFirst().orElse(null);
+		DetectedTask taskC = detectedTasks.stream().filter(it -> it.getTaskName().equals("Task C")).findFirst().orElse(null);
+		Date maxTimeFromBC = Stream.of(taskB.calculateEstimatedEndTimestamp(), taskC.calculateEstimatedEndTimestamp())
+				.max(Date::compareTo)
+				.orElse(null);
+		
+		assertEquals(maxTimeFromBC.getTime(), taskD.getEstimatedStartTimestamp().getTime());	
 	}
 	
 	@Test

@@ -62,7 +62,7 @@
 				<artifactId>maven-release-plugin</artifactId>
 				<version>3.0.0-M4</version>
 				<configuration>
-					<tagNameFormat>oauth-v@{project.version}</tagNameFormat>
+					<tagNameFormat>process-analyzer-v@{project.version}</tagNameFormat>
 				</configuration>
 			</plugin>
 		</plugins>
