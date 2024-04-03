@@ -16,6 +16,8 @@ import com.axonivy.utils.process.analyzer.model.DetectedElement;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.Process;
+import ch.ivyteam.ivy.workflow.ICase;
+import ch.ivyteam.ivy.workflow.ITask;
 
 @SuppressWarnings("restriction")
 public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
@@ -65,6 +67,20 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	}
 	
 	/**
+	 *  Return a list of all tasks in the process which can be reached from active case.
+	 * @param icase - Ivy Case which should be analyzed.
+	 * @return
+	 * @throws Exception
+	 */
+	public List<? extends DetectedElement> findAllTasks(ICase icase) throws Exception {		
+		List<ITask> tasks = getCaseITasks(icase);
+		ProcessElement[] elements = convertToProcessElement(tasks).stream().toArray(CommonElement[]::new);
+		List<ProcessElement> path = findPath(elements);
+		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase);
+		return detectedTasks;
+	}
+	
+	/**
 	 *  Return a list of all tasks in the process which can be reached from the starting element.
 	 * @param startAtElements - Elements where we start traversing the process. In case of parallel tasks, the list will contain multiple objects.
 	 * @return
@@ -102,6 +118,20 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	}
 	
 	/**
+	 * Return a list of all tasks which are created when process follows the tagged flow. Uses the flow name set in the constructor.
+	 * @param icase - Ivy Case which should be analyzed.
+	 * @return
+	 * @throws Exception
+	 */
+	public List<? extends DetectedElement> findTasksOnPath(ICase icase) throws Exception {		
+		List<ITask> tasks = getCaseITasks(icase);
+		ProcessElement[] elements = convertToProcessElement(tasks).stream().toArray(CommonElement[]::new);
+		List<ProcessElement> path = findPath(flowName, elements);
+		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase);
+		return detectedTasks;
+	}
+	
+	/**
 	 * This method can be used to calculate expected duration from a starting point in a process until all task are done and end of process is reached.
 	 * It will summarize duration of all tasks on the path. In case of parallel process flows, it will always use the critical path (which means path with longer duration).
 	 * @param startElement - Element where we start traversing the process
@@ -132,6 +162,22 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 		return total;
 	}
 
+	/** 
+	 * @param startElement - Elements where we start traversing the process. In case of parallel tasks, the list will contain multiple objects. 
+	 * @param icase - Ivy Case which should be analyzed.
+	 * @return
+	 * @throws Exception
+	 */
+	public Duration calculateEstimatedDuration(ICase icase) throws Exception {
+		List<ITask> tasks = getCaseITasks(icase);
+		ProcessElement[] elements = convertToProcessElement(tasks).stream().toArray(CommonElement[]::new);
+		List<ProcessElement> path = isNotEmpty(flowName) ? findPath(flowName, elements) : findPath(elements);
+		
+		Duration total = calculateTotalDuration(path, useCase);
+		
+		return total;
+	}
+	
 	/**
 	 * This method can be used to override configured path taken after an alternative gateway.
 	 * @param processFlowOverrides
