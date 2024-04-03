@@ -1,6 +1,0 @@
-EstimatorSelectionData #class
-com.axonivy.utils.estimator.component.EstimatorSelection #namespace
-workflowEstimatorDemoBean com.axonivy.utils.estimator.demo.WorkflowEstimatorDemoBean #field
-workflowEstimatorDemoBean PERSISTENT #fieldModifier
-event javax.faces.event.AjaxBehaviorEvent #field
-event PERSISTENT #fieldModifier

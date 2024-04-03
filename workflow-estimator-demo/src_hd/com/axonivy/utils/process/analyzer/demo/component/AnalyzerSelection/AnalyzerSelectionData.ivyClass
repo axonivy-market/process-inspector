@@ -1,0 +1,6 @@
+AnalyzerSelectionData #class
+com.axonivy.utils.process.analyzer.demo.component.AnalyzerSelection #namespace
+processAnalyzerBean com.axonivy.utils.process.analyzer.demo.ProcessAnalyzerBean #field
+processAnalyzerBean PERSISTENT #fieldModifier
+event javax.faces.event.AjaxBehaviorEvent #field
+event PERSISTENT #fieldModifier
