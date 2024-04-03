@@ -65,6 +65,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	}
 	
 	/**
+	 * Return a list of all tasks in the process which can be reached from the starting element.
 	 * @param startAtElements - Elements where we start traversing the process. In case of parallel tasks, the list will contain multiple objects.
 	 * @return
 	 * @throws Exception

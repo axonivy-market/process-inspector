@@ -49,6 +49,8 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 		assertEquals(maxTimeFromBC.getTime(), taskD.getEstimatedStartTimestamp().getTime());	
 	}
 	
+	
+	
 	@Test
 	void shouldFindAllTasksAtStart2() throws Exception {
 		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
