@@ -69,7 +69,7 @@ public abstract class ProcessAnalyzer {
 	
 	private List<DetectedElement> convertToDetectedElements(List<ProcessElement> path, UseCase useCase, Date startedAt) {
 
-		// convert to both Estimated Task and alternative
+		// convert to both detected task and alternative
 		List<DetectedElement> result = new ArrayList<>();		
 		Date startAtTime = getEndTimestamp(result, startedAt);
 		
@@ -98,8 +98,8 @@ public abstract class ProcessAnalyzer {
 			// CommonElement(SingleTaskCreator)
 			if (element.getElement() instanceof SingleTaskCreator) {
 				SingleTaskCreator singleTask = (SingleTaskCreator)element.getElement();
-				var estimatedTask = createEstimatedTask(singleTask, singleTask.getTaskConfig(), startAtTime, useCase);
-				result.add(estimatedTask);
+				var detectedTask = createDetectedTask(singleTask, singleTask.getTaskConfig(), startAtTime, useCase);
+				result.add(detectedTask);
 				continue;
 			}
 			
@@ -162,27 +162,27 @@ public abstract class ProcessAnalyzer {
 			TaskSwitchGateway taskSwitchGateway = (TaskSwitchGateway) sequenceFlow.getSource();
 			if (!processGraph.isSystemTask(taskSwitchGateway)) {
 				TaskConfig startTask = getStartTaskConfigFromTaskSwitchGateway(sequenceFlow);
-				task = createEstimatedTask((TaskAndCaseModifier) taskSwitchGateway, startTask, startedAt, useCase);
+				task = createDetectedTask((TaskAndCaseModifier) taskSwitchGateway, startTask, startedAt, useCase);
 			}
 		}
 		return task;
 	}
 	
-	private DetectedElement createEstimatedTask(TaskAndCaseModifier task, TaskConfig taskConfig, Date startedAt, UseCase useCase) {
+	private DetectedElement createDetectedTask(TaskAndCaseModifier task, TaskConfig taskConfig, Date startedAt, UseCase useCase) {
 		WorkflowTime workflowTime = new WorkflowTime(getDurationOverrides());
-		DetectedTask estimatedTask = new DetectedTask();
+		DetectedTask detectedTask = new DetectedTask();
 		
-		estimatedTask.setPid(processGraph.getTaskId(task, taskConfig));		
-		estimatedTask.setParentElementNames(getParentElementNames(task));
-		estimatedTask.setTaskName(taskConfig.getName().getRawMacro());
-		estimatedTask.setElementName(task.getName());
+		detectedTask.setPid(processGraph.getTaskId(task, taskConfig));		
+		detectedTask.setParentElementNames(getParentElementNames(task));
+		detectedTask.setTaskName(taskConfig.getName().getRawMacro());
+		detectedTask.setElementName(task.getName());
 		Duration estimatedDuration = workflowTime.getDuration(task, taskConfig, useCase);				
-		estimatedTask.setEstimatedDuration(estimatedDuration);
-		estimatedTask.setEstimatedStartTimestamp(startedAt);		
+		detectedTask.setEstimatedDuration(estimatedDuration);
+		detectedTask.setEstimatedStartTimestamp(startedAt);		
 		String customerInfo = getCustomInfoByCode(taskConfig);
-		estimatedTask.setCustomInfo(customerInfo);		
+		detectedTask.setCustomInfo(customerInfo);		
 		
-		return estimatedTask;
+		return detectedTask;
 	}
 	
 	private List<String> getParentElementNames(TaskAndCaseModifier task){

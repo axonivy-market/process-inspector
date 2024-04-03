@@ -66,7 +66,7 @@ public class WorkflowTime {
 	
 	private Duration calculateTotalDuration(List<ProcessElement> path, UseCase useCase, Map<String, Duration> durationOverrides) {
 
-		// convert to both Estimated Task and alternative
+		// convert to both detected task and alternative
 		List<Duration> totalWithEnd = new ArrayList<>();		
 		Duration total = Duration.ZERO;
 				
