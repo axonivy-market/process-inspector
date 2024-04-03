@@ -15,6 +15,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 import com.axonivy.utils.process.analyzer.constant.UseCase;
+import com.axonivy.utils.process.analyzer.helper.ProcessAnalyzerHelper;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
 import com.axonivy.utils.process.analyzer.internal.model.TaskParallelGroup;
@@ -28,10 +29,13 @@ import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
+import ch.ivyteam.ivy.workflow.ICase;
+import ch.ivyteam.ivy.workflow.ITask;
+import ch.ivyteam.ivy.workflow.TaskState;
 
 @SuppressWarnings("restriction")
 public abstract class ProcessAnalyzer {
-
+	private static final List<TaskState> OPEN_TASK_STATES = List.of(TaskState.SUSPENDED, TaskState.PARKED, TaskState.RESUMED);
 	protected ProcessGraph processGraph;
 	
 	protected ProcessAnalyzer() {
@@ -65,6 +69,25 @@ public abstract class ProcessAnalyzer {
 	protected List<DetectedElement> convertToDetectedElements(List<ProcessElement> path, UseCase useCase) {
 		List<DetectedElement> result = convertToDetectedElements(path, useCase, new Date());
 		return result;
+	}
+	
+	protected List<ProcessElement> convertToProcessElement(List<ITask> tasks) {
+		List<CommonElement> elements = tasks.stream()
+				.map(ProcessAnalyzerHelper::getBaseElementOf)
+				.map(CommonElement::new)
+				.distinct()
+				.toList();
+
+		List<ProcessElement> result = new ArrayList<>();
+		result.addAll(elements);
+		
+		return result;
+	}
+	
+	protected List<ITask> getCaseITasks(ICase icase) {
+		List<ITask> tasks = icase.tasks().all().stream().filter(task -> OPEN_TASK_STATES.contains(task.getState())).toList();	
+
+		return tasks;
 	}
 	
 	private List<DetectedElement> convertToDetectedElements(List<ProcessElement> path, UseCase useCase, Date startedAt) {

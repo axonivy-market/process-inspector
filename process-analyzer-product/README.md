@@ -62,7 +62,7 @@ In the project, you only add the dependency in your pom.xml and call public APIs
 	 */
 	public AdvancedProcessAnalyzer setDurationOverrides(HashMap<String, Duration> durationOverrides)
 ``` 
-**4. You can call `findAllTasks`, `findTasksOnPath`, `calculateEstimatedDuration` to analysis your process.**
+**4. You can call `findAllTasks`, `findTasksOnPath`, `calculateEstimatedDuration` to analyze your process.**
 ```java
 	/**
 	 * Return a list of all tasks in the process which can be reached from the starting element.
