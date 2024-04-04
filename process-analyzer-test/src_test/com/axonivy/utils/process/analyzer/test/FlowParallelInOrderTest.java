@@ -104,4 +104,31 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 		Duration duration = processAnalyzer.calculateEstimatedDuration(start2);
 		assertEquals(15, duration.toHours());
 	}
+	
+	@Test
+	void shouldFindTasksOnPathAtTaskBAndTaskC() throws Exception {
+		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
+		var startB = ProcessGraphHelper.findByElementId(process, "f6");
+		var startC = ProcessGraphHelper.findByElementId(process, "f8");
+		
+		var detectedTasks = processAnalyzer.findTasksOnPath(List.of(startB, startC));		
+		
+		var expected = Arrays.array("Task B", "Task C", "Task D");
+		var taskNames = getTaskNames(detectedTasks);
+		assertArrayEquals(expected, taskNames);
+	}
+	
+	@Test
+	void shouldFindTasksOnPathAtTaskFAndTaskEAndTaskG() throws Exception {
+		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
+		var startF = ProcessGraphHelper.findByElementId(process, "f19");
+		var startE = ProcessGraphHelper.findByElementId(process, "f33");
+		var startG = ProcessGraphHelper.findByElementId(process, "f20");
+		
+		var detectedTasks = processAnalyzer.findTasksOnPath(List.of(startF, startE, startG));		
+		
+		var expected = Arrays.array("Task G", "Task K", "Task M", "Task I", "Task F", "Task H", "Task E", "Task I");
+		var taskNames = getTaskNames(detectedTasks);
+		assertArrayEquals(expected, taskNames);
+	}
 }

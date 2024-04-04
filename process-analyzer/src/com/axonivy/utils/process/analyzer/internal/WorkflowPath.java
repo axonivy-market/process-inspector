@@ -7,9 +7,11 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -60,15 +62,46 @@ public class WorkflowPath {
 	}
 	
 	private List<ProcessElement> findPath(List<ProcessElement> froms, String flowName, FindType findType, List<ProcessElement> previousElements) throws Exception {
-		List<ProcessElement> result = new ArrayList<>();
+		Map<ProcessElement, List<ProcessElement>>  result = new LinkedHashMap<>();
 		for(ProcessElement from : froms) {
-			var path = findPath(from, flowName, findType, emptyList());
-			result.addAll(path);
+			List<ProcessElement> path = findPath(from, flowName, findType, emptyList());
+			result.put(from, path);
 		}
-				
-		return result;
+		
+		ProcessElement intersctionTask  = findFirstIntersectionTaskSwitchGateway(result);
+		if(intersctionTask == null) {
+			return result.values().stream().flatMap(it -> it.stream()).toList();	
+		}
+		
+		//Find again from intersection task
+		List<ProcessElement> subPath = findPath(new CommonElement(intersctionTask.getElement()), flowName, findType, emptyList());
+		
+		Map<ProcessElement, List<ProcessElement>>  pathBeforeIntersection = new LinkedHashMap<>();
+		for (Entry<ProcessElement, List<ProcessElement>> entry : result.entrySet()) {
+			int index = entry.getValue().indexOf(intersctionTask);
+			
+			List<ProcessElement> beforeIntersection = entry.getValue().subList(0, index);
+			pathBeforeIntersection.put(entry.getKey(), beforeIntersection);
+		}		
+		
+		return ListUtils.union(pathBeforeIntersection.values().stream().flatMap(List::stream).toList(), subPath) ;
 	}
 
+	private ProcessElement findFirstIntersectionTaskSwitchGateway(Map<ProcessElement, List<ProcessElement>> elements) {
+		if (elements.size() > 1) {
+			List<ProcessElement> intersert = elements.values().stream().findFirst().orElse(emptyList());
+			for (Entry<ProcessElement, List<ProcessElement>> entry : elements.entrySet()) {
+				List<ProcessElement> taskSwitchGateways = entry.getValue().stream()
+						.filter(it -> it.getElement() instanceof TaskSwitchGateway == true).toList();
+
+				intersert = taskSwitchGateways.stream().filter(intersert::contains).toList();
+			}
+
+			return intersert.stream().findFirst().orElse(null);
+		}
+		return null;
+	}
+	
 	/**
 	 * Using Recursion Algorithm To Find Tasks On Graph.
 	 */
