@@ -113,7 +113,7 @@ public abstract class ProcessAnalyzer {
 				var tasks = convertToDetectedElementFromTaskParallelGroup((TaskParallelGroup) element, useCase, startAtTime);
 				if (isNotEmpty(tasks)) {
 					result.addAll(tasks);
-					startAtTime = getMaxEndTimestamp(result);
+					startAtTime = getMaxEndTimestamp(tasks);
 				}
 				continue;
 			}
@@ -122,7 +122,10 @@ public abstract class ProcessAnalyzer {
 			if (element.getElement() instanceof SingleTaskCreator) {
 				SingleTaskCreator singleTask = (SingleTaskCreator)element.getElement();
 				var detectedTask = createDetectedTask(singleTask, singleTask.getTaskConfig(), startAtTime, useCase);
-				result.add(detectedTask);
+				if (detectedTask != null) {
+					result.add(detectedTask);
+					startAtTime = getEndTimestamp(result, startedAt);
+				}
 				continue;
 			}
 			
@@ -130,8 +133,10 @@ public abstract class ProcessAnalyzer {
 				SequenceFlow sequenceFlow = (SequenceFlow) element.getElement();
 				if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
 					var startTask = createStartTaskFromTaskSwitchGateway(sequenceFlow, startAtTime, useCase);
-					result.add(startTask);					
-					startAtTime = getEndTimestamp(result, startedAt);
+					if (startTask != null) {
+						result.add(startTask);
+						startAtTime = getEndTimestamp(result, startedAt);
+					}
 					continue;
 				}
 			}
