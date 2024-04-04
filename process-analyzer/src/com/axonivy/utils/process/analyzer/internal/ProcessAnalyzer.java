@@ -22,6 +22,7 @@ import com.axonivy.utils.process.analyzer.internal.model.TaskParallelGroup;
 import com.axonivy.utils.process.analyzer.model.DetectedElement;
 import com.axonivy.utils.process.analyzer.model.DetectedTask;
 
+import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
@@ -98,14 +99,14 @@ public abstract class ProcessAnalyzer {
 		
 		for(int i = 0; i < path.size(); i++) {
 			
-			ProcessElement element = path.get(i);
+			ProcessElement element = path.get(i);			
 		
 			// CommonElement(RequestStart)
-			if (element.getElement() instanceof RequestStart) {
+			if (processGraph.isRequestStart(element.getElement())) {
 				continue;
 			}
 			
-			if (element.getElement()instanceof TaskAndCaseModifier && processGraph.isSystemTask((TaskAndCaseModifier) element.getElement())) {
+			if (processGraph.isTaskAndCaseModifier(element.getElement()) && processGraph.isSystemTask(element.getElement())) {
 				continue;
 			}
 			
@@ -119,7 +120,7 @@ public abstract class ProcessAnalyzer {
 			}
 			
 			// CommonElement(SingleTaskCreator)
-			if (element.getElement() instanceof SingleTaskCreator) {
+			if (processGraph.isSingleTaskCreator(element.getElement())) {
 				SingleTaskCreator singleTask = (SingleTaskCreator)element.getElement();
 				var detectedTask = createDetectedTask(singleTask, singleTask.getTaskConfig(), startAtTime, useCase);
 				if (detectedTask != null) {
@@ -129,7 +130,7 @@ public abstract class ProcessAnalyzer {
 				continue;
 			}
 			
-			if (element instanceof CommonElement && element.getElement() instanceof SequenceFlow) {
+			if (element instanceof CommonElement && processGraph.isSequenceFlow(element.getElement())) {
 				SequenceFlow sequenceFlow = (SequenceFlow) element.getElement();
 				if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
 					var startTask = createStartTaskFromTaskSwitchGateway(sequenceFlow, startAtTime, useCase);

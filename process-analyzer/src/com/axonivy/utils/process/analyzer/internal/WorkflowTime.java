@@ -74,11 +74,11 @@ public class WorkflowTime {
 			ProcessElement element = path.get(i);
 		
 			// CommonElement(RequestStart)
-			if (element.getElement() instanceof RequestStart) {
+			if (processGraph.isRequestStart(element.getElement())) {
 				continue;
 			}
 			
-			if (element.getElement()instanceof TaskAndCaseModifier && processGraph.isSystemTask((TaskAndCaseModifier) element.getElement())) {
+			if (processGraph.isTaskAndCaseModifier(element.getElement()) && processGraph.isSystemTask(element.getElement())) {
 				continue;
 			}
 			
@@ -92,14 +92,14 @@ public class WorkflowTime {
 			}
 			
 			// CommonElement(SingleTaskCreator)
-			if (element.getElement() instanceof SingleTaskCreator) {				
+			if (processGraph.isSingleTaskCreator(element.getElement())) {				
 				SingleTaskCreator singleTask = (SingleTaskCreator)element.getElement();
 				Duration taskDuration = getDuration(singleTask, singleTask.getTaskConfig(), useCase);
 				total = total.plus(taskDuration);
 				continue;
 			}
 			
-			if (element instanceof CommonElement && element.getElement() instanceof SequenceFlow) {
+			if (element instanceof CommonElement && processGraph.isSequenceFlow(element.getElement())) {
 				SequenceFlow sequenceFlow = (SequenceFlow) element.getElement();
 				if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
 					TaskConfig startTask = processGraph.getStartTaskConfig(sequenceFlow);					
