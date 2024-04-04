@@ -13,7 +13,9 @@ import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
+import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
+import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.event.start.StartEvent;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
@@ -90,8 +92,12 @@ public class ProcessGraph {
 		return taskConfig;
 	}
 	
-	public boolean isSystemTask(TaskAndCaseModifier task) {		
-		return task.getAllTaskConfigs().stream().anyMatch(it -> Role.SYSTEM.name().equals(it.getActivator().getName()));
+	public boolean isSystemTask(BaseElement task) {
+		if (task instanceof TaskAndCaseModifier) {
+			return ((TaskAndCaseModifier) task).getAllTaskConfigs().stream()
+					.anyMatch(it -> Role.SYSTEM.name().equals(it.getActivator().getName()));
+		}
+		return false;
 	}
 	
 	public String getTaskId(TaskAndCaseModifier task, TaskConfig taskConfig) {
@@ -101,6 +107,22 @@ public class ProcessGraph {
 		} else {
 			return id;
 		}
+	}
+	
+	public boolean isRequestStart(BaseElement element) {
+		return element instanceof RequestStart;
+	}
+	
+	public boolean isTaskAndCaseModifier(BaseElement element) {
+		return element instanceof TaskAndCaseModifier;
+	}
+	
+	public boolean isSingleTaskCreator(BaseElement element) {
+		return element instanceof SingleTaskCreator;
+	}
+	
+	public boolean isSequenceFlow(BaseElement element) {
+		return element instanceof SequenceFlow;
 	}
 	
 	private boolean containtPrefixs(String content, String... prefix) {
