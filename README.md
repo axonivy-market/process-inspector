@@ -12,4 +12,4 @@
 - Get configured duration for a task.
 - Get all upcoming tasks on a configured process path with expected start timestamp for each task.
 
-Read our [documentation](workflow-estimator-product/README.md).
+Read our [documentation](process-analyzer-product/README.md).
