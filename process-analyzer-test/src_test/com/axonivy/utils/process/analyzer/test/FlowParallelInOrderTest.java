@@ -37,7 +37,14 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 
 		var expected = Arrays.array("Task 1A", "Task A", "Task B", "Task 1B",  "Task C", "Task D");
 		var taskNames = getTaskNames(detectedTasks);
-		assertArrayEquals(expected, taskNames);
+		assertArrayEquals(expected, taskNames);			
+	}
+	
+	@Test
+	void shouldSetRightStartTimestampForTaskD() throws Exception {
+		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
+		var start = ProcessGraphHelper.findByElementName(process, "start");
+		List<DetectedTask> detectedTasks = processAnalyzer.findTasksOnPath(start).stream().map(DetectedTask.class::cast).toList();
 		
 		DetectedTask taskD = detectedTasks.stream().filter(it -> it.getTaskName().equals("Task D")).findFirst().orElse(null);
 		DetectedTask taskB = detectedTasks.stream().filter(it -> it.getTaskName().equals("Task B")).findFirst().orElse(null);
@@ -48,8 +55,6 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 		
 		assertEquals(maxTimeFromBC.getTime(), taskD.getEstimatedStartTimestamp().getTime());	
 	}
-	
-	
 	
 	@Test
 	void shouldFindAllTasksAtStart2() throws Exception {
