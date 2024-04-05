@@ -127,7 +127,7 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 		
 		var detectedTasks = processAnalyzer.findTasksOnPath(List.of(startF, startE, startG));		
 		
-		var expected = Arrays.array("Task G", "Task K", "Task M", "Task I", "Task F", "Task H", "Task E", "Task I");
+		var expected = Arrays.array("Task F", "Task H", "Task E", "Task I", "Task G", "Task K", "Task M");
 		var taskNames = getTaskNames(detectedTasks);
 		assertArrayEquals(expected, taskNames);
 	}
