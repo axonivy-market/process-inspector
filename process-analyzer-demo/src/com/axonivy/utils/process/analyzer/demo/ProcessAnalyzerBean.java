@@ -11,10 +11,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.faces.event.AjaxBehaviorEvent;
+
 import org.primefaces.component.selectoneradio.SelectOneRadio;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
-import com.axonivy.utils.process.analyzer.constant.UseCase;
+import com.axonivy.utils.process.analyzer.demo.constant.UseCase;
 import com.axonivy.utils.process.analyzer.demo.constant.FindType;
 import com.axonivy.utils.process.analyzer.demo.helper.DateTimeHelper;
 import com.axonivy.utils.process.analyzer.demo.model.Analyzer;
@@ -127,12 +128,8 @@ public class ProcessAnalyzerBean {
 	public Duration getDetectedTaskCalculate() throws Exception{
 		AdvancedProcessAnalyzer processAnalyzer = createprocessAnalyzer(selectedAnalyzer);
 		
-		Duration total = Duration.ZERO;
-		if(FindType.ALL_TASK.equals(selectedAnalyzer.getFindType())) {
-			total = processAnalyzer.calculateEstimatedDuration(selectedAnalyzer.getStartElement());
-		} else {
-			total = processAnalyzer.calculateEstimatedDuration(selectedAnalyzer.getStartElement());
-		}
+		Duration total = processAnalyzer.calculateEstimatedDuration(selectedAnalyzer.getStartElement());
+		
 		return total;
 	}
 

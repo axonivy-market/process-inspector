@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.axonivy.utils.process.analyzer.constant.UseCase;
 import com.axonivy.utils.process.analyzer.internal.ProcessAnalyzer;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
@@ -23,7 +22,7 @@ import ch.ivyteam.ivy.workflow.ITask;
 public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 
 	private Process process;
-	private UseCase useCase;
+	private Enum<?> useCase;
 	private String flowName;
 	private Map<String, Duration> durationOverrides;
 	// It only impart to find task base in flowName
@@ -35,7 +34,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * If it is null, it will get first duration configure line
 	 * @param flowName - Tag name we want to follow at alternative gateways.
 	 */
-	public AdvancedProcessAnalyzer(Process process, UseCase useCase, String flowName) {
+	public AdvancedProcessAnalyzer(Process process, Enum<?> useCase, String flowName) {
 		super();
 		this.process = process;
 		this.useCase = useCase;
