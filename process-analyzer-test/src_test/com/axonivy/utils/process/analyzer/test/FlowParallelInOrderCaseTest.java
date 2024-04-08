@@ -1,11 +1,17 @@
 package com.axonivy.utils.process.analyzer.test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
 
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
+import com.axonivy.utils.process.analyzer.model.DetectedTask;
 
 import ch.ivyteam.ivy.bpm.engine.client.BpmClient;
 import ch.ivyteam.ivy.bpm.engine.client.ExecutionResult;
@@ -13,6 +19,7 @@ import ch.ivyteam.ivy.bpm.engine.client.element.BpmElement;
 import ch.ivyteam.ivy.bpm.engine.client.element.BpmProcess;
 import ch.ivyteam.ivy.bpm.exec.client.IvyProcessTest;
 import ch.ivyteam.ivy.workflow.ICase;
+import ch.ivyteam.ivy.workflow.ITask;
 
 @IvyProcessTest
 @SuppressWarnings("restriction")
@@ -21,7 +28,7 @@ public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 	private static final BpmElement FLOW_PARALLEL_IN_ORDER_START = FLOW_PARALLEL_IN_ORDER.elementName("start");
 	private static final BpmElement FLOW_PARALLEL_IN_ORDER_START2 = FLOW_PARALLEL_IN_ORDER.elementName("start2");
 	private static final BpmElement FLOW_PARALLEL_IN_ORDER_START3 = FLOW_PARALLEL_IN_ORDER.elementName("start3");
-
+	
 	@Test
 	void shouldshouldFindAllTasksAtStart(BpmClient bpmClient) throws Exception {
 		ExecutionResult result = bpmClient.start().process(FLOW_PARALLEL_IN_ORDER_START).execute();
@@ -49,15 +56,54 @@ public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 	}
 	
 	@Test
-	void shouldFindTasksOnPathAtStart3(BpmClient bpmClient) throws Exception {
+	void shouldFindTasksOnPathByCaseAtStart3(BpmClient bpmClient) throws Exception {
 		ExecutionResult result = bpmClient.start().process(FLOW_PARALLEL_IN_ORDER_START3).execute();
 		ICase icase = result.workflow().activeCase();
 
 		var processAnalyzer = new AdvancedProcessAnalyzer(getProcess(icase), null, "internal");
 		var detectedTasks = processAnalyzer.findTasksOnPath(icase);		
 		
-		var expected = Arrays.array("Task1A", "Task B", "Task1B", "Task A", "Task2B", "Task D", "Task2A", "Task C", "Task K", "Task2C", "Task3A", "Task I");
+		var expected = Arrays.array("Task1A3", "Task B3", "Task1B3", "Task A3", "Task2B3", "Task D3", "Task2A3", "Task C3", "Task K3", "Task2C3", "Task3A3", "Task I3");
 		var taskNames = getTaskNames(detectedTasks);
 		assertArrayEquals(expected, taskNames);
+	}
+	
+	@Test
+	void shouldFindTasksOnPathByCaseAtTaskBAndTaskC(BpmClient bpmClient) throws Exception {
+		ExecutionResult result = bpmClient.start().process(FLOW_PARALLEL_IN_ORDER_START).execute();
+		List<ITask> parallelTasks = result.workflow().activeTasks();
+		for(ITask task : parallelTasks) {
+			result = bpmClient.start().task(task).as().everybody().execute();
+		}
+						
+		List<ITask> activeTasks = result.workflow().activeTasks();
+		ITask taskA = findTaskByElementName(activeTasks, "Task A");
+		 		 
+		bpmClient.mock().uiOf(FLOW_PARALLEL_IN_ORDER.elementName("Task A")).withNoAction();
+		Thread.sleep(2*1000);
+		result = bpmClient.start().task(taskA).as().everybody().execute();
+		
+		
+		ICase icase = result.workflow().activeCase();
+
+		var processAnalyzer = new AdvancedProcessAnalyzer(getProcess(icase), null, null);
+		var detectedTasks = processAnalyzer.findTasksOnPath(icase);		
+		
+		var expected = Arrays.array("Task C", "Task B", "Task D");
+		var taskNames = getTaskNames(detectedTasks);
+		assertArrayEquals(expected, taskNames);
+		
+		DetectedTask taskB = (DetectedTask) findByElementName(detectedTasks, "Task B");
+		DetectedTask taskC = (DetectedTask) findByElementName(detectedTasks, "Task C");
+		DetectedTask taskD = (DetectedTask) findByElementName(detectedTasks, "Task D");
+		
+		assertEquals(taskC.calculateEstimatedEndTimestamp(), taskD.calculateEstimatedEndTimestamp());
+		
+		LocalDateTime startTimeOfTaskB = toLocalDateTime(taskB.getEstimatedStartTimestamp());
+		LocalDateTime startTimeOfTaskC = toLocalDateTime(taskC.getEstimatedStartTimestamp());
+		
+		Duration duration = Duration.between(startTimeOfTaskC, startTimeOfTaskB);
+		
+		assertEquals( 2, duration.toSeconds());
 	}
 }

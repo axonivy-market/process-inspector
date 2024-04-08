@@ -1,6 +1,7 @@
 package com.axonivy.utils.process.analyzer.internal;
 
 import static java.util.Collections.emptyList;
+import static org.apache.commons.collections4.ListUtils.union;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -25,6 +26,7 @@ import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
+import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 
@@ -43,87 +45,99 @@ public class WorkflowPath {
 		this.processFlowOverrides = processFlowOverrides;
 	}
 
-	protected List<ProcessElement> findPath(ProcessElement... from) throws Exception {
-		List<ProcessElement> path = findPath(Arrays.asList(from), null, FindType.ALL_TASKS,  emptyList());		
-		return path;
+	protected Map<ProcessElement, List<ProcessElement>> findPath(ProcessElement... from) throws Exception {
+		Map<ProcessElement, List<ProcessElement>> paths = findPath(Arrays.asList(from), null, FindType.ALL_TASKS,  emptyList());		
+		return paths;
 	}
 	
-	public List<ProcessElement> findPath(String flowName, ProcessElement... from) throws Exception {
-		List<ProcessElement> path = findPath(Arrays.asList(from), flowName, FindType.TASKS_ON_PATH, emptyList());
-		return path;
+	public Map<ProcessElement, List<ProcessElement>> findPath(String flowName, ProcessElement... from) throws Exception {
+		Map<ProcessElement, List<ProcessElement>> paths = findPath(Arrays.asList(from), flowName, FindType.TASKS_ON_PATH, emptyList());
+		return paths;
 	}
 
 	private<T> int getLastIndex(List<T> elements) {		
 		return elements.size() == 0 ? 0 : elements.size() - 1;		
 	}
 	
-	private List<ProcessElement> findPath(List<ProcessElement> froms, String flowName, FindType findType, List<ProcessElement> previousElements) throws Exception {
+	private Map<ProcessElement, List<ProcessElement>> findPath(List<ProcessElement> froms, String flowName, FindType findType, List<ProcessElement> previousElements) throws Exception {
 		Map<ProcessElement, List<ProcessElement>>  result = new LinkedHashMap<>();
-		List<ProcessElement> pathsWithNoTaskSwitchGateway = new ArrayList<>();
 		for(ProcessElement from : froms) {
 			List<ProcessElement> path = findPath(from, flowName, findType, emptyList());
-			if(isContainsTaskSwitchGateway(path)) {
-				result.put(from, path);
-			} else {
-				pathsWithNoTaskSwitchGateway.addAll(path);
-			}		
-		}
-		
-		// have no parallel task with many start elements
-		if(result.isEmpty()) {
-			return pathsWithNoTaskSwitchGateway;
+			result.put(from, path);
 		}
 		
 		ProcessElement intersectionTask  = findFirstIntersectionTaskSwitchGateway(result);
-		int numberOfOutgoings = 0;
-		if(intersectionTask != null) {
-			numberOfOutgoings = ((TaskSwitchGateway)intersectionTask.getElement()).getOutgoing().size();
-		}
-		if(intersectionTask == null || numberOfOutgoings >= 2) {
-			return result.values().stream().flatMap(it -> it.stream()).toList();	
+		if(intersectionTask == null) {
+			return result;	
 		}
 		
 		//Find again from intersection task
 		List<ProcessElement> subPath = findPath(new CommonElement(intersectionTask.getElement()), flowName, findType, emptyList());
-		
-		Map<ProcessElement, List<ProcessElement>>  pathBeforeIntersection = new LinkedHashMap<>();
-		for (Entry<ProcessElement, List<ProcessElement>> entry : result.entrySet()) {
-			int index = entry.getValue().indexOf(intersectionTask);
-			
-			List<ProcessElement> beforeIntersection = entry.getValue().subList(0, index);
-			pathBeforeIntersection.put(entry.getKey(), beforeIntersection);
-		}		
-		
-		List<ProcessElement> pathsWithTaskSwitchGateway = ListUtils.union(pathBeforeIntersection.values().stream().flatMap(List::stream).toList(), subPath);
-		if(pathsWithNoTaskSwitchGateway.size() > 0) {
-			return ListUtils.union(pathsWithTaskSwitchGateway, pathsWithNoTaskSwitchGateway);
-		}	
-		return pathsWithTaskSwitchGateway;
-	}
-	
-	private boolean isContainsTaskSwitchGateway(List<ProcessElement> path) {
-		boolean isContainsTaskSwitchGateway = false;
-		for(ProcessElement item : path) {
-			if(processGraph.isTaskSwitchGateway(item.getElement())) {
-				isContainsTaskSwitchGateway = true;
-				break;
-			}
-		}
-		return isContainsTaskSwitchGateway;
-	}
-	
-	private ProcessElement findFirstIntersectionTaskSwitchGateway(Map<ProcessElement, List<ProcessElement>> elements) {
-		if (elements.size() > 1) {
-			List<ProcessElement> intersect = elements.values().stream().findFirst().orElse(emptyList());
-			for (Entry<ProcessElement, List<ProcessElement>> entry : elements.entrySet()) {
-				List<ProcessElement> taskSwitchGateways = entry.getValue().stream()
-						.filter(it -> it.getElement() instanceof TaskSwitchGateway == true).toList();
 
-				intersect = ListUtils.intersection(taskSwitchGateways, intersect);
+		Map<ProcessElement, List<ProcessElement>> fullPath = mergePath(result, intersectionTask, subPath);
+				
+		return fullPath;
+	}
+	
+	private Map<ProcessElement, List<ProcessElement>> mergePath(Map<ProcessElement, List<ProcessElement>> source, ProcessElement intersection, List<ProcessElement> subPath) {
+		Map<ProcessElement, List<ProcessElement>> pathBeforeIntersection = new LinkedHashMap<>();
+		Map<ProcessElement, List<ProcessElement>> pathNotIntersection = new LinkedHashMap<>();
+		for (Entry<ProcessElement, List<ProcessElement>> entry : source.entrySet()) {
+			int index = entry.getValue().indexOf(intersection);
+			if (index < 0) {
+				pathNotIntersection.put(entry.getKey(), entry.getValue());
+			} else {
+				List<ProcessElement> beforeIntersection = entry.getValue().subList(0, index);
+				pathBeforeIntersection.put(entry.getKey(), beforeIntersection);
 			}
-			return intersect.stream().findFirst().orElse(null);
 		}
-		return null;
+				
+		TaskParallelGroup taskGroup = new TaskParallelGroup(null);
+		taskGroup.setInternalPaths(convertToTaskParallelGroup(pathBeforeIntersection));		
+		List<ProcessElement> fullPathWithIntersection = union(List.of(taskGroup), subPath);
+
+		Map<ProcessElement, List<ProcessElement>> result = new LinkedHashMap<>();
+		result.putAll(pathNotIntersection);
+		result.put(pathBeforeIntersection.keySet().stream().findFirst().get(), fullPathWithIntersection);
+		
+		return result;
+	}
+	
+	private Map<SequenceFlow, List<ProcessElement>> convertToTaskParallelGroup(Map<ProcessElement, List<ProcessElement>> internalPath) {
+		Map<SequenceFlow, List<ProcessElement>> result = new LinkedHashMap<>();
+		internalPath.entrySet().forEach(it -> {
+			result.put( ((TaskAndCaseModifier) it.getKey().getElement()).getIncoming().get(0), it.getValue());
+		});		
+		
+		return result;
+	}
+	private ProcessElement findFirstIntersectionTaskSwitchGateway(Map<ProcessElement, List<ProcessElement>> elements) {
+		ProcessElement intersert = null;
+		if (elements.size() > 1) {
+			Map<ProcessElement, List<ProcessElement>> taskSwitchGateways = new LinkedHashMap<>();
+			for (Entry<ProcessElement, List<ProcessElement>> entry : elements.entrySet()) {
+				List<ProcessElement> taskGroup = entry.getValue().stream()
+						.filter(it -> it.getElement() instanceof TaskSwitchGateway == true).toList();
+				
+				taskSwitchGateways.put(entry.getKey(), taskGroup);
+			}
+			
+			List<ProcessElement> intersertsOfAll = taskSwitchGateways.values().stream().findFirst().orElse(emptyList());
+			for (Entry<ProcessElement, List<ProcessElement>> entry : taskSwitchGateways.entrySet()) {
+				List<ProcessElement> interserts = ListUtils.intersection(entry.getValue(), intersertsOfAll);
+				if(interserts.size() == 0) {
+					break;
+				} else {
+					intersertsOfAll = interserts;
+				}
+			}
+			
+			intersert = intersertsOfAll.stream()
+					.filter(it -> ((TaskSwitchGateway) it.getElement()).getIncoming().size() > 1)
+					.findFirst().orElse(null);
+			
+		}
+		return intersert;
 	}
 	
 	/**

@@ -59,58 +59,62 @@ public class WorkflowTime {
 		return path;
 	}
 	
-	protected Duration calculateTotalDuration(List<ProcessElement> path, Enum<?> useCase) {
+	protected Duration calculateTotalDuration(Map<ProcessElement, List<ProcessElement>> path, Enum<?> useCase) {
 		return calculateTotalDuration(path, useCase, durationOverrides);
 	}
 	
-	private Duration calculateTotalDuration(List<ProcessElement> path, Enum<?> useCase, Map<String, Duration> durationOverrides) {
+	private Duration calculateTotalDuration(Map<ProcessElement, List<ProcessElement>> paths, Enum<?> useCase, Map<String, Duration> durationOverrides) {
 
-		// convert to both detected task and alternative
-		List<Duration> totalWithEnd = new ArrayList<>();		
-		Duration total = Duration.ZERO;
-				
-		for(int i = 0; i < path.size(); i++) {
-			ProcessElement element = path.get(i);
-		
-			// CommonElement(RequestStart)
-			if (processGraph.isRequestStart(element.getElement())) {
-				continue;
-			}
-			
-			if (processGraph.isTaskAndCaseModifier(element.getElement()) && processGraph.isSystemTask(element.getElement())) {
-				continue;
-			}
-			
-			if (element instanceof TaskParallelGroup) {
-				Duration durationWithEndTask = getMaxTotalFromTaskParallelGroupWithTaskEnd((TaskParallelGroup) element, useCase, durationOverrides);
-				totalWithEnd.add(durationWithEndTask);
-				
-				Duration maxDuration = getMaxTotalFromTaskParallelGroupWithoutTaskEnd((TaskParallelGroup) element, useCase, durationOverrides);
-				total = total.plus(maxDuration);
-				continue;
-			}
-			
-			// CommonElement(SingleTaskCreator)
-			if (processGraph.isSingleTaskCreator(element.getElement())) {				
-				SingleTaskCreator singleTask = (SingleTaskCreator)element.getElement();
-				Duration taskDuration = getDuration(singleTask, singleTask.getTaskConfig(), useCase);
-				total = total.plus(taskDuration);
-				continue;
-			}
-			
-			if (element instanceof CommonElement && processGraph.isSequenceFlow(element.getElement())) {
-				SequenceFlow sequenceFlow = (SequenceFlow) element.getElement();
-				if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
-					TaskConfig startTask = processGraph.getStartTaskConfig(sequenceFlow);					
-					Duration startTaskDuration = getDuration((TaskAndCaseModifier)sequenceFlow.getSource(), startTask, useCase);
-					total = total.plus(startTaskDuration);
+		// convert to both detected task and alternative		
+		List<Duration> totalOfPaths = new ArrayList<>();
+		for (Entry<ProcessElement, List<ProcessElement>> path : paths.entrySet()) {
+			List<Duration> totalWithEnd = new ArrayList<>();		
+			Duration total = Duration.ZERO;
+			for (ProcessElement element : path.getValue()) {
+
+				// CommonElement(RequestStart)
+				if (processGraph.isRequestStart(element.getElement())) {
 					continue;
 				}
+
+				if (processGraph.isTaskAndCaseModifier(element.getElement())
+						&& processGraph.isSystemTask(element.getElement())) {
+					continue;
+				}
+
+				if (element instanceof TaskParallelGroup) {
+					TaskParallelGroup taskGroup = (TaskParallelGroup) element;
+					Duration durationWithEndTask = getMaxTotalFromTaskParallelGroupWithTaskEnd(taskGroup, useCase, durationOverrides);
+					totalWithEnd.add(durationWithEndTask);
+
+					Duration maxDuration = getMaxTotalFromTaskParallelGroupWithoutTaskEnd(taskGroup, useCase, durationOverrides);
+					total = total.plus(maxDuration);
+					continue;
+				}
+
+				// CommonElement(SingleTaskCreator)
+				if (processGraph.isSingleTaskCreator(element.getElement())) {
+					SingleTaskCreator singleTask = (SingleTaskCreator) element.getElement();
+					Duration taskDuration = getDuration(singleTask, singleTask.getTaskConfig(), useCase);
+					total = total.plus(taskDuration);
+					continue;
+				}
+
+				if (element instanceof CommonElement && processGraph.isSequenceFlow(element.getElement())) {
+					SequenceFlow sequenceFlow = (SequenceFlow) element.getElement();
+					if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
+						TaskConfig startTask = processGraph.getStartTaskConfig(sequenceFlow);
+						Duration startTaskDuration = getDuration((TaskAndCaseModifier) sequenceFlow.getSource(), startTask, useCase);
+						total = total.plus(startTaskDuration);
+						continue;
+					}
+				}
 			}
+			Duration maxTotal = Stream.concat(totalWithEnd.stream(), Stream.of(total)).max(Comparator.naturalOrder()).orElse(Duration.ZERO);
+			totalOfPaths.add(maxTotal);
 		}
 		
-		Duration maxTotal = Stream.concat(totalWithEnd.stream(), Stream.of(total)).max(Comparator.naturalOrder()).orElse(Duration.ZERO);
-		return maxTotal;		
+		return totalOfPaths.stream().max(Comparator.naturalOrder()).orElse(Duration.ZERO);		
 	}
 	
 	private Duration getMaxTotalFromTaskParallelGroupWithTaskEnd(TaskParallelGroup group, Enum<?> useCase, Map<String, Duration> durationOverrides) {
@@ -126,11 +130,18 @@ public class WorkflowTime {
 		Map<SequenceFlow, Duration> result = new HashMap<>();
 		
 		for (Entry<SequenceFlow, List<ProcessElement>> entry : internalPath.entrySet()) {
-			TaskConfig startTask = processGraph.getStartTaskConfig(entry.getKey());
-			Duration startTaskDuration = getDuration((TaskAndCaseModifier) group.getElement(), startTask, useCase);
-			Duration total = calculateTotalDuration(entry.getValue(), useCase, durationOverrides);
+			Duration total = Duration.ZERO;
+			if (group.getElement() != null) {
+				TaskConfig startTask = processGraph.getStartTaskConfig(entry.getKey());
+				Duration startTaskDuration = getDuration((TaskAndCaseModifier) group.getElement(), startTask, useCase);
+				total.plus(startTaskDuration);
+			}
+			
+			Map<ProcessElement, List<ProcessElement>> path = Map.of(new CommonElement(entry.getKey()), entry.getValue());
+			
+			Duration totalFromSubPath = calculateTotalDuration(path, useCase, durationOverrides);
 
-			result.put(entry.getKey(), startTaskDuration.plus(total));
+			result.put(entry.getKey(), total.plus(totalFromSubPath));
 		}
 		
 		Duration maxTotal = result.values().stream().max(Comparator.naturalOrder()).orElse(Duration.ZERO);
