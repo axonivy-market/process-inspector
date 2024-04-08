@@ -14,7 +14,6 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.axonivy.utils.process.analyzer.constant.UseCase;
 import com.axonivy.utils.process.analyzer.helper.ProcessAnalyzerHelper;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
@@ -58,7 +57,7 @@ public abstract class ProcessAnalyzer {
 		return path;
 	}
 	
-	protected Duration calculateTotalDuration(List<ProcessElement> path, UseCase useCase) {
+	protected Duration calculateTotalDuration(List<ProcessElement> path, Enum<?> useCase) {
 		WorkflowTime workflowTime = new WorkflowTime(getDurationOverrides());
 		return workflowTime.calculateTotalDuration(path, useCase);
 	}
@@ -67,7 +66,7 @@ public abstract class ProcessAnalyzer {
 		return processGraph.getStartTaskConfig(sequenceFlow);
 	}
 	
-	protected List<DetectedElement> convertToDetectedElements(List<ProcessElement> path, UseCase useCase) {
+	protected List<DetectedElement> convertToDetectedElements(List<ProcessElement> path, Enum<?> useCase) {
 		List<DetectedElement> result = convertToDetectedElements(path, useCase, new Date());
 		return result;
 	}
@@ -91,7 +90,7 @@ public abstract class ProcessAnalyzer {
 		return tasks;
 	}
 	
-	private List<DetectedElement> convertToDetectedElements(List<ProcessElement> path, UseCase useCase, Date startedAt) {
+	private List<DetectedElement> convertToDetectedElements(List<ProcessElement> path, Enum<?> useCase, Date startedAt) {
 
 		// convert to both detected task and alternative
 		List<DetectedElement> result = new ArrayList<>();		
@@ -146,7 +145,7 @@ public abstract class ProcessAnalyzer {
 		return result.stream().filter(item -> item != null).toList();		
 	}
 	
-	private List<DetectedElement> convertToDetectedElementFromTaskParallelGroup(TaskParallelGroup group, UseCase useCase, Date startedAt) {	
+	private List<DetectedElement> convertToDetectedElementFromTaskParallelGroup(TaskParallelGroup group, Enum<?> useCase, Date startedAt) {	
 		WorkflowTime workflowTime = new WorkflowTime(getDurationOverrides());
 		Map<SequenceFlow, List<ProcessElement>> sortedInternalPath =  new LinkedHashMap<>();
 		sortedInternalPath.putAll(workflowTime.getInternalPath(group.getInternalPaths(), true));
@@ -184,7 +183,7 @@ public abstract class ProcessAnalyzer {
 		return maxEndTimeStamp;
 	}
 	
-	private DetectedElement createStartTaskFromTaskSwitchGateway(SequenceFlow sequenceFlow, Date startedAt, UseCase useCase) {
+	private DetectedElement createStartTaskFromTaskSwitchGateway(SequenceFlow sequenceFlow, Date startedAt, Enum<?> useCase) {
 
 		DetectedElement task = null;
 		if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
@@ -197,7 +196,7 @@ public abstract class ProcessAnalyzer {
 		return task;
 	}
 	
-	private DetectedElement createDetectedTask(TaskAndCaseModifier task, TaskConfig taskConfig, Date startedAt, UseCase useCase) {
+	private DetectedElement createDetectedTask(TaskAndCaseModifier task, TaskConfig taskConfig, Date startedAt, Enum<?> useCase) {
 		WorkflowTime workflowTime = new WorkflowTime(getDurationOverrides());
 		DetectedTask detectedTask = new DetectedTask();
 		

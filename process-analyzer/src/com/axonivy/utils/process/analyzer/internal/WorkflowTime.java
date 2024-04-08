@@ -1,5 +1,6 @@
 package com.axonivy.utils.process.analyzer.internal;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import java.time.Duration;
@@ -16,7 +17,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.axonivy.utils.process.analyzer.constant.UseCase;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
 import com.axonivy.utils.process.analyzer.internal.model.TaskParallelGroup;
@@ -25,7 +25,6 @@ import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 import ch.ivyteam.ivy.process.model.element.event.end.TaskEnd;
-import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 
@@ -39,7 +38,7 @@ public class WorkflowTime {
 		this.durationOverrides = durationOverrides;
 	}
 
-	public Duration getDuration(TaskAndCaseModifier task, TaskConfig taskConfig, UseCase useCase) {
+	public Duration getDuration(TaskAndCaseModifier task, TaskConfig taskConfig, Enum<?> useCase) {
 		String key = processGraph.getTaskId(task, taskConfig);		
 		return this.durationOverrides.getOrDefault(key, getDurationByTaskScript(taskConfig, useCase));	
 	}
@@ -60,11 +59,11 @@ public class WorkflowTime {
 		return path;
 	}
 	
-	protected Duration calculateTotalDuration(List<ProcessElement> path, UseCase useCase) {
+	protected Duration calculateTotalDuration(List<ProcessElement> path, Enum<?> useCase) {
 		return calculateTotalDuration(path, useCase, durationOverrides);
 	}
 	
-	private Duration calculateTotalDuration(List<ProcessElement> path, UseCase useCase, Map<String, Duration> durationOverrides) {
+	private Duration calculateTotalDuration(List<ProcessElement> path, Enum<?> useCase, Map<String, Duration> durationOverrides) {
 
 		// convert to both detected task and alternative
 		List<Duration> totalWithEnd = new ArrayList<>();		
@@ -114,21 +113,24 @@ public class WorkflowTime {
 		return maxTotal;		
 	}
 	
-	private Duration getMaxTotalFromTaskParallelGroupWithTaskEnd(TaskParallelGroup group, UseCase useCase, Map<String, Duration> durationOverrides) {
+	private Duration getMaxTotalFromTaskParallelGroupWithTaskEnd(TaskParallelGroup group, Enum<?> useCase, Map<String, Duration> durationOverrides) {
 		return getMaxTotalFromTaskParallelGroup((TaskParallelGroup) group, useCase, durationOverrides, true);
 	}
 
-	private Duration getMaxTotalFromTaskParallelGroupWithoutTaskEnd(TaskParallelGroup group, UseCase useCase, Map<String, Duration> durationOverrides) {
+	private Duration getMaxTotalFromTaskParallelGroupWithoutTaskEnd(TaskParallelGroup group, Enum<?> useCase, Map<String, Duration> durationOverrides) {
 		return getMaxTotalFromTaskParallelGroup((TaskParallelGroup) group, useCase, durationOverrides, false);
 	}
 	
-	private Duration getMaxTotalFromTaskParallelGroup(TaskParallelGroup group, UseCase useCase, Map<String, Duration> durationOverrides, boolean withTaskEnd) {
+	private Duration getMaxTotalFromTaskParallelGroup(TaskParallelGroup group, Enum<?> useCase, Map<String, Duration> durationOverrides, boolean withTaskEnd) {
 		Map<SequenceFlow, List<ProcessElement>> internalPath = getInternalPath(group.getInternalPaths(), withTaskEnd);
 		Map<SequenceFlow, Duration> result = new HashMap<>();
 		
 		for (Entry<SequenceFlow, List<ProcessElement>> entry : internalPath.entrySet()) {
-			 Duration total = calculateTotalDuration(entry.getValue(), useCase, durationOverrides);
-			 result.put(entry.getKey(), total);
+			TaskConfig startTask = processGraph.getStartTaskConfig(entry.getKey());
+			Duration startTaskDuration = getDuration((TaskAndCaseModifier) group.getElement(), startTask, useCase);
+			Duration total = calculateTotalDuration(entry.getValue(), useCase, durationOverrides);
+
+			result.put(entry.getKey(), startTaskDuration.plus(total));
 		}
 		
 		Duration maxTotal = result.values().stream().max(Comparator.naturalOrder()).orElse(Duration.ZERO);
@@ -136,19 +138,17 @@ public class WorkflowTime {
 		return maxTotal;
 	}
 	
-	private Duration getDurationByTaskScript(TaskConfig task, UseCase useCase) {
-		List<String> prefixs = new ArrayList<String>(Arrays.asList("APAConfig.setEstimate"));
-		if(useCase != null) {
-			prefixs.add("UseCase." + useCase.name());
-		}
-
+	private Duration getDurationByTaskScript(TaskConfig task, Enum<?> useCase) {
+		String useCasePrefix = getUseCasePrefix(useCase);
+		List<String> prefixs = Arrays.asList("APAConfig.setEstimate", useCasePrefix);		
+		
 		String wfEstimateCode = processGraph.getCodeLineByPrefix(task, prefixs.toArray(new String[0]));
 		if (isNotEmpty(wfEstimateCode)) {
-			String result = StringUtils.substringBetween(wfEstimateCode, "(", "UseCase");
-			int amount = Integer.parseInt(result.substring(0, result.indexOf(",")));
-			String unit = result.substring(result.indexOf(".") + 1, result.lastIndexOf(","));
+			String[] result = StringUtils.substringsBetween(wfEstimateCode,  "(",  ")")[0].split(",");
+			int amount = Integer.parseInt(result[0]);
+			TimeUnit unit = getTimeUnit(result[1]);
 
-			switch (TimeUnit.valueOf(unit.toUpperCase())) {
+			switch (unit) {
 				case DAYS:
 	                return Duration.ofDays(amount);
 	            case HOURS:
@@ -164,6 +164,28 @@ public class WorkflowTime {
 		}
 
 		return Duration.ofHours(0);
+	}
+
+	private TimeUnit getTimeUnit(String timeUnit) {
+		if(isBlank(timeUnit)) {
+			return null;
+		}
+		
+		if(timeUnit.startsWith("TimeUnit.")) {
+			//TimeUnit.HOURS
+			return TimeUnit.valueOf(timeUnit.split("\\.")[1]); 
+		} else {
+			//HOURS
+			return TimeUnit.valueOf(timeUnit);
+		}
+	}
+	private String getUseCasePrefix(Enum<?> useCase) {
+		String usePrefix = StringUtils.EMPTY;
+		if (useCase != null) {
+			usePrefix = "." + useCase.name();
+		}
+
+		return usePrefix;
 	}
 	
 	private <T> T getLast(List<T> elements) {

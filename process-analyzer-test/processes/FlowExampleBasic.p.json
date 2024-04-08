@@ -35,7 +35,8 @@
         "task" : {
           "name" : "Task A",
           "code" : [
-            "import com.axonivy.utils.process.analyzer.constant.UseCase;",
+            "import com.axonivy.utils.process.analyzer.APAConfig;",
+            "import com.axonivy.utils.process.analyzer.test.UseCase;",
             "import java.util.concurrent.TimeUnit;",
             "",
             "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);",
@@ -82,7 +83,8 @@
           "name" : "Task B",
           "code" : [
             "import java.util.concurrent.TimeUnit;",
-            "import com.axonivy.utils.process.analyzer.constant.UseCase;",
+            "import com.axonivy.utils.process.analyzer.APAConfig;",
+            "import com.axonivy.utils.process.analyzer.test.UseCase;",
             "",
             "APAConfig.setEstimate(6,TimeUnit.HOURS,UseCase.BIGPROJECT);",
             "APAConfig.setCustomInfo(\"abc\");"
@@ -128,7 +130,8 @@
         "task" : {
           "name" : "Task C",
           "code" : [
-            "import com.axonivy.utils.process.analyzer.constant.UseCase;",
+            "import com.axonivy.utils.process.analyzer.APAConfig;",
+            "import com.axonivy.utils.process.analyzer.test.UseCase;",
             "import java.util.concurrent.TimeUnit;",
             "",
             "APAConfig.setEstimate(4,TimeUnit.HOURS,UseCase.BIGPROJECT);",

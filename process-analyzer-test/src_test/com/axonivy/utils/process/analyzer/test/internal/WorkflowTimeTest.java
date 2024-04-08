@@ -8,7 +8,7 @@ import java.time.Duration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.axonivy.utils.process.analyzer.constant.UseCase;
+import com.axonivy.utils.process.analyzer.test.UseCase;
 import com.axonivy.utils.process.analyzer.internal.WorkflowTime;
 import com.axonivy.utils.process.analyzer.test.ProcessGraphHelper;
 
