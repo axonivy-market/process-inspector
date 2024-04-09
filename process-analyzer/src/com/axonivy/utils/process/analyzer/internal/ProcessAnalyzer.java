@@ -18,15 +18,15 @@ import com.axonivy.utils.process.analyzer.helper.ProcessAnalyzerHelper;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
 import com.axonivy.utils.process.analyzer.internal.model.TaskParallelGroup;
+import com.axonivy.utils.process.analyzer.model.DetectedAlternative;
 import com.axonivy.utils.process.analyzer.model.DetectedElement;
 import com.axonivy.utils.process.analyzer.model.DetectedTask;
 
-import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
-import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
+import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 import ch.ivyteam.ivy.workflow.ICase;
@@ -44,6 +44,7 @@ public abstract class ProcessAnalyzer {
 
 	protected abstract Map<String, Duration> getDurationOverrides();
 	protected abstract Map<String, String> getProcessFlowOverrides();
+	protected abstract boolean isDescribeAlternativeElements();
 
 	protected List<ProcessElement> findPath(ProcessElement... from) throws Exception {
 		WorkflowPath workflowPath = new WorkflowPath(getProcessFlowOverrides());
@@ -118,6 +119,14 @@ public abstract class ProcessAnalyzer {
 				continue;
 			}
 			
+			// CommonElement(Alternative)
+			if(processGraph.isAlternative(element.getElement()) && this.isDescribeAlternativeElements()) {
+				var delectedAlternative = createDetectedAlternative(element);
+				if(delectedAlternative != null) {
+					  result.add(delectedAlternative);
+				}
+			}
+						
 			// CommonElement(SingleTaskCreator)
 			if (processGraph.isSingleTaskCreator(element.getElement())) {
 				SingleTaskCreator singleTask = (SingleTaskCreator)element.getElement();
@@ -194,6 +203,29 @@ public abstract class ProcessAnalyzer {
 			}
 		}
 		return task;
+	}
+	
+	private DetectedAlternative createDetectedAlternative(ProcessElement processElement) {
+		if(processGraph.isAlternative(processElement.getElement())) {
+			Alternative alternative = (Alternative) processElement.getElement();
+			DetectedAlternative result = new DetectedAlternative();
+			result.setTaskName(alternative.getName());
+			result.setPid(alternative.getPid().getRawPid());
+			List<DetectedElement> options = alternative.getOutgoing()
+					.stream()
+					.map(item -> convertToDetectedElement(item))
+					.toList();
+			result.setOptions(options);
+			return result;
+		}
+		return null;
+	}
+
+	private DetectedElement convertToDetectedElement(SequenceFlow outcome) {
+		DetectedElement element = new DetectedElement() {};
+		element.setPid(outcome.getPid().getRawPid());
+		element.setElementName(outcome.getName());;
+		return element;
 	}
 	
 	private DetectedElement createDetectedTask(TaskAndCaseModifier task, TaskConfig taskConfig, Date startedAt, Enum<?> useCase) {

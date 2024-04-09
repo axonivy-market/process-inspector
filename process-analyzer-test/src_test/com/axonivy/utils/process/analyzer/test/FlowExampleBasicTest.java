@@ -34,6 +34,15 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 		taskB = ProcessGraphHelper.findByElementName(process, "Task B");
 		taskC = ProcessGraphHelper.findByElementName(process, "Task C");
 	}
+	
+	@Test
+	void shouldFindAllTasksAtStartIncludeAlternative() throws Exception {
+		var processAnalyzer =  new AdvancedProcessAnalyzer(process, null, null);
+		processAnalyzer.enableDescribeAlternativeElements();;
+		var detectedTasks = processAnalyzer.findAllTasks(start);
+
+		assertArrayEquals(Arrays.array("Task A", "Alter", "int/ext?", "Task B", "Alter2", "Task C"), getTaskNames(detectedTasks));
+	}
 
 	@Test
 	void shouldFindAllTasksAtStart() throws Exception {
