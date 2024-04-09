@@ -125,6 +125,10 @@ public class ProcessGraph {
 		return element instanceof SequenceFlow;
 	}
 	
+	public boolean isTaskSwitchGateway(BaseElement element) {
+		return element instanceof TaskSwitchGateway;
+	}
+	
 	private boolean containtPrefixs(String content, String... prefix) {
 		return List.of(prefix).stream().allMatch(it -> content.contains(it));
 	}

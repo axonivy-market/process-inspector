@@ -10,9 +10,9 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 
@@ -25,8 +25,6 @@ import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
-import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
-import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 
@@ -60,15 +58,74 @@ public class WorkflowPath {
 	}
 	
 	private List<ProcessElement> findPath(List<ProcessElement> froms, String flowName, FindType findType, List<ProcessElement> previousElements) throws Exception {
-		List<ProcessElement> result = new ArrayList<>();
+		Map<ProcessElement, List<ProcessElement>>  result = new LinkedHashMap<>();
+		List<ProcessElement> pathsWithNoTaskSwitchGateway = new ArrayList<>();
 		for(ProcessElement from : froms) {
-			var path = findPath(from, flowName, findType, emptyList());
-			result.addAll(path);
+			List<ProcessElement> path = findPath(from, flowName, findType, emptyList());
+			if(isContainsTaskSwitchGateway(path)) {
+				result.put(from, path);
+			} else {
+				pathsWithNoTaskSwitchGateway.addAll(path);
+			}		
 		}
-				
-		return result;
+		
+		// have no parallel task with many start elements
+		if(result.isEmpty()) {
+			return pathsWithNoTaskSwitchGateway;
+		}
+		
+		ProcessElement intersectionTask  = findFirstIntersectionTaskSwitchGateway(result);
+		int numberOfOutgoings = 0;
+		if(intersectionTask != null) {
+			numberOfOutgoings = ((TaskSwitchGateway)intersectionTask.getElement()).getOutgoing().size();
+		}
+		if(intersectionTask == null || numberOfOutgoings >= 2) {
+			return result.values().stream().flatMap(it -> it.stream()).toList();	
+		}
+		
+		//Find again from intersection task
+		List<ProcessElement> subPath = findPath(new CommonElement(intersectionTask.getElement()), flowName, findType, emptyList());
+		
+		Map<ProcessElement, List<ProcessElement>>  pathBeforeIntersection = new LinkedHashMap<>();
+		for (Entry<ProcessElement, List<ProcessElement>> entry : result.entrySet()) {
+			int index = entry.getValue().indexOf(intersectionTask);
+			
+			List<ProcessElement> beforeIntersection = entry.getValue().subList(0, index);
+			pathBeforeIntersection.put(entry.getKey(), beforeIntersection);
+		}		
+		
+		List<ProcessElement> pathsWithTaskSwitchGateway = ListUtils.union(pathBeforeIntersection.values().stream().flatMap(List::stream).toList(), subPath);
+		if(pathsWithNoTaskSwitchGateway.size() > 0) {
+			return ListUtils.union(pathsWithTaskSwitchGateway, pathsWithNoTaskSwitchGateway);
+		}	
+		return pathsWithTaskSwitchGateway;
 	}
+	
+	private boolean isContainsTaskSwitchGateway(List<ProcessElement> path) {
+		boolean isContainsTaskSwitchGateway = false;
+		for(ProcessElement item : path) {
+			if(processGraph.isTaskSwitchGateway(item.getElement())) {
+				isContainsTaskSwitchGateway = true;
+				break;
+			}
+		}
+		return isContainsTaskSwitchGateway;
+	}
+	
+	private ProcessElement findFirstIntersectionTaskSwitchGateway(Map<ProcessElement, List<ProcessElement>> elements) {
+		if (elements.size() > 1) {
+			List<ProcessElement> intersect = elements.values().stream().findFirst().orElse(emptyList());
+			for (Entry<ProcessElement, List<ProcessElement>> entry : elements.entrySet()) {
+				List<ProcessElement> taskSwitchGateways = entry.getValue().stream()
+						.filter(it -> it.getElement() instanceof TaskSwitchGateway == true).toList();
 
+				intersect = ListUtils.intersection(taskSwitchGateways, intersect);
+			}
+			return intersect.stream().findFirst().orElse(null);
+		}
+		return null;
+	}
+	
 	/**
 	 * Using Recursion Algorithm To Find Tasks On Graph.
 	 */

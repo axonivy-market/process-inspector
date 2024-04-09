@@ -20,6 +20,13 @@ public class ProcessGraphHelper {
 		return process.search().type(RequestStart.class).findOne();
 	}
 
+	public static BaseElement findByElementId(Process process, String filedId) {				
+		return getElementOfProcess(process).stream()
+				.filter(el -> el.getPid().getFieldId().equals(filedId))
+				.findFirst()
+				.orElse(null);
+	}
+	
 	public static BaseElement findByElementName(Process process, String name) {				
 		return getElementOfProcess(process).stream()
 				.filter(el -> el.getName().equals(name))
