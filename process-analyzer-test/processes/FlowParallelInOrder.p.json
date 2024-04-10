@@ -30,10 +30,24 @@
       "config" : {
         "tasks" : [ {
             "id" : "TaskA",
-            "name" : "Task 1A"
+            "name" : "Task 1A",
+            "code" : [
+              "import com.axonivy.utils.process.analyzer.test.UseCase;",
+              "import com.axonivy.utils.process.analyzer.APAConfig;",
+              "import java.util.concurrent.TimeUnit;",
+              "",
+              "APAConfig.setEstimate(1,TimeUnit.HOURS,UseCase.SMALLPROJECT);"
+            ]
           }, {
             "id" : "TaskB",
-            "name" : "Task 1B"
+            "name" : "Task 1B",
+            "code" : [
+              "import com.axonivy.utils.process.analyzer.test.UseCase;",
+              "import com.axonivy.utils.process.analyzer.APAConfig;",
+              "import java.util.concurrent.TimeUnit;",
+              "",
+              "APAConfig.setEstimate(2,TimeUnit.HOURS,UseCase.SMALLPROJECT);"
+            ]
           } ]
       },
       "visual" : {
@@ -171,7 +185,14 @@
       "config" : {
         "tasks" : [ {
             "id" : "TaskA",
-            "name" : "Task 2A"
+            "name" : "Task 2A",
+            "code" : [
+              "import com.axonivy.utils.process.analyzer.APAConfig;",
+              "import com.axonivy.utils.process.analyzer.test.UseCase;",
+              "import java.util.concurrent.TimeUnit;",
+              "",
+              "APAConfig.setEstimate(2,TimeUnit.HOURS,UseCase.SMALLPROJECT);"
+            ]
           }, {
             "id" : "TaskB",
             "name" : "Task 2B"

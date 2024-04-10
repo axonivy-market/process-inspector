@@ -134,7 +134,7 @@ public class WorkflowTime {
 			if (group.getElement() != null) {
 				TaskConfig startTask = processGraph.getStartTaskConfig(entry.getKey());
 				Duration startTaskDuration = getDuration((TaskAndCaseModifier) group.getElement(), startTask, useCase);
-				total.plus(startTaskDuration);
+				total = total.plus(startTaskDuration);
 			}
 			
 			Map<ProcessElement, List<ProcessElement>> path = Map.of(new CommonElement(entry.getKey()), entry.getValue());
