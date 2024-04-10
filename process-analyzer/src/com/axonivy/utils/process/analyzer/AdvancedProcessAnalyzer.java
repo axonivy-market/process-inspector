@@ -24,6 +24,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	private Process process;
 	private Enum<?> useCase;
 	private String flowName;
+	private boolean isEnableDescribeAlternative;
 	private Map<String, Duration> durationOverrides;
 	// It only impart to find task base in flowName
 	private Map<String, String> processFlowOverrides;
@@ -39,6 +40,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 		this.process = process;
 		this.useCase = useCase;
 		this.flowName = flowName;
+		this.isEnableDescribeAlternative = false;
 		this.durationOverrides = emptyMap();
 		this.processFlowOverrides = emptyMap();		
 	}
@@ -51,6 +53,19 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	@Override
 	protected Map<String, String> getProcessFlowOverrides() {
 		return processFlowOverrides;
+	}
+	
+	public void enableDescribeAlternativeElements() {
+		this.isEnableDescribeAlternative = true;
+	}
+
+	public void disableDescribeAlternativeElements() {
+		this.isEnableDescribeAlternative = false;	
+	}
+	
+	@Override
+	protected boolean isDescribeAlternativeElements() {
+		return isEnableDescribeAlternative;
 	}
 
 	/**
