@@ -47,6 +47,10 @@
                     value="#{data.processAnalyzerBean.selectedAnalyzer.elements}"
                     var="element" itemLabel="#{element.name}"
                     itemValue="#{element}" />
+                 <p:ajax event="change"
+                    listener="#{logic.onChooseElement}"
+                    update="process-analyzer:analyzer-selection:selectOneElement process-analyzer:analyzer-selection:process-viewer-diagram @parent:alternative-selection"
+                    process="@this" />
             </p:selectOneMenu>
 
             <p:outputLabel for="selectOneFindType" value="Find Type:" />
@@ -84,12 +88,12 @@
 			<p:repeat var="alternative"
 				value="#{data.processAnalyzerBean.selectedAnalyzer.alternatives}">
 				<h:panelGroup>
-					<p:outputLabel value="#{alternative.name}" styleClass="text-bold"
-						title="#{alternative.pid.rawPid}" />
+					<p:outputLabel value="#{alternative.taskName}" styleClass="text-bold"
+						title="#{alternative.pid}" />
 					<p:selectOneRadio layout="lineDirection" converter="pojoConverter">
-						<f:selectItems value="#{alternative.outgoing}" var="out"
-							itemValue="#{out}" itemLabel="#{out.name} -> #{out.target.name}"
-							itemDescription="#{out.pid.rawPid}" />
+						<f:selectItems value="#{alternative.options}" var="out"
+							itemValue="#{out}" itemLabel="#{out.elementName} (#{out.shortPid})"
+							itemDescription="#{out.pid}" />
 						<p:ajax listener="#{logic.onSelect}" event="change" />
 					</p:selectOneRadio>
 				</h:panelGroup>

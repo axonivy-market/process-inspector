@@ -224,7 +224,8 @@ public abstract class ProcessAnalyzer {
 	private DetectedElement convertToDetectedElement(SequenceFlow outcome) {
 		DetectedElement element = new DetectedElement() {};
 		element.setPid(outcome.getPid().getRawPid());
-		element.setElementName(outcome.getName());;
+		String name = outcome.getName();
+		element.setElementName(name.equals(StringUtils.EMPTY) ? "No name" : name);
 		return element;
 	}
 	

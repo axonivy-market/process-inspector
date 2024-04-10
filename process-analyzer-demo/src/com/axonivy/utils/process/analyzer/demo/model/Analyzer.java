@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import com.axonivy.utils.process.analyzer.demo.constant.UseCase;
 import com.axonivy.utils.process.analyzer.demo.constant.FindType;
 import com.axonivy.utils.process.analyzer.demo.helper.DateTimeHelper;
+import com.axonivy.utils.process.analyzer.model.DetectedAlternative;
 import com.axonivy.utils.process.analyzer.model.DetectedElement;
 
 import ch.ivyteam.ivy.process.model.Process;
@@ -32,7 +33,7 @@ public class Analyzer {
 	private List<DetectedElement> tasks;
 	private Duration totalDuration;
 	private long executionTime;
-	private List<Alternative> alternatives;
+	private List<DetectedAlternative> alternatives;
 	private Map<Alternative, SequenceFlow> alternativeFlows;
 
 	public Analyzer() {
@@ -145,11 +146,11 @@ public class Analyzer {
 		this.executionTime = executionTime;
 	}
 
-	public List<Alternative> getAlternatives() {
+	public List<DetectedAlternative> getAlternatives() {
 		return alternatives;
 	}
 
-	public void setAlternatives(List<Alternative> alternatives) {
+	public void setAlternatives(List<DetectedAlternative> alternatives) {
 		this.alternatives = alternatives;
 	}
 
