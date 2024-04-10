@@ -19,6 +19,7 @@ import com.axonivy.utils.process.analyzer.demo.constant.UseCase;
 import com.axonivy.utils.process.analyzer.demo.constant.FindType;
 import com.axonivy.utils.process.analyzer.demo.helper.DateTimeHelper;
 import com.axonivy.utils.process.analyzer.demo.model.Analyzer;
+import com.axonivy.utils.process.analyzer.model.DetectedAlternative;
 import com.axonivy.utils.process.analyzer.model.DetectedElement;
 
 import ch.ivyteam.ivy.application.IProcessModelVersion;
@@ -85,22 +86,32 @@ public class ProcessAnalyzerBean {
 		return  Arrays.stream(UseCase.values()).toList();
 	}
 	
-	public List<Alternative> getALternativeWithMoreThanOneOutgoing(){
-		List<Alternative> alternatives = getElementOfProcess(this.selectedAnalyzer.getProcess()).stream()
-				.filter(item -> item instanceof Alternative)
-				.map(Alternative.class::cast)
-				.filter(item -> item.getOutgoing().size() > 1)
+	public List<DetectedAlternative> getALternativeWithMoreThanOneOutgoing() throws Exception {
+		AdvancedProcessAnalyzer processAnalyzer = new AdvancedProcessAnalyzer(selectedAnalyzer.getProcess(), null, null);
+		processAnalyzer.enableDescribeAlternativeElements();
+		
+		List<DetectedAlternative> alternatives = processAnalyzer.findAllTasks(selectedAnalyzer.getStartElement()).stream()
+				.filter(item -> item instanceof DetectedAlternative)
+				.map(DetectedAlternative.class::cast)
+				.filter(item -> item.getOptions().size() > 1)
 				.toList();
 		return alternatives;	
 	}
 	
 	public void onSelectSequenceFlow(AjaxBehaviorEvent event) {
 		if (event.getSource() != null) {
-			SequenceFlow newSequenceFlow = (SequenceFlow) ((SelectOneRadio) event.getSource()).getValue();
-			if (newSequenceFlow != null) {
-				if (newSequenceFlow.getSource() instanceof Alternative) {
-					Alternative alternative = (Alternative) newSequenceFlow.getSource();
-					selectedAnalyzer.getAlternativeFlows().put(alternative, newSequenceFlow);
+			DetectedElement newSequenceFlow = (DetectedElement) ((SelectOneRadio) event.getSource()).getValue();
+			String sequenceFlowId = newSequenceFlow.getPid();
+			
+			SequenceFlow sequenceFlow = getElementOfProcess(selectedAnalyzer.getProcess()).stream()
+					.filter(it -> it.getPid().getRawPid().equals(sequenceFlowId))
+					.filter(it -> it instanceof SequenceFlow == true).map(SequenceFlow.class::cast).findFirst()
+					.orElse(null);
+			
+			if (sequenceFlow != null) {
+				if (sequenceFlow.getSource() instanceof Alternative) {
+					Alternative alternative = (Alternative) sequenceFlow.getSource();
+					selectedAnalyzer.getAlternativeFlows().put(alternative, sequenceFlow);
 				}
 			}
 		}

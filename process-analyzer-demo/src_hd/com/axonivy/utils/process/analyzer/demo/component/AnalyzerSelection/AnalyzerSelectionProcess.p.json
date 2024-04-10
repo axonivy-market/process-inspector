@@ -69,14 +69,13 @@
     }, {
       "id" : "f7",
       "type" : "Script",
-      "name" : "init start elements and alternative",
+      "name" : "init start elements",
       "config" : {
         "output" : {
           "code" : [
             "if(in.processAnalyzerBean.selectedAnalyzer is initialized) {",
             "  in.processAnalyzerBean.selectedAnalyzer.elements = in.processAnalyzerBean.getAllTaskModifier();",
             "  in.processAnalyzerBean.selectedAnalyzer.processPath = in.processAnalyzerBean.getProcessWebLink();",
-            "  in.processAnalyzerBean.selectedAnalyzer.alternatives = in.processAnalyzerBean.getALternativeWithMoreThanOneOutgoing();",
             "}"
           ]
         }
@@ -168,10 +167,45 @@
         "guid" : "18E74D298A4744BC"
       },
       "visual" : {
-        "at" : { "x" : 96, "y" : 480 }
+        "at" : { "x" : 96, "y" : 480 },
+        "labelOffset" : { "x" : 11, "y" : 35 }
       },
       "connect" : [
         { "id" : "f18", "to" : "f19" }
       ]
+    }, {
+      "id" : "f21",
+      "type" : "HtmlDialogEventStart",
+      "name" : "onChooseElement",
+      "config" : {
+        "guid" : "18EC611AD8A5E409"
+      },
+      "visual" : {
+        "at" : { "x" : 96, "y" : 608 }
+      },
+      "connect" : [
+        { "id" : "f23", "to" : "f22" }
+      ]
+    }, {
+      "id" : "f22",
+      "type" : "Script",
+      "name" : "init alternative",
+      "config" : {
+        "output" : {
+          "code" : "in.processAnalyzerBean.selectedAnalyzer.alternatives = in.processAnalyzerBean.getALternativeWithMoreThanOneOutgoing();"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 288, "y" : 608 }
+      },
+      "connect" : [
+        { "id" : "f25", "to" : "f24" }
+      ]
+    }, {
+      "id" : "f24",
+      "type" : "HtmlDialogEnd",
+      "visual" : {
+        "at" : { "x" : 480, "y" : 608 }
+      }
     } ]
 }
