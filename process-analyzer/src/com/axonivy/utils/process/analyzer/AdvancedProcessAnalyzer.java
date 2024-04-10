@@ -4,9 +4,12 @@ import static java.util.Collections.emptyMap;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import java.time.Duration;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.axonivy.utils.process.analyzer.internal.ProcessAnalyzer;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
@@ -75,38 +78,40 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @throws Exception
 	 */
 	public List<? extends DetectedElement> findAllTasks(BaseElement startAtElement) throws Exception {
-		List<ProcessElement> path = findPath(new CommonElement(startAtElement));
+		Map<ProcessElement, List<ProcessElement>> path = findPath(new CommonElement(startAtElement));
 		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase);
 		return detectedTasks;
 	}
 	
 	/**
-	 *  Return a list of all tasks in the process which can be reached from active case.
-	 * @param icase - Ivy Case which should be analyzed.
-	 * @return
-	 * @throws Exception
-	 */
-	public List<? extends DetectedElement> findAllTasks(ICase icase) throws Exception {		
-		List<ITask> tasks = getCaseITasks(icase);
-		ProcessElement[] elements = convertToProcessElement(tasks).stream().toArray(CommonElement[]::new);
-		List<ProcessElement> path = findPath(elements);
-		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase);
-		return detectedTasks;
-	}
-	
-	/**
-	 *  Return a list of all tasks in the process which can be reached from the starting element.
+	 * Return a list of all tasks in the process which can be reached from the starting element.
 	 * @param startAtElements - Elements where we start traversing the process. In case of parallel tasks, the list will contain multiple objects.
 	 * @return
 	 * @throws Exception
 	 */
 	public List<? extends DetectedElement> findAllTasks(List<BaseElement> startAtElements) throws Exception {
 		CommonElement[] elements = startAtElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
-		List<ProcessElement> path = findPath(elements);
+		Map<ProcessElement, List<ProcessElement>> path = findPath(elements);
 		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase);
 		return detectedTasks;
 	}
-
+	
+	/**
+	 * Return a list of all tasks in the process which can be reached from active case.
+	 * @param icase - Ivy Case which should be analyzed.
+	 * @return
+	 * @throws Exception
+	 */
+	public List<? extends DetectedElement> findAllTasks(ICase icase) throws Exception {		
+		List<ITask> tasks = getCaseITasks(icase);
+		Map<ProcessElement, Date> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
+		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);
+		
+		Map<ProcessElement, List<ProcessElement>> path = findPath(elements);		
+		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, elementsWithTime);
+		return detectedTasks;
+	}
+	
 	/**
 	 * Return a list of all tasks which are created when process follows the tagged flow. Uses the flow name set in the constructor.
 	 * @param startAtElement - Element where we start traversing the process
@@ -114,8 +119,10 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @throws Exception
 	 */
 	public List<? extends DetectedElement> findTasksOnPath(BaseElement startAtElement) throws Exception {
-		List<ProcessElement> path = findPath(flowName, new CommonElement(startAtElement));
-		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase);
+		ProcessElement element = new CommonElement(startAtElement);
+		Map<ProcessElement, List<ProcessElement>> path = findPath(flowName, element);
+		Map<ProcessElement, Date> startedAts = Map.of(element, new Date());
+		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, startedAts);
 		return detectedTasks;
 	}
 	
@@ -126,8 +133,10 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 */
 	public List<? extends DetectedElement> findTasksOnPath(List<BaseElement> startAtElements) throws Exception {
 		ProcessElement[] elements = startAtElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
-		List<ProcessElement> path = findPath(flowName, elements);
-		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase);
+		Map<ProcessElement, List<ProcessElement>> path = findPath(flowName, elements);
+		
+		Map<ProcessElement, Date> startedAts = Stream.of(elements).collect(Collectors.toMap(it ->it, it -> new Date()));
+		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, startedAts);
 		return detectedTasks;
 	}
 	
@@ -139,9 +148,12 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 */
 	public List<? extends DetectedElement> findTasksOnPath(ICase icase) throws Exception {		
 		List<ITask> tasks = getCaseITasks(icase);
-		ProcessElement[] elements = convertToProcessElement(tasks).stream().toArray(CommonElement[]::new);
-		List<ProcessElement> path = findPath(flowName, elements);
-		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase);
+		Map<ProcessElement, Date> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
+		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);
+		
+		Map<ProcessElement, List<ProcessElement>> path = findPath(flowName, elements);
+		
+		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, elementsWithTime);
 		return detectedTasks;
 	}
 	
@@ -154,7 +166,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 */
 	public Duration calculateEstimatedDuration(BaseElement startElement) throws Exception {
 		ProcessElement element = new CommonElement(startElement);
-		List<ProcessElement> path = isNotEmpty(flowName) ? findPath(flowName, element) : findPath(element);
+		Map<ProcessElement, List<ProcessElement>> path = isNotEmpty(flowName) ? findPath(flowName, element) : findPath(element);
 		
 		Duration total = calculateTotalDuration(path, useCase);
 		
@@ -169,8 +181,9 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 */
 	public Duration calculateEstimatedDuration(List<BaseElement> startElements) throws Exception {
 		ProcessElement[] elements = startElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
-		List<ProcessElement> path = isNotEmpty(flowName) ? findPath(flowName, elements) : findPath(elements);
+		Map<ProcessElement, List<ProcessElement>> path = isNotEmpty(flowName) ? findPath(flowName, elements) : findPath(elements);
 		
+		//We only get max total duration on each path
 		Duration total = calculateTotalDuration(path, useCase);
 		
 		return total;
@@ -184,9 +197,10 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 */
 	public Duration calculateEstimatedDuration(ICase icase) throws Exception {
 		List<ITask> tasks = getCaseITasks(icase);
-		ProcessElement[] elements = convertToProcessElement(tasks).stream().toArray(CommonElement[]::new);
-		List<ProcessElement> path = isNotEmpty(flowName) ? findPath(flowName, elements) : findPath(elements);
+		Map<ProcessElement, Date> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
+		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);
 		
+		Map<ProcessElement, List<ProcessElement>> path = isNotEmpty(flowName) ? findPath(flowName, elements) : findPath(elements);		
 		Duration total = calculateTotalDuration(path, useCase);
 		
 		return total;

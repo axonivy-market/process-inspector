@@ -51,7 +51,15 @@
       "config" : {
         "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
         "task" : {
-          "name" : "Task A"
+          "name" : "Task A",
+          "code" : [
+            "import com.axonivy.utils.process.analyzer.test.UseCase;",
+            "import com.axonivy.utils.process.analyzer.APAConfig;",
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);",
+            "APAConfig.setEstimate(3,TimeUnit.HOURS,UseCase.SMALLPROJECT);"
+          ]
         }
       },
       "visual" : {
@@ -67,7 +75,15 @@
       "config" : {
         "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
         "task" : {
-          "name" : "Task B"
+          "name" : "Task B",
+          "code" : [
+            "import com.axonivy.utils.process.analyzer.test.UseCase;",
+            "import com.axonivy.utils.process.analyzer.APAConfig;",
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "APAConfig.setEstimate(4,TimeUnit.HOURS,UseCase.BIGPROJECT);",
+            "APAConfig.setEstimate(2,TimeUnit.HOURS,UseCase.SMALLPROJECT);"
+          ]
         }
       },
       "visual" : {
@@ -83,7 +99,15 @@
       "config" : {
         "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
         "task" : {
-          "name" : "Task C"
+          "name" : "Task C",
+          "code" : [
+            "import com.axonivy.utils.process.analyzer.test.UseCase;",
+            "import com.axonivy.utils.process.analyzer.APAConfig;",
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);",
+            "APAConfig.setEstimate(3,TimeUnit.HOURS,UseCase.SMALLPROJECT);"
+          ]
         }
       },
       "visual" : {
@@ -378,10 +402,10 @@
       "config" : {
         "tasks" : [ {
             "id" : "TaskA",
-            "name" : "Task1A"
+            "name" : "Task1A3"
           }, {
             "id" : "TaskB",
-            "name" : "Task1B"
+            "name" : "Task1B3"
           } ]
       },
       "visual" : {
@@ -395,11 +419,11 @@
     }, {
       "id" : "f42",
       "type" : "UserTask",
-      "name" : "Task A",
+      "name" : "Task A3",
       "config" : {
         "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
         "task" : {
-          "name" : "Task A"
+          "name" : "Task A3"
         }
       },
       "visual" : {
@@ -411,11 +435,11 @@
     }, {
       "id" : "f44",
       "type" : "UserTask",
-      "name" : "Task B",
+      "name" : "Task B3",
       "config" : {
         "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
         "task" : {
-          "name" : "Task B"
+          "name" : "Task B3"
         }
       },
       "visual" : {
@@ -431,13 +455,13 @@
       "config" : {
         "tasks" : [ {
             "id" : "TaskB",
-            "name" : "Task2B"
+            "name" : "Task2B3"
           }, {
             "id" : "TaskA",
-            "name" : "Task2A"
+            "name" : "Task2A3"
           }, {
             "id" : "TaskC",
-            "name" : "Task2C"
+            "name" : "Task2C3"
           } ]
       },
       "visual" : {
@@ -452,11 +476,11 @@
     }, {
       "id" : "f49",
       "type" : "UserTask",
-      "name" : "Task D",
+      "name" : "Task D3",
       "config" : {
         "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
         "task" : {
-          "name" : "Task D"
+          "name" : "Task D3"
         }
       },
       "visual" : {
@@ -468,11 +492,11 @@
     }, {
       "id" : "f51",
       "type" : "UserTask",
-      "name" : "Task C",
+      "name" : "Task C3",
       "config" : {
         "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
         "task" : {
-          "name" : "Task C"
+          "name" : "Task C3"
         }
       },
       "visual" : {
@@ -488,7 +512,7 @@
       "config" : {
         "tasks" : [ {
             "id" : "TaskA",
-            "name" : "Task3A"
+            "name" : "Task3A3"
           } ]
       },
       "visual" : {
@@ -507,11 +531,11 @@
     }, {
       "id" : "f58",
       "type" : "UserTask",
-      "name" : "Task E",
+      "name" : "Task E3",
       "config" : {
         "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
         "task" : {
-          "name" : "Task E"
+          "name" : "Task E3"
         }
       },
       "visual" : {
@@ -542,11 +566,11 @@
     }, {
       "id" : "f62",
       "type" : "UserTask",
-      "name" : "Task F",
+      "name" : "Task F3",
       "config" : {
         "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
         "task" : {
-          "name" : "Task F"
+          "name" : "Task F3"
         }
       },
       "visual" : {
@@ -558,11 +582,11 @@
     }, {
       "id" : "f68",
       "type" : "UserTask",
-      "name" : "Task K",
+      "name" : "Task K3",
       "config" : {
         "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
         "task" : {
-          "name" : "Task K"
+          "name" : "Task K3"
         }
       },
       "visual" : {
@@ -574,11 +598,11 @@
     }, {
       "id" : "f71",
       "type" : "UserTask",
-      "name" : "Task I",
+      "name" : "Task I3",
       "config" : {
         "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
         "task" : {
-          "name" : "Task I"
+          "name" : "Task I3"
         }
       },
       "visual" : {

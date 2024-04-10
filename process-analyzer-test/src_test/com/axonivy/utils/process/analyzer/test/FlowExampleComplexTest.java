@@ -51,7 +51,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		
 		var detectedTasks = processAnalyzer.findAllTasks(List.of(taskK, taskF));
 		
-		var expected = Arrays.array("Task F", "Task K", "Task2A", "Task H", "Task2B", "Task G");
+		var expected = Arrays.array("Task K", "Task F", "Task2A", "Task H", "Task2B", "Task G");
 		var taskNames = (getTaskNames(detectedTasks));
 		
 		assertArrayEquals(expected, taskNames);
@@ -116,11 +116,11 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 	}
 
 	@Test
-	void shouldCalculateEstimateDurationBasedOnManyStartElements() throws Exception {
+	void shouldCalculateEstimateDurationAtTaskBAndTaskC() throws Exception {
 		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
 		Duration duration = processAnalyzer.calculateEstimatedDuration(List.of(taskB, taskC));
 		
-		assertEquals(Duration.ofHours(19), duration);
+		assertEquals(Duration.ofHours(13), duration);
 	}
 	
 	@Test
