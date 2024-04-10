@@ -89,6 +89,14 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 	}
 	
 	@Test
+	void shouldCalculateTotalDurationAtStart() throws Exception {
+		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
+		var start = ProcessGraphHelper.findByElementName(process, "start");
+		Duration duration = processAnalyzer.calculateEstimatedDuration(start);
+		assertEquals(10, duration.toHours());
+	}
+	
+	@Test
 	void shouldCalculateTotalDurationWithSMALPROJECT() throws Exception {
 		var processAnalyzer = new AdvancedProcessAnalyzer(process, UseCase.SMALLPROJECT, null);
 		var start2 = ProcessGraphHelper.findByElementName(process, "start2");
