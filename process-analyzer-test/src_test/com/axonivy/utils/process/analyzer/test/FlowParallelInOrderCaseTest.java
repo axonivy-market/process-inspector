@@ -15,7 +15,6 @@ import com.axonivy.utils.process.analyzer.model.DetectedTask;
 
 import ch.ivyteam.ivy.bpm.engine.client.BpmClient;
 import ch.ivyteam.ivy.bpm.engine.client.ExecutionResult;
-import ch.ivyteam.ivy.bpm.engine.client.element.BpmElement;
 import ch.ivyteam.ivy.bpm.engine.client.element.BpmProcess;
 import ch.ivyteam.ivy.bpm.exec.client.IvyProcessTest;
 import ch.ivyteam.ivy.workflow.ICase;
@@ -25,13 +24,10 @@ import ch.ivyteam.ivy.workflow.ITask;
 @SuppressWarnings("restriction")
 public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 	private static final BpmProcess FLOW_PARALLEL_IN_ORDER = BpmProcess.name("FlowParallelInOrder");
-	private static final BpmElement FLOW_PARALLEL_IN_ORDER_START = FLOW_PARALLEL_IN_ORDER.elementName("start");
-	private static final BpmElement FLOW_PARALLEL_IN_ORDER_START2 = FLOW_PARALLEL_IN_ORDER.elementName("start2");
-	private static final BpmElement FLOW_PARALLEL_IN_ORDER_START3 = FLOW_PARALLEL_IN_ORDER.elementName("start3");
 	
 	@Test
 	void shouldshouldFindAllTasksAtStart(BpmClient bpmClient) throws Exception {
-		ExecutionResult result = bpmClient.start().process(FLOW_PARALLEL_IN_ORDER_START).execute();
+		ExecutionResult result = bpmClient.start().process(FLOW_PARALLEL_IN_ORDER.elementName("start")).execute();
 		ICase icase = result.workflow().activeCase();
 
 		var processAnalyzer = new AdvancedProcessAnalyzer(getProcess(icase), null, null);
@@ -44,7 +40,7 @@ public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 
 	@Test
 	void shouldFindAllTasksAtStart2(BpmClient bpmClient) throws Exception {
-		ExecutionResult result = bpmClient.start().process(FLOW_PARALLEL_IN_ORDER_START2).execute();
+		ExecutionResult result = bpmClient.start().process(FLOW_PARALLEL_IN_ORDER.elementName("start2")).execute();
 		ICase icase = result.workflow().activeCase();
 
 		var processAnalyzer = new AdvancedProcessAnalyzer(getProcess(icase), null, null);
@@ -57,7 +53,7 @@ public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindTasksOnPathByCaseAtStart3(BpmClient bpmClient) throws Exception {
-		ExecutionResult result = bpmClient.start().process(FLOW_PARALLEL_IN_ORDER_START3).execute();
+		ExecutionResult result = bpmClient.start().process(FLOW_PARALLEL_IN_ORDER.elementName("start3")).execute();
 		ICase icase = result.workflow().activeCase();
 
 		var processAnalyzer = new AdvancedProcessAnalyzer(getProcess(icase), null, "internal");
@@ -70,7 +66,7 @@ public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindTasksOnPathByCaseAtTaskBAndTaskC(BpmClient bpmClient) throws Exception {
-		ExecutionResult result = bpmClient.start().process(FLOW_PARALLEL_IN_ORDER_START).execute();
+		ExecutionResult result = bpmClient.start().process(FLOW_PARALLEL_IN_ORDER.elementName("start")).execute();
 		List<ITask> parallelTasks = result.workflow().activeTasks();
 		for(ITask task : parallelTasks) {
 			result = bpmClient.start().task(task).as().everybody().execute();

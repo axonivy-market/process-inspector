@@ -8,10 +8,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.faces.event.AjaxBehaviorEvent;
 
+import org.apache.commons.lang3.StringUtils;
 import org.primefaces.component.selectoneradio.SelectOneRadio;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
@@ -145,16 +147,23 @@ public class ProcessAnalyzerBean {
 	}
 
 	private AdvancedProcessAnalyzer createprocessAnalyzer(Analyzer analyzer) {
-		AdvancedProcessAnalyzer processAnalyzer = new AdvancedProcessAnalyzer(selectedAnalyzer.getProcess(), selectedAnalyzer.getUseCase(), selectedAnalyzer.getFlowName());
+		Process process = analyzer.getProcess();
+		UseCase useCase = analyzer.getUseCase();
+		String flowName = analyzer.getFlowName();
+		FindType findType = analyzer.getFindType();
+		
+		flowName = FindType.TASK_ON_PATH.equals(findType) ? Optional.ofNullable(flowName).orElse(StringUtils.EMPTY) : flowName; 
+		
+		var processAnalyzer = new AdvancedProcessAnalyzer(process, useCase, flowName);
 
-		HashMap<String, String> flowOverrides = getProcessFlowOverride(selectedAnalyzer);
+		HashMap<String, String> flowOverrides = getProcessFlowOverride(analyzer);
 		processAnalyzer.setProcessFlowOverrides(flowOverrides);
 		
 		return processAnalyzer;
 	}
 
 	private HashMap<String, String> getProcessFlowOverride(Analyzer analyzer) {		
-		Map<Alternative, SequenceFlow> alternativeFlows = selectedAnalyzer.getAlternativeFlows();
+		Map<Alternative, SequenceFlow> alternativeFlows = analyzer.getAlternativeFlows();
 		HashMap<String, String> processFlowOverride = new HashMap<String, String>();
 
 		for (Alternative item : alternativeFlows.keySet()) {
