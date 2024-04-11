@@ -12,14 +12,6 @@ Axon Ivy’s [Advanced Process Analyzer] helps you to:
 - Get configured duration for a task.
 - Get all upcoming tasks on a configured process path with expected start timestamp for each task.
 
-## Demo
-
-- Select the process and some configuration which need for your analysis
-![workflow-estimator-demo](images/advancedProcessAnalyzerSelectionDemo.png)
-- Hit the **Run** button to get the analysis result
-![workflow-estimator-demo](images/advancedProcessAnalyzerResultDemo.png)
-
-
 ## Setup
 
 In the project, you only add the dependency in your pom.xml and call public APIs
@@ -61,6 +53,15 @@ In the project, you only add the dependency in your pom.xml and call public APIs
 	 * @return
 	 */
 	public AdvancedProcessAnalyzer setDurationOverrides(HashMap<String, Duration> durationOverrides)
+	
+	/**
+	 * Disabled by default.
+	 * If this option is enabled, the Advanced Process Analyzer will also add all alternative elements to the result.
+	 * This option will affect findTasksOnPath as well as findAllTasks method. Both methods will traverse the process as usual.
+	 * When it bypasses an alternative element, it will be added to the result list.
+	 */
+	public void enableDescribeAlternativeElements()
+	public void disableDescribeAlternativeElements()
 ``` 
 **4. You can call `findAllTasks`, `findTasksOnPath`, `calculateEstimatedDuration` to analyze your process.**
 ```java
@@ -86,3 +87,45 @@ In the project, you only add the dependency in your pom.xml and call public APIs
 	 */
 	public Duration calculateEstimatedDuration(BaseElement startElement) throws Exception
 ```
+
+## Example
+
+- Now we will practice How to analyze the process below with some scenarios.
+ ![workflow-estimator-demo](images/exampleWorkflow.png)
+ 
+**1. How to analyze the workflow base on the flow name {external} with use case BIGPROJECT?**
+```java
+	// We create a new process analyzer with UseCase.BIGPROJECT and flowName is "external"
+	var processAnalyzer = new AdvancedProcessAnalyzer(process, UseCase.BIGPROJECT, "external");	
+	public List<DetectedElement> detectedTasks = processAnalyzer.findTasksOnPath(start);
+	
+	// The result is list of task on path: Task A -> Task D -> Task1A -> Task K -> Task1B -> Task G -> Task F
+	// At the alternative, the path taken is base on the flow name or default path (the condition is empty)  
+	// The task's duration will base on the configuration BIGPROJECT. So duration Task A is 5 hours
+```
+	
+**2. How to analyze the workflow base on the process flow override?**
+```java
+	// We create a new process analyzer with flowName is null.
+	// Basically, the path taken after alternative will base on default path. But we will override it by setProcessFlowOverrides API
+	var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
+	var flowOverrides = new HashMap<String, String>();
+	flowOverrides.put("18E180A64355D4D9-f4", "18E180A64355D4D9-f13"); //alter1 -> sequence flow {internal}\n{external}\n{mixed}
+	flowOverrides.put("18E180A64355D4D9-f12", "18E180A64355D4D9-f14"); //int/ext? -> sequence flow {internal}
+	processAnalyzer.setProcessFlowOverrides(flowOverrides);
+		
+	public List<DetectedElement> detectedTasks = processAnalyzer.findTasksOnPath(start);
+	
+	// The result is list of task on path: Task A -> Task C	
+```
+
+## Demo
+
+- Select the process and some configuration which need for your analysis
+![workflow-estimator-demo](images/advancedProcessAnalyzerSelectionDemo.png)
+- Hit the **Run** button to get the analysis result
+![workflow-estimator-demo](images/advancedProcessAnalyzerResultDemo.png)
+
+
+
+

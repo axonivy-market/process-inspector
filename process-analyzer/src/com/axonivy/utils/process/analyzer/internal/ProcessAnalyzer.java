@@ -39,7 +39,7 @@ import ch.ivyteam.ivy.workflow.TaskState;
 @SuppressWarnings("restriction")
 public abstract class ProcessAnalyzer {
 	private static final List<TaskState> OPEN_TASK_STATES = List.of(TaskState.SUSPENDED, TaskState.PARKED, TaskState.RESUMED);
-	protected ProcessGraph processGraph;
+	private ProcessGraph processGraph;
 	
 	protected ProcessAnalyzer() {
 		this.processGraph = new ProcessGraph();
@@ -51,7 +51,8 @@ public abstract class ProcessAnalyzer {
 
 	protected Map<ProcessElement, List<ProcessElement>> findPath(ProcessElement... from) throws Exception {
 		WorkflowPath workflowPath = new WorkflowPath(getProcessFlowOverrides());
-		Map<ProcessElement, List<ProcessElement>> paths = workflowPath.findPath(from);		
+		Map<ProcessElement, List<ProcessElement>> paths = workflowPath.findPath(from);
+		//Remove duplicate for find all tasks case
 		return removeDuplicate(paths);
 	}
 	
@@ -64,10 +65,6 @@ public abstract class ProcessAnalyzer {
 	protected Duration calculateTotalDuration(Map<ProcessElement, List<ProcessElement>> path, Enum<?> useCase) {
 		WorkflowTime workflowTime = new WorkflowTime(getDurationOverrides());
 		return workflowTime.calculateTotalDuration(path, useCase);
-	}
-	
-	protected TaskConfig getStartTaskConfigFromTaskSwitchGateway(SequenceFlow sequenceFlow) {
-		return processGraph.getStartTaskConfig(sequenceFlow);
 	}
 	
 	protected List<DetectedElement> convertToDetectedElements(Map<ProcessElement, List<ProcessElement>> paths, Enum<?> useCase) {		
@@ -229,7 +226,7 @@ public abstract class ProcessAnalyzer {
 		if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
 			TaskSwitchGateway taskSwitchGateway = (TaskSwitchGateway) sequenceFlow.getSource();
 			if (!processGraph.isSystemTask(taskSwitchGateway)) {
-				TaskConfig startTask = getStartTaskConfigFromTaskSwitchGateway(sequenceFlow);
+				TaskConfig startTask = processGraph.getStartTaskConfig(sequenceFlow);
 				task = createDetectedTask((TaskAndCaseModifier) taskSwitchGateway, startTask, startedAt, useCase);
 			}
 		}
@@ -296,7 +293,7 @@ public abstract class ProcessAnalyzer {
 	}
 	
 	private Map<ProcessElement, List<ProcessElement>> removeDuplicate(Map<ProcessElement, List<ProcessElement>> paths) {
-		Map<ProcessElement, List<ProcessElement>> result = new LinkedHashMap();
+		Map<ProcessElement, List<ProcessElement>> result = new LinkedHashMap<>();
 		paths.entrySet().forEach(it -> {
 			result.put(it.getKey(), it.getValue().stream().distinct().toList());
 		});
