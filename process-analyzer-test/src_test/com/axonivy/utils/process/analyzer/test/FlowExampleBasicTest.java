@@ -37,7 +37,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindAllTasksAtStartIncludeAlternative() throws Exception {
-		var processAnalyzer =  new AdvancedProcessAnalyzer(process, null, null);
+		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
 		processAnalyzer.enableDescribeAlternativeElements();
 		var detectedTasks = processAnalyzer.findAllTasks(start);
 

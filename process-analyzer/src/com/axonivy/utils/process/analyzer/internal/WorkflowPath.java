@@ -45,7 +45,7 @@ public class WorkflowPath {
 		this.processFlowOverrides = processFlowOverrides;
 	}
 
-	protected Map<ProcessElement, List<ProcessElement>> findPath(ProcessElement... from) throws Exception {
+	public Map<ProcessElement, List<ProcessElement>> findPath(ProcessElement... from) throws Exception {
 		Map<ProcessElement, List<ProcessElement>> paths = findPath(Arrays.asList(from), null, FindType.ALL_TASKS,  emptyList());		
 		return paths;
 	}
@@ -111,6 +111,7 @@ public class WorkflowPath {
 		
 		return result;
 	}
+	
 	private ProcessElement findFirstIntersectionTaskSwitchGateway(Map<ProcessElement, List<ProcessElement>> elements) {
 		ProcessElement intersert = null;
 		if (elements.size() > 1) {

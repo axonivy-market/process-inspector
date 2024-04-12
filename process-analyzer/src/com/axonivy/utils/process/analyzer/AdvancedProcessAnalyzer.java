@@ -1,7 +1,6 @@
 package com.axonivy.utils.process.analyzer;
 
 import static java.util.Collections.emptyMap;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -57,6 +56,12 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 		return processFlowOverrides;
 	}
 	
+	/**
+	 * Disabled by default.
+	 * If this option is enabled, the Advanced Process Analyzer will also add all alternative elements to the result.
+	 * This option will affect findTasksOnPath as well as findAllTasks method. Both methods will traverse the process as usual.
+	 * When it bypasses an alternative element, it will be added to the result list.
+	 */
 	public void enableDescribeAlternativeElements() {
 		this.isEnableDescribeAlternative = true;
 	}
@@ -120,7 +125,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	public List<? extends DetectedElement> findTasksOnPath(BaseElement startAtElement) throws Exception {
 		ProcessElement element = new CommonElement(startAtElement);
 		Map<ProcessElement, List<ProcessElement>> path = findPath(flowName, element);
-		Map<ProcessElement, Duration> startedAts = Map.of(element, Duration.ZERO);
+		Map<ProcessElement, Duration> startedAts = Map.of(element, Duration.ZERO);	
 		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, startedAts);
 		return detectedTasks;
 	}
@@ -149,7 +154,6 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 		List<ITask> tasks = getCaseITasks(icase);
 		Map<ProcessElement, Duration> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
 		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);
-		
 		Map<ProcessElement, List<ProcessElement>> path = findPath(flowName, elements);
 		
 		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, elementsWithTime);
@@ -165,7 +169,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 */
 	public Duration calculateEstimatedDuration(BaseElement startElement) throws Exception {
 		ProcessElement element = new CommonElement(startElement);
-		Map<ProcessElement, List<ProcessElement>> path = isNotEmpty(flowName) ? findPath(flowName, element) : findPath(element);
+		Map<ProcessElement, List<ProcessElement>> path = flowName != null ? findPath(flowName, element) : findPath(element);
 		
 		Duration total = calculateTotalDuration(path, useCase);
 		
@@ -180,7 +184,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 */
 	public Duration calculateEstimatedDuration(List<BaseElement> startElements) throws Exception {
 		ProcessElement[] elements = startElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
-		Map<ProcessElement, List<ProcessElement>> path = isNotEmpty(flowName) ? findPath(flowName, elements) : findPath(elements);
+		Map<ProcessElement, List<ProcessElement>> path = flowName != null ? findPath(flowName, elements) : findPath(elements);
 		
 		//We only get max total duration on each path
 		Duration total = calculateTotalDuration(path, useCase);
@@ -199,7 +203,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 		Map<ProcessElement, Duration> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
 		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);
 		
-		Map<ProcessElement, List<ProcessElement>> path = isNotEmpty(flowName) ? findPath(flowName, elements) : findPath(elements);		
+		Map<ProcessElement, List<ProcessElement>> path = flowName != null ? findPath(flowName, elements) : findPath(elements);		
 		Duration total = calculateTotalDuration(path, useCase);
 		
 		return total;
