@@ -36,9 +36,9 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 	void shouldFindAllTasksAtStart() throws Exception {
 		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
 		var detectedTasks = processAnalyzer.findAllTasks(start);
-		
-		var expected = Arrays.array("Task A", "Task B", "Task K", "Task2A", "Task H", "Task2B", "Task G", "Task F",
-				"Task C", "Task1A", "Task E", "Task1B", "Task D");
+
+		var expected = Arrays.array("Task A", "Task B", "Task C", "Task1A", "Task E", "Task1B", "Task D", "Task2A",
+				"Task H", "Task2B", "Task G", "Task F", "Task K");
 		var taskNames = (getTaskNames(detectedTasks));
 		assertArrayEquals(expected, taskNames);
 	}
@@ -51,7 +51,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		
 		var detectedTasks = processAnalyzer.findAllTasks(List.of(taskK, taskF));
 		
-		var expected = Arrays.array("Task K", "Task F", "Task2A", "Task H", "Task2B", "Task G");
+		var expected = Arrays.array("Task F", "Task K", "Task2A", "Task H", "Task2B", "Task G");
 		var taskNames = (getTaskNames(detectedTasks));
 		
 		assertArrayEquals(expected, taskNames);
@@ -64,7 +64,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		
 		var detectedTasks = processAnalyzer.findAllTasks(List.of(taskF, taskB));
 		
-		var expected = Arrays.array("Task F", "Task K", "Task2A", "Task H", "Task2B", "Task G", "Task B");
+		var expected = Arrays.array("Task B", "Task K", "Task2A", "Task H", "Task2B", "Task G", "Task F");
 		var taskNames = (getTaskNames(detectedTasks));
 		
 		assertArrayEquals(expected, taskNames);
@@ -74,9 +74,9 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 	void shouldFindAllTasksAtTaskC() throws Exception {
 		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
 		var detectedTasks = processAnalyzer.findAllTasks(taskC);
-		//TODO: Should fix this case. Remote last Task K
+				
 		var expected = Arrays.array("Task C", "Task1A", "Task E", "Task1B", "Task D", "Task2A", "Task H", "Task2B",
-				"Task G", "Task K", "Task F", "Task K");
+				"Task G","Task F", "Task K");
 		var taskNames = (getTaskNames(detectedTasks));
 
 		assertArrayEquals(expected, taskNames);
@@ -118,9 +118,9 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 	@Test
 	void shouldCalculateEstimateDurationAtTaskBAndTaskC() throws Exception {
 		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
-		Duration duration = processAnalyzer.calculateEstimatedDuration(List.of(taskB, taskC));
+		Duration duration = processAnalyzer.calculateWorstCaseDuration(List.of(taskB, taskC));
 		
-		assertEquals(Duration.ofHours(13), duration);
+		assertEquals(Duration.ofHours(12), duration);
 	}
 	
 	@Test

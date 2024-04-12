@@ -1,5 +1,6 @@
 package com.axonivy.utils.process.analyzer.internal;
 
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
@@ -17,6 +18,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.axonivy.utils.process.analyzer.internal.model.AnalysisPath;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
 import com.axonivy.utils.process.analyzer.internal.model.TaskParallelGroup;
@@ -43,78 +45,93 @@ public class WorkflowTime {
 		return this.durationOverrides.getOrDefault(key, getDurationByTaskScript(taskConfig, useCase));	
 	}
 	
-	protected Map<SequenceFlow, List<ProcessElement>> getInternalPath(Map<SequenceFlow, List<ProcessElement>> internalPath, boolean withTaskEnd){		
-		Map<SequenceFlow, List<ProcessElement>> path = new LinkedHashMap<>();
+	protected Map<SequenceFlow, List<AnalysisPath>> getInternalPath(Map<SequenceFlow, List<AnalysisPath>> internalPath, boolean withTaskEnd){		
+		Map<SequenceFlow, List<AnalysisPath>> paths = new LinkedHashMap<>();
 				
 		//Priority the path go to end first
 		for(SequenceFlow sf : internalPath.keySet()) {
-			ProcessElement last = getLast(internalPath.get(sf));
-			if(withTaskEnd && last.getElement() instanceof TaskEnd) {
-				path.put(sf, internalPath.get(sf));
-			} else if (!withTaskEnd && last.getElement() instanceof TaskEnd == false){
-				path.put(sf, internalPath.get(sf));
+			List<AnalysisPath> analysisPaths = new ArrayList<>();
+			for(AnalysisPath path : internalPath.get(sf)) {
+				ProcessElement last = getLast(path.getElements());
+				if(withTaskEnd && last.getElement() instanceof TaskEnd) {
+					analysisPaths.add(path);
+				} else if (!withTaskEnd && last.getElement() instanceof TaskEnd == false){
+					analysisPaths.add(path);
+				}				
+			}
+			if (isNotEmpty(analysisPaths)) {
+				paths.put(sf, analysisPaths);
 			}
 		}
 		
-		return path;
+		return paths;
 	}
 	
-	protected Duration calculateTotalDuration(Map<ProcessElement, List<ProcessElement>> path, Enum<?> useCase) {
+	protected Duration calculateTotalDuration(Map<ProcessElement, List<AnalysisPath>> path, Enum<?> useCase) {
 		return calculateTotalDuration(path, useCase, durationOverrides);
 	}
 	
-	private Duration calculateTotalDuration(Map<ProcessElement, List<ProcessElement>> paths, Enum<?> useCase, Map<String, Duration> durationOverrides) {
-
-		// convert to both detected task and alternative		
-		List<Duration> totalOfPaths = new ArrayList<>();
-		for (Entry<ProcessElement, List<ProcessElement>> path : paths.entrySet()) {
-			List<Duration> totalWithEnd = new ArrayList<>();		
-			Duration total = Duration.ZERO;
-			for (ProcessElement element : path.getValue()) {
-
-				// CommonElement(RequestStart)
-				if (processGraph.isRequestStart(element.getElement())) {
-					continue;
-				}
-
-				if (processGraph.isTaskAndCaseModifier(element.getElement())
-						&& processGraph.isSystemTask(element.getElement())) {
-					continue;
-				}
-
-				if (element instanceof TaskParallelGroup) {
-					TaskParallelGroup taskGroup = (TaskParallelGroup) element;
-					Duration durationWithEndTask = getMaxTotalFromTaskParallelGroupWithTaskEnd(taskGroup, useCase, durationOverrides);
-					totalWithEnd.add(durationWithEndTask);
-
-					Duration maxDuration = getMaxTotalFromTaskParallelGroupWithoutTaskEnd(taskGroup, useCase, durationOverrides);
-					total = total.plus(maxDuration);
-					continue;
-				}
-
-				// CommonElement(SingleTaskCreator)
-				if (processGraph.isSingleTaskCreator(element.getElement())) {
-					SingleTaskCreator singleTask = (SingleTaskCreator) element.getElement();
-					Duration taskDuration = getDuration(singleTask, singleTask.getTaskConfig(), useCase);
-					total = total.plus(taskDuration);
-					continue;
-				}
-
-				if (element instanceof CommonElement && processGraph.isSequenceFlow(element.getElement())) {
-					SequenceFlow sequenceFlow = (SequenceFlow) element.getElement();
-					if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
-						TaskConfig startTask = processGraph.getStartTaskConfig(sequenceFlow);
-						Duration startTaskDuration = getDuration((TaskAndCaseModifier) sequenceFlow.getSource(), startTask, useCase);
-						total = total.plus(startTaskDuration);
-						continue;
-					}
-				}
-			}
-			Duration maxTotal = Stream.concat(totalWithEnd.stream(), Stream.of(total)).max(Comparator.naturalOrder()).orElse(Duration.ZERO);
-			totalOfPaths.add(maxTotal);
+	private Duration calculateTotalDuration(Map<ProcessElement, List<AnalysisPath>> paths, Enum<?> useCase, Map<String, Duration> durationOverrides) {
+		List<Duration> result = new ArrayList<>();
+		for (Entry<ProcessElement, List<AnalysisPath>> path : paths.entrySet()) {
+			Duration duration = calculateTotalDuration(path.getKey(), path.getValue(), useCase, durationOverrides);
+			result.add(duration);
 		}
 		
-		return totalOfPaths.stream().max(Comparator.naturalOrder()).orElse(Duration.ZERO);		
+		return result.stream().max(Duration::compareTo).orElse(Duration.ZERO);
+	}
+	
+	private Duration calculateTotalDuration(ProcessElement startElement, List<AnalysisPath> paths, Enum<?> useCase, Map<String, Duration> durationOverrides) {
+		List<Duration> total = paths.stream().map(path -> calculateTotalDuration(startElement, path, useCase, durationOverrides)).toList();		
+		return total.stream().max(Duration::compareTo).orElse(Duration.ZERO);
+	}
+	
+	private Duration calculateTotalDuration(ProcessElement startElement, AnalysisPath path, Enum<?> useCase, Map<String, Duration> durationOverrides) {
+		List<Duration> totalWithEnd = new ArrayList<>();		
+		Duration total = Duration.ZERO;
+		for (ProcessElement element : path.getElements()) {
+
+			// CommonElement(RequestStart)
+			if (processGraph.isRequestStart(element.getElement())) {
+				continue;
+			}
+
+			if (processGraph.isTaskAndCaseModifier(element.getElement())
+					&& processGraph.isSystemTask(element.getElement())) {
+				continue;
+			}
+
+			if (element instanceof TaskParallelGroup) {
+				TaskParallelGroup taskGroup = (TaskParallelGroup) element;
+				Duration durationWithEndTask = getMaxTotalFromTaskParallelGroupWithTaskEnd(taskGroup, useCase, durationOverrides);
+				totalWithEnd.add(durationWithEndTask);
+
+				Duration maxDuration = getMaxTotalFromTaskParallelGroupWithoutTaskEnd(taskGroup, useCase, durationOverrides);
+				total = total.plus(maxDuration);
+				continue;
+			}
+
+			// CommonElement(SingleTaskCreator)
+			if (processGraph.isSingleTaskCreator(element.getElement())) {
+				SingleTaskCreator singleTask = (SingleTaskCreator) element.getElement();
+				Duration taskDuration = getDuration(singleTask, singleTask.getTaskConfig(), useCase);
+				total = total.plus(taskDuration);
+				continue;
+			}
+
+			if (element instanceof CommonElement && processGraph.isSequenceFlow(element.getElement())) {
+				SequenceFlow sequenceFlow = (SequenceFlow) element.getElement();
+				if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
+					TaskConfig startTask = processGraph.getStartTaskConfig(sequenceFlow);
+					Duration startTaskDuration = getDuration((TaskAndCaseModifier) sequenceFlow.getSource(), startTask, useCase);
+					total = total.plus(startTaskDuration);
+					continue;
+				}
+			}
+		}
+		
+		Duration maxTotal = Stream.concat(totalWithEnd.stream(), Stream.of(total)).max(Comparator.naturalOrder()).orElse(Duration.ZERO);		
+		return maxTotal;
 	}
 	
 	private Duration getMaxTotalFromTaskParallelGroupWithTaskEnd(TaskParallelGroup group, Enum<?> useCase, Map<String, Duration> durationOverrides) {
@@ -126,10 +143,10 @@ public class WorkflowTime {
 	}
 	
 	private Duration getMaxTotalFromTaskParallelGroup(TaskParallelGroup group, Enum<?> useCase, Map<String, Duration> durationOverrides, boolean withTaskEnd) {
-		Map<SequenceFlow, List<ProcessElement>> internalPath = getInternalPath(group.getInternalPaths(), withTaskEnd);
+		Map<SequenceFlow, List<AnalysisPath>> internalPath = getInternalPath(group.getInternalPaths(), withTaskEnd);
 		Map<SequenceFlow, Duration> result = new HashMap<>();
 		
-		for (Entry<SequenceFlow, List<ProcessElement>> entry : internalPath.entrySet()) {
+		for (Entry<SequenceFlow, List<AnalysisPath>> entry : internalPath.entrySet()) {
 			Duration total = Duration.ZERO;
 			if (group.getElement() != null) {
 				TaskConfig startTask = processGraph.getStartTaskConfig(entry.getKey());
@@ -137,7 +154,7 @@ public class WorkflowTime {
 				total = total.plus(startTaskDuration);
 			}
 			
-			Map<ProcessElement, List<ProcessElement>> path = Map.of(new CommonElement(entry.getKey()), entry.getValue());
+			Map<ProcessElement, List<AnalysisPath>> path = Map.of(new CommonElement(entry.getKey()), entry.getValue());
 			
 			Duration totalFromSubPath = calculateTotalDuration(path, useCase, durationOverrides);
 

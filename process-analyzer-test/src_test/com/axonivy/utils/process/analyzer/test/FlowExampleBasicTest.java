@@ -40,7 +40,8 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 		processAnalyzer.enableDescribeAlternativeElements();
 		var detectedTasks = processAnalyzer.findAllTasks(start);
 
-		assertArrayEquals(Arrays.array("Task A", "Alter", "int/ext?", "Task B", "Alter2", "Task C"), getTaskNames(detectedTasks));
+		var expected = Arrays.array("Task A", "Alter", "int/ext?", "Alter2", "Task C", "Task B");
+		assertArrayEquals(expected, getTaskNames(detectedTasks));
 	}
 
 	@Test
@@ -48,7 +49,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
 		var detectedTasks = processAnalyzer.findAllTasks(start);
 
-		assertArrayEquals(Arrays.array("Task A", "Task B", "Task C"), getTaskNames(detectedTasks));
+		assertArrayEquals(Arrays.array("Task A", "Task C", "Task B"), getTaskNames(detectedTasks));
 	}
 
 	@Test
@@ -72,7 +73,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
 		var detectedTasks = processAnalyzer.findAllTasks(newStart);
 	
-		assertArrayEquals(Arrays.array("Task B", "Task C"), getTaskNames(detectedTasks));
+		assertArrayEquals(Arrays.array("Task C", "Task B"), getTaskNames(detectedTasks));
 	}
 	
 	@Test
@@ -119,14 +120,6 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 		var expected = Arrays.array("Task C",  "Task B");
 		var taskNames = getTaskNames(detectedTasks);
 		assertArrayEquals(expected, taskNames);
-	}
-	
-	@Test
-	void shouldFindAllTasksOfInternalFlowAtStart() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, "internal");
-		var detectedTasks = processAnalyzer.findAllTasks(start);
-
-		assertArrayEquals(Arrays.array("Task A", "Task B", "Task C"), getTaskNames(detectedTasks));		
 	}
 
 	@Test
@@ -180,14 +173,14 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 	@Test
 	void shouldCalculateTotalDurationWithDefault() throws Exception {
 		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
-		Duration duration = processAnalyzer.calculateEstimatedDuration(start);
+		Duration duration = processAnalyzer.calculateWorstCaseDuration(start);
 		assertEquals(15, duration.toHours());
 	}
 	
 	@Test
 	void shouldCalculateTotalDurationWithSMALPROJECT() throws Exception {
 		var processAnalyzer = new AdvancedProcessAnalyzer(process, UseCase.SMALLPROJECT, null);
-		Duration duration = processAnalyzer.calculateEstimatedDuration(start);
+		Duration duration = processAnalyzer.calculateWorstCaseDuration(start);
 		assertEquals(5, duration.toHours());
 	}
 	

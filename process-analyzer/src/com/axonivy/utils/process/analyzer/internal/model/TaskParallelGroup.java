@@ -5,8 +5,6 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.value.PID;
@@ -14,17 +12,17 @@ import ch.ivyteam.ivy.process.model.value.PID;
 @SuppressWarnings("restriction")
 public class TaskParallelGroup implements ProcessElement {
 	private BaseElement element;
-	private Map<SequenceFlow, List<ProcessElement>> internalPaths;
+	private Map<SequenceFlow, List<AnalysisPath>> internalPaths;
 
 	public TaskParallelGroup(BaseElement element) {
 		this.element = element;
 	}
 
-	public Map<SequenceFlow, List<ProcessElement>> getInternalPaths() {
+	public Map<SequenceFlow, List<AnalysisPath>> getInternalPaths() {
 		return internalPaths;
 	}
 
-	public void setInternalPaths(Map<SequenceFlow, List<ProcessElement>> internalPaths) {
+	public void setInternalPaths(Map<SequenceFlow, List<AnalysisPath>> internalPaths) {
 		this.internalPaths = internalPaths;
 	}
 

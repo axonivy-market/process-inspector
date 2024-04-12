@@ -141,7 +141,7 @@ public class ProcessAnalyzerBean {
 	public Duration getDetectedTaskCalculate() throws Exception{
 		AdvancedProcessAnalyzer processAnalyzer = createprocessAnalyzer(selectedAnalyzer);
 		
-		Duration total = processAnalyzer.calculateEstimatedDuration(selectedAnalyzer.getStartElement());
+		Duration total = processAnalyzer.calculateWorstCaseDuration(selectedAnalyzer.getStartElement());
 		
 		return total;
 	}

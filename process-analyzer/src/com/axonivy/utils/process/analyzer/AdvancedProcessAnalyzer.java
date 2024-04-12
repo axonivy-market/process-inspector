@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.axonivy.utils.process.analyzer.internal.ProcessAnalyzer;
+import com.axonivy.utils.process.analyzer.internal.model.AnalysisPath;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
 import com.axonivy.utils.process.analyzer.model.DetectedElement;
@@ -82,7 +83,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @throws Exception
 	 */
 	public List<? extends DetectedElement> findAllTasks(BaseElement startAtElement) throws Exception {
-		Map<ProcessElement, List<ProcessElement>> path = findPath(new CommonElement(startAtElement));
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(new CommonElement(startAtElement));
 		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase);
 		return detectedTasks;
 	}
@@ -95,7 +96,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 */
 	public List<? extends DetectedElement> findAllTasks(List<BaseElement> startAtElements) throws Exception {
 		CommonElement[] elements = startAtElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
-		Map<ProcessElement, List<ProcessElement>> path = findPath(elements);
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);
 		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase);
 		return detectedTasks;
 	}
@@ -111,7 +112,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 		Map<ProcessElement, Duration> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
 		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);
 		
-		Map<ProcessElement, List<ProcessElement>> path = findPath(elements);		
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);		
 		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, elementsWithTime);
 		return detectedTasks;
 	}
@@ -124,7 +125,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 */
 	public List<? extends DetectedElement> findTasksOnPath(BaseElement startAtElement) throws Exception {
 		ProcessElement element = new CommonElement(startAtElement);
-		Map<ProcessElement, List<ProcessElement>> path = findPath(flowName, element);
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(flowName, element);
 		Map<ProcessElement, Duration> startedAts = Map.of(element, Duration.ZERO);	
 		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, startedAts);
 		return detectedTasks;
@@ -137,7 +138,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 */
 	public List<? extends DetectedElement> findTasksOnPath(List<BaseElement> startAtElements) throws Exception {
 		ProcessElement[] elements = startAtElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
-		Map<ProcessElement, List<ProcessElement>> path = findPath(flowName, elements);
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(flowName, elements);
 		
 		Map<ProcessElement, Duration> startedAts = Stream.of(elements).collect(Collectors.toMap(it ->it, it -> Duration.ZERO));
 		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, startedAts);
@@ -154,7 +155,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 		List<ITask> tasks = getCaseITasks(icase);
 		Map<ProcessElement, Duration> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
 		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);
-		Map<ProcessElement, List<ProcessElement>> path = findPath(flowName, elements);
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(flowName, elements);
 		
 		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, elementsWithTime);
 		return detectedTasks;
@@ -167,9 +168,9 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public Duration calculateEstimatedDuration(BaseElement startElement) throws Exception {
+	public Duration calculateWorstCaseDuration(BaseElement startElement) throws Exception {
 		ProcessElement element = new CommonElement(startElement);
-		Map<ProcessElement, List<ProcessElement>> path = flowName != null ? findPath(flowName, element) : findPath(element);
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(element);
 		
 		Duration total = calculateTotalDuration(path, useCase);
 		
@@ -182,9 +183,9 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public Duration calculateEstimatedDuration(List<BaseElement> startElements) throws Exception {
+	public Duration calculateWorstCaseDuration(List<BaseElement> startElements) throws Exception {
 		ProcessElement[] elements = startElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
-		Map<ProcessElement, List<ProcessElement>> path = flowName != null ? findPath(flowName, elements) : findPath(elements);
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);
 		
 		//We only get max total duration on each path
 		Duration total = calculateTotalDuration(path, useCase);
@@ -198,12 +199,12 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public Duration calculateEstimatedDuration(ICase icase) throws Exception {
+	public Duration calculateWorstCaseDuration(ICase icase) throws Exception {
 		List<ITask> tasks = getCaseITasks(icase);
 		Map<ProcessElement, Duration> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
 		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);
 		
-		Map<ProcessElement, List<ProcessElement>> path = flowName != null ? findPath(flowName, elements) : findPath(elements);		
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);		
 		Duration total = calculateTotalDuration(path, useCase);
 		
 		return total;
