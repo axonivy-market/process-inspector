@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.assertj.core.util.Arrays;
@@ -75,8 +74,7 @@ public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 		List<ITask> activeTasks = result.workflow().activeTasks();
 		ITask taskA = findTaskByElementName(activeTasks, "Task A");
 		 		 
-		bpmClient.mock().uiOf(FLOW_PARALLEL_IN_ORDER.elementName("Task A")).withNoAction();
-		Thread.sleep(2*1000);
+		bpmClient.mock().uiOf(FLOW_PARALLEL_IN_ORDER.elementName("Task A")).withNoAction();		
 		result = bpmClient.start().task(taskA).as().everybody().execute();
 		
 		
@@ -89,17 +87,11 @@ public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 		var taskNames = getTaskNames(detectedTasks);
 		assertArrayEquals(expected, taskNames);
 		
-		DetectedTask taskB = (DetectedTask) findByElementName(detectedTasks, "Task B");
 		DetectedTask taskC = (DetectedTask) findByElementName(detectedTasks, "Task C");
 		DetectedTask taskD = (DetectedTask) findByElementName(detectedTasks, "Task D");
 		
-		assertEquals(taskC.calculateEstimatedEndTimestamp(), taskD.calculateEstimatedEndTimestamp());
-		
-		LocalDateTime startTimeOfTaskB = toLocalDateTime(taskB.getEstimatedStartTimestamp());
-		LocalDateTime startTimeOfTaskC = toLocalDateTime(taskC.getEstimatedStartTimestamp());
-		
-		Duration duration = Duration.between(startTimeOfTaskC, startTimeOfTaskB);
-		
-		assertEquals( 2, duration.toSeconds());
+		assertEquals(Duration.ZERO, taskC.getTimeUntilStart());
+		assertEquals(taskC.getTimeUntilEnd(), taskD.getTimeUntilStart());
+		assertEquals(taskC.getTimeUntilEnd().plus(taskD.getEstimatedDuration()), taskD.getTimeUntilEnd());
 	}
 }

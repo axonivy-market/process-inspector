@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Duration;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -48,11 +47,11 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 		DetectedTask taskD = detectedTasks.stream().filter(it -> it.getTaskName().equals("Task D")).findFirst().orElse(null);
 		DetectedTask taskB = detectedTasks.stream().filter(it -> it.getTaskName().equals("Task B")).findFirst().orElse(null);
 		DetectedTask taskC = detectedTasks.stream().filter(it -> it.getTaskName().equals("Task C")).findFirst().orElse(null);
-		Date maxTimeFromBC = Stream.of(taskB.calculateEstimatedEndTimestamp(), taskC.calculateEstimatedEndTimestamp())
-				.max(Date::compareTo)
+		Duration maxTimeFromBC = Stream.of(taskB.getTimeUntilEnd(), taskC.getTimeUntilEnd())
+				.max(Duration::compareTo)
 				.orElse(null);
 		
-		assertEquals(maxTimeFromBC.getTime(), taskD.getEstimatedStartTimestamp().getTime());	
+		assertEquals(maxTimeFromBC, taskD.getTimeUntilStart());	
 	}
 
 	@Test
