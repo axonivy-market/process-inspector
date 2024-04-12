@@ -4,7 +4,6 @@ import static java.util.Collections.emptyMap;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import java.time.Duration;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,7 +103,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 */
 	public List<? extends DetectedElement> findAllTasks(ICase icase) throws Exception {		
 		List<ITask> tasks = getCaseITasks(icase);
-		Map<ProcessElement, Date> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
+		Map<ProcessElement, Duration> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
 		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);
 		
 		Map<ProcessElement, List<ProcessElement>> path = findPath(elements);		
@@ -121,7 +120,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	public List<? extends DetectedElement> findTasksOnPath(BaseElement startAtElement) throws Exception {
 		ProcessElement element = new CommonElement(startAtElement);
 		Map<ProcessElement, List<ProcessElement>> path = findPath(flowName, element);
-		Map<ProcessElement, Date> startedAts = Map.of(element, new Date());
+		Map<ProcessElement, Duration> startedAts = Map.of(element, Duration.ZERO);
 		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, startedAts);
 		return detectedTasks;
 	}
@@ -135,7 +134,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 		ProcessElement[] elements = startAtElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
 		Map<ProcessElement, List<ProcessElement>> path = findPath(flowName, elements);
 		
-		Map<ProcessElement, Date> startedAts = Stream.of(elements).collect(Collectors.toMap(it ->it, it -> new Date()));
+		Map<ProcessElement, Duration> startedAts = Stream.of(elements).collect(Collectors.toMap(it ->it, it -> Duration.ZERO));
 		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, startedAts);
 		return detectedTasks;
 	}
@@ -148,7 +147,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 */
 	public List<? extends DetectedElement> findTasksOnPath(ICase icase) throws Exception {		
 		List<ITask> tasks = getCaseITasks(icase);
-		Map<ProcessElement, Date> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
+		Map<ProcessElement, Duration> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
 		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);
 		
 		Map<ProcessElement, List<ProcessElement>> path = findPath(flowName, elements);
@@ -197,7 +196,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 */
 	public Duration calculateEstimatedDuration(ICase icase) throws Exception {
 		List<ITask> tasks = getCaseITasks(icase);
-		Map<ProcessElement, Date> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
+		Map<ProcessElement, Duration> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
 		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);
 		
 		Map<ProcessElement, List<ProcessElement>> path = isNotEmpty(flowName) ? findPath(flowName, elements) : findPath(elements);		

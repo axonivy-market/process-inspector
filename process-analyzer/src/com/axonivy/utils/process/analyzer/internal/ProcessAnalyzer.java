@@ -72,16 +72,16 @@ public abstract class ProcessAnalyzer {
 	
 	protected List<DetectedElement> convertToDetectedElements(Map<ProcessElement, List<ProcessElement>> paths, Enum<?> useCase) {		
 		Map<ProcessElement, List<ProcessElement>> distinctedPath = mergePath(paths);
-		Map<ProcessElement, Date> startAts = distinctedPath.keySet().stream().collect(Collectors.toMap(it ->it, it -> new Date()));
-		List<DetectedElement> result = convertToDetectedElements(distinctedPath, useCase, startAts);
+		Map<ProcessElement, Duration> timeUntilStartAts = distinctedPath.keySet().stream().collect(Collectors.toMap(it ->it, it -> Duration.ZERO));
+		List<DetectedElement> result = convertToDetectedElements(distinctedPath, useCase, timeUntilStartAts);
 		return result;
 	}
 	
-	protected Map<ProcessElement, Date> getProcessElementWithStartTimestamp(List<ITask> tasks) {
-		Map<ProcessElement, Date> result = new LinkedHashMap<>();
+	protected Map<ProcessElement, Duration> getProcessElementWithStartTimestamp(List<ITask> tasks) {
+		Map<ProcessElement, Duration> result = new LinkedHashMap<>();
 		for(ITask task : tasks) {
 			BaseElement element = ProcessAnalyzerHelper.getBaseElementOf(task);
-			result.put(new CommonElement(element), task.getStartTimestamp());
+			result.put(new CommonElement(element), Duration.ZERO);
 		}
 		
 		return result;
@@ -98,13 +98,13 @@ public abstract class ProcessAnalyzer {
 		return Map.of(key, elements);
 	}
 	
-	protected List<DetectedElement> convertToDetectedElements(Map<ProcessElement, List<ProcessElement>> paths, Enum<?> useCase, Map<ProcessElement, Date> startedAts) {
+	protected List<DetectedElement> convertToDetectedElements(Map<ProcessElement, List<ProcessElement>> paths, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStarts) {
 
 		// convert to both detected task and alternative
 		List<DetectedElement> result = new ArrayList<>();	
 		for(Entry<ProcessElement, List<ProcessElement>> path : paths.entrySet()) {
-			Date startedAt = startedAts.get(path.getKey());
-			Date startAtTime = getEndTimestamp(result, startedAt);
+			Duration timeUntilStart = timeUntilStarts.get(path.getKey());
+			Duration durationStart = timeUntilEnd(result, timeUntilStart);
 			for(ProcessElement element : path.getValue()) {
 				
 				// CommonElement(RequestStart)
@@ -127,20 +127,20 @@ public abstract class ProcessAnalyzer {
 				// CommonElement(SingleTaskCreator)
 				if (processGraph.isSingleTaskCreator(element.getElement())) {
 					SingleTaskCreator singleTask = (SingleTaskCreator) element.getElement();
-					var detectedTask = createDetectedTask(singleTask, singleTask.getTaskConfig(), startAtTime, useCase);
+					var detectedTask = createDetectedTask(singleTask, singleTask.getTaskConfig(), durationStart, useCase);
 					if (detectedTask != null) {
 						result.add(detectedTask);
-						startAtTime = getEndTimestamp(result, startedAt);
+						durationStart = timeUntilEnd(result, timeUntilStart);
 					}
 					continue;
 				}
 			
 				if (element instanceof TaskParallelGroup) {
-					var startedForGroup = element.getElement() == null ? startedAts : Map.of(element, startAtTime);
+					var startedForGroup = element.getElement() == null ? timeUntilStarts : Map.of(element, durationStart);
 					var tasks = convertToDetectedElementFromTaskParallelGroup((TaskParallelGroup) element, useCase, startedForGroup);
 					if (isNotEmpty(tasks)) {
 						result.addAll(tasks);
-						startAtTime = getMaxEndTimestamp(tasks);
+						durationStart = getMaxDurationUntilEnd(tasks);
 					}
 					continue;
 				}
@@ -148,10 +148,10 @@ public abstract class ProcessAnalyzer {
 				// CommonElement(SingleTaskCreator)
 				if (processGraph.isSingleTaskCreator(element.getElement())) {
 					SingleTaskCreator singleTask = (SingleTaskCreator) element.getElement();
-					var detectedTask = createDetectedTask(singleTask, singleTask.getTaskConfig(), startAtTime, useCase);
+					var detectedTask = createDetectedTask(singleTask, singleTask.getTaskConfig(), durationStart, useCase);
 					if (detectedTask != null) {
 						result.add(detectedTask);
-						startAtTime = getEndTimestamp(result, startedAt);
+						durationStart = timeUntilEnd(result, durationStart);
 					}
 					continue;
 				}
@@ -159,10 +159,10 @@ public abstract class ProcessAnalyzer {
 				if (element instanceof CommonElement && processGraph.isSequenceFlow(element.getElement())) {
 					SequenceFlow sequenceFlow = (SequenceFlow) element.getElement();
 					if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
-						var startTask = createStartTaskFromTaskSwitchGateway(sequenceFlow, startAtTime, useCase);
+						var startTask = createStartTaskFromTaskSwitchGateway(sequenceFlow, durationStart, useCase);
 						if (startTask != null) {
 							result.add(startTask);
-							startAtTime = getEndTimestamp(result, startedAt);
+							durationStart = timeUntilEnd(result, timeUntilStart);
 						}
 						continue;
 					}
@@ -173,7 +173,7 @@ public abstract class ProcessAnalyzer {
 		return result.stream().filter(item -> item != null).toList();		
 	}
 	
-	private List<DetectedElement> convertToDetectedElementFromTaskParallelGroup(TaskParallelGroup group, Enum<?> useCase, Map<ProcessElement, Date> startedAts) {	
+	private List<DetectedElement> convertToDetectedElementFromTaskParallelGroup(TaskParallelGroup group, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStartAts) {	
 		WorkflowTime workflowTime = new WorkflowTime(getDurationOverrides());
 		Map<SequenceFlow, List<ProcessElement>> sortedInternalPath =  new LinkedHashMap<>();
 		sortedInternalPath.putAll(workflowTime.getInternalPath(group.getInternalPaths(), true));
@@ -182,20 +182,19 @@ public abstract class ProcessAnalyzer {
 		List<DetectedElement> result = new ArrayList<>();
 		for (Entry<SequenceFlow, List<ProcessElement>> entry : sortedInternalPath.entrySet()) {
 			SequenceFlow sequenceFlow = (SequenceFlow)entry.getKey();
-			Date startedAt = startedAts.get(group);; 
+			Duration startedAt = timeUntilStartAts.get(group);; 
 			if(group.getElement() != null) {
 				var startTask = createStartTaskFromTaskSwitchGateway(sequenceFlow, startedAt, useCase);
 				result.add(startTask);
-				startedAt = ((DetectedTask)startTask).calculateEstimatedEndTimestamp();
+				startedAt = ((DetectedTask)startTask).getTimeUntilEnd();
 			} 
 			
 			ProcessElement key = new CommonElement(sequenceFlow);
 			Map<ProcessElement, List<ProcessElement>> path = Map.of(key, entry.getValue());
 			if(startedAt == null) {
-				startedAt = startedAts.get(new CommonElement(sequenceFlow.getTarget()));
+				startedAt = timeUntilStartAts.get(new CommonElement(sequenceFlow.getTarget()));
 			}
-			
-						
+				
 			var tasks = convertToDetectedElements(path, useCase, Map.of(key, startedAt));
 			result.addAll(tasks);
 		}
@@ -203,34 +202,34 @@ public abstract class ProcessAnalyzer {
 		return result;
 	}
 		
-	private Date getEndTimestamp(List<DetectedElement> detectedElements, Date defaultAt) {
+	private Duration timeUntilEnd(List<DetectedElement> detectedElements, Duration defaultAt) {
 		List<DetectedTask> detectedTasks = detectedElements.stream()
 				.filter(item -> item instanceof DetectedTask)
 				.map(DetectedTask.class::cast)
 				.toList();
 		int size =  detectedTasks.size();
-		return size > 0 ? detectedTasks.get(size - 1).calculateEstimatedEndTimestamp() : defaultAt;
+		return size > 0 ? detectedTasks.get(size - 1).getTimeUntilEnd() : defaultAt;
 	}
 	
-	private Date getMaxEndTimestamp(List<DetectedElement> detectedElements) {
-		Date maxEndTimeStamp = detectedElements.stream()
+	private Duration getMaxDurationUntilEnd(List<DetectedElement> detectedElements) {
+		Duration maxDurationUntilEnd = detectedElements.stream()
 				.filter(item -> item instanceof DetectedTask == true)
 				.map(DetectedTask.class::cast)
-				.map(DetectedTask::calculateEstimatedEndTimestamp)				
-				.max(Date::compareTo)
+				.map(DetectedTask::getTimeUntilEnd)				
+				.max(Duration::compareTo)
 				.orElse(null);
 				
-		return maxEndTimeStamp;
+		return maxDurationUntilEnd;
 	}
 	
-	private DetectedElement createStartTaskFromTaskSwitchGateway(SequenceFlow sequenceFlow, Date startedAt, Enum<?> useCase) {
+	private DetectedElement createStartTaskFromTaskSwitchGateway(SequenceFlow sequenceFlow, Duration timeUntilStartedAt, Enum<?> useCase) {
 
 		DetectedElement task = null;
 		if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
 			TaskSwitchGateway taskSwitchGateway = (TaskSwitchGateway) sequenceFlow.getSource();
 			if (!processGraph.isSystemTask(taskSwitchGateway)) {
 				TaskConfig startTask = getStartTaskConfigFromTaskSwitchGateway(sequenceFlow);
-				task = createDetectedTask((TaskAndCaseModifier) taskSwitchGateway, startTask, startedAt, useCase);
+				task = createDetectedTask((TaskAndCaseModifier) taskSwitchGateway, startTask, timeUntilStartedAt, useCase);
 			}
 		}
 		return task;
@@ -260,7 +259,7 @@ public abstract class ProcessAnalyzer {
 		return element;
 	}
 	
-	private DetectedElement createDetectedTask(TaskAndCaseModifier task, TaskConfig taskConfig, Date startedAt, Enum<?> useCase) {
+	private DetectedElement createDetectedTask(TaskAndCaseModifier task, TaskConfig taskConfig, Duration timeUntilStartAt, Enum<?> useCase) {
 		WorkflowTime workflowTime = new WorkflowTime(getDurationOverrides());
 		DetectedTask detectedTask = new DetectedTask();
 		
@@ -270,7 +269,8 @@ public abstract class ProcessAnalyzer {
 		detectedTask.setElementName(task.getName());
 		Duration estimatedDuration = workflowTime.getDuration(task, taskConfig, useCase);				
 		detectedTask.setEstimatedDuration(estimatedDuration);
-		detectedTask.setEstimatedStartTimestamp(startedAt);		
+		detectedTask.setTimeUntilStart(timeUntilStartAt);		
+		detectedTask.setTimeUntilEnd(timeUntilStartAt.plus(estimatedDuration));
 		String customerInfo = getCustomInfoByCode(taskConfig);
 		detectedTask.setCustomInfo(customerInfo);		
 		
