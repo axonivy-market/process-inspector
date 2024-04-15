@@ -8,7 +8,7 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 public class DateTimeHelper {
 
 	public static String getDisplayDuration(Duration duration) {
-		if(duration.isZero()) {
+		if(duration == null) {
 			return StringUtils.EMPTY;
 		}
 		return  DurationFormatUtils.formatDuration(duration.toMillis(), "H'h' m'm'", false);
