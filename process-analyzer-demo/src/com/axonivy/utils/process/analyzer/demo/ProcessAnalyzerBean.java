@@ -8,21 +8,20 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.faces.event.AjaxBehaviorEvent;
 
-import org.apache.commons.lang3.StringUtils;
 import org.primefaces.component.selectoneradio.SelectOneRadio;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
-import com.axonivy.utils.process.analyzer.demo.constant.UseCase;
 import com.axonivy.utils.process.analyzer.demo.constant.FindType;
+import com.axonivy.utils.process.analyzer.demo.constant.UseCase;
 import com.axonivy.utils.process.analyzer.demo.helper.DateTimeHelper;
 import com.axonivy.utils.process.analyzer.demo.model.Analyzer;
 import com.axonivy.utils.process.analyzer.model.DetectedAlternative;
 import com.axonivy.utils.process.analyzer.model.DetectedElement;
+import com.axonivy.utils.process.analyzer.model.DetectedTask;
 
 import ch.ivyteam.ivy.application.IProcessModelVersion;
 import ch.ivyteam.ivy.environment.Ivy;
@@ -48,9 +47,11 @@ public class ProcessAnalyzerBean {
 	private List<Process> processes = emptyList();
 	
 	private Analyzer selectedAnalyzer = null;
+	
+	AdvancedProcessAnalyzer processAnalyzer;
 
 	public ProcessAnalyzerBean() {
-		processes = getAllProcesses();
+		this.processes = getAllProcesses();
 	}
 	
 	public List<Analyzer> getAnalyzers() {
@@ -74,6 +75,7 @@ public class ProcessAnalyzerBean {
 	}
 
 	public List<SingleTaskCreator> getAllTaskModifier() {
+		this.processAnalyzer = new AdvancedProcessAnalyzer(selectedAnalyzer.getProcess());
 		return  getElementOfProcess(this.selectedAnalyzer.getProcess()).stream()
 			.filter(item -> item instanceof SingleTaskCreator)
 			.map(SingleTaskCreator.class::cast)
@@ -89,10 +91,10 @@ public class ProcessAnalyzerBean {
 	}
 	
 	public List<DetectedAlternative> getALternativeWithMoreThanOneOutgoing() throws Exception {
-		AdvancedProcessAnalyzer processAnalyzer = new AdvancedProcessAnalyzer(selectedAnalyzer.getProcess(), null, null);
+		
 		processAnalyzer.enableDescribeAlternativeElements();
 		
-		List<DetectedAlternative> alternatives = processAnalyzer.findAllTasks(selectedAnalyzer.getStartElement()).stream()
+		List<DetectedAlternative> alternatives = processAnalyzer.findAllTasks(selectedAnalyzer.getStartElement(), null).stream()
 				.filter(item -> item instanceof DetectedAlternative)
 				.map(DetectedAlternative.class::cast)
 				.filter(item -> item.getOptions().size() > 1)
@@ -119,46 +121,45 @@ public class ProcessAnalyzerBean {
 		}
 	}
 	
-	public List<DetectedElement> getDetectedTask() throws Exception {
-		AdvancedProcessAnalyzer processAnalyzer = createprocessAnalyzer(selectedAnalyzer);
-
+	public List<DetectedElement> getDetectedTask() throws Exception {		
+		UseCase useCase = selectedAnalyzer.getUseCase();
+		String flowName = selectedAnalyzer.getFlowName();
+		SingleTaskCreator startElement = selectedAnalyzer.getStartElement();
+		processAnalyzer = updateProcessAnalyzer(selectedAnalyzer);
+		
 		long startTime = System.currentTimeMillis();
-		List<DetectedElement> detectedElements = null;
+		List<?> detectedElements = null;
 		if (FindType.ALL_TASK.equals(selectedAnalyzer.getFindType())) {
-			detectedElements = processAnalyzer.findAllTasks(selectedAnalyzer.getStartElement()).stream()
-					.map(DetectedElement.class::cast).toList();
+			detectedElements = processAnalyzer.findAllTasks(startElement, useCase);
 		} else {
-			detectedElements = processAnalyzer.findTasksOnPath(selectedAnalyzer.getStartElement()).stream()
-					.map(DetectedElement.class::cast).toList();
+			detectedElements = processAnalyzer.findTasksOnPath(startElement, useCase, flowName);
 		}
 
 		long executionTime = System.currentTimeMillis() - startTime;
 		selectedAnalyzer.setExecutionTime(executionTime);
 
-		return detectedElements;
+		return detectedElements.stream().map(DetectedElement.class::cast).toList();
 	}
 
 	public Duration getDetectedTaskCalculate() throws Exception{
-		AdvancedProcessAnalyzer processAnalyzer = createprocessAnalyzer(selectedAnalyzer);
-		
-		Duration total = processAnalyzer.calculateWorstCaseDuration(selectedAnalyzer.getStartElement());
-		
+		UseCase useCase = selectedAnalyzer.getUseCase();
+		String flowName = selectedAnalyzer.getFlowName();
+		SingleTaskCreator startElement = selectedAnalyzer.getStartElement();
+		processAnalyzer = updateProcessAnalyzer(selectedAnalyzer);
+		Duration total = Duration.ZERO;
+		if (FindType.ALL_TASK.equals(selectedAnalyzer.getFindType())) {
+			total = processAnalyzer.calculateWorstCaseDuration(startElement, useCase);	
+		} else {
+			total = processAnalyzer.calculateDurationOfPath(startElement, useCase, flowName);
+		}
+				
 		return total;
 	}
 
-	private AdvancedProcessAnalyzer createprocessAnalyzer(Analyzer analyzer) {
-		Process process = analyzer.getProcess();
-		UseCase useCase = analyzer.getUseCase();
-		String flowName = analyzer.getFlowName();
-		FindType findType = analyzer.getFindType();
-		
-		flowName = FindType.TASK_ON_PATH.equals(findType) ? Optional.ofNullable(flowName).orElse(StringUtils.EMPTY) : flowName; 
-		
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, useCase, flowName);
-
+	private AdvancedProcessAnalyzer updateProcessAnalyzer(Analyzer analyzer) {
 		HashMap<String, String> flowOverrides = getProcessFlowOverride(analyzer);
-		processAnalyzer.setProcessFlowOverrides(flowOverrides);
-		
+		processAnalyzer.disableDescribeAlternativeElements();
+		processAnalyzer.setProcessFlowOverrides(flowOverrides);		
 		return processAnalyzer;
 	}
 

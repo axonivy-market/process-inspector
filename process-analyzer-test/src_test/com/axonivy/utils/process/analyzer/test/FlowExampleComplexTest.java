@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
@@ -32,26 +33,29 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		taskC = ProcessGraphHelper.findByElementName(process, "Task C");
 	}
 
+	@BeforeEach
+	public void setupForEach() {
+		processAnalyzer = new AdvancedProcessAnalyzer(process);	
+	}
+	
 	@Test
 	void shouldFindAllTasksAtStart() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
-		var detectedTasks = processAnalyzer.findAllTasks(start);
-		
-		var expected = Arrays.array("Task A", "Task B", "Task C", "Task1A", "Task E", "Task1B", "Task D", "Task F",
-				"Task2A", "Task H", "Task K", "Task2B", "Task G");
+		var detectedTasks = processAnalyzer.findAllTasks(start, null);
+
+		var expected = Arrays.array("Task A", "Task B", "Task K", "Task2A", "Task H", "Task2B", "Task G", "Task F",
+				"Task C", "Task1A", "Task E", "Task1B", "Task D");
 		var taskNames = (getTaskNames(detectedTasks));
 		assertArrayEquals(expected, taskNames);
 	}
 
 	@Test
 	void shouldFindAllTasksAtTaskKAndTaskF() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
 		var taskK = ProcessGraphHelper.findByElementName(process, "Task K");
 		var taskF = ProcessGraphHelper.findByElementName(process, "Task F");
 		
-		var detectedTasks = processAnalyzer.findAllTasks(List.of(taskK, taskF));
+		var detectedTasks = processAnalyzer.findAllTasks(List.of(taskK, taskF), null);
 		
-		var expected = Arrays.array("Task F", "Task K", "Task2B", "Task G", "Task2A", "Task H");
+		var expected = Arrays.array("Task K", "Task F", "Task2A", "Task H", "Task2B", "Task G");
 		var taskNames = (getTaskNames(detectedTasks));
 		
 		assertArrayEquals(expected, taskNames);
@@ -59,12 +63,11 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindAllTasksAtTaskFAndTaskB() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);		
 		var taskF = ProcessGraphHelper.findByElementName(process, "Task F");
 		
-		var detectedTasks = processAnalyzer.findAllTasks(List.of(taskF, taskB));
+		var detectedTasks = processAnalyzer.findAllTasks(List.of(taskF, taskB), null);
 		
-		var expected = Arrays.array("Task B", "Task F", "Task2A", "Task H", "Task K", "Task2B", "Task G");
+		var expected = Arrays.array("Task F", "Task K", "Task2A", "Task H", "Task2B", "Task G", "Task B");
 		var taskNames = (getTaskNames(detectedTasks));
 		
 		assertArrayEquals(expected, taskNames);
@@ -72,11 +75,10 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindAllTasksAtTaskC() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
-		var detectedTasks = processAnalyzer.findAllTasks(taskC);
+		var detectedTasks = processAnalyzer.findAllTasks(taskC, null);
 		
-		var expected = Arrays.array("Task C", "Task1A", "Task E", "Task1B", "Task D", "Task F", "Task2A", "Task H",
-				"Task K", "Task2B", "Task G");
+		var expected = Arrays.array("Task C", "Task1A", "Task E", "Task1B", "Task D", "Task2A", "Task H", "Task2B",
+				"Task G", "Task F", "Task K");
 		var taskNames = (getTaskNames(detectedTasks));
 
 		assertArrayEquals(expected, taskNames);
@@ -84,11 +86,9 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 
 	@Test
 	void shouldFindTasksOnPathAtTaskCWithInternal() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, "internal");
-		var detectedTasks = processAnalyzer.findTasksOnPath(taskC);
-
-		var expected = Arrays.array("Task C", "Task1A", "Task E", "Task1B", "Task D", "Task2B", "Task G", "Task2A",
-				"Task H");
+		var detectedTasks = processAnalyzer.findTasksOnPath(taskC, null, "internal");
+		
+		var expected = Arrays.array("Task C", "Task1A", "Task E", "Task1B", "Task D", "Task2A", "Task H", "Task2B", "Task G");
 		var taskNames = (getTaskNames(detectedTasks));
 
 		assertArrayEquals(expected, taskNames);
@@ -96,8 +96,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindTasksOnPathAtTaskC() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
-		var detectedTasks = processAnalyzer.findTasksOnPath(taskC);
+		var detectedTasks = processAnalyzer.findTasksOnPath(taskC,  null, null);
 		
 		var expected = Arrays.array("Task C", "Task1A", "Task E", "Task1B", "Task D", "Task2A", "Task H", "Task2B",
 				"Task G", "Task K");
@@ -108,8 +107,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindTasksOnPathAtStart() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, "internal");
-		var detectedTasks = processAnalyzer.findTasksOnPath(start);
+		var detectedTasks = processAnalyzer.findTasksOnPath(start, UseCase.BIGPROJECT, "internal");
 		
 		var expected = Arrays.array("Task A", "Task B", "Task2B", "Task G", "Task2A", "Task H");
 		var taskNames = (getTaskNames(detectedTasks));
@@ -117,30 +115,24 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 	}
 
 	@Test
-	void shouldCalculateEstimateDurationAtTaskBAndTaskC() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
-		Duration duration = processAnalyzer.calculateWorstCaseDuration(List.of(taskB, taskC));
+	void shouldCalculateEstimateDuratioUseCaseBIGPROJECTAtTaskBAndTaskC() throws Exception {
+		
+		Duration duration = processAnalyzer.calculateWorstCaseDuration(List.of(taskB, taskC), UseCase.BIGPROJECT);
 		
 		assertEquals(Duration.ofHours(17), duration);
 	}
 	
 	@Test
-	void shouldFindTasksOnPathWithProcessFlowOverridesAtTaskC() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);		
+	void shouldFindTasksOnPathWithProcessFlowOverridesAtTaskC() throws Exception {		
 		var flowOverrides = new HashMap<String, String>();
 		flowOverrides.put("18DF31B990019995-f47", "18DF31B990019995-f28");
 		processAnalyzer.setProcessFlowOverrides(flowOverrides);
 				
-		var detectedTasks = processAnalyzer.findTasksOnPath(taskC);
+		var detectedTasks = processAnalyzer.findTasksOnPath(taskC, null, null);
 		
 		var expected = Arrays.array("Task C", "Task1A", "Task E", "Task1B", "Task D", "Task F",  "Task K");
 		var taskNames = (getTaskNames(detectedTasks));
 		
 		assertArrayEquals(expected, taskNames);
-	}
-	
-	@Test
-	void shouldFindTasksOnPathAtTaskD() throws Exception {
-		//Can not run with the case with start element after TaskSwichGetway
 	}
 }

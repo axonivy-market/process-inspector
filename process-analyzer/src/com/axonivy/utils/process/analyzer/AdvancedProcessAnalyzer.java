@@ -24,8 +24,6 @@ import ch.ivyteam.ivy.workflow.ITask;
 public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 
 	private Process process;
-	private Enum<?> useCase;
-	private String flowName;
 	private boolean isEnableDescribeAlternative;
 	private Map<String, Duration> durationOverrides;
 	// It only impart to find task base in flowName
@@ -33,15 +31,11 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	
 	/** 
 	 * @param process - The process that should be analyzed.
-	 * @param useCase - Use case that should be used to read duration values.
 	 * If it is null, it will get first duration configure line
-	 * @param flowName - Tag name we want to follow at alternative gateways.
 	 */
-	public AdvancedProcessAnalyzer(Process process, Enum<?> useCase, String flowName) {
+	public AdvancedProcessAnalyzer(Process process) {
 		super();
 		this.process = process;
-		this.useCase = useCase;
-		this.flowName = flowName;
 		this.isEnableDescribeAlternative = false;
 		this.durationOverrides = emptyMap();
 		this.processFlowOverrides = emptyMap();		
@@ -79,10 +73,11 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	/**
 	 * Return a list of all tasks in the process which can be reached from the starting element.
 	 * @param startAtElement - Element where we start traversing the process
+	 * @param useCase - Use case that should be used to read duration values. Durations will be set to 0 in case not provided.
 	 * @return
 	 * @throws Exception
 	 */
-	public List<? extends DetectedElement> findAllTasks(BaseElement startAtElement) throws Exception {
+	public List<? extends DetectedElement> findAllTasks(BaseElement startAtElement, Enum<?> useCase) throws Exception {
 		Map<ProcessElement, List<AnalysisPath>> path = findPath(new CommonElement(startAtElement));
 		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase);
 		return detectedTasks;
@@ -91,27 +86,29 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	/**
 	 * Return a list of all tasks in the process which can be reached from the starting element.
 	 * @param startAtElements - Elements where we start traversing the process. In case of parallel tasks, the list will contain multiple objects.
+	 * @param useCase - Use case that should be used to read duration values. Durations will be set to 0 in case not provided.
 	 * @return
 	 * @throws Exception
 	 */
-	public List<? extends DetectedElement> findAllTasks(List<BaseElement> startAtElements) throws Exception {
+	public List<? extends DetectedElement> findAllTasks(List<BaseElement> startAtElements, Enum<?> useCase) throws Exception {
 		CommonElement[] elements = startAtElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
 		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);
 		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase);
 		return detectedTasks;
 	}
-	
+
 	/**
 	 * Return a list of all tasks in the process which can be reached from active case.
 	 * @param icase - Ivy Case which should be analyzed.
+	 * @param useCase - Use case that should be used to read duration values. Durations will be set to 0 in case not provided.
 	 * @return
 	 * @throws Exception
 	 */
-	public List<? extends DetectedElement> findAllTasks(ICase icase) throws Exception {		
+	public List<? extends DetectedElement> findAllTasks(ICase icase, Enum<?> useCase) throws Exception {		
 		List<ITask> tasks = getCaseITasks(icase);
 		Map<ProcessElement, Duration> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
-		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);
-		
+
+		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);		
 		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);		
 		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, elementsWithTime);
 		return detectedTasks;
@@ -120,12 +117,16 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	/**
 	 * Return a list of all tasks which are created when process follows the tagged flow. Uses the flow name set in the constructor.
 	 * @param startAtElement - Element where we start traversing the process
+	 * @param useCase - Use case that should be used to read duration values. Durations will be set to 0 in case not provided.
+	 * @param flowName - Tag name we want to follow at alternative gateways. 	 
 	 * @return
 	 * @throws Exception
 	 */
-	public List<? extends DetectedElement> findTasksOnPath(BaseElement startAtElement) throws Exception {
+	public List<? extends DetectedElement> findTasksOnPath(BaseElement startAtElement, Enum<?> useCase, String flowName) throws Exception {
 		ProcessElement element = new CommonElement(startAtElement);
+		
 		Map<ProcessElement, List<AnalysisPath>> path = findPath(flowName, element);
+		
 		Map<ProcessElement, Duration> startedAts = Map.of(element, Duration.ZERO);	
 		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, startedAts);
 		return detectedTasks;
@@ -133,11 +134,14 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	
 	/**
 	 * @param startAtElements - Elements where we start traversing the process. In case of parallel tasks, the list will contain multiple objects.
+	 * @param useCase - Use case that should be used to read duration values. Durations will be set to 0 in case not provided.
+	 * @param flowName - Tag name we want to follow at alternative gateways.
 	 * @return
 	 * @throws Exception
 	 */
-	public List<? extends DetectedElement> findTasksOnPath(List<BaseElement> startAtElements) throws Exception {
+	public List<? extends DetectedElement> findTasksOnPath(List<BaseElement> startAtElements, Enum<?> useCase, String flowName) throws Exception {
 		ProcessElement[] elements = startAtElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
+		
 		Map<ProcessElement, List<AnalysisPath>> path = findPath(flowName, elements);
 		
 		Map<ProcessElement, Duration> startedAts = Stream.of(elements).collect(Collectors.toMap(it ->it, it -> Duration.ZERO));
@@ -148,65 +152,119 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	/**
 	 * Return a list of all tasks which are created when process follows the tagged flow. Uses the flow name set in the constructor.
 	 * @param icase - Ivy Case which should be analyzed.
+	 * @param useCase - Use case that should be used to read duration values. Durations will be set to 0 in case not provided.
+	 * @param flowName - Tag name we want to follow at alternative gateways.
 	 * @return
 	 * @throws Exception
 	 */
-	public List<? extends DetectedElement> findTasksOnPath(ICase icase) throws Exception {		
+	public List<? extends DetectedElement> findTasksOnPath(ICase icase, Enum<?> useCase, String flowName) throws Exception {		
 		List<ITask> tasks = getCaseITasks(icase);
 		Map<ProcessElement, Duration> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
 		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(flowName, elements);
 		
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(flowName, elements);		
 		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, elementsWithTime);
 		return detectedTasks;
 	}
 	
 	/**
-	 * This method can be used to calculate expected duration from a starting point in a process until all task are done and end of process is reached.
-	 * It will summarize duration of all tasks on the path. In case of parallel process flows, it will always use the critical path (which means path with longer duration).
+	 * This method can be used to calculate expected worst case duration from a starting point in a process until all task are done and end of process is reached.
+	 * In case of parallel process flows, it will always use the “critical path” (which means path with longer duration).
 	 * @param startElement - Element where we start traversing the process
+	 * @param useCase - Use case that should be used to read duration values. Durations will be set to 0 in case not provided.
 	 * @return
 	 * @throws Exception
 	 */
-	public Duration calculateWorstCaseDuration(BaseElement startElement) throws Exception {
+	public Duration calculateWorstCaseDuration(BaseElement startElement, Enum<?> useCase) throws Exception {
 		ProcessElement element = new CommonElement(startElement);
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(element);
 		
-		Duration total = calculateTotalDuration(path, useCase);
-		
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(element);		
+		Duration total = calculateTotalDuration(path, useCase);		
 		return total;
 	}
 	
 	/** 
-	 * @param startElement - Elements where we start traversing the process. In case of parallel tasks, the list will contain multiple objects. 
-	 * @param startElements
+	 * This method can be used to calculate expected worst case duration from a starting point in a process until all task are done and end of process is reached.
+	 * In case of parallel process flows, it will always use the “critical path” (which means path with longer duration).
+	 * @param startElements - Elements where we start traversing the process. In case of parallel tasks, the list will contain multiple objects. 
+	 * @param useCase - Use case that should be used to read duration values. Durations will be set to 0 in case not provided.
 	 * @return
 	 * @throws Exception
 	 */
-	public Duration calculateWorstCaseDuration(List<BaseElement> startElements) throws Exception {
+	public Duration calculateWorstCaseDuration(List<BaseElement> startElements, Enum<?> useCase) throws Exception {
 		ProcessElement[] elements = startElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);
 		
-		//We only get max total duration on each path
-		Duration total = calculateTotalDuration(path, useCase);
-		
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);		
+		Duration total = calculateTotalDuration(path, useCase);		
 		return total;
 	}
 
 	/** 
+	 * This method can be used to calculate expected worst case duration from a starting point in a process until all task are done and end of process is reached.
+	 * In case of parallel process flows, it will always use the “critical path” (which means path with longer duration).
 	 * @param startElement - Elements where we start traversing the process. In case of parallel tasks, the list will contain multiple objects. 
 	 * @param icase - Ivy Case which should be analyzed.
+	 * @param useCase - Use case that should be used to read duration values. Durations will be set to 0 in case not provided.
 	 * @return
 	 * @throws Exception
 	 */
-	public Duration calculateWorstCaseDuration(ICase icase) throws Exception {
+	public Duration calculateWorstCaseDuration(ICase icase, Enum<?> useCase) throws Exception {
 		List<ITask> tasks = getCaseITasks(icase);
 		Map<ProcessElement, Duration> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
 		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);
 		
 		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);		
-		Duration total = calculateTotalDuration(path, useCase);
+		Duration total = calculateTotalDuration(path, useCase);		
+		return total;
+	}
+	
+	/**
+	 * This method can be used to calculate expected duration from a starting point using a named flow or default flow. 
+	 * For parallel segments of the process, it will still use the “critical path” (same logic like worst case duration).	 * 
+	 * @param startElement - Element where we start traversing the process
+	 * @param useCase - Use case that should be used to read duration values. Durations will be set to 0 in case not provided.
+	 * @return
+	 * @throws Exception
+	 */
+	public Duration calculateDurationOfPath(BaseElement startElement, Enum<?> useCase, String flowName) throws Exception {
+		ProcessElement element = new CommonElement(startElement);
 		
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(flowName, element);		
+		Duration total = calculateTotalDuration(path, useCase);		
+		return total;
+	}
+	
+	/** 
+	 * This method can be used to calculate expected duration from a starting point using a named flow or default flow. 
+	 * For parallel segments of the process, it will still use the “critical path” (same logic like worst case duration). 
+	 * @param useCase - Use case that should be used to read duration values. Durations will be set to 0 in case not provided.
+	 * @return
+	 * @throws Exception
+	 */
+	public Duration calculateDurationOfPath(List<BaseElement> startElements, Enum<?> useCase, String flowName) throws Exception {
+		ProcessElement[] elements = startElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
+		
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(flowName, elements);		
+		Duration total = calculateTotalDuration(path, useCase);		
+		return total;
+	}
+
+	/** 
+	 * This method can be used to calculate expected duration from a starting point using a named flow or default flow. 
+	 * For parallel segments of the process, it will still use the “critical path” (same logic like worst case duration).
+	 * @param startElement - Elements where we start traversing the process. In case of parallel tasks, the list will contain multiple objects. 
+	 * @param icase - Ivy Case which should be analyzed.
+	 * @param useCase - Use case that should be used to read duration values. Durations will be set to 0 in case not provided.
+	 * @return
+	 * @throws Exception
+	 */
+	public Duration calculateDurationOfPath(ICase icase, Enum<?> useCase, String flowName) throws Exception {
+		List<ITask> tasks = getCaseITasks(icase);
+		Map<ProcessElement, Duration> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
+		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);
+		
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(flowName, elements);		
+		Duration total = calculateTotalDuration(path, useCase);		
 		return total;
 	}
 	

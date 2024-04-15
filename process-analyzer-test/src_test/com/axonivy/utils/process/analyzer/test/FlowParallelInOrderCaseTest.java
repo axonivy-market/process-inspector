@@ -7,6 +7,7 @@ import java.time.Duration;
 import java.util.List;
 
 import org.assertj.core.util.Arrays;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
@@ -24,13 +25,17 @@ import ch.ivyteam.ivy.workflow.ITask;
 public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 	private static final BpmProcess FLOW_PARALLEL_IN_ORDER = BpmProcess.name("FlowParallelInOrder");
 	
+	@BeforeEach
+	public void setupForEach() {
+		processAnalyzer = new AdvancedProcessAnalyzer(process);	
+	}
+	
 	@Test
 	void shouldshouldFindAllTasksAtStart(BpmClient bpmClient) throws Exception {
 		ExecutionResult result = bpmClient.start().process(FLOW_PARALLEL_IN_ORDER.elementName("start")).execute();
 		ICase icase = result.workflow().activeCase();
 
-		var processAnalyzer = new AdvancedProcessAnalyzer(getProcess(icase), null, null);
-		var detectedTasks = processAnalyzer.findAllTasks(icase);
+		var detectedTasks = processAnalyzer.findAllTasks(icase, null);
 
 		var expected = Arrays.array("Task 1A", "Task A", "Task B", "Task 1B", "Task C", "Task D");
 		var taskNames = getTaskNames(detectedTasks);
@@ -42,8 +47,7 @@ public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 		ExecutionResult result = bpmClient.start().process(FLOW_PARALLEL_IN_ORDER.elementName("start2")).execute();
 		ICase icase = result.workflow().activeCase();
 
-		var processAnalyzer = new AdvancedProcessAnalyzer(getProcess(icase), null, null);
-		var detectedTasks = processAnalyzer.findAllTasks(icase);
+		var detectedTasks = processAnalyzer.findAllTasks(icase, null);
 		
 		var expected = Arrays.array("Task 2B", "Task G", "Task K", "Task M", "Task 2A", "Task F", "Task H", "Task 2C", "Task E", "Task I");
 		var taskNames = getTaskNames(detectedTasks);
@@ -55,8 +59,7 @@ public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 		ExecutionResult result = bpmClient.start().process(FLOW_PARALLEL_IN_ORDER.elementName("start3")).execute();
 		ICase icase = result.workflow().activeCase();
 
-		var processAnalyzer = new AdvancedProcessAnalyzer(getProcess(icase), null, "internal");
-		var detectedTasks = processAnalyzer.findTasksOnPath(icase);		
+		var detectedTasks = processAnalyzer.findTasksOnPath(icase, null, "internal");		
 		
 		var expected = Arrays.array("Task1A3", "Task B3", "Task1B3", "Task A3", "Task2B3", "Task D3", "Task2A3", "Task C3", "Task K3", "Task2C3", "Task3A3", "Task I3");
 		var taskNames = getTaskNames(detectedTasks);
@@ -80,8 +83,7 @@ public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 		
 		ICase icase = result.workflow().activeCase();
 
-		var processAnalyzer = new AdvancedProcessAnalyzer(getProcess(icase), null, null);
-		var detectedTasks = processAnalyzer.findTasksOnPath(icase);		
+		var detectedTasks = processAnalyzer.findTasksOnPath(icase, null, null);		
 		
 		var expected = Arrays.array("Task C", "Task B", "Task D");
 		var taskNames = getTaskNames(detectedTasks);

@@ -27,12 +27,9 @@ In the project, you only add the dependency in your pom.xml and call public APIs
 **2. Call the constructor to set some basic information.  Each instance of the advanced process analyzer should care about one specific process model. This way we can store some private information (e.g. simplified model) in the instance and reuse it for different calculations on this object.**
 ```java
 	/** 
-	 * @param process - The process that should be analyzed.
-	 * @param useCase - Use case that should be used to read duration values.
-	 * If it is null, it will get first duration configure line
-	 * @param flowName - Tag name we want to follow at alternative gateways.
+	 * @param process - The process that should be analyzed.	 
 	 */
-	public AdvancedProcessAnalyzer(Process process, UseCase useCase, String flowName)
+	public AdvancedProcessAnalyzer(Process process)
 ```
 **3. You can custom the process flow or task duration**
 ```java
@@ -68,24 +65,33 @@ In the project, you only add the dependency in your pom.xml and call public APIs
 	/**
 	 * Return a list of all tasks in the process which can be reached from the starting element.
 	 * @param startAtElement - Element where we start traversing the process
+	 * @param useCase - Use case that should be used to read duration values. Durations will be set to 0 in case not provided.
+	 * If it is null, it will get first duration configure line
+	 * @param flowName - Tag name we want to follow at alternative gateways.
 	 * @throws Exception
 	 */
-	public List<? extends DetectedElement> findAllTasks(BaseElement startAtElement) throws Exception
+	public List<? extends DetectedElement> findAllTasks(BaseElement startAtElement, Enum<?> useCase) throws Exception
 
 	/**
 	 * Return a list of all tasks which are created when process follows the tagged flow. Uses the flow name set in the constructor.
 	 * @param startAtElement - Element where we start traversing the process
+	 * @param useCase - Use case that should be used to read duration values. Durations will be set to 0 in case not provided.
+	 * If it is null, it will get first duration configure line
+	 * @param flowName - Tag name we want to follow at alternative gateways.
 	 * @throws Exception
 	 */
-	public List<? extends DetectedElement> findTasksOnPath(BaseElement startAtElement) throws Exception
+	public List<? extends DetectedElement> findTasksOnPath(BaseElement startAtElement, Enum<?> useCase, String flowName) throws Exception
 	
 	/**
-	 * This method can be used to calculate expected duration from a starting point in a process until all task are done and end of process is reached.
-	 * It will summarize duration of all tasks on the path. In case of parallel process flows, it will always use the critical path (which means path with longer duration).
+	 * This method can be used to calculate expected worst case duration from a starting point in a process until all task are done and end of process is reached.
+	 * In case of parallel process flows, it will always use the “critical path” (which means path with longer duration).
 	 * @param startElement - Element where we start traversing the process
+	 * @param useCase - Use case that should be used to read duration values. Durations will be set to 0 in case not provided.
+	 * If it is null, it will get first duration configure line
+	 * @param flowName - Tag name we want to follow at alternative gateways.
 	 * @throws Exception
 	 */
-	public Duration calculateEstimatedDuration(BaseElement startElement) throws Exception
+	public Duration calculateWorstCaseDuration(BaseElement startElement, Enum<?> useCase) throws Exception
 ```
 
 ## Example
@@ -96,8 +102,8 @@ In the project, you only add the dependency in your pom.xml and call public APIs
 **1. How to analyze the workflow base on the flow name {external} with use case BIGPROJECT?**
 ```java
 	// We create a new process analyzer with UseCase.BIGPROJECT and flowName is "external"
-	var processAnalyzer = new AdvancedProcessAnalyzer(process, UseCase.BIGPROJECT, "external");	
-	public List<DetectedElement> detectedTasks = processAnalyzer.findTasksOnPath(start);
+	var processAnalyzer = new AdvancedProcessAnalyzer(process);	
+	public List<DetectedElement> detectedTasks = processAnalyzer.findTasksOnPath(start, UseCase.BIGPROJECT, "external");
 	
 	// The result is list of task on path: Task A -> Task D -> Task1A -> Task K -> Task1B -> Task G -> Task F
 	// At the alternative, the path taken is base on the flow name or default path (the condition is empty)  
@@ -108,13 +114,13 @@ In the project, you only add the dependency in your pom.xml and call public APIs
 ```java
 	// We create a new process analyzer with flowName is null.
 	// Basically, the path taken after alternative will base on default path. But we will override it by setProcessFlowOverrides API
-	var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
+	var processAnalyzer = new AdvancedProcessAnalyzer(process);
 	var flowOverrides = new HashMap<String, String>();
 	flowOverrides.put("18E180A64355D4D9-f4", "18E180A64355D4D9-f13"); //alter1 -> sequence flow {internal}\n{external}\n{mixed}
 	flowOverrides.put("18E180A64355D4D9-f12", "18E180A64355D4D9-f14"); //int/ext? -> sequence flow {internal}
 	processAnalyzer.setProcessFlowOverrides(flowOverrides);
 		
-	public List<DetectedElement> detectedTasks = processAnalyzer.findTasksOnPath(start);
+	public List<DetectedElement> detectedTasks = processAnalyzer.findTasksOnPath(start, null, null);
 	
 	// The result is list of task on path: Task A -> Task C	
 ```
