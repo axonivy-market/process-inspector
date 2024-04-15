@@ -5,7 +5,6 @@ import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.Optional;
 
+import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 
 import com.axonivy.utils.process.analyzer.helper.ProcessAnalyzerHelper;
@@ -299,5 +299,41 @@ public abstract class ProcessAnalyzer {
 		});
 
 		return result;
+	}
+	
+	protected List<DetectedElement> keepMaxTimeUtilEndDetectedElement(List<DetectedElement> detectedElements) {
+		Map<String, Duration> taskGroup = new HashedMap<>();
+		for (DetectedElement detectedElement : detectedElements) {
+			if (detectedElement instanceof DetectedTask) {
+				Duration duration = ((DetectedTask) detectedElement).getTimeUntilEnd();
+				Duration maxDuration = taskGroup.getOrDefault(detectedElement.getPid(), Duration.ZERO);
+				maxDuration = maxDuration.compareTo(duration) > 0 ? maxDuration : duration;
+				taskGroup.put(detectedElement.getPid(), maxDuration);
+			}
+		}
+		
+		
+		List<DetectedElement> result = new ArrayList<>();
+		
+		for (DetectedElement detectedElement : detectedElements) {
+			if (detectedElement instanceof DetectedAlternative && !containsByPid(result, detectedElement)){
+				result.add(detectedElement);
+			}
+
+			if (detectedElement instanceof DetectedTask && !containsByPid(result, detectedElement)) {
+				Duration maxDuration = taskGroup.getOrDefault(detectedElement.getPid(), Duration.ZERO);
+				Duration duration = ((DetectedTask) detectedElement).getTimeUntilEnd();
+				if (duration.compareTo(maxDuration) >= 0) {
+					result.add(detectedElement);
+				}
+			}
+		}
+		
+		return result;
+	}
+	
+	private boolean containsByPid(List<DetectedElement> detectedElements, DetectedElement detectedElement) {
+		List<String> pids = detectedElements.stream().map(DetectedElement::getPid).toList();
+		return pids.contains(detectedElement.getPid());
 	}
 }
