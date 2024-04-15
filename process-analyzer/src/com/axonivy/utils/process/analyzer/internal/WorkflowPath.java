@@ -28,7 +28,9 @@ import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
+import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
+import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 
@@ -296,8 +298,24 @@ public class WorkflowPath {
 		return result;
 	}
 
-	private boolean isContains(List<AnalysisPath> currentPath, final ProcessElement element) {
-		return currentPath.stream().map(AnalysisPath::getElements).flatMap(List::stream).anyMatch(it -> it.getElement().equals(element.getElement()));
+	private boolean isContains(List<AnalysisPath> currentPaths, final ProcessElement from) {
+		boolean isContains = false; 
+		if (from.getElement() instanceof SingleTaskCreator && from.getElement() instanceof RequestStart == false ) {
+			SingleTaskCreator node = (SingleTaskCreator) from.getElement();
+			if (node.getIncoming().size() > 0) {
+				SequenceFlow sequenceFlow = node.getIncoming().get(0);
+				List<AnalysisPath> pathWithConnectToFrom = currentPaths.stream().filter(path -> {
+					int lastIndex = getLastIndex(path.getElements());
+					return sequenceFlow.equals(path.getElements().get(lastIndex).getElement());
+				}).toList();
+						
+				isContains = pathWithConnectToFrom.stream()
+						.map(AnalysisPath::getElements)
+						.flatMap(List::stream)
+						.anyMatch(it -> it.getElement().equals(from.getElement()));
+			}
+		}
+		return isContains;
 	}
 	
 	private TaskParallelGroup getTaskParallelGroup(ProcessElement from, String flowName, FindType findType, List<AnalysisPath> currentPath) throws Exception {

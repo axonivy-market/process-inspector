@@ -94,7 +94,6 @@ public abstract class ProcessAnalyzer {
 			List<DetectedElement> elements = convertPathToDetectedElements(path.getKey(), path.getValue(), useCase, timeUntilStarts);
 			result.addAll(elements);
 		}
-		
 		result = keepMaxTimeUtilEndDetectedElement(result);
 		return result;
 	}

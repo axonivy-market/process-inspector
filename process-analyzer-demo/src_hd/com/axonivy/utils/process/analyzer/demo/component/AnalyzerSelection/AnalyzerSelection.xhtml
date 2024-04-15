@@ -49,7 +49,7 @@
                     itemValue="#{element}" />
                  <p:ajax event="change"
                     listener="#{logic.onChooseElement}"
-                    update="process-analyzer:analyzer-selection:selectOneElement process-analyzer:analyzer-selection:process-viewer-diagram @parent:alternative-selection"
+                    update="process-analyzer:analyzer-selection:selectOneElement @parent:alternative-selection"
                     process="@this" />
             </p:selectOneMenu>
 
