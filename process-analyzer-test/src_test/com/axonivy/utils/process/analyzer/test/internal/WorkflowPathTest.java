@@ -4,6 +4,7 @@ import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.process.analyzer.internal.WorkflowPath;
+import com.axonivy.utils.process.analyzer.internal.model.AnalysisPath;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
 import com.axonivy.utils.process.analyzer.test.ProcessGraphHelper;
@@ -34,9 +36,8 @@ public class WorkflowPathTest extends InternalAbstractTest{
 	void shouldFindPathAtStart() throws Exception {
 		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
 		var start = ProcessGraphHelper.findByElementName(process, "start");		
-		Map<ProcessElement, List<ProcessElement>> result = workflowPath.findPath("internal", new CommonElement(start));
-		List<ProcessElement> elements = result.values().stream().flatMap(List::stream).toList();
-		
+		Map<ProcessElement, List<AnalysisPath>> result = workflowPath.findPath("internal", new CommonElement(start));
+		List<ProcessElement> elements = result.values().stream().flatMap(List::stream).map(AnalysisPath::getElements).flatMap(List::stream).toList();
 		
 		var expected = Arrays.asList(
 				"RequestStartZ:start (18DC44E096FDFF75-f0)",

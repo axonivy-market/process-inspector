@@ -3,7 +3,6 @@ package com.axonivy.utils.process.analyzer.model;
 import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class DetectedTask extends DetectedElement {
 
@@ -66,10 +65,5 @@ public class DetectedTask extends DetectedElement {
 
 	public void setCustomInfo(String customInfo) {
 		this.customInfo = customInfo;
-	}
-
-	@Override
-	public String toString() {
-		return Stream.of(getPid(), getTaskName()).collect(Collectors.joining("-"));
 	}
 }

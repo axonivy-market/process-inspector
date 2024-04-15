@@ -1,5 +1,8 @@
 package com.axonivy.utils.process.analyzer.model;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 public abstract class DetectedElement {
 	private String pid;
 	private String taskName;
@@ -27,5 +30,10 @@ public abstract class DetectedElement {
 	public String getShortPid() {
 		int index = pid.indexOf("-");
 		return pid.substring(index + 1);
-	}	
+	}
+	
+	@Override
+	public String toString() {
+		return Stream.of(getPid(), getTaskName()).collect(Collectors.joining("-"));
+	}
 }

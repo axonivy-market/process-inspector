@@ -91,7 +91,7 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 	void shouldCalculateTotalDurationAtStart() throws Exception {
 		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
 		var start = ProcessGraphHelper.findByElementName(process, "start");
-		Duration duration = processAnalyzer.calculateEstimatedDuration(start);
+		Duration duration = processAnalyzer.calculateWorstCaseDuration(start);
 		assertEquals(10, duration.toHours());
 	}
 	
@@ -99,7 +99,7 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 	void shouldCalculateTotalDurationWithSMALPROJECT() throws Exception {
 		var processAnalyzer = new AdvancedProcessAnalyzer(process, UseCase.SMALLPROJECT, null);
 		var start2 = ProcessGraphHelper.findByElementName(process, "start2");
-		Duration duration = processAnalyzer.calculateEstimatedDuration(start2);
+		Duration duration = processAnalyzer.calculateWorstCaseDuration(start2);
 		assertEquals(10, duration.toHours());
 	}
 	
@@ -107,7 +107,7 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 	void shouldCalculateTotalDurationWithBIGPROJECT() throws Exception {
 		var processAnalyzer = new AdvancedProcessAnalyzer(process, UseCase.BIGPROJECT, null);
 		var start2 = ProcessGraphHelper.findByElementName(process, "start2");
-		Duration duration = processAnalyzer.calculateEstimatedDuration(start2);
+		Duration duration = processAnalyzer.calculateWorstCaseDuration(start2);
 		assertEquals(15, duration.toHours());
 	}
 	
@@ -145,7 +145,7 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 		var startE = ProcessGraphHelper.findByElementId(process, "f33");
 		var startG = ProcessGraphHelper.findByElementId(process, "f20");
 		
-		var duration = processAnalyzer.calculateEstimatedDuration(List.of(startF, startE, startG));		
+		var duration = processAnalyzer.calculateWorstCaseDuration(List.of(startF, startE, startG));		
 		
 		assertEquals(10, duration.toHours());
 	}
