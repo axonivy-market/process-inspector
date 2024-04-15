@@ -50,7 +50,7 @@
                 <h:outputText value="#{row + 1}" />
             </p:column>
 
-            <p:column headerText="PID">
+            <p:column headerText="PID" width="30px">
                 <h:outputText value="#{task.shortPid}"
                     title="#{task.pid}" />
             </p:column>
@@ -73,11 +73,12 @@
                     title="#{task.displayParentElementNames}" />
             </p:column>
 
-            <p:column headerText="Estimated Start Time">
-                <h:outputText value="#{task.estimatedStartTimestamp}">
-                    <f:convertDateTime pattern="dd.MM.yyyy HH:mm" />
-                </h:outputText>
-
+            <p:column headerText="Time Until Start">
+              <h:outputText value="#{data.processAnalyzerBean.getDisplayDuration(task.timeUntilStart)}" />
+            </p:column>
+            
+            <p:column headerText="Time Until End">
+              <h:outputText value="#{data.processAnalyzerBean.getDisplayDuration(task.timeUntilEnd)}" />
             </p:column>
             <p:column headerText="Custom Info">
                 <h:outputText value="#{task.customInfo}" />

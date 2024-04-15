@@ -1,0 +1,277 @@
+{
+  "$schema" : "https://json-schema.axonivy.com/process/11.2.2/process.json",
+  "id" : "18E3BEFFB97FCA4D",
+  "config" : {
+    "data" : "com.axonivy.utils.process.analyzer.demo.Data"
+  },
+  "elements" : [ {
+      "id" : "f39",
+      "type" : "RequestStart",
+      "name" : "start",
+      "config" : {
+        "signature" : "start"
+      },
+      "visual" : {
+        "at" : { "x" : 104, "y" : 584 }
+      },
+      "connect" : [
+        { "id" : "f41", "to" : "f40", "var" : "in1" }
+      ]
+    }, {
+      "id" : "f40",
+      "type" : "TaskSwitchGateway",
+      "name" : "Task 1",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "name" : "Task1A"
+          }, {
+            "id" : "TaskB",
+            "name" : "Task1B"
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 224, "y" : 584 },
+        "labelOffset" : { "x" : -8, "y" : -8 }
+      },
+      "connect" : [
+        { "id" : "f43", "to" : "f44", "via" : [ { "x" : 224, "y" : 624 } ], "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f45", "to" : "f42", "via" : [ { "x" : 224, "y" : 544 } ], "condition" : "ivp==\"TaskB.ivp\"" }
+      ]
+    }, {
+      "id" : "f42",
+      "type" : "UserTask",
+      "name" : "Task A",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
+        "task" : {
+          "name" : "Task A"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 336, "y" : 544 }
+      },
+      "connect" : [
+        { "id" : "f47", "to" : "f46", "via" : [ { "x" : 448, "y" : 544 } ], "var" : "in1" }
+      ]
+    }, {
+      "id" : "f44",
+      "type" : "UserTask",
+      "name" : "Task B",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
+        "task" : {
+          "name" : "Task B"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 336, "y" : 624 }
+      },
+      "connect" : [
+        { "id" : "f48", "to" : "f46", "via" : [ { "x" : 448, "y" : 624 } ], "var" : "in2" }
+      ]
+    }, {
+      "id" : "f46",
+      "type" : "TaskSwitchGateway",
+      "name" : "Task 2",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskB",
+            "name" : "Task2B"
+          }, {
+            "id" : "TaskA",
+            "name" : "Task2A"
+          }, {
+            "id" : "TaskC",
+            "name" : "Task2C"
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 464, "y" : 584 },
+        "labelOffset" : { "x" : -24, "y" : 16 }
+      },
+      "connect" : [
+        { "id" : "f52", "to" : "f49", "via" : [ { "x" : 488, "y" : 616 } ], "condition" : "ivp==\"TaskB.ivp\"" },
+        { "id" : "f50", "to" : "f51", "via" : [ { "x" : 488, "y" : 544 } ], "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f60", "to" : "f63", "condition" : "ivp==\"TaskC.ivp\"" }
+      ]
+    }, {
+      "id" : "f49",
+      "type" : "UserTask",
+      "name" : "Task D",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
+        "task" : {
+          "name" : "Task D"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 576, "y" : 624 }
+      },
+      "connect" : [
+        { "id" : "f55", "to" : "f53", "var" : "in2" }
+      ]
+    }, {
+      "id" : "f51",
+      "type" : "UserTask",
+      "name" : "Task C",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
+        "task" : {
+          "name" : "Task C"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 576, "y" : 544 }
+      },
+      "connect" : [
+        { "id" : "f61", "to" : "f54" }
+      ]
+    }, {
+      "id" : "f53",
+      "type" : "TaskSwitchGateway",
+      "name" : "Task 3",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "name" : "Task3A"
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 920, "y" : 624 },
+        "labelOffset" : { "x" : 56, "y" : 16 }
+      },
+      "connect" : [
+        { "id" : "f57", "to" : "f71", "condition" : "ivp==\"TaskA.ivp\"" }
+      ]
+    }, {
+      "id" : "f56",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 1224, "y" : 624 }
+      }
+    }, {
+      "id" : "f58",
+      "type" : "UserTask",
+      "name" : "Task E",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
+        "task" : {
+          "name" : "Task E"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 584, "y" : 776 }
+      },
+      "connect" : [
+        { "id" : "f59", "to" : "f65", "via" : [ { "x" : 920, "y" : 776 } ] }
+      ]
+    }, {
+      "id" : "f54",
+      "type" : "Alternative",
+      "config" : {
+        "conditions" : {
+          "f69" : "true",
+          "f66" : ""
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 696, "y" : 544 }
+      },
+      "connect" : [
+        { "id" : "f66", "to" : "f62", "color" : "default path" },
+        { "id" : "f69", "to" : "f68", "via" : [ { "x" : 696, "y" : 464 } ], "label" : {
+            "name" : "{internal}",
+            "segment" : 0.99
+          } }
+      ]
+    }, {
+      "id" : "f62",
+      "type" : "UserTask",
+      "name" : "Task F",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
+        "task" : {
+          "name" : "Task F"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 800, "y" : 544 }
+      },
+      "connect" : [
+        { "id" : "f67", "to" : "f76" }
+      ]
+    }, {
+      "id" : "f68",
+      "type" : "UserTask",
+      "name" : "Task K",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
+        "task" : {
+          "name" : "Task K"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 800, "y" : 464 }
+      },
+      "connect" : [
+        { "id" : "f70", "to" : "f76", "via" : [ { "x" : 920, "y" : 464 } ] }
+      ]
+    }, {
+      "id" : "f71",
+      "type" : "UserTask",
+      "name" : "Task I3",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
+        "task" : {
+          "name" : "Task I"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 1064, "y" : 624 }
+      },
+      "connect" : [
+        { "id" : "f72", "to" : "f56" }
+      ]
+    }, {
+      "id" : "f76",
+      "type" : "Alternative",
+      "visual" : {
+        "at" : { "x" : 920, "y" : 544 }
+      },
+      "connect" : [
+        { "id" : "f77", "to" : "f53", "var" : "in5" }
+      ]
+    }, {
+      "id" : "f63",
+      "type" : "Alternative",
+      "config" : {
+        "conditions" : {
+          "f64" : "true"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 464, "y" : 696 }
+      },
+      "connect" : [
+        { "id" : "f64", "to" : "f58", "via" : [ { "x" : 464, "y" : 776 } ] },
+        { "id" : "f79", "to" : "f65", "color" : "default path", "label" : {
+            "name" : "{internal}"
+          } }
+      ]
+    }, {
+      "id" : "f65",
+      "type" : "Alternative",
+      "visual" : {
+        "at" : { "x" : 920, "y" : 696 }
+      },
+      "connect" : [
+        { "id" : "f78", "to" : "f53", "var" : "in1" }
+      ]
+    } ],
+  "layout" : {
+    "colors" : {
+      "default path" : "#06f416"
+    }
+  }
+}
