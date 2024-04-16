@@ -78,7 +78,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		var detectedTasks = processAnalyzer.findAllTasks(taskC, null);
 		
 		var expected = Arrays.array("Task C", "Task1A", "Task E", "Task1B", "Task D", "Task2A", "Task H", "Task2B",
-				"Task G", "Task F", "Task K");
+				"Task G", "Task K", "Task F");
 		var taskNames = (getTaskNames(detectedTasks));
 
 		assertArrayEquals(expected, taskNames);

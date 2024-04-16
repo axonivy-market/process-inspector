@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 
@@ -99,7 +100,11 @@ public abstract class ProcessAnalyzer {
 	}
 	
 	private List<DetectedElement> convertPathToDetectedElements(ProcessElement startElement, List<AnalysisPath> paths, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStarts) {
-		List<DetectedElement> result = paths.stream().map(path -> convertPathToDetectedElements(startElement, path, useCase, timeUntilStarts)).flatMap(List::stream).toList();
+		List<List<DetectedElement>> allPaths = new ArrayList<>();
+		paths.forEach(path -> {
+			allPaths.add(convertPathToDetectedElements(startElement, path, useCase, timeUntilStarts));
+		});
+		List<DetectedElement> result = allPaths.stream().flatMap(List::stream).toList();
 		return result;
 	}
 	
@@ -175,14 +180,18 @@ public abstract class ProcessAnalyzer {
 		return result;
 	}
 	
-	private List<DetectedElement> convertTaskParallelGroupToDetectedElement(TaskParallelGroup group, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStartAts) {	
+	private List<DetectedElement> convertTaskParallelGroupToDetectedElement(TaskParallelGroup group, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStartAts) {		
+		List<DetectedElement> tasksWithTaskEnd = convertTaskParallelGroupToDetectedElement(group, useCase, timeUntilStartAts, true);
+		List<DetectedElement> tasksInternal = convertTaskParallelGroupToDetectedElement(group, useCase, timeUntilStartAts, false);		
+		return ListUtils.union(tasksWithTaskEnd, tasksInternal);
+	}
+	
+	private List<DetectedElement> convertTaskParallelGroupToDetectedElement(TaskParallelGroup group, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStartAts, boolean withTaskEnd) {	
 		WorkflowTime workflowTime = new WorkflowTime(getDurationOverrides());
-		Map<SequenceFlow, List<AnalysisPath>> sortedInternalPath =  new LinkedHashMap<>();
-		sortedInternalPath.putAll(workflowTime.getInternalPath(group.getInternalPaths(), true));
-		sortedInternalPath.putAll(workflowTime.getInternalPath(group.getInternalPaths(), false));
+		Map<SequenceFlow, List<AnalysisPath>> internalPath =  workflowTime.getInternalPath(group.getInternalPaths(), withTaskEnd);
 		
 		List<DetectedElement> result = new ArrayList<>();
-		for (Entry<SequenceFlow, List<AnalysisPath>> entry : sortedInternalPath.entrySet()) {
+		for (Entry<SequenceFlow, List<AnalysisPath>> entry : internalPath.entrySet()) {
 			SequenceFlow sequenceFlow = (SequenceFlow)entry.getKey();
 			Duration startedAt = timeUntilStartAts.get(group);; 
 			
