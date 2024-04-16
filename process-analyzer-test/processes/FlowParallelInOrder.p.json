@@ -21,7 +21,7 @@
       "id" : "f1",
       "type" : "TaskEnd",
       "visual" : {
-        "at" : { "x" : 920, "y" : 168 }
+        "at" : { "x" : 864, "y" : 168 }
       }
     }, {
       "id" : "f3",
@@ -51,12 +51,12 @@
           } ]
       },
       "visual" : {
-        "at" : { "x" : 256, "y" : 168 },
+        "at" : { "x" : 200, "y" : 168 },
         "labelOffset" : { "x" : -8, "y" : -8 }
       },
       "connect" : [
-        { "id" : "f5", "to" : "f4", "via" : [ { "x" : 256, "y" : 112 } ], "condition" : "ivp==\"TaskA.ivp\"" },
-        { "id" : "f9", "to" : "f8", "via" : [ { "x" : 256, "y" : 224 } ], "condition" : "ivp==\"TaskB.ivp\"" }
+        { "id" : "f5", "to" : "f4", "via" : [ { "x" : 200, "y" : 112 } ], "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f9", "to" : "f8", "via" : [ { "x" : 200, "y" : 224 } ], "condition" : "ivp==\"TaskB.ivp\"" }
       ]
     }, {
       "id" : "f4",
@@ -77,7 +77,7 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 368, "y" : 112 }
+        "at" : { "x" : 312, "y" : 112 }
       },
       "connect" : [
         { "id" : "f7", "to" : "f6" }
@@ -101,10 +101,10 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 536, "y" : 112 }
+        "at" : { "x" : 480, "y" : 112 }
       },
       "connect" : [
-        { "id" : "f11", "to" : "f10", "via" : [ { "x" : 632, "y" : 112 } ], "var" : "in1" }
+        { "id" : "f11", "to" : "f10", "via" : [ { "x" : 576, "y" : 112 } ], "var" : "in1" }
       ]
     }, {
       "id" : "f8",
@@ -125,10 +125,10 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 456, "y" : 224 }
+        "at" : { "x" : 400, "y" : 224 }
       },
       "connect" : [
-        { "id" : "f12", "to" : "f10", "via" : [ { "x" : 632, "y" : 224 } ], "var" : "in2" }
+        { "id" : "f12", "to" : "f10", "via" : [ { "x" : 576, "y" : 224 } ], "var" : "in2" }
       ]
     }, {
       "id" : "f10",
@@ -143,7 +143,7 @@
           } ]
       },
       "visual" : {
-        "at" : { "x" : 632, "y" : 168 },
+        "at" : { "x" : 576, "y" : 168 },
         "labelOffset" : { "x" : -16, "y" : 24 }
       },
       "connect" : [
@@ -160,248 +160,10 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 768, "y" : 168 }
+        "at" : { "x" : 712, "y" : 168 }
       },
       "connect" : [
         { "id" : "f15", "to" : "f1" }
-      ]
-    }, {
-      "id" : "f16",
-      "type" : "RequestStart",
-      "name" : "start2",
-      "config" : {
-        "signature" : "start2"
-      },
-      "visual" : {
-        "at" : { "x" : 128, "y" : 416 }
-      },
-      "connect" : [
-        { "id" : "f18", "to" : "f17", "var" : "in1" }
-      ]
-    }, {
-      "id" : "f17",
-      "type" : "TaskSwitchGateway",
-      "name" : "Task2",
-      "config" : {
-        "tasks" : [ {
-            "id" : "TaskA",
-            "name" : "Task 2A",
-            "code" : [
-              "import com.axonivy.utils.process.analyzer.APAConfig;",
-              "import com.axonivy.utils.process.analyzer.test.UseCase;",
-              "import java.util.concurrent.TimeUnit;",
-              "",
-              "APAConfig.setEstimate(2,TimeUnit.HOURS,UseCase.SMALLPROJECT);"
-            ]
-          }, {
-            "id" : "TaskB",
-            "name" : "Task 2B"
-          }, {
-            "id" : "TaskC",
-            "name" : "Task 2C"
-          } ]
-      },
-      "visual" : {
-        "at" : { "x" : 224, "y" : 416 },
-        "labelOffset" : { "x" : -8, "y" : -8 }
-      },
-      "connect" : [
-        { "id" : "f23", "to" : "f19", "via" : [ { "x" : 224, "y" : 336 } ], "condition" : "ivp==\"TaskA.ivp\"" },
-        { "id" : "f24", "to" : "f20", "via" : [ { "x" : 224, "y" : 496 } ], "condition" : "ivp==\"TaskB.ivp\"" },
-        { "id" : "f34", "to" : "f33", "condition" : "ivp==\"TaskC.ivp\"" }
-      ]
-    }, {
-      "id" : "f19",
-      "type" : "UserTask",
-      "name" : "Task F",
-      "config" : {
-        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
-        "task" : {
-          "name" : "Task F",
-          "code" : [
-            "import com.axonivy.utils.process.analyzer.APAConfig;",
-            "import com.axonivy.utils.process.analyzer.test.UseCase;",
-            "import java.util.concurrent.TimeUnit;",
-            "",
-            "APAConfig.setEstimate(2,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
-            "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
-          ]
-        }
-      },
-      "visual" : {
-        "at" : { "x" : 392, "y" : 336 }
-      },
-      "connect" : [
-        { "id" : "f22", "to" : "f21" }
-      ]
-    }, {
-      "id" : "f20",
-      "type" : "UserTask",
-      "name" : "Task G",
-      "config" : {
-        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
-        "task" : {
-          "name" : "Task G",
-          "code" : [
-            "import com.axonivy.utils.process.analyzer.APAConfig;",
-            "import com.axonivy.utils.process.analyzer.test.UseCase;",
-            "import java.util.concurrent.TimeUnit;",
-            "",
-            "APAConfig.setEstimate(4,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
-            "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
-          ]
-        }
-      },
-      "visual" : {
-        "at" : { "x" : 392, "y" : 496 }
-      },
-      "connect" : [
-        { "id" : "f28", "to" : "f27" }
-      ]
-    }, {
-      "id" : "f25",
-      "type" : "UserTask",
-      "name" : "Task I",
-      "config" : {
-        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
-        "task" : {
-          "name" : "Task I",
-          "code" : [
-            "import com.axonivy.utils.process.analyzer.APAConfig;",
-            "import com.axonivy.utils.process.analyzer.test.UseCase;",
-            "import java.util.concurrent.TimeUnit;",
-            "",
-            "APAConfig.setEstimate(2,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
-            "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
-          ]
-        }
-      },
-      "visual" : {
-        "at" : { "x" : 800, "y" : 416 }
-      },
-      "connect" : [
-        { "id" : "f30", "to" : "f29" }
-      ]
-    }, {
-      "id" : "f27",
-      "type" : "UserTask",
-      "name" : "Task K",
-      "config" : {
-        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
-        "task" : {
-          "name" : "Task K",
-          "code" : [
-            "import com.axonivy.utils.process.analyzer.APAConfig;",
-            "import com.axonivy.utils.process.analyzer.test.UseCase;",
-            "import java.util.concurrent.TimeUnit;",
-            "",
-            "APAConfig.setEstimate(3,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
-            "APAConfig.setEstimate(4,TimeUnit.HOURS,UseCase.BIGPROJECT);"
-          ]
-        }
-      },
-      "visual" : {
-        "at" : { "x" : 600, "y" : 496 }
-      },
-      "connect" : [
-        { "id" : "f32", "to" : "f37" }
-      ]
-    }, {
-      "id" : "f29",
-      "type" : "TaskEnd",
-      "visual" : {
-        "at" : { "x" : 928, "y" : 416 }
-      }
-    }, {
-      "id" : "f33",
-      "type" : "UserTask",
-      "name" : "Task E",
-      "config" : {
-        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
-        "task" : {
-          "name" : "Task E",
-          "code" : [
-            "import com.axonivy.utils.process.analyzer.APAConfig;",
-            "import com.axonivy.utils.process.analyzer.test.UseCase;",
-            "import java.util.concurrent.TimeUnit;",
-            "",
-            "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
-          ]
-        }
-      },
-      "visual" : {
-        "at" : { "x" : 392, "y" : 416 }
-      },
-      "connect" : [
-        { "id" : "f35", "to" : "f31", "var" : "in2" }
-      ]
-    }, {
-      "id" : "f31",
-      "type" : "TaskSwitchGateway",
-      "name" : "Task3",
-      "config" : {
-        "tasks" : [ {
-            "id" : "TaskA",
-            "name" : "Task 3A",
-            "responsible" : {
-              "activator" : "SYSTEM"
-            }
-          } ]
-      },
-      "visual" : {
-        "at" : { "x" : 696, "y" : 416 },
-        "labelOffset" : { "x" : 14, "y" : 34 }
-      },
-      "connect" : [
-        { "id" : "f36", "to" : "f25", "condition" : "ivp==\"TaskA.ivp\"" }
-      ]
-    }, {
-      "id" : "f21",
-      "type" : "UserTask",
-      "name" : "Task H",
-      "config" : {
-        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
-        "task" : {
-          "name" : "Task H",
-          "code" : [
-            "import com.axonivy.utils.process.analyzer.APAConfig;",
-            "import com.axonivy.utils.process.analyzer.test.UseCase;",
-            "import java.util.concurrent.TimeUnit;",
-            "",
-            "APAConfig.setEstimate(2,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
-            "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
-          ]
-        }
-      },
-      "visual" : {
-        "at" : { "x" : 584, "y" : 336 }
-      },
-      "connect" : [
-        { "id" : "f26", "to" : "f31", "via" : [ { "x" : 696, "y" : 336 } ], "var" : "in1" }
-      ]
-    }, {
-      "id" : "f37",
-      "type" : "UserTask",
-      "name" : "Task M",
-      "config" : {
-        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
-        "task" : {
-          "name" : "Task M",
-          "code" : [
-            "import com.axonivy.utils.process.analyzer.APAConfig;",
-            "import com.axonivy.utils.process.analyzer.test.UseCase;",
-            "import java.util.concurrent.TimeUnit;",
-            "",
-            "APAConfig.setEstimate(3,TimeUnit.HOURS,UseCase.SMALLPROJECT);",
-            "APAConfig.setEstimate(4,TimeUnit.HOURS,UseCase.BIGPROJECT);"
-          ]
-        }
-      },
-      "visual" : {
-        "at" : { "x" : 800, "y" : 496 }
-      },
-      "connect" : [
-        { "id" : "f38", "to" : "f29" }
       ]
     }, {
       "id" : "f39",
@@ -411,7 +173,7 @@
         "signature" : "start3"
       },
       "visual" : {
-        "at" : { "x" : 128, "y" : 784 }
+        "at" : { "x" : 128, "y" : 464 }
       },
       "connect" : [
         { "id" : "f41", "to" : "f40", "var" : "in1" }
@@ -430,12 +192,12 @@
           } ]
       },
       "visual" : {
-        "at" : { "x" : 248, "y" : 784 },
+        "at" : { "x" : 216, "y" : 464 },
         "labelOffset" : { "x" : -8, "y" : -8 }
       },
       "connect" : [
-        { "id" : "f43", "to" : "f44", "via" : [ { "x" : 248, "y" : 824 } ], "condition" : "ivp==\"TaskA.ivp\"" },
-        { "id" : "f45", "to" : "f42", "via" : [ { "x" : 248, "y" : 744 } ], "condition" : "ivp==\"TaskB.ivp\"" }
+        { "id" : "f43", "to" : "f44", "via" : [ { "x" : 216, "y" : 504 } ], "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f45", "to" : "f42", "via" : [ { "x" : 216, "y" : 424 } ], "condition" : "ivp==\"TaskB.ivp\"" }
       ]
     }, {
       "id" : "f42",
@@ -448,10 +210,10 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 360, "y" : 744 }
+        "at" : { "x" : 304, "y" : 424 }
       },
       "connect" : [
-        { "id" : "f47", "to" : "f46", "via" : [ { "x" : 472, "y" : 744 } ], "var" : "in1" }
+        { "id" : "f47", "to" : "f46", "via" : [ { "x" : 400, "y" : 424 } ], "var" : "in1" }
       ]
     }, {
       "id" : "f44",
@@ -464,10 +226,10 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 360, "y" : 824 }
+        "at" : { "x" : 304, "y" : 504 }
       },
       "connect" : [
-        { "id" : "f48", "to" : "f46", "via" : [ { "x" : 472, "y" : 824 } ], "var" : "in2" }
+        { "id" : "f48", "to" : "f46", "via" : [ { "x" : 400, "y" : 504 } ], "var" : "in2" }
       ]
     }, {
       "id" : "f46",
@@ -486,12 +248,12 @@
           } ]
       },
       "visual" : {
-        "at" : { "x" : 488, "y" : 784 },
-        "labelOffset" : { "x" : -24, "y" : 16 }
+        "at" : { "x" : 416, "y" : 464 },
+        "labelOffset" : { "x" : -24, "y" : 8 }
       },
       "connect" : [
-        { "id" : "f52", "to" : "f49", "via" : [ { "x" : 512, "y" : 816 } ], "condition" : "ivp==\"TaskB.ivp\"" },
-        { "id" : "f50", "to" : "f51", "via" : [ { "x" : 512, "y" : 744 } ], "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f52", "to" : "f49", "via" : [ { "x" : 440, "y" : 496 } ], "condition" : "ivp==\"TaskB.ivp\"" },
+        { "id" : "f50", "to" : "f51", "via" : [ { "x" : 440, "y" : 424 } ], "condition" : "ivp==\"TaskA.ivp\"" },
         { "id" : "f60", "to" : "f63", "condition" : "ivp==\"TaskC.ivp\"" }
       ]
     }, {
@@ -505,7 +267,7 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 600, "y" : 824 }
+        "at" : { "x" : 520, "y" : 496 }
       },
       "connect" : [
         { "id" : "f55", "to" : "f53", "var" : "in2" }
@@ -521,7 +283,7 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 600, "y" : 744 }
+        "at" : { "x" : 520, "y" : 424 }
       },
       "connect" : [
         { "id" : "f61", "to" : "f54" }
@@ -537,8 +299,8 @@
           } ]
       },
       "visual" : {
-        "at" : { "x" : 944, "y" : 824 },
-        "labelOffset" : { "x" : 56, "y" : 16 }
+        "at" : { "x" : 832, "y" : 496 },
+        "labelOffset" : { "x" : 56, "y" : -8 }
       },
       "connect" : [
         { "id" : "f57", "to" : "f71", "condition" : "ivp==\"TaskA.ivp\"" }
@@ -547,7 +309,7 @@
       "id" : "f56",
       "type" : "TaskEnd",
       "visual" : {
-        "at" : { "x" : 1248, "y" : 824 }
+        "at" : { "x" : 1088, "y" : 496 }
       }
     }, {
       "id" : "f58",
@@ -560,10 +322,10 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 608, "y" : 976 }
+        "at" : { "x" : 536, "y" : 632 }
       },
       "connect" : [
-        { "id" : "f59", "to" : "f65", "via" : [ { "x" : 944, "y" : 976 } ] }
+        { "id" : "f59", "to" : "f56", "via" : [ { "x" : 1088, "y" : 632 } ] }
       ]
     }, {
       "id" : "f54",
@@ -575,13 +337,14 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 720, "y" : 744 }
+        "at" : { "x" : 624, "y" : 424 }
       },
       "connect" : [
         { "id" : "f66", "to" : "f62", "color" : "default path" },
-        { "id" : "f69", "to" : "f68", "via" : [ { "x" : 720, "y" : 664 } ], "label" : {
+        { "id" : "f69", "to" : "f68", "via" : [ { "x" : 624, "y" : 344 } ], "label" : {
             "name" : "{internal}",
-            "segment" : 0.99
+            "segment" : 0.99,
+            "offset" : { "x" : 0, "y" : 21 }
           } }
       ]
     }, {
@@ -595,7 +358,7 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 824, "y" : 744 }
+        "at" : { "x" : 728, "y" : 424 }
       },
       "connect" : [
         { "id" : "f67", "to" : "f76" }
@@ -611,10 +374,10 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 824, "y" : 664 }
+        "at" : { "x" : 728, "y" : 344 }
       },
       "connect" : [
-        { "id" : "f70", "to" : "f76", "via" : [ { "x" : 944, "y" : 664 } ] }
+        { "id" : "f70", "to" : "f76", "via" : [ { "x" : 832, "y" : 344 } ] }
       ]
     }, {
       "id" : "f71",
@@ -627,7 +390,7 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 1088, "y" : 824 }
+        "at" : { "x" : 960, "y" : 496 }
       },
       "connect" : [
         { "id" : "f72", "to" : "f56" }
@@ -636,7 +399,7 @@
       "id" : "f76",
       "type" : "Alternative",
       "visual" : {
-        "at" : { "x" : 944, "y" : 744 }
+        "at" : { "x" : 832, "y" : 424 }
       },
       "connect" : [
         { "id" : "f77", "to" : "f53", "var" : "in5" }
@@ -650,22 +413,30 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 488, "y" : 896 }
+        "at" : { "x" : 416, "y" : 560 }
       },
       "connect" : [
-        { "id" : "f64", "to" : "f58", "via" : [ { "x" : 488, "y" : 976 } ] },
-        { "id" : "f79", "to" : "f65", "color" : "default path", "label" : {
-            "name" : "{internal}"
+        { "id" : "f64", "to" : "f58", "via" : [ { "x" : 416, "y" : 632 } ] },
+        { "id" : "f79", "to" : "f73", "color" : "default path", "label" : {
+            "name" : "{internal}",
+            "offset" : { "x" : -7, "y" : -2 }
           } }
       ]
     }, {
-      "id" : "f65",
-      "type" : "Alternative",
+      "id" : "f73",
+      "type" : "UserTask",
+      "name" : "Task G3",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
+        "task" : {
+          "name" : "Task G3"
+        }
+      },
       "visual" : {
-        "at" : { "x" : 944, "y" : 896 }
+        "at" : { "x" : 648, "y" : 560 }
       },
       "connect" : [
-        { "id" : "f78", "to" : "f53", "var" : "in1" }
+        { "id" : "f16", "to" : "f53", "via" : [ { "x" : 832, "y" : 560 } ], "var" : "in1" }
       ]
     } ],
   "layout" : {

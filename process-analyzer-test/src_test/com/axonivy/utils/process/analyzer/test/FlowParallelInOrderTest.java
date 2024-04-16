@@ -57,23 +57,14 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 		
 		assertEquals(maxTimeFromBC, taskD.getTimeUntilStart());	
 	}
-
-	@Test
-	void shouldFindAllTasksAtTask2() throws Exception {		
-		var task2 = ProcessGraphHelper.findByElementId(process, "f17");
-		var detectedTasks = processAnalyzer.findAllTasks(task2, null);
-		
-		var expected = Arrays.array("Task 2B", "Task G", "Task K", "Task M", "Task 2A", "Task F", "Task H", "Task 2C", "Task E", "Task I");
-		var taskNames = getTaskNames(detectedTasks);
-		assertArrayEquals(expected, taskNames);
-	}
 	
 	@Test
 	void shouldFindAllTasksAtStart3() throws Exception {		
 		var start3 = ProcessGraphHelper.findByElementName(process, "start3");
 		var detectedTasks = processAnalyzer.findAllTasks(start3, null);		
 		
-		var expected = Arrays.array("Task1A3", "Task B3", "Task1B3", "Task A3", "Task2B3", "Task D3", "Task2A3", "Task C3", "Task F3", "Task K3", "Task2C3", "Task E3", "Task3A3", "Task I3");
+		var expected = Arrays.array("Task1A3", "Task B3", "Task1B3", "Task A3", "Task2C3", "Task E3", "Task2B3", "Task D3", "Task2A3",
+				"Task C3", "Task F3", "Task K3", "Task G3", "Task3A3", "Task I3");
 		var taskNames = getTaskNames(detectedTasks);
 		assertArrayEquals(expected, taskNames);
 	}
@@ -84,7 +75,8 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 		var start3 = ProcessGraphHelper.findByElementName(process, "start3");
 		var detectedTasks = processAnalyzer.findTasksOnPath(start3, null, "internal");		
 		
-		var expected = Arrays.array("Task1A3", "Task B3", "Task1B3", "Task A3", "Task2B3", "Task D3", "Task2A3", "Task C3", "Task K3", "Task2C3", "Task3A3", "Task I3");
+		var expected = Arrays.array("Task1A3", "Task B3", "Task1B3", "Task A3", "Task2B3", "Task D3", "Task2A3",
+				"Task C3", "Task K3", "Task2C3", "Task G3", "Task3A3", "Task I3");
 		var taskNames = getTaskNames(detectedTasks);
 		assertArrayEquals(expected, taskNames);
 	}
@@ -98,16 +90,16 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 	
 	@Test
 	void shouldCalculateTotalDurationWithSMALPROJECT() throws Exception {
-		var start2 = ProcessGraphHelper.findByElementName(process, "start2");
-		Duration duration = processAnalyzer.calculateWorstCaseDuration(start2, UseCase.SMALLPROJECT);
-		assertEquals(10, duration.toHours());
+		var start = ProcessGraphHelper.findByElementName(process, "start");
+		Duration duration = processAnalyzer.calculateWorstCaseDuration(start, UseCase.SMALLPROJECT);
+		assertEquals(6, duration.toHours());
 	}
 	
 	@Test
 	void shouldCalculateTotalDurationWithBIGPROJECT() throws Exception {
-		var start2 = ProcessGraphHelper.findByElementName(process, "start2");
-		Duration duration = processAnalyzer.calculateWorstCaseDuration(start2, UseCase.BIGPROJECT);
-		assertEquals(15, duration.toHours());
+		var start = ProcessGraphHelper.findByElementName(process, "start");
+		Duration duration = processAnalyzer.calculateWorstCaseDuration(start, UseCase.BIGPROJECT);
+		assertEquals(9, duration.toHours());
 	}
 	
 	@Test
@@ -123,26 +115,15 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 	}
 	
 	@Test
-	void shouldFindTasksOnPathAtTaskFAndTaskEAndTaskG() throws Exception {
-		var startF = ProcessGraphHelper.findByElementId(process, "f19");
-		var startE = ProcessGraphHelper.findByElementId(process, "f33");
-		var startG = ProcessGraphHelper.findByElementId(process, "f20");
+	void shouldFindTasksOnPathAtTaskC3AndTaskD3AndTaskE3() throws Exception {
+		var startC3 = ProcessGraphHelper.findByElementId(process, "f51");
+		var startD3 = ProcessGraphHelper.findByElementId(process, "f49");
+		var startE3 = ProcessGraphHelper.findByElementId(process, "f58");
 		
-		var detectedTasks = processAnalyzer.findTasksOnPath(List.of(startF, startE, startG), null, null);
-		var expected = Arrays.array("Task G", "Task K", "Task M", "Task F", "Task H", "Task E", "Task I");
+		var detectedTasks = processAnalyzer.findTasksOnPath(List.of(startC3, startD3, startE3), null, null);
+		var expected = Arrays.array("Task E3", "Task C3", "Task F3", "Task D3", "Task3A3", "Task I3");
 
 		var taskNames = getTaskNames(detectedTasks);
 		assertArrayEquals(expected, taskNames);
-	}
-	
-	@Test
-	void shouldCalculateTotalDurationWithUseCaseBIGPROJECTAtTaskFAndTaskEAndTaskG() throws Exception {
-		var startF = ProcessGraphHelper.findByElementId(process, "f19");
-		var startE = ProcessGraphHelper.findByElementId(process, "f33");
-		var startG = ProcessGraphHelper.findByElementId(process, "f20");
-		
-		var duration = processAnalyzer.calculateWorstCaseDuration(List.of(startF, startE, startG), UseCase.BIGPROJECT);		
-		
-		assertEquals(15, duration.toHours());
 	}
 }
