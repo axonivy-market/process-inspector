@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
@@ -23,10 +24,14 @@ public class TaskTypesExampleTest extends FlowExampleTest {
 		start = ProcessGraphHelper.findByElementName(process, "start");
 	}
 	
+	@BeforeEach
+	public void setupForEach() {
+		processAnalyzer = new AdvancedProcessAnalyzer(process);	
+	}
+	
 	@Test
 	void shouldFindAllTasksOnPathAtStartWithFlowNameNull() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
-		var detectedTasks = processAnalyzer.findTasksOnPath(start);
+		var detectedTasks = processAnalyzer.findTasksOnPath(start, null, null);
 		
 		var names = getTaskNames(detectedTasks);
 		assertArrayEquals(Arrays.array("UserTask", "Task", "Tasks-TaskA", "Tasks-TaskB"), names);
@@ -34,8 +39,7 @@ public class TaskTypesExampleTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindAllTasksAtStartWithFlowNameNull() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
-		var detectedTasks = processAnalyzer.findAllTasks(start);
+		var detectedTasks = processAnalyzer.findAllTasks(start, null);
 		
 		var names = getTaskNames(detectedTasks);
 		assertArrayEquals(Arrays.array("UserTask", "Task", "Tasks-TaskA", "Tasks-TaskB"), names);

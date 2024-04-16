@@ -167,28 +167,30 @@ public class WorkflowTime {
 	}
 	
 	private Duration getDurationByTaskScript(TaskConfig task, Enum<?> useCase) {
-		String useCasePrefix = getUseCasePrefix(useCase);
-		List<String> prefixs = Arrays.asList("APAConfig.setEstimate", useCasePrefix);		
-		
-		String wfEstimateCode = processGraph.getCodeLineByPrefix(task, prefixs.toArray(new String[0]));
-		if (isNotEmpty(wfEstimateCode)) {
-			String[] result = StringUtils.substringsBetween(wfEstimateCode,  "(",  ")")[0].split(",");
-			int amount = Integer.parseInt(result[0]);
-			TimeUnit unit = getTimeUnit(result[1]);
+		if (useCase != null) {
+			String useCasePrefix = getUseCasePrefix(useCase);
+			List<String> prefixs = Arrays.asList("APAConfig.setEstimate", useCasePrefix);
 
-			switch (unit) {
+			String wfEstimateCode = processGraph.getCodeLineByPrefix(task, prefixs.toArray(new String[0]));
+			if (isNotEmpty(wfEstimateCode)) {
+				String[] result = StringUtils.substringsBetween(wfEstimateCode, "(", ")")[0].split(",");
+				int amount = Integer.parseInt(result[0]);
+				TimeUnit unit = getTimeUnit(result[1]);
+
+				switch (unit) {
 				case DAYS:
-	                return Duration.ofDays(amount);
-	            case HOURS:
-	                return Duration.ofHours(amount);
-	            case MINUTES:
-	                return Duration.ofMinutes(amount);
-	            case SECONDS:
-	                return Duration.ofSeconds(amount);
-	            default:
-	                // Handle any unexpected TimeUnit
-	                break;
-			}		
+					return Duration.ofDays(amount);
+				case HOURS:
+					return Duration.ofHours(amount);
+				case MINUTES:
+					return Duration.ofMinutes(amount);
+				case SECONDS:
+					return Duration.ofSeconds(amount);
+				default:
+					// Handle any unexpected TimeUnit
+					break;
+				}
+			}
 		}
 
 		return Duration.ofHours(0);

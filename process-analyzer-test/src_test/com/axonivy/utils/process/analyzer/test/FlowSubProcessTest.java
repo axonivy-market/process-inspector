@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
@@ -26,26 +27,28 @@ public class FlowSubProcessTest extends FlowExampleTest {
 		start = ProcessGraphHelper.findByElementName(process, "start");
 	}
 	
+	@BeforeEach
+	public void setupForEach() {
+		processAnalyzer = new AdvancedProcessAnalyzer(process);	
+	}
+	
 	@Test
-	void shouldFindTasksOnPathAtStartWithFlowNameNull() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
-		var detectedTasks = processAnalyzer.findTasksOnPath(start);
+	void shouldFindTasksOnPathAtStartWithFlowNameNull() throws Exception {		
+		var detectedTasks = processAnalyzer.findTasksOnPath(start, null, null);
 		
 		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(detectedTasks));
 	}
 	
 	@Test
 	void shouldFindAllTasksAtStartWithFlowNameNull() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
-		var detectedTasks = processAnalyzer.findAllTasks(start);
+		var detectedTasks = processAnalyzer.findAllTasks(start, null);
 		
 		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(detectedTasks));
 	}
 	
 	@Test
-	void shouldFindTaskParentNames() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
-		var detectedTasks = processAnalyzer.findAllTasks(start);
+	void shouldFindTaskParentNames() throws Exception {		
+		var detectedTasks = processAnalyzer.findAllTasks(start, null);
 		var parentElementNames = detectedTasks.stream().filter(item -> item.getTaskName().equals("Task A")).findFirst()
 				.map(DetectedTask.class::cast).map(DetectedTask::getParentElementNames)
 				.orElse(emptyList());

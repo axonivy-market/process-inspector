@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
@@ -23,26 +24,28 @@ public class FlowExampleLoopTest extends FlowExampleTest {
 		start = ProcessGraphHelper.findByElementName(process, "start");
 	}
 	
+	@BeforeEach
+	public void setupForEach() {
+		processAnalyzer = new AdvancedProcessAnalyzer(process);	
+	}
+	
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameNull() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
-		var detectedTasks = processAnalyzer.findTasksOnPath(start);
+		var detectedTasks = processAnalyzer.findTasksOnPath(start, null, null);
 		
 		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(detectedTasks));
 	}
 	
 	@Test
 	void shouldFindAllTasksStartWithFlowNameNull() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
-		var detectedTasks = processAnalyzer.findAllTasks(start);
+		var detectedTasks = processAnalyzer.findAllTasks(start, null);
 
 		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(detectedTasks));
 	}
 	
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameSuccess() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, "success");
-		var detectedTasks = processAnalyzer.findTasksOnPath(start);
+		var detectedTasks = processAnalyzer.findTasksOnPath(start, null, "success");
 
 		assertArrayEquals(Arrays.array("Task A"), getTaskNames(detectedTasks));
 	}

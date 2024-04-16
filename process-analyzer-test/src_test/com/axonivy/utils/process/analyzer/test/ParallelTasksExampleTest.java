@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
@@ -27,11 +28,15 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 		setup(PROCESS_NAME);
 		start = ProcessGraphHelper.findByElementName(process, "start");
 	}
+
+	@BeforeEach
+	public void setupForEach() {
+		processAnalyzer = new AdvancedProcessAnalyzer(process);	
+	}
 	
 	@Test
 	void shouldFindAllTasksAtStartWithFlowNameNull() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
-		var detectedTasks = processAnalyzer.findAllTasks(start);
+		var detectedTasks = processAnalyzer.findAllTasks(start, null);
 
 		var names = getTaskNames(detectedTasks);
 		assertArrayEquals(Arrays.array("Task1A", "Task1B", "Task2", "Task3B", "Task3A"), names);
@@ -39,8 +44,7 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameNull() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
-		var detectedTasks = processAnalyzer.findTasksOnPath(start);
+		var detectedTasks = processAnalyzer.findTasksOnPath(start, null, null);
 
 		var names = getTaskNames(detectedTasks);
 		assertArrayEquals(Arrays.array("Task1A", "Task1B", "Task2", "Task3B", "Task3A"), names);
@@ -48,22 +52,19 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameShortcut() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, "shortcut");
-		var detectedTasks = processAnalyzer.findTasksOnPath(start);
+		var detectedTasks = processAnalyzer.findTasksOnPath(start, null, "shortcut");
 
 		var names = getTaskNames(detectedTasks);
 		assertArrayEquals(Arrays.array("Task1A", "Task1B", "Task2"), names);
 	}
 	
 	@Test
-	void shouldFindOverrideDuration() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);
-		
+	void shouldFindOverrideDuration() throws Exception {		
 		HashMap<String, Duration> durationOverride = new HashMap<>(); 
 		durationOverride.put("18DD185B60B6E769-f15-TaskA", Duration.ofHours(10));
 		processAnalyzer.setDurationOverrides(durationOverride);
 		
-		var detectedTasks = processAnalyzer.findTasksOnPath(start);
+		var detectedTasks = processAnalyzer.findTasksOnPath(start, null, null);
 		var duration = detectedTasks.stream()
 				.filter(it -> it.getPid().contains("18DD185B60B6E769-f15-TaskA"))
 				.findFirst()
@@ -74,8 +75,7 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindDefaultDuration() throws Exception {
-		var processAnalyzer = new AdvancedProcessAnalyzer(process, null, null);	
-		var detectedTasks = processAnalyzer.findTasksOnPath(start);
+		var detectedTasks = processAnalyzer.findTasksOnPath(start, UseCase.BIGPROJECT, null);
 		
 		var duration = detectedTasks.stream()
 				.filter(it -> it.getPid().contains("18DD185B60B6E769-f15-TaskA"))

@@ -5,6 +5,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
+import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
 import com.axonivy.utils.process.analyzer.model.DetectedElement;
 
 import ch.ivyteam.ivy.environment.Ivy;
@@ -17,6 +18,7 @@ import ch.ivyteam.ivy.workflow.IWorkflowProcessModelVersion;
 public abstract class FlowExampleTest {
 	
 	protected static Process process;
+	protected AdvancedProcessAnalyzer processAnalyzer;
 
 	protected static void setup(String processName) {
 		var pmv = Ivy.request().getProcessModelVersion();
