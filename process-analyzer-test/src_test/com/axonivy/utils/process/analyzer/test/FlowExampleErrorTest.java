@@ -36,7 +36,7 @@ public class FlowExampleErrorTest extends FlowExampleTest {
 	}
 	
 	@Test
-	void shouldFindTasksOnPathAtStartWithFlowNameNull()  {
+	void shouldThrowExceptionWhenFindTasksOnPathAtStartWithFlowNameNull()  {
 		var start = ProcessGraphHelper.findByElementName(process, "start");
 		Exception exception = assertThrows(Exception.class, () -> {
 			processAnalyzer.findTasksOnPath(start, null, null);
@@ -48,4 +48,29 @@ public class FlowExampleErrorTest extends FlowExampleTest {
 	    assertEquals(expectedMessage, actualMessage);
 	}
 	
+	@Test
+	void shouldThrowExceptionWhenFindTasksOnPathAtStart2WithInternal()  {
+		var start2 = ProcessGraphHelper.findByElementName(process, "start2");
+		Exception exception = assertThrows(Exception.class, () -> {
+			processAnalyzer.findTasksOnPath(start2, null, "internal");
+	    });
+
+	    String expectedMessage = "Have more than one out going with flowname internal";
+	    String actualMessage = exception.getMessage();
+
+	    assertEquals(expectedMessage, actualMessage);
+	}
+	
+	@Test
+	void shouldThrowExceptionWhenFindTasksOnPathAtStart2WithFlowNameNull()  {
+		var start2 = ProcessGraphHelper.findByElementName(process, "start2");
+		Exception exception = assertThrows(Exception.class, () -> {
+			processAnalyzer.findTasksOnPath(start2, null, null);
+	    });
+
+	    String expectedMessage = "Have more than one out going with default path";
+	    String actualMessage = exception.getMessage();
+
+	    assertEquals(expectedMessage, actualMessage);
+	}
 }

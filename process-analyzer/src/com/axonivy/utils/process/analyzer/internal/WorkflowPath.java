@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -345,7 +346,7 @@ public class WorkflowPath {
 		return path;
 	}	
 	
-	private List<SequenceFlow> getSequenceFlows(NodeElement from, String flowName, FindType findType) {
+	private List<SequenceFlow> getSequenceFlows(NodeElement from, String flowName, FindType findType) throws Exception {
 		if (findType == FindType.ALL_TASKS) {
 			return from.getOutgoing();
 		}
@@ -372,7 +373,7 @@ public class WorkflowPath {
 		return flow.map(Arrays::asList).orElse(emptyList());		
 	}
 	
-	private Optional<SequenceFlow> getSequenceFlow(NodeElement nodeElement, String flowName) {
+	private Optional<SequenceFlow> getSequenceFlow(NodeElement nodeElement, String flowName) throws Exception {
 		List<SequenceFlow> outs = nodeElement.getOutgoing();
 		if(CollectionUtils.isEmpty(outs)) {
 			return Optional.empty();
@@ -381,13 +382,13 @@ public class WorkflowPath {
 		if(nodeElement instanceof Alternative) {
 			// High priority for checking default path if flowName is null
 			if(isEmpty(flowName)) {
-				return outs.stream().filter(out -> isDefaultPath(out)).findFirst();
+				return findSequenceFlowByDefaultPath(outs);								
 			} else { 
 				//If flowName is not null, check flowName first
-				Optional<SequenceFlow> flow = outs.stream().filter(out -> hasFlowName(out, flowName)).findFirst();
+				Optional<SequenceFlow> flow = findSequenceFlowByFlowName(outs, flowName);
 				// Then check default path
 				if(!flow.isPresent()) {
-					flow = outs.stream().filter(out -> isDefaultPath(out)).findFirst();
+					flow = findSequenceFlowByDefaultPath(outs);
 				}
 				return flow;
 			}
@@ -398,6 +399,26 @@ public class WorkflowPath {
 				.findFirst();
 			
 		return flow;
+	}
+	
+	private Optional<SequenceFlow> findSequenceFlowByDefaultPath(List<SequenceFlow> outs) throws Exception {
+		List<SequenceFlow>  defaultPathOuts = outs.stream().filter(out -> isDefaultPath(out)).toList();
+		if(defaultPathOuts.size() > 1) {
+			//Throw exception
+			throw new Exception("Have more than one out going with default path");
+		}else {
+			return defaultPathOuts.stream().findFirst();
+		}
+	}
+	
+	private Optional<SequenceFlow> findSequenceFlowByFlowName(List<SequenceFlow> outs, String flowName) throws Exception {
+		List<SequenceFlow>  flowNameOuts = outs.stream().filter(out -> hasFlowName(out, flowName)).toList();
+		if(flowNameOuts.size() > 1) {
+			//Throw exception
+			throw new Exception("Have more than one out going with flowname " + flowName);
+		}else {
+			return flowNameOuts.stream().findFirst();
+		}
 	}
 	
 	private boolean hasFlowNameOrEmpty(SequenceFlow sequenceFlow, String flowName) {		
@@ -432,8 +453,8 @@ public class WorkflowPath {
 	
 	private boolean isDefaultPath(Alternative alternative, SequenceFlow sequenceFlow) {
 		String currentElementId = sequenceFlow.getPid().getFieldId();
-		String nextTargetId = processGraph.getNextTargetIdByCondition(alternative, EMPTY);
-		return Objects.equals(currentElementId, nextTargetId);
+		List<String> nextTargetIds = processGraph.getNextTargetIdsByCondition(alternative, EMPTY);
+		return nextTargetIds.contains(currentElementId);
 	}
 	
 	private boolean isStartTaskSwitchGateway(ProcessElement element) {
