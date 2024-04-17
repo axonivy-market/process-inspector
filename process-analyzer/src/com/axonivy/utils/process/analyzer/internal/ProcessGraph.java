@@ -15,6 +15,7 @@ import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
+import ch.ivyteam.ivy.process.model.element.activity.SubProcessCall;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.event.start.StartEvent;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
@@ -31,9 +32,13 @@ public class ProcessGraph {
 	public String getCodeLineByPrefix(TaskConfig task, String... prefix) {
 		// strongly typed!
 		String script = Optional.of(task.getScript()).orElse(EMPTY);
+		return getCodeLineByPrefix(script, prefix);
+	}
+	
+	public String getCodeLineByPrefix(String script, String... prefix) {
 		String[] codeLines = script.split("\\n");
 		String wfEstimateCode = Arrays.stream(codeLines)
-				.filter(line -> containtPrefixs(line, prefix))
+				.filter(line -> containPrefixs(line, prefix))
 				.findFirst()
 				.orElse(EMPTY);
 		return wfEstimateCode;
@@ -132,8 +137,15 @@ public class ProcessGraph {
 		return element instanceof Alternative;
 	}
 	
-	private boolean containtPrefixs(String content, String... prefix) {
-		return List.of(prefix).stream().allMatch(it -> content.contains(it));
+	public boolean isSubProcessCall(BaseElement element) {
+		return element instanceof SubProcessCall;
 	}
 	
+	public boolean isHandledAsTask(SubProcessCall subProcessCall) {
+		return containPrefixs(subProcessCall.getParameters().getCode(), "APAConfig.handleAsTask"); 
+	}
+	
+	private boolean containPrefixs(String content, String... prefix) {
+		return List.of(prefix).stream().allMatch(it -> content.contains(it));
+	}
 }

@@ -26,6 +26,7 @@ import com.axonivy.utils.process.analyzer.internal.model.TaskParallelGroup;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
+import ch.ivyteam.ivy.process.model.element.activity.SubProcessCall;
 import ch.ivyteam.ivy.process.model.element.event.end.TaskEnd;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
@@ -110,6 +111,16 @@ public class WorkflowTime {
 				continue;
 			}
 
+			// Task from sub process call
+			if (processGraph.isSubProcessCall(element.getElement())) {			
+				if( processGraph.isHandledAsTask((SubProcessCall)element.getElement())) {
+					SubProcessCall subProcessCall = (SubProcessCall) element.getElement();
+					Duration taskDuration = getDurationByTaskScript(subProcessCall.getParameters().getCode(), useCase);
+					total = total.plus(taskDuration);
+					continue;
+				}		
+			}
+			
 			// CommonElement(SingleTaskCreator)
 			if (processGraph.isSingleTaskCreator(element.getElement())) {
 				SingleTaskCreator singleTask = (SingleTaskCreator) element.getElement();
@@ -165,12 +176,16 @@ public class WorkflowTime {
 		return maxTotal;
 	}
 	
-	private Duration getDurationByTaskScript(TaskConfig task, Enum<?> useCase) {
+	public Duration getDurationByTaskScript(TaskConfig task, Enum<?> useCase) {
+		return getDurationByTaskScript(task.getScript(), useCase);
+	}
+	
+	public Duration getDurationByTaskScript(String script, Enum<?> useCase) {
 		if (useCase != null) {
 			String useCasePrefix = getUseCasePrefix(useCase);
 			List<String> prefixs = Arrays.asList("APAConfig.setEstimate", useCasePrefix);
 
-			String wfEstimateCode = processGraph.getCodeLineByPrefix(task, prefixs.toArray(new String[0]));
+			String wfEstimateCode = processGraph.getCodeLineByPrefix(script, prefixs.toArray(new String[0]));
 			if (isNotEmpty(wfEstimateCode)) {
 				String[] result = StringUtils.substringsBetween(wfEstimateCode, "(", ")")[0].split(",");
 				int amount = Integer.parseInt(result[0]);
@@ -191,7 +206,6 @@ public class WorkflowTime {
 				}
 			}
 		}
-
 		return Duration.ofHours(0);
 	}
 

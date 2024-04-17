@@ -149,8 +149,54 @@
         "findTasksOnPath( start.ivp ) => TaskA, TaskB"
       ],
       "visual" : {
-        "at" : { "x" : 322, "y" : 206 },
+        "at" : { "x" : 376, "y" : 343 },
         "size" : { "width" : 476, "height" : 97 }
+      }
+    }, {
+      "id" : "f5",
+      "type" : "SubProcessCall",
+      "name" : "FlowSubProcessCall",
+      "config" : {
+        "processCall" : "FlowSubProcessCall:call()",
+        "call" : {
+          "map" : { },
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "import com.axonivy.utils.process.analyzer.test.UseCase;",
+            "import com.axonivy.utils.process.analyzer.APAConfig;",
+            "",
+            "APAConfig.handleAsTask();",
+            "APAConfig.setTaskName(\"Task sub\");",
+            "APAConfig.setCustomInfo(\"Custom info\");",
+            "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 272, "y" : 192 },
+        "size" : { "width" : 128, "height" : 60 }
+      },
+      "connect" : [
+        { "id" : "f9", "to" : "f8" }
+      ]
+    }, {
+      "id" : "f6",
+      "type" : "RequestStart",
+      "name" : "start2",
+      "config" : {
+        "signature" : "start2"
+      },
+      "visual" : {
+        "at" : { "x" : 96, "y" : 192 }
+      },
+      "connect" : [
+        { "id" : "f7", "to" : "f5" }
+      ]
+    }, {
+      "id" : "f8",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 488, "y" : 192 }
       }
     } ]
 }
