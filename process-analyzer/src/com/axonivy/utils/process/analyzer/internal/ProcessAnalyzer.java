@@ -4,7 +4,6 @@ import static java.util.Collections.emptyList;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -17,6 +16,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 
+import com.axonivy.utils.process.analyzer.helper.DateTimeHelper;
 import com.axonivy.utils.process.analyzer.helper.ProcessAnalyzerHelper;
 import com.axonivy.utils.process.analyzer.internal.model.AnalysisPath;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
@@ -26,8 +26,6 @@ import com.axonivy.utils.process.analyzer.model.DetectedAlternative;
 import com.axonivy.utils.process.analyzer.model.DetectedElement;
 import com.axonivy.utils.process.analyzer.model.DetectedTask;
 
-import ch.ivyteam.ivy.application.calendar.IBusinessCalendar;
-import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
@@ -36,14 +34,13 @@ import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
-import ch.ivyteam.ivy.scripting.objects.BusinessDuration;
 import ch.ivyteam.ivy.workflow.ICase;
 import ch.ivyteam.ivy.workflow.ITask;
 import ch.ivyteam.ivy.workflow.TaskState;
 
 public abstract class ProcessAnalyzer {
 	private static final Duration DURATION_MIN = Duration.ofMillis(Long.MIN_VALUE);
-	private static final IBusinessCalendar GERMANY_CALENDAR = Ivy.cal().get("Germany");
+	
 	private static final List<TaskState> OPEN_TASK_STATES = List.of(TaskState.SUSPENDED, TaskState.PARKED, TaskState.RESUMED);
 	private ProcessGraph processGraph;
 	
@@ -74,9 +71,7 @@ public abstract class ProcessAnalyzer {
 		Map<ProcessElement, Duration> result = new LinkedHashMap<>();
 		for(ITask task : tasks) {			
 			BaseElement element = ProcessAnalyzerHelper.getBaseElementOf(task);
-			
-			Instant startedDateTime  = getBusinessStartTimestamp(task.getStartTimestamp()).toInstant();
-			Duration spentDuration = getDurationAtNow(startedDateTime);
+			Duration spentDuration = DateTimeHelper.getBusinessDuration(task.getStartTimestamp(), new Date());
 			
 			//Around to minutes
 			result.put(new CommonElement(element), Duration.ZERO.minus(spentDuration));
@@ -359,16 +354,5 @@ public abstract class ProcessAnalyzer {
 	private List<ITask> getCaseITasks(ICase icase) {
 		List<ITask> tasks = icase.tasks().all().stream().filter(task -> OPEN_TASK_STATES.contains(task.getState())).toList();
 		return tasks;
-	}
-	
-	private Date getBusinessStartTimestamp(Date startJavaDateTime) {
-		ch.ivyteam.ivy.scripting.objects.DateTime startDateTime = new ch.ivyteam.ivy.scripting.objects.DateTime(startJavaDateTime);
-		ch.ivyteam.ivy.scripting.objects.DateTime result = GERMANY_CALENDAR.getBusinessTimeIn(startDateTime, new BusinessDuration(0));
-		return result.toJavaDate();
-	}
-	
-	private Duration getDurationAtNow(Instant instant) {
-		Date now =  getBusinessStartTimestamp(new Date());
-		return Duration.between(instant, now.toInstant());
 	}
 }
