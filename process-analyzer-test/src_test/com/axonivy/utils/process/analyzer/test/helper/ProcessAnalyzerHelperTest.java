@@ -17,7 +17,6 @@ import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.workflow.ITask;
 
 @IvyProcessTest
-@SuppressWarnings("restriction")
 public class ProcessAnalyzerHelperTest {
 	private static final BpmProcess FLOW_EXAMPLE_COMMON = BpmProcess.name("FlowExampleCommon");
 	private static final BpmElement FLOW_EXAMPLE_COMMON_START = FLOW_EXAMPLE_COMMON.elementName("start");

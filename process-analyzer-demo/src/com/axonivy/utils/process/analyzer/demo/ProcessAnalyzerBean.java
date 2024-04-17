@@ -21,7 +21,6 @@ import com.axonivy.utils.process.analyzer.demo.helper.DateTimeHelper;
 import com.axonivy.utils.process.analyzer.demo.model.Analyzer;
 import com.axonivy.utils.process.analyzer.model.DetectedAlternative;
 import com.axonivy.utils.process.analyzer.model.DetectedElement;
-import com.axonivy.utils.process.analyzer.model.DetectedTask;
 
 import ch.ivyteam.ivy.application.IProcessModelVersion;
 import ch.ivyteam.ivy.environment.Ivy;
@@ -38,7 +37,6 @@ import ch.ivyteam.ivy.process.viewer.api.ProcessViewer;
 import ch.ivyteam.ivy.workflow.start.IProcessWebStartable;
 import ch.ivyteam.ivy.workflow.start.IWebStartable;
 
-@SuppressWarnings("restriction")
 public class ProcessAnalyzerBean {
 	private static final List<String> PROCESS_FOLDERS = Arrays.asList("Bussiness Processes");
 

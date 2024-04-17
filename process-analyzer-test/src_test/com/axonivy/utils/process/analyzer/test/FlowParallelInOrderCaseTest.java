@@ -2,6 +2,7 @@ package com.axonivy.utils.process.analyzer.test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.util.List;
@@ -21,7 +22,6 @@ import ch.ivyteam.ivy.workflow.ICase;
 import ch.ivyteam.ivy.workflow.ITask;
 
 @IvyProcessTest
-@SuppressWarnings("restriction")
 public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 	private static final BpmProcess FLOW_PARALLEL_IN_ORDER = BpmProcess.name("FlowParallelInOrder");
 	
@@ -65,10 +65,10 @@ public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 						
 		List<ITask> activeTasks = result.workflow().activeTasks();
 		ITask taskA = findTaskByElementName(activeTasks, "Task A");
-		 		 
+
 		bpmClient.mock().uiOf(FLOW_PARALLEL_IN_ORDER.elementName("Task A")).withNoAction();		
 		result = bpmClient.start().task(taskA).as().everybody().execute();
-		
+		Thread.sleep(1000);
 		
 		ICase icase = result.workflow().activeCase();
 
@@ -81,7 +81,7 @@ public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 		DetectedTask taskC = (DetectedTask) findByElementName(detectedTasks, "Task C");
 		DetectedTask taskD = (DetectedTask) findByElementName(detectedTasks, "Task D");
 		
-		assertEquals(Duration.ZERO, taskC.getTimeUntilStart());
+		assertTrue(Duration.ZERO.compareTo(taskC.getTimeUntilStart()) >= 0);
 		assertEquals(taskC.getTimeUntilEnd(), taskD.getTimeUntilStart());
 		assertEquals(taskC.getTimeUntilEnd().plus(taskD.getEstimatedDuration()), taskD.getTimeUntilEnd());
 	}

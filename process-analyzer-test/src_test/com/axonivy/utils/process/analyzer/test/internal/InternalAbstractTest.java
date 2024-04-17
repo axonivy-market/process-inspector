@@ -4,7 +4,6 @@ import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.rdm.IProcessManager;
 
-@SuppressWarnings("restriction")
 abstract class InternalAbstractTest {
 	protected Process getProcessByName(String processName) {
 		var pmv = Ivy.request().getProcessModelVersion();

@@ -9,7 +9,6 @@ import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.value.PID;
 
-@SuppressWarnings("restriction")
 public class TaskParallelGroup implements ProcessElement {
 	private BaseElement element;
 	private Map<SequenceFlow, List<AnalysisPath>> internalPaths;

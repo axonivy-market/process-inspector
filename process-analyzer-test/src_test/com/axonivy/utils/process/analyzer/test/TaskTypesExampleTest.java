@@ -8,20 +8,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
+
 import ch.ivyteam.ivy.environment.IvyTest;
-import ch.ivyteam.ivy.process.model.BaseElement;
 
 @IvyTest
-@SuppressWarnings("restriction")
 public class TaskTypesExampleTest extends FlowExampleTest {
-	
-	private static BaseElement start;
 	private static final String PROCESS_NAME = "TaskTypesExample";
 	
 	@BeforeAll	
 	public static void setup() {
-		setup(PROCESS_NAME);
-		start = ProcessGraphHelper.findByElementName(process, "start");
+		setup(PROCESS_NAME);		
 	}
 	
 	@BeforeEach
@@ -31,6 +27,7 @@ public class TaskTypesExampleTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindAllTasksOnPathAtStartWithFlowNameNull() throws Exception {
+		var start = ProcessGraphHelper.findByElementName(process, "start");
 		var detectedTasks = processAnalyzer.findTasksOnPath(start, null, null);
 		
 		var names = getTaskNames(detectedTasks);
@@ -39,6 +36,7 @@ public class TaskTypesExampleTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindAllTasksAtStartWithFlowNameNull() throws Exception {
+		var start = ProcessGraphHelper.findByElementName(process, "start");
 		var detectedTasks = processAnalyzer.findAllTasks(start, null);
 		
 		var names = getTaskNames(detectedTasks);

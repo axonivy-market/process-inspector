@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.axonivy.utils.process.analyzer.internal.ProcessAnalyzer;
 import com.axonivy.utils.process.analyzer.internal.model.AnalysisPath;
@@ -18,9 +17,7 @@ import com.axonivy.utils.process.analyzer.model.DetectedElement;
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.workflow.ICase;
-import ch.ivyteam.ivy.workflow.ITask;
 
-@SuppressWarnings("restriction")
 public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 
 	private Process process;
@@ -51,24 +48,27 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 		return processFlowOverrides;
 	}
 	
-	/**
-	 * Disabled by default.
+	@Override
+	protected boolean isDescribeAlternativeElements() {
+		return isEnableDescribeAlternative;
+	}
+
+	/** 
 	 * If this option is enabled, the Advanced Process Analyzer will also add all alternative elements to the result.
-	 * This option will affect findTasksOnPath as well as findAllTasks method. Both methods will traverse the process as usual.
-	 * When it bypasses an alternative element, it will be added to the result list.
+	 * This option will affect findTasksOnPath as well as findAllTasks method. Disabled by default.
+	 * When it bypasses an alternative element, it will be added to the result list. 
 	 */
 	public void enableDescribeAlternativeElements() {
 		this.isEnableDescribeAlternative = true;
 	}
 
+	/**
+	 * When it bypasses an alternative element, it will be not added to the result list.
+	 */
 	public void disableDescribeAlternativeElements() {
 		this.isEnableDescribeAlternative = false;	
 	}
 	
-	@Override
-	protected boolean isDescribeAlternativeElements() {
-		return isEnableDescribeAlternative;
-	}
 
 	/**
 	 * Return a list of all tasks in the process which can be reached from the starting element.
@@ -78,8 +78,10 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @throws Exception
 	 */
 	public List<? extends DetectedElement> findAllTasks(BaseElement startAtElement, Enum<?> useCase) throws Exception {
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(new CommonElement(startAtElement));
-		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase);
+		List<ProcessElement> elements =  List.of(new CommonElement(startAtElement));
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);
+		
+		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, initTimeUntilStart(elements));
 		return detectedTasks;
 	}
 	
@@ -91,9 +93,10 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @throws Exception
 	 */
 	public List<? extends DetectedElement> findAllTasks(List<BaseElement> startAtElements, Enum<?> useCase) throws Exception {
-		CommonElement[] elements = startAtElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
+		List<ProcessElement> elements = convertToProcessElements(startAtElements);
 		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);
-		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase);
+		
+		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, initTimeUntilStart(elements));
 		return detectedTasks;
 	}
 
@@ -104,13 +107,12 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<? extends DetectedElement> findAllTasks(ICase icase, Enum<?> useCase) throws Exception {		
-		List<ITask> tasks = getCaseITasks(icase);
-		Map<ProcessElement, Duration> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
-
-		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);		
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);		
-		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, elementsWithTime);
+	public List<? extends DetectedElement> findAllTasks(ICase icase, Enum<?> useCase) throws Exception {			
+		List<ProcessElement> elements = getStartElements(icase);		
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);
+		
+		Map<ProcessElement, Duration> elementsWithSpentDuration = getStartElementsWithSpentDuration(icase);
+		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, elementsWithSpentDuration);
 		return detectedTasks;
 	}
 	
@@ -123,12 +125,10 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @throws Exception
 	 */
 	public List<? extends DetectedElement> findTasksOnPath(BaseElement startAtElement, Enum<?> useCase, String flowName) throws Exception {
-		ProcessElement element = new CommonElement(startAtElement);
-		
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(flowName, element);
-		
-		Map<ProcessElement, Duration> startedAts = Map.of(element, Duration.ZERO);	
-		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, startedAts);
+		List<ProcessElement> elements = List.of(new CommonElement(startAtElement));		
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements, flowName);
+			
+		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, initTimeUntilStart(elements));
 		return detectedTasks;
 	}
 	
@@ -140,12 +140,10 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @throws Exception
 	 */
 	public List<? extends DetectedElement> findTasksOnPath(List<BaseElement> startAtElements, Enum<?> useCase, String flowName) throws Exception {
-		ProcessElement[] elements = startAtElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
+		List<ProcessElement> elements = convertToProcessElements(startAtElements);
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements, flowName);
 		
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(flowName, elements);
-		
-		Map<ProcessElement, Duration> startedAts = Stream.of(elements).collect(Collectors.toMap(it ->it, it -> Duration.ZERO));
-		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, startedAts);
+		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, initTimeUntilStart(elements));
 		return detectedTasks;
 	}
 	
@@ -157,13 +155,17 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<? extends DetectedElement> findTasksOnPath(ICase icase, Enum<?> useCase, String flowName) throws Exception {		
-		List<ITask> tasks = getCaseITasks(icase);
-		Map<ProcessElement, Duration> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
-		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);
+	public List<? extends DetectedElement> findTasksOnPath(ICase icase, Enum<?> useCase, String flowName) throws Exception {
+		List<DetectedElement> detectedTasks = findTasksByCase(icase, useCase, flowName, false);
+		return detectedTasks;
+	}
+	
+	private List<DetectedElement> findTasksByCase(ICase icase, Enum<?> useCase, String flowName, boolean isFindAllTasks) throws Exception {
+		List<ProcessElement> elements = getStartElements(icase);
+		Map<ProcessElement, List<AnalysisPath>> path = isFindAllTasks? findPath(elements): findPath(elements, flowName);
 		
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(flowName, elements);		
-		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, elementsWithTime);
+		Map<ProcessElement, Duration> elementsWithSpentDuration = getStartElementsWithSpentDuration(icase);
+		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, elementsWithSpentDuration);
 		return detectedTasks;
 	}
 	
@@ -176,9 +178,9 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @throws Exception
 	 */
 	public Duration calculateWorstCaseDuration(BaseElement startElement, Enum<?> useCase) throws Exception {
-		ProcessElement element = new CommonElement(startElement);
+		ProcessElement element = new CommonElement(startElement);		
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(List.of(element));
 		
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(element);		
 		Duration total = calculateTotalDuration(path, useCase);		
 		return total;
 	}
@@ -192,9 +194,9 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @throws Exception
 	 */
 	public Duration calculateWorstCaseDuration(List<BaseElement> startElements, Enum<?> useCase) throws Exception {
-		ProcessElement[] elements = startElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
+		List<ProcessElement> elements = convertToProcessElements(startElements);		
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);
 		
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);		
 		Duration total = calculateTotalDuration(path, useCase);		
 		return total;
 	}
@@ -209,11 +211,9 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @throws Exception
 	 */
 	public Duration calculateWorstCaseDuration(ICase icase, Enum<?> useCase) throws Exception {
-		List<ITask> tasks = getCaseITasks(icase);
-		Map<ProcessElement, Duration> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
-		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);
-		
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);		
+		List<ProcessElement> elements = getStartElements(icase);
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);
+				
 		Duration total = calculateTotalDuration(path, useCase);		
 		return total;
 	}
@@ -227,9 +227,9 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @throws Exception
 	 */
 	public Duration calculateDurationOfPath(BaseElement startElement, Enum<?> useCase, String flowName) throws Exception {
-		ProcessElement element = new CommonElement(startElement);
+		ProcessElement element = new CommonElement(startElement);		
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(List.of(element), flowName);
 		
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(flowName, element);		
 		Duration total = calculateTotalDuration(path, useCase);		
 		return total;
 	}
@@ -242,9 +242,9 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @throws Exception
 	 */
 	public Duration calculateDurationOfPath(List<BaseElement> startElements, Enum<?> useCase, String flowName) throws Exception {
-		ProcessElement[] elements = startElements.stream().map(CommonElement::new).toArray(CommonElement[]::new);
+		List<ProcessElement> elements = convertToProcessElements(startElements);	
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements, flowName);
 		
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(flowName, elements);		
 		Duration total = calculateTotalDuration(path, useCase);		
 		return total;
 	}
@@ -259,11 +259,9 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @throws Exception
 	 */
 	public Duration calculateDurationOfPath(ICase icase, Enum<?> useCase, String flowName) throws Exception {
-		List<ITask> tasks = getCaseITasks(icase);
-		Map<ProcessElement, Duration> elementsWithTime = getProcessElementWithStartTimestamp(tasks);
-		ProcessElement[] elements = elementsWithTime.keySet().stream().toArray(CommonElement[]::new);
-		
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(flowName, elements);		
+		List<ProcessElement> elements = getStartElements(icase);
+		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements, flowName);
+				
 		Duration total = calculateTotalDuration(path, useCase);		
 		return total;
 	}
@@ -290,5 +288,14 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	public AdvancedProcessAnalyzer setDurationOverrides(HashMap<String, Duration> durationOverrides) {
 		this.durationOverrides = durationOverrides;
 		return this;
+	}
+	
+	private List<ProcessElement> convertToProcessElements(List<BaseElement> elements) {
+		return elements.stream().map(CommonElement::new).map(ProcessElement.class::cast).toList();
+	}
+	
+	private Map<ProcessElement, Duration> initTimeUntilStart(List<ProcessElement> elements) {
+		Map<ProcessElement, Duration> timeUntilStartAts = elements.stream().collect(Collectors.toMap(it -> it, it -> Duration.ZERO));
+		return timeUntilStartAts;
 	}
 }
