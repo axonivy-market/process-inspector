@@ -13,7 +13,6 @@ import ch.ivyteam.ivy.process.model.element.ProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 
-@SuppressWarnings("restriction")
 public class ProcessGraphHelper {
 	
 	public static RequestStart findStart(Process process) {

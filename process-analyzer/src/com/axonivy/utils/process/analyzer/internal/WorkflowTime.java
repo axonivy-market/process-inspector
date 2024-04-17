@@ -30,7 +30,6 @@ import ch.ivyteam.ivy.process.model.element.event.end.TaskEnd;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 
-@SuppressWarnings("restriction")
 public class WorkflowTime {
 	private ProcessGraph processGraph;
 	private Map<String, Duration> durationOverrides;

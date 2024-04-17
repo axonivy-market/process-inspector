@@ -34,7 +34,6 @@ import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 
-@SuppressWarnings("restriction")
 public class WorkflowPath {
 
 	private enum FindType {

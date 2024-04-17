@@ -22,7 +22,6 @@ import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.IvyScriptExpression;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 
-@SuppressWarnings("restriction")
 public class ProcessGraph {
 
 	private enum Role {

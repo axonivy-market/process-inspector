@@ -17,7 +17,6 @@ import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 
 @IvyTest
-@SuppressWarnings("restriction")
 public class WorkflowTimeTest extends InternalAbstractTest {
 	private static final String FLOW_EXAMPLE_BASIC = "FlowExampleBasic";
 	private static WorkflowTime workflowTime;

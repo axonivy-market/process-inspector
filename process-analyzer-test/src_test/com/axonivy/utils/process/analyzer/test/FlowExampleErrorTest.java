@@ -8,20 +8,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
+
 import ch.ivyteam.ivy.environment.IvyTest;
-import ch.ivyteam.ivy.process.model.BaseElement;
 
 @IvyTest
-@SuppressWarnings("restriction")
 public class FlowExampleErrorTest extends FlowExampleTest {
-
-	private static BaseElement start;
+	
 	private static final String PROCESS_NAME = "FlowExampleError";
 	
 	@BeforeAll
 	public static void setup() {
-		setup(PROCESS_NAME);	
-		start = ProcessGraphHelper.findByElementName(process, "start");
+		setup(PROCESS_NAME);
 	}
 	
 	@BeforeEach
@@ -31,6 +28,7 @@ public class FlowExampleErrorTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameSuccess() throws Exception {
+		var start = ProcessGraphHelper.findByElementName(process, "start");
 		var detectedTasks = processAnalyzer.findTasksOnPath(start, null, "success");
 
 		assertEquals(1, detectedTasks.size());
@@ -38,7 +36,8 @@ public class FlowExampleErrorTest extends FlowExampleTest {
 	}
 	
 	@Test
-	void shouldFindTasksOnPathAtStartWithFlowNameNull()  {		
+	void shouldFindTasksOnPathAtStartWithFlowNameNull()  {
+		var start = ProcessGraphHelper.findByElementName(process, "start");
 		Exception exception = assertThrows(Exception.class, () -> {
 			processAnalyzer.findTasksOnPath(start, null, null);
 	    });

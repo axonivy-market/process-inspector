@@ -6,7 +6,6 @@ import ch.ivyteam.ivy.process.rdm.IProcessManager;
 import ch.ivyteam.ivy.workflow.ITask;
 import ch.ivyteam.ivy.workflow.IWorkflowProcessModelVersion;
 
-@SuppressWarnings("restriction")
 public class ProcessAnalyzerHelper {
 	
 	public static BaseElement getBaseElementOf(ITask task) {

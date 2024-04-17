@@ -4,7 +4,6 @@ import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +20,6 @@ import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.Process;
 
 @IvyTest
-@SuppressWarnings("restriction")
 public class WorkflowPathTest extends InternalAbstractTest{
 	private static final String FLOW_EXAMPLE_BASIC = "FlowExampleBasic";
 	

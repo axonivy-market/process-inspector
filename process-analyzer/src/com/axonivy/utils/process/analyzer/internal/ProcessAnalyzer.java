@@ -4,13 +4,14 @@ import static java.util.Collections.emptyList;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.map.HashedMap;
@@ -25,6 +26,8 @@ import com.axonivy.utils.process.analyzer.model.DetectedAlternative;
 import com.axonivy.utils.process.analyzer.model.DetectedElement;
 import com.axonivy.utils.process.analyzer.model.DetectedTask;
 
+import ch.ivyteam.ivy.application.calendar.IBusinessCalendar;
+import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
@@ -33,12 +36,14 @@ import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
+import ch.ivyteam.ivy.scripting.objects.BusinessDuration;
 import ch.ivyteam.ivy.workflow.ICase;
 import ch.ivyteam.ivy.workflow.ITask;
 import ch.ivyteam.ivy.workflow.TaskState;
 
-@SuppressWarnings("restriction")
 public abstract class ProcessAnalyzer {
+	private static final Duration DURATION_MIN = Duration.ofMillis(Long.MIN_VALUE);
+	private static final IBusinessCalendar GERMANY_CALENDAR = Ivy.cal().get("Germany");
 	private static final List<TaskState> OPEN_TASK_STATES = List.of(TaskState.SUSPENDED, TaskState.PARKED, TaskState.RESUMED);
 	private ProcessGraph processGraph;
 	
@@ -50,16 +55,44 @@ public abstract class ProcessAnalyzer {
 	protected abstract Map<String, String> getProcessFlowOverrides();
 	protected abstract boolean isDescribeAlternativeElements();
 
-	protected Map<ProcessElement, List<AnalysisPath>> findPath(ProcessElement... from) throws Exception {
+	protected Map<ProcessElement, List<AnalysisPath>> findPath(List<ProcessElement> froms) throws Exception {
+		CommonElement[] elements = froms.stream().toArray(CommonElement[]::new);
 		WorkflowPath workflowPath = new WorkflowPath(getProcessFlowOverrides());
-		Map<ProcessElement, List<AnalysisPath>> paths = workflowPath.findPath(from);
+		Map<ProcessElement, List<AnalysisPath>> paths = workflowPath.findPath(elements);
 		return paths;
 	}
 	
-	protected Map<ProcessElement, List<AnalysisPath>> findPath(String flowName, ProcessElement... from) throws Exception {
+	protected Map<ProcessElement, List<AnalysisPath>> findPath(List<ProcessElement> froms, String flowName) throws Exception {
+		CommonElement[] elements = froms.stream().toArray(CommonElement[]::new);
 		WorkflowPath workflowPath = new WorkflowPath(getProcessFlowOverrides());
-		Map<ProcessElement, List<AnalysisPath>> paths = workflowPath.findPath(flowName, from);
+		Map<ProcessElement, List<AnalysisPath>> paths = workflowPath.findPath(flowName, elements);
 		return paths;
+	}
+	
+	protected Map<ProcessElement, Duration> getStartElementsWithSpentDuration(ICase icase) {
+		List<ITask> tasks = getCaseITasks(icase);
+		Map<ProcessElement, Duration> result = new LinkedHashMap<>();
+		for(ITask task : tasks) {			
+			BaseElement element = ProcessAnalyzerHelper.getBaseElementOf(task);
+			
+			Instant startedDateTime  = getBusinessStartTimestamp(task.getStartTimestamp()).toInstant();
+			Duration spentDuration = getDurationAtNow(startedDateTime);
+			
+			//Around to minutes
+			result.put(new CommonElement(element), Duration.ZERO.minus(spentDuration));
+		}
+		
+		return result;
+	}
+	
+	protected List<ProcessElement> getStartElements(ICase icase) {
+		List<ITask> tasks = getCaseITasks(icase);
+		List<ProcessElement> elements = tasks.stream()
+				.map(task -> ProcessAnalyzerHelper.getBaseElementOf(task))
+				.map(CommonElement::new)
+				.map(ProcessElement.class::cast)
+				.toList();		
+		return elements;
 	}
 	
 	protected Duration calculateTotalDuration(Map<ProcessElement, List<AnalysisPath>> paths, Enum<?> useCase) {
@@ -68,29 +101,8 @@ public abstract class ProcessAnalyzer {
 		return total;
 	}
 	
-	protected List<DetectedElement> convertToDetectedElements(Map<ProcessElement, List<AnalysisPath>> paths, Enum<?> useCase) {
-		Map<ProcessElement, Duration> timeUntilStartAts = paths.keySet().stream().collect(Collectors.toMap(it ->it, it -> Duration.ZERO));
-		List<DetectedElement> result = convertToDetectedElements(paths, useCase, timeUntilStartAts);
-		return result;
-	}
-	
-	protected Map<ProcessElement, Duration> getProcessElementWithStartTimestamp(List<ITask> tasks) {
-		Map<ProcessElement, Duration> result = new LinkedHashMap<>();
-		for(ITask task : tasks) {
-			BaseElement element = ProcessAnalyzerHelper.getBaseElementOf(task);
-			result.put(new CommonElement(element), Duration.ZERO);
-		}
-		
-		return result;
-	}
-	
-	protected List<ITask> getCaseITasks(ICase icase) {
-		List<ITask> tasks = icase.tasks().all().stream().filter(task -> OPEN_TASK_STATES.contains(task.getState())).toList();
-		return tasks;
-	}
-	
 	protected List<DetectedElement> convertToDetectedElements(Map<ProcessElement, List<AnalysisPath>> allPaths, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStarts) {
-		List<DetectedElement> result = new ArrayList<>();
+		List<DetectedElement> result = new ArrayList<>();		
 		for (Entry<ProcessElement, List<AnalysisPath>> path : allPaths.entrySet()) {
 			List<DetectedElement> elements = convertPathToDetectedElements(path.getKey(), path.getValue(), useCase, timeUntilStarts);
 			result.addAll(elements);
@@ -193,7 +205,7 @@ public abstract class ProcessAnalyzer {
 		List<DetectedElement> result = new ArrayList<>();
 		for (Entry<SequenceFlow, List<AnalysisPath>> entry : internalPath.entrySet()) {
 			SequenceFlow sequenceFlow = (SequenceFlow)entry.getKey();
-			Duration startedAt = timeUntilStartAts.get(group);; 
+			Duration startedAt = timeUntilStartAts.get(group); 
 			
 			if(group.getElement() != null) {
 				var startTask = createStartTaskFromTaskSwitchGateway(sequenceFlow, startedAt, useCase);
@@ -278,11 +290,13 @@ public abstract class ProcessAnalyzer {
 		detectedTask.setPid(processGraph.getTaskId(task, taskConfig));		
 		detectedTask.setParentElementNames(getParentElementNames(task));
 		detectedTask.setTaskName(taskConfig.getName().getRawMacro());
-		detectedTask.setElementName(task.getName());
+		detectedTask.setElementName(task.getName());		
+		detectedTask.setTimeUntilStart(timeUntilStartAt);
+		
 		Duration estimatedDuration = workflowTime.getDuration(task, taskConfig, useCase);				
-		detectedTask.setEstimatedDuration(estimatedDuration);
-		detectedTask.setTimeUntilStart(timeUntilStartAt);		
+		detectedTask.setEstimatedDuration(estimatedDuration);		
 		detectedTask.setTimeUntilEnd(timeUntilStartAt.plus(estimatedDuration));
+		
 		String customerInfo = getCustomInfoByCode(taskConfig);
 		detectedTask.setCustomInfo(customerInfo);		
 		
@@ -307,21 +321,12 @@ public abstract class ProcessAnalyzer {
 		return result;
 	}
 	
-	private Map<ProcessElement, List<ProcessElement>> removeDuplicate(Map<ProcessElement, List<ProcessElement>> paths) {
-		Map<ProcessElement, List<ProcessElement>> result = new LinkedHashMap<>();
-		paths.entrySet().forEach(it -> {
-			result.put(it.getKey(), it.getValue().stream().distinct().toList());
-		});
-
-		return result;
-	}
-	
-	protected List<DetectedElement> keepMaxTimeUtilEndDetectedElement(List<DetectedElement> detectedElements) {
+	private List<DetectedElement> keepMaxTimeUtilEndDetectedElement(List<DetectedElement> detectedElements) {
 		Map<String, Duration> taskGroup = new HashedMap<>();
 		for (DetectedElement detectedElement : detectedElements) {
 			if (detectedElement instanceof DetectedTask) {
 				Duration duration = ((DetectedTask) detectedElement).getTimeUntilEnd();
-				Duration maxDuration = taskGroup.getOrDefault(detectedElement.getPid(), Duration.ZERO);
+				Duration maxDuration = taskGroup.getOrDefault(detectedElement.getPid(), DURATION_MIN);
 				maxDuration = maxDuration.compareTo(duration) > 0 ? maxDuration : duration;
 				taskGroup.put(detectedElement.getPid(), maxDuration);
 			}
@@ -335,7 +340,7 @@ public abstract class ProcessAnalyzer {
 			}
 			
 			if (detectedElement instanceof DetectedTask && !containsByPid(result, detectedElement)) {
-				Duration maxDuration = taskGroup.getOrDefault(detectedElement.getPid(), Duration.ZERO);
+				Duration maxDuration = taskGroup.getOrDefault(detectedElement.getPid(), DURATION_MIN);
 				Duration duration = ((DetectedTask) detectedElement).getTimeUntilEnd();
 				if (duration.compareTo(maxDuration) >= 0) {
 					result.add(detectedElement);
@@ -349,5 +354,21 @@ public abstract class ProcessAnalyzer {
 	private boolean containsByPid(List<DetectedElement> detectedElements, DetectedElement detectedElement) {
 		List<String> pids = detectedElements.stream().map(DetectedElement::getPid).toList();
 		return pids.contains(detectedElement.getPid());
+	}
+	
+	private List<ITask> getCaseITasks(ICase icase) {
+		List<ITask> tasks = icase.tasks().all().stream().filter(task -> OPEN_TASK_STATES.contains(task.getState())).toList();
+		return tasks;
+	}
+	
+	private Date getBusinessStartTimestamp(Date startJavaDateTime) {
+		ch.ivyteam.ivy.scripting.objects.DateTime startDateTime = new ch.ivyteam.ivy.scripting.objects.DateTime(startJavaDateTime);
+		ch.ivyteam.ivy.scripting.objects.DateTime result = GERMANY_CALENDAR.getBusinessTimeIn(startDateTime, new BusinessDuration(0));
+		return result.toJavaDate();
+	}
+	
+	private Duration getDurationAtNow(Instant instant) {
+		Date now =  getBusinessStartTimestamp(new Date());
+		return Duration.between(instant, now.toInstant());
 	}
 }

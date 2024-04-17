@@ -18,7 +18,6 @@ import com.axonivy.utils.process.analyzer.model.DetectedTask;
 import ch.ivyteam.ivy.environment.IvyTest;
 
 @IvyTest
-@SuppressWarnings("restriction")
 public class FlowParallelInOrderTest extends FlowExampleTest {
 		
 	private static final String PROCESS_NAME = "FlowParallelInOrder";

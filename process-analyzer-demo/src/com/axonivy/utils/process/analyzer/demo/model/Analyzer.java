@@ -20,7 +20,6 @@ import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 
-@SuppressWarnings("restriction")
 public class Analyzer {
 	private String id;
 	private String flowName;
