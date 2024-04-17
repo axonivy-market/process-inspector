@@ -26,7 +26,7 @@
       "id" : "f1",
       "type" : "TaskEnd",
       "visual" : {
-        "at" : { "x" : 960, "y" : 64 }
+        "at" : { "x" : 1224, "y" : 64 }
       }
     }, {
       "id" : "f2",
@@ -95,7 +95,7 @@
         "labelOffset" : { "x" : 16, "y" : -16 }
       },
       "connect" : [
-        { "id" : "f10", "to" : "f1" }
+        { "id" : "f10", "to" : "f37" }
       ]
     }, {
       "id" : "f11",
@@ -336,6 +336,33 @@
       },
       "connect" : [
         { "id" : "f36", "to" : "f31" }
+      ]
+    }, {
+      "id" : "f37",
+      "type" : "SubProcessCall",
+      "name" : "FlowDemoSubProcessCall",
+      "config" : {
+        "processCall" : "Bussiness Processes/FlowDemoSubProcessCall:call()",
+        "call" : {
+          "map" : { },
+          "code" : [
+            "import com.axonivy.utils.process.analyzer.demo.constant.UseCase;",
+            "import java.util.concurrent.TimeUnit;",
+            "import com.axonivy.utils.process.analyzer.APAConfig;",
+            "",
+            "APAConfig.handleAsTask();",
+            "APAConfig.setTaskName(\"Task sub\");",
+            "APAConfig.setCustomInfo(\"Custom info\");",
+            "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 1048, "y" : 64 },
+        "size" : { "width" : 176, "height" : 52 }
+      },
+      "connect" : [
+        { "id" : "f38", "to" : "f1" }
       ]
     } ],
   "layout" : {

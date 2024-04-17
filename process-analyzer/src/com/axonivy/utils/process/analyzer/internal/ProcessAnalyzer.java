@@ -31,6 +31,7 @@ import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
+import ch.ivyteam.ivy.process.model.element.activity.SubProcessCall;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
@@ -137,11 +138,23 @@ public abstract class ProcessAnalyzer {
 					result.add(delectedAlternative);
 				}
 			}
+			
+			// Sub process call
+			if(processGraph.isSubProcessCall(element.getElement())) {
+				SubProcessCall subProcessCall = (SubProcessCall)element.getElement();
+				if(processGraph.isHandledAsTask(subProcessCall)) {
+					var detectedSubProcessCall = createDetectedTaskFromSubProcessCall(subProcessCall, useCase, durationStart);
+					if (detectedSubProcessCall != null) {
+						result.add(detectedSubProcessCall);
+						durationStart = timeUntilEnd(result, timeUntilStart);
+					}
+				}				
+			}
 
 			// CommonElement(SingleTaskCreator)
 			if (processGraph.isSingleTaskCreator(element.getElement())) {
 				SingleTaskCreator singleTask = (SingleTaskCreator) element.getElement();
-				var detectedTask = createDetectedTask(singleTask, singleTask.getTaskConfig(), durationStart, useCase);
+				var detectedTask = createDetectedTask(singleTask, singleTask.getTaskConfig(), useCase, durationStart);
 				if (detectedTask != null) {
 					result.add(detectedTask);
 					durationStart = timeUntilEnd(result, timeUntilStart);
@@ -164,7 +177,7 @@ public abstract class ProcessAnalyzer {
 			// CommonElement(SingleTaskCreator)
 			if (processGraph.isSingleTaskCreator(element.getElement())) {
 				SingleTaskCreator singleTask = (SingleTaskCreator) element.getElement();
-				var detectedTask = createDetectedTask(singleTask, singleTask.getTaskConfig(), durationStart, useCase);
+				var detectedTask = createDetectedTask(singleTask, singleTask.getTaskConfig(), useCase, durationStart);
 				if (detectedTask != null) {
 					result.add(detectedTask);
 					durationStart = timeUntilEnd(result, durationStart);
@@ -242,13 +255,12 @@ public abstract class ProcessAnalyzer {
 	}
 	
 	private DetectedElement createStartTaskFromTaskSwitchGateway(SequenceFlow sequenceFlow, Duration timeUntilStartedAt, Enum<?> useCase) {
-
 		DetectedElement task = null;
 		if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
 			TaskSwitchGateway taskSwitchGateway = (TaskSwitchGateway) sequenceFlow.getSource();
 			if (!processGraph.isSystemTask(taskSwitchGateway)) {
 				TaskConfig startTask = processGraph.getStartTaskConfig(sequenceFlow);
-				task = createDetectedTask((TaskAndCaseModifier) taskSwitchGateway, startTask, timeUntilStartedAt, useCase);
+				task = createDetectedTask((TaskAndCaseModifier) taskSwitchGateway, startTask, useCase, timeUntilStartedAt);
 			}
 		}
 		return task;
@@ -269,6 +281,29 @@ public abstract class ProcessAnalyzer {
 		}
 		return null;
 	}
+	
+	private DetectedElement createDetectedTaskFromSubProcessCall(SubProcessCall subProcessCall, Enum<?> useCase, Duration timeUntilStartAt) {
+		WorkflowTime workflowTime = new WorkflowTime(getDurationOverrides());
+		String script = subProcessCall.getParameters().getCode();
+		
+		DetectedTask detectedTask = new DetectedTask();
+		detectedTask.setPid(subProcessCall.getPid().getRawPid());		
+	
+		String taskName = getTaskNameByCode(script);
+		detectedTask.setTaskName(taskName);
+		detectedTask.setElementName(subProcessCall.getName());
+		
+		Duration estimatedDuration = workflowTime.getDurationByTaskScript(script, useCase);				
+		detectedTask.setEstimatedDuration(estimatedDuration);
+		detectedTask.setTimeUntilStart(timeUntilStartAt);		
+		detectedTask.setParentElementNames(emptyList());
+		detectedTask.setTimeUntilEnd(timeUntilStartAt.plus(estimatedDuration));
+		
+		String customerInfo = getCustomInfoByCode(script);
+		detectedTask.setCustomInfo(customerInfo);		
+		
+		return detectedTask;
+	}
 
 	private DetectedElement convertToDetectedElement(SequenceFlow outcome) {
 		DetectedElement element = new DetectedElement() {};
@@ -278,7 +313,7 @@ public abstract class ProcessAnalyzer {
 		return element;
 	}
 	
-	private DetectedElement createDetectedTask(TaskAndCaseModifier task, TaskConfig taskConfig, Duration timeUntilStartAt, Enum<?> useCase) {
+	private DetectedElement createDetectedTask(TaskAndCaseModifier task, TaskConfig taskConfig,Enum<?> useCase, Duration timeUntilStartAt) {
 		WorkflowTime workflowTime = new WorkflowTime(getDurationOverrides());
 		DetectedTask detectedTask = new DetectedTask();
 		
@@ -307,11 +342,25 @@ public abstract class ProcessAnalyzer {
 	}
 	
 	private String getCustomInfoByCode(TaskConfig task) {
-		String wfEstimateCode = processGraph.getCodeLineByPrefix(task, "APAConfig.setCustomInfo");		
+		return getCustomInfoByCode(task.getScript());
+	}
+	
+	private String getCustomInfoByCode(String script) {
+		String wfEstimateCode = processGraph.getCodeLineByPrefix(script, "APAConfig.setCustomInfo");		
 		String result = Optional.ofNullable(wfEstimateCode)
 				.filter(StringUtils::isNotEmpty)
 				.map(it -> StringUtils.substringBetween(it, "(\"", "\")"))
-				.orElse(null);;
+				.orElse(null);
+		
+		return result;
+	}
+	
+	private String getTaskNameByCode(String script) {
+		String wfEstimateCode = processGraph.getCodeLineByPrefix(script, "APAConfig.setTaskName");		
+		String result = Optional.ofNullable(wfEstimateCode)
+				.filter(StringUtils::isNotEmpty)
+				.map(it -> StringUtils.substringBetween(it, "(\"", "\")"))
+				.orElse(null);
 		
 		return result;
 	}

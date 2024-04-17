@@ -4,6 +4,8 @@ import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.Duration;
+
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,5 +56,22 @@ public class FlowSubProcessTest extends FlowExampleTest {
 				.orElse(emptyList());
 		
 		assertEquals(java.util.Arrays.asList("sub with two levels", "2nd level sub") , parentElementNames);
+	}
+	
+	@Test
+	void shouldFindSubProcessTest() throws Exception {		
+		var start2 = ProcessGraphHelper.findByElementName(process, "start2");
+		var detectedTasks = processAnalyzer.findAllTasks(start2, UseCase.BIGPROJECT);
+		var detectedTask = (DetectedTask)detectedTasks.get(0);
+		
+		assertEquals(1, detectedTasks.size());
+		assertEquals("18DE58E0441486DF-f5", detectedTask.getPid());
+		assertEquals("Custom info", detectedTask.getCustomInfo());
+		assertEquals("FlowSubProcessCall", detectedTask.getElementName());
+		assertEquals("Task sub", detectedTask.getTaskName());
+		assertEquals(Duration.ofHours(5), detectedTask.getEstimatedDuration());
+		assertEquals(Duration.ZERO, detectedTask.getTimeUntilStart());
+		assertEquals(Duration.ofHours(5), detectedTask.getTimeUntilEnd());
+		
 	}
 }
