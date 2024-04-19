@@ -1,10 +1,12 @@
 package com.axonivy.utils.process.analyzer.internal;
 
+import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -68,15 +70,14 @@ public class ProcessGraph {
 		return start;
 	}
 	
-	public String getNextTargetIdByCondition(Alternative alternative, String condition) {
+	public List<String> getNextTargetIdsByCondition(Alternative alternative, String condition) {
 		IvyScriptExpression script = IvyScriptExpression.script(defaultString(condition));
-		String nextTargetId = alternative.getConditions().conditions().entrySet().stream()
+		List<String> nextTargetIds = alternative.getConditions().conditions().entrySet().stream()
 				.filter(entry -> script.equals(entry.getValue()))
-				.findFirst()
 				.map(Entry::getKey)
-				.orElse(null);		
+				.toList();		
 		
-		return nextTargetId;
+		return nextTargetIds;
 	}
 	
 	public TaskConfig getStartTaskConfig(SequenceFlow sequenceFlow) {
