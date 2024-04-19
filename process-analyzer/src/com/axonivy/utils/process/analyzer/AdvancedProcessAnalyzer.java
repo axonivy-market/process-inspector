@@ -68,7 +68,6 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	public void disableDescribeAlternativeElements() {
 		this.isEnableDescribeAlternative = false;	
 	}
-	
 
 	/**
 	 * Return a list of all tasks in the process which can be reached from the starting element.
