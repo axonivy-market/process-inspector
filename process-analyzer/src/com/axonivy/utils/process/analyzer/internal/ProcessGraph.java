@@ -1,12 +1,10 @@
 package com.axonivy.utils.process.analyzer.internal;
 
-import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
