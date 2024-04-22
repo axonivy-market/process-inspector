@@ -19,6 +19,7 @@ import com.axonivy.utils.process.analyzer.demo.constant.FindType;
 import com.axonivy.utils.process.analyzer.demo.constant.UseCase;
 import com.axonivy.utils.process.analyzer.demo.helper.DateTimeHelper;
 import com.axonivy.utils.process.analyzer.demo.model.Analyzer;
+import com.axonivy.utils.process.analyzer.internal.ProcessAnalyzer;
 import com.axonivy.utils.process.analyzer.model.DetectedAlternative;
 import com.axonivy.utils.process.analyzer.model.DetectedElement;
 
@@ -73,7 +74,7 @@ public class ProcessAnalyzerBean {
 	}
 
 	public List<SingleTaskCreator> getAllTaskModifier() {
-		this.processAnalyzer = new AdvancedProcessAnalyzer();
+		this.processAnalyzer = new ProcessAnalyzer();
 		return  getElementOfProcess(this.selectedAnalyzer.getProcess()).stream()
 			.filter(item -> item instanceof SingleTaskCreator)
 			.map(SingleTaskCreator.class::cast)

@@ -11,7 +11,7 @@ import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
+import com.axonivy.utils.process.analyzer.internal.ProcessAnalyzer;
 import com.axonivy.utils.process.analyzer.model.DetectedTask;
 
 import ch.ivyteam.ivy.bpm.engine.client.BpmClient;
@@ -27,7 +27,7 @@ public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 	
 	@BeforeEach
 	public void setupForEach() {
-		processAnalyzer = new AdvancedProcessAnalyzer();	
+		processAnalyzer = new ProcessAnalyzer();
 	}
 	
 	@Test
