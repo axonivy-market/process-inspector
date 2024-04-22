@@ -20,7 +20,6 @@ import ch.ivyteam.ivy.workflow.ICase;
 
 public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 
-	private Process process;
 	private boolean isEnableDescribeAlternative;
 	private Map<String, Duration> durationOverrides;
 	// It only impart to find task base in flowName
@@ -32,7 +31,6 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 */
 	public AdvancedProcessAnalyzer(Process process) {
 		super();
-		this.process = process;
 		this.isEnableDescribeAlternative = false;
 		this.durationOverrides = emptyMap();
 		this.processFlowOverrides = emptyMap();		

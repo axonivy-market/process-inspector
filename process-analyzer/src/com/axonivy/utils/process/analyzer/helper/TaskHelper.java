@@ -6,7 +6,7 @@ import ch.ivyteam.ivy.process.rdm.IProcessManager;
 import ch.ivyteam.ivy.workflow.ITask;
 import ch.ivyteam.ivy.workflow.IWorkflowProcessModelVersion;
 
-public class ProcessAnalyzerHelper {
+public class TaskHelper {
 	
 	public static BaseElement getBaseElementOf(ITask task) {
 		if(task == null) {
