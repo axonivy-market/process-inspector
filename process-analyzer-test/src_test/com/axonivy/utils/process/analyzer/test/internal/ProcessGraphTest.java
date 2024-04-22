@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.process.analyzer.internal.ProcessGraph;
+import com.axonivy.utils.process.analyzer.model.ElementTask;
 import com.axonivy.utils.process.analyzer.test.ProcessGraphHelper;
 
 import ch.ivyteam.ivy.environment.IvyTest;
@@ -29,8 +30,9 @@ public class ProcessGraphTest extends InternalAbstractTest {
 		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
 		var taskB = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task B");		
 		var result = processGraph.getTaskId(taskB, taskB.getAllTaskConfigs().get(0));
+		var expected = new ElementTask("18DC44E096FDFF75-f7");
 		
-		assertEquals("18DC44E096FDFF75-f7", result);
+		assertEquals(expected, result);
 	}
 	
 	@Test
@@ -38,8 +40,9 @@ public class ProcessGraphTest extends InternalAbstractTest {
 		Process process = getProcessByName(PARALLEL_TASKS_EXAMPLE);
 		var task1 = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task1");
 		var result = processGraph.getTaskId(task1, task1.getAllTaskConfigs().get(0));
+		var expected = new ElementTask("18DD185B60B6E769-f2", "TaskA");
 		
-		assertEquals("18DD185B60B6E769-f2-TaskA", result);
+		assertEquals(expected, result);
 	}
 	
 	@Test

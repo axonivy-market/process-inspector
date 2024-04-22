@@ -25,6 +25,7 @@ import com.axonivy.utils.process.analyzer.internal.model.TaskParallelGroup;
 import com.axonivy.utils.process.analyzer.model.DetectedAlternative;
 import com.axonivy.utils.process.analyzer.model.DetectedElement;
 import com.axonivy.utils.process.analyzer.model.DetectedTask;
+import com.axonivy.utils.process.analyzer.model.ElementTask;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
@@ -49,7 +50,7 @@ public abstract class ProcessAnalyzer {
 		this.processGraph = new ProcessGraph();
 	}
 
-	protected abstract Map<String, Duration> getDurationOverrides();
+	protected abstract Map<ElementTask, Duration> getDurationOverrides();
 	protected abstract Map<String, String> getProcessFlowOverrides();
 	protected abstract boolean isDescribeAlternativeElements();
 
@@ -317,7 +318,7 @@ public abstract class ProcessAnalyzer {
 		WorkflowTime workflowTime = new WorkflowTime(getDurationOverrides());
 		DetectedTask detectedTask = new DetectedTask();
 		
-		detectedTask.setPid(processGraph.getTaskId(task, taskConfig));		
+		detectedTask.setPid(processGraph.getTaskId(task, taskConfig).getId());		
 		detectedTask.setParentElementNames(getParentElementNames(task));
 		detectedTask.setTaskName(taskConfig.getName().getRawMacro());
 		detectedTask.setElementName(task.getName());		
