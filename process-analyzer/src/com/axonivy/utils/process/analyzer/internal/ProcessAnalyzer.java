@@ -17,7 +17,7 @@ import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 
 import com.axonivy.utils.process.analyzer.helper.DateTimeHelper;
-import com.axonivy.utils.process.analyzer.helper.ProcessAnalyzerHelper;
+import com.axonivy.utils.process.analyzer.helper.TaskHelper;
 import com.axonivy.utils.process.analyzer.internal.model.AnalysisPath;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
@@ -71,7 +71,7 @@ public abstract class ProcessAnalyzer {
 		List<ITask> tasks = getCaseITasks(icase);
 		Map<ProcessElement, Duration> result = new LinkedHashMap<>();
 		for(ITask task : tasks) {			
-			BaseElement element = ProcessAnalyzerHelper.getBaseElementOf(task);
+			BaseElement element = TaskHelper.getBaseElementOf(task);
 			Duration spentDuration = DateTimeHelper.getBusinessDuration(task.getStartTimestamp(), new Date());
 			
 			//Around to minutes
@@ -84,7 +84,7 @@ public abstract class ProcessAnalyzer {
 	protected List<ProcessElement> getStartElements(ICase icase) {
 		List<ITask> tasks = getCaseITasks(icase);
 		List<ProcessElement> elements = tasks.stream()
-				.map(task -> ProcessAnalyzerHelper.getBaseElementOf(task))
+				.map(task -> TaskHelper.getBaseElementOf(task))
 				.map(CommonElement::new)
 				.map(ProcessElement.class::cast)
 				.toList();		
