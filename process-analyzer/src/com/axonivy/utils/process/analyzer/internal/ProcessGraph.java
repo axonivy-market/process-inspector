@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import com.axonivy.utils.process.analyzer.model.ElementTask;
+
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
@@ -103,12 +105,12 @@ public class ProcessGraph {
 		return false;
 	}
 	
-	public String getTaskId(TaskAndCaseModifier task, TaskConfig taskConfig) {
+	public ElementTask getTaskId(TaskAndCaseModifier task, TaskConfig taskConfig) {
 		String id = task.getPid().getRawPid();
 		if (task instanceof TaskSwitchGateway) {
-			return id + "-" + taskConfig.getTaskIdentifier().getRawIdentifier();
+			return new ElementTask(id, taskConfig.getTaskIdentifier().getRawIdentifier());
 		} else {
-			return id;
+			return new ElementTask(id);
 		}
 	}
 	

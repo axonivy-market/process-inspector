@@ -28,7 +28,7 @@ public class FlowSubProcessTest extends FlowExampleTest {
 	
 	@BeforeEach
 	public void setupForEach() {
-		processAnalyzer = new AdvancedProcessAnalyzer(process);	
+		processAnalyzer = new AdvancedProcessAnalyzer();	
 	}
 	
 	@Test

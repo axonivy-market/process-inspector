@@ -73,7 +73,7 @@ public class ProcessAnalyzerBean {
 	}
 
 	public List<SingleTaskCreator> getAllTaskModifier() {
-		this.processAnalyzer = new AdvancedProcessAnalyzer(selectedAnalyzer.getProcess());
+		this.processAnalyzer = new AdvancedProcessAnalyzer();
 		return  getElementOfProcess(this.selectedAnalyzer.getProcess()).stream()
 			.filter(item -> item instanceof SingleTaskCreator)
 			.map(SingleTaskCreator.class::cast)
@@ -155,15 +155,15 @@ public class ProcessAnalyzerBean {
 	}
 
 	private AdvancedProcessAnalyzer updateProcessAnalyzer(Analyzer analyzer) {
-		HashMap<String, String> flowOverrides = getProcessFlowOverride(analyzer);
+		Map<String, String> flowOverrides = getProcessFlowOverride(analyzer);
 		processAnalyzer.disableDescribeAlternativeElements();
 		processAnalyzer.setProcessFlowOverrides(flowOverrides);		
 		return processAnalyzer;
 	}
 
-	private HashMap<String, String> getProcessFlowOverride(Analyzer analyzer) {		
+	private Map<String, String> getProcessFlowOverride(Analyzer analyzer) {		
 		Map<Alternative, SequenceFlow> alternativeFlows = analyzer.getAlternativeFlows();
-		HashMap<String, String> processFlowOverride = new HashMap<String, String>();
+		Map<String, String> processFlowOverride = new HashMap<String, String>();
 
 		for (Alternative item : alternativeFlows.keySet()) {
 			if (alternativeFlows.get(item) != null) {

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
 import com.axonivy.utils.process.analyzer.model.DetectedTask;
+import com.axonivy.utils.process.analyzer.model.ElementTask;
 
 import ch.ivyteam.ivy.environment.IvyTest;
 
@@ -27,7 +29,7 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 
 	@BeforeEach
 	public void setupForEach() {
-		processAnalyzer = new AdvancedProcessAnalyzer(process);	
+		processAnalyzer = new AdvancedProcessAnalyzer();	
 	}
 	
 	@Test
@@ -59,8 +61,8 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 	
 	@Test
 	void shouldFindOverrideDuration() throws Exception {		
-		HashMap<String, Duration> durationOverride = new HashMap<>(); 
-		durationOverride.put("18DD185B60B6E769-f15-TaskA", Duration.ofHours(10));
+		Map<ElementTask, Duration> durationOverride = new HashMap<ElementTask, Duration>(); 
+		durationOverride.put(new ElementTask("18DD185B60B6E769-f15", "TaskA"), Duration.ofHours(10));
 		processAnalyzer.setDurationOverrides(durationOverride);
 		var start = ProcessGraphHelper.findByElementName(process, "start");
 		var detectedTasks = processAnalyzer.findTasksOnPath(start, null, null);
@@ -85,5 +87,4 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 		
 		assertEquals(duration.toHours(), 5);
 	}
-
 }

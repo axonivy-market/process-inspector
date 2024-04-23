@@ -3,7 +3,6 @@ package com.axonivy.utils.process.analyzer;
 import static java.util.Collections.emptyMap;
 
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -13,23 +12,19 @@ import com.axonivy.utils.process.analyzer.internal.model.AnalysisPath;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
 import com.axonivy.utils.process.analyzer.model.DetectedElement;
+import com.axonivy.utils.process.analyzer.model.ElementTask;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
-import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.workflow.ICase;
 
 public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 
 	private boolean isEnableDescribeAlternative;
-	private Map<String, Duration> durationOverrides;
+	private Map<ElementTask, Duration> durationOverrides;
 	// It only impart to find task base in flowName
 	private Map<String, String> processFlowOverrides;
 	
-	/** 
-	 * @param process - The process that should be analyzed.
-	 * If it is null, it will get first duration configure line
-	 */
-	public AdvancedProcessAnalyzer(Process process) {
+	public AdvancedProcessAnalyzer() {
 		super();
 		this.isEnableDescribeAlternative = false;
 		this.durationOverrides = emptyMap();
@@ -37,7 +32,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	}
 	
 	@Override
-	protected Map<String, Duration> getDurationOverrides() {		
+	protected Map<ElementTask, Duration> getDurationOverrides() {		
 		return durationOverrides;
 	}
 
@@ -270,7 +265,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * value: chosen output PID
 	 * @return
 	 */
-	public AdvancedProcessAnalyzer setProcessFlowOverrides(HashMap<String, String> processFlowOverrides) {
+	public AdvancedProcessAnalyzer setProcessFlowOverrides(Map<String, String> processFlowOverrides) {
 		this.processFlowOverrides = processFlowOverrides;
 		return this;
 	}
@@ -282,7 +277,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * value: new duration
 	 * @return
 	 */
-	public AdvancedProcessAnalyzer setDurationOverrides(HashMap<String, Duration> durationOverrides) {
+	public AdvancedProcessAnalyzer setDurationOverrides(Map<ElementTask, Duration> durationOverrides) {
 		this.durationOverrides = durationOverrides;
 		return this;
 	}

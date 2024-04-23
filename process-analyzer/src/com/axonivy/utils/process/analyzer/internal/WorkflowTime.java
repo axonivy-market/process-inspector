@@ -22,6 +22,7 @@ import com.axonivy.utils.process.analyzer.internal.model.AnalysisPath;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
 import com.axonivy.utils.process.analyzer.internal.model.TaskParallelGroup;
+import com.axonivy.utils.process.analyzer.model.ElementTask;
 
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
@@ -33,15 +34,15 @@ import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 
 public class WorkflowTime {
 	private ProcessGraph processGraph;
-	private Map<String, Duration> durationOverrides;
+	private Map<ElementTask, Duration> durationOverrides;
 
-	public WorkflowTime(Map<String, Duration> durationOverrides) {
+	public WorkflowTime(Map<ElementTask, Duration> durationOverrides) {
 		this.processGraph = new ProcessGraph();		
 		this.durationOverrides = durationOverrides;
 	}
 
 	public Duration getDuration(TaskAndCaseModifier task, TaskConfig taskConfig, Enum<?> useCase) {
-		String key = processGraph.getTaskId(task, taskConfig);		
+		ElementTask key = processGraph.getTaskId(task, taskConfig);		
 		return this.durationOverrides.getOrDefault(key, getDurationByTaskScript(taskConfig, useCase));	
 	}
 	
@@ -71,7 +72,7 @@ public class WorkflowTime {
 		return calculateTotalDuration(path, useCase, durationOverrides);
 	}
 	
-	private Duration calculateTotalDuration(Map<ProcessElement, List<AnalysisPath>> paths, Enum<?> useCase, Map<String, Duration> durationOverrides) {
+	private Duration calculateTotalDuration(Map<ProcessElement, List<AnalysisPath>> paths, Enum<?> useCase, Map<ElementTask, Duration> durationOverrides) {
 		List<Duration> result = new ArrayList<>();
 		for (Entry<ProcessElement, List<AnalysisPath>> path : paths.entrySet()) {
 			Duration duration = calculateTotalDuration(path.getKey(), path.getValue(), useCase, durationOverrides);
@@ -81,12 +82,12 @@ public class WorkflowTime {
 		return result.stream().max(Duration::compareTo).orElse(Duration.ZERO);
 	}
 	
-	private Duration calculateTotalDuration(ProcessElement startElement, List<AnalysisPath> paths, Enum<?> useCase, Map<String, Duration> durationOverrides) {
+	private Duration calculateTotalDuration(ProcessElement startElement, List<AnalysisPath> paths, Enum<?> useCase, Map<ElementTask, Duration> durationOverrides) {
 		List<Duration> total = paths.stream().map(path -> calculateTotalDuration(startElement, path, useCase, durationOverrides)).toList();		
 		return total.stream().max(Duration::compareTo).orElse(Duration.ZERO);
 	}
 	
-	private Duration calculateTotalDuration(ProcessElement startElement, AnalysisPath path, Enum<?> useCase, Map<String, Duration> durationOverrides) {
+	private Duration calculateTotalDuration(ProcessElement startElement, AnalysisPath path, Enum<?> useCase, Map<ElementTask, Duration> durationOverrides) {
 		List<Duration> totalWithEnd = new ArrayList<>();		
 		Duration total = Duration.ZERO;
 		for (ProcessElement element : path.getElements()) {
@@ -144,15 +145,15 @@ public class WorkflowTime {
 		return maxTotal;
 	}
 	
-	private Duration getMaxTotalFromTaskParallelGroupWithTaskEnd(TaskParallelGroup group, Enum<?> useCase, Map<String, Duration> durationOverrides) {
+	private Duration getMaxTotalFromTaskParallelGroupWithTaskEnd(TaskParallelGroup group, Enum<?> useCase, Map<ElementTask, Duration> durationOverrides) {
 		return getMaxTotalFromTaskParallelGroup((TaskParallelGroup) group, useCase, durationOverrides, true);
 	}
 
-	private Duration getMaxTotalFromTaskParallelGroupWithoutTaskEnd(TaskParallelGroup group, Enum<?> useCase, Map<String, Duration> durationOverrides) {
+	private Duration getMaxTotalFromTaskParallelGroupWithoutTaskEnd(TaskParallelGroup group, Enum<?> useCase, Map<ElementTask, Duration> durationOverrides) {
 		return getMaxTotalFromTaskParallelGroup((TaskParallelGroup) group, useCase, durationOverrides, false);
 	}
 	
-	private Duration getMaxTotalFromTaskParallelGroup(TaskParallelGroup group, Enum<?> useCase, Map<String, Duration> durationOverrides, boolean withTaskEnd) {
+	private Duration getMaxTotalFromTaskParallelGroup(TaskParallelGroup group, Enum<?> useCase, Map<ElementTask, Duration> durationOverrides, boolean withTaskEnd) {
 		Map<SequenceFlow, List<AnalysisPath>> internalPath = getInternalPath(group.getInternalPaths(), withTaskEnd);
 		Map<SequenceFlow, Duration> result = new HashMap<>();
 		
