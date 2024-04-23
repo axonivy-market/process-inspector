@@ -12,7 +12,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
+import com.axonivy.utils.process.analyzer.internal.ProcessAnalyzer;
 
 import ch.ivyteam.ivy.environment.IvyTest;
 
@@ -28,7 +28,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 
 	@BeforeEach
 	public void setupForEach() {
-		processAnalyzer = new AdvancedProcessAnalyzer();	
+		processAnalyzer = new ProcessAnalyzer();
 	}
 	
 	@Test
@@ -119,7 +119,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		var taskC = ProcessGraphHelper.findByElementName(process, "Task C");
 		Duration duration = processAnalyzer.calculateWorstCaseDuration(List.of(taskB, taskC), UseCase.BIGPROJECT);
 		
-		assertEquals(Duration.ofHours(17), duration);
+		assertEquals(Duration.ofHours(18), duration);
 	}
 	
 	@Test

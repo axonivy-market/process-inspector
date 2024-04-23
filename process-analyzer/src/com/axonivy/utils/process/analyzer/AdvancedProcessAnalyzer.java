@@ -1,66 +1,28 @@
 package com.axonivy.utils.process.analyzer;
 
-import static java.util.Collections.emptyMap;
-
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import com.axonivy.utils.process.analyzer.internal.ProcessAnalyzer;
-import com.axonivy.utils.process.analyzer.internal.model.AnalysisPath;
-import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
-import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
 import com.axonivy.utils.process.analyzer.model.DetectedElement;
 import com.axonivy.utils.process.analyzer.model.ElementTask;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.workflow.ICase;
 
-public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
-
-	private boolean isEnableDescribeAlternative;
-	private Map<ElementTask, Duration> durationOverrides;
-	// It only impart to find task base in flowName
-	private Map<String, String> processFlowOverrides;
-	
-	public AdvancedProcessAnalyzer() {
-		super();
-		this.isEnableDescribeAlternative = false;
-		this.durationOverrides = emptyMap();
-		this.processFlowOverrides = emptyMap();		
-	}
-	
-	@Override
-	protected Map<ElementTask, Duration> getDurationOverrides() {		
-		return durationOverrides;
-	}
-
-	@Override
-	protected Map<String, String> getProcessFlowOverrides() {
-		return processFlowOverrides;
-	}
-	
-	@Override
-	protected boolean isDescribeAlternativeElements() {
-		return isEnableDescribeAlternative;
-	}
+public interface AdvancedProcessAnalyzer {
 
 	/** 
 	 * If this option is enabled, the Advanced Process Analyzer will also add all alternative elements to the result.
 	 * This option will affect findTasksOnPath as well as findAllTasks method. Disabled by default.
 	 * When it bypasses an alternative element, it will be added to the result list. 
 	 */
-	public void enableDescribeAlternativeElements() {
-		this.isEnableDescribeAlternative = true;
-	}
+	public void enableDescribeAlternativeElements();
 
 	/**
 	 * When it bypasses an alternative element, it will be not added to the result list.
 	 */
-	public void disableDescribeAlternativeElements() {
-		this.isEnableDescribeAlternative = false;	
-	}
+	public void disableDescribeAlternativeElements();
 
 	/**
 	 * Return a list of all tasks in the process which can be reached from the starting element.
@@ -69,13 +31,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<? extends DetectedElement> findAllTasks(BaseElement startAtElement, Enum<?> useCase) throws Exception {
-		List<ProcessElement> elements =  List.of(new CommonElement(startAtElement));
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);
-		
-		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, initTimeUntilStart(elements));
-		return detectedTasks;
-	}
+	public List<DetectedElement> findAllTasks(BaseElement startAtElement, Enum<?> useCase) throws Exception;
 	
 	/**
 	 * Return a list of all tasks in the process which can be reached from the starting element.
@@ -84,13 +40,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<? extends DetectedElement> findAllTasks(List<BaseElement> startAtElements, Enum<?> useCase) throws Exception {
-		List<ProcessElement> elements = convertToProcessElements(startAtElements);
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);
-		
-		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, initTimeUntilStart(elements));
-		return detectedTasks;
-	}
+	public List<DetectedElement> findAllTasks(List<BaseElement> startAtElements, Enum<?> useCase) throws Exception;
 
 	/**
 	 * Return a list of all tasks in the process which can be reached from active case.
@@ -99,14 +49,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<? extends DetectedElement> findAllTasks(ICase icase, Enum<?> useCase) throws Exception {			
-		List<ProcessElement> elements = getStartElements(icase);		
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);
-		
-		Map<ProcessElement, Duration> elementsWithSpentDuration = getStartElementsWithSpentDuration(icase);
-		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, elementsWithSpentDuration);
-		return detectedTasks;
-	}
+	public List<DetectedElement> findAllTasks(ICase icase, Enum<?> useCase) throws Exception;
 	
 	/**
 	 * Return a list of all tasks which are created when process follows the tagged flow. Uses the flow name set in the constructor.
@@ -116,13 +59,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<? extends DetectedElement> findTasksOnPath(BaseElement startAtElement, Enum<?> useCase, String flowName) throws Exception {
-		List<ProcessElement> elements = List.of(new CommonElement(startAtElement));		
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements, flowName);
-			
-		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, initTimeUntilStart(elements));
-		return detectedTasks;
-	}
+	public List<DetectedElement> findTasksOnPath(BaseElement startAtElement, Enum<?> useCase, String flowName) throws Exception;
 	
 	/**
 	 * @param startAtElements - Elements where we start traversing the process. In case of parallel tasks, the list will contain multiple objects.
@@ -131,13 +68,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<? extends DetectedElement> findTasksOnPath(List<BaseElement> startAtElements, Enum<?> useCase, String flowName) throws Exception {
-		List<ProcessElement> elements = convertToProcessElements(startAtElements);
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements, flowName);
-		
-		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, initTimeUntilStart(elements));
-		return detectedTasks;
-	}
+	public List<DetectedElement> findTasksOnPath(List<BaseElement> startAtElements, Enum<?> useCase, String flowName) throws Exception;
 	
 	/**
 	 * Return a list of all tasks which are created when process follows the tagged flow. Uses the flow name set in the constructor.
@@ -147,19 +78,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<? extends DetectedElement> findTasksOnPath(ICase icase, Enum<?> useCase, String flowName) throws Exception {
-		List<DetectedElement> detectedTasks = findTasksByCase(icase, useCase, flowName, false);
-		return detectedTasks;
-	}
-	
-	private List<DetectedElement> findTasksByCase(ICase icase, Enum<?> useCase, String flowName, boolean isFindAllTasks) throws Exception {
-		List<ProcessElement> elements = getStartElements(icase);
-		Map<ProcessElement, List<AnalysisPath>> path = isFindAllTasks? findPath(elements): findPath(elements, flowName);
-		
-		Map<ProcessElement, Duration> elementsWithSpentDuration = getStartElementsWithSpentDuration(icase);
-		List<DetectedElement> detectedTasks = convertToDetectedElements(path, useCase, elementsWithSpentDuration);
-		return detectedTasks;
-	}
+	public List<DetectedElement> findTasksOnPath(ICase icase, Enum<?> useCase, String flowName) throws Exception;	
 	
 	/**
 	 * This method can be used to calculate expected worst case duration from a starting point in a process until all task are done and end of process is reached.
@@ -169,13 +88,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public Duration calculateWorstCaseDuration(BaseElement startElement, Enum<?> useCase) throws Exception {
-		ProcessElement element = new CommonElement(startElement);		
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(List.of(element));
-		
-		Duration total = calculateTotalDuration(path, useCase);		
-		return total;
-	}
+	public Duration calculateWorstCaseDuration(BaseElement startElement, Enum<?> useCase) throws Exception;
 	
 	/** 
 	 * This method can be used to calculate expected worst case duration from a starting point in a process until all task are done and end of process is reached.
@@ -185,13 +98,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public Duration calculateWorstCaseDuration(List<BaseElement> startElements, Enum<?> useCase) throws Exception {
-		List<ProcessElement> elements = convertToProcessElements(startElements);		
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);
-		
-		Duration total = calculateTotalDuration(path, useCase);		
-		return total;
-	}
+	public Duration calculateWorstCaseDuration(List<BaseElement> startElements, Enum<?> useCase) throws Exception;
 
 	/** 
 	 * This method can be used to calculate expected worst case duration from a starting point in a process until all task are done and end of process is reached.
@@ -202,13 +109,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public Duration calculateWorstCaseDuration(ICase icase, Enum<?> useCase) throws Exception {
-		List<ProcessElement> elements = getStartElements(icase);
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements);
-				
-		Duration total = calculateTotalDuration(path, useCase);		
-		return total;
-	}
+	public Duration calculateWorstCaseDuration(ICase icase, Enum<?> useCase) throws Exception;
 	
 	/**
 	 * This method can be used to calculate expected duration from a starting point using a named flow or default flow. 
@@ -218,13 +119,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public Duration calculateDurationOfPath(BaseElement startElement, Enum<?> useCase, String flowName) throws Exception {
-		ProcessElement element = new CommonElement(startElement);		
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(List.of(element), flowName);
-		
-		Duration total = calculateTotalDuration(path, useCase);		
-		return total;
-	}
+	public Duration calculateDurationOfPath(BaseElement startElement, Enum<?> useCase, String flowName) throws Exception;
 	
 	/** 
 	 * This method can be used to calculate expected duration from a starting point using a named flow or default flow. 
@@ -233,13 +128,7 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public Duration calculateDurationOfPath(List<BaseElement> startElements, Enum<?> useCase, String flowName) throws Exception {
-		List<ProcessElement> elements = convertToProcessElements(startElements);	
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements, flowName);
-		
-		Duration total = calculateTotalDuration(path, useCase);		
-		return total;
-	}
+	public Duration calculateDurationOfPath(List<BaseElement> startElements, Enum<?> useCase, String flowName) throws Exception;
 
 	/** 
 	 * This method can be used to calculate expected duration from a starting point using a named flow or default flow. 
@@ -250,25 +139,16 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * @return
 	 * @throws Exception
 	 */
-	public Duration calculateDurationOfPath(ICase icase, Enum<?> useCase, String flowName) throws Exception {
-		List<ProcessElement> elements = getStartElements(icase);
-		Map<ProcessElement, List<AnalysisPath>> path = findPath(elements, flowName);
-				
-		Duration total = calculateTotalDuration(path, useCase);		
-		return total;
-	}
+	public Duration calculateDurationOfPath(ICase icase, Enum<?> useCase, String flowName) throws Exception;
 	
 	/**
 	 * This method can be used to override configured path taken after an alternative gateway.
 	 * @param processFlowOverrides
-	 * key: element ID + task identifier (for support of callable sub-processes, we also need to add the path of parent elements. However, not needed in first versions.)
+	 * key: element ID
 	 * value: chosen output PID
 	 * @return
 	 */
-	public AdvancedProcessAnalyzer setProcessFlowOverrides(Map<String, String> processFlowOverrides) {
-		this.processFlowOverrides = processFlowOverrides;
-		return this;
-	}
+	public AdvancedProcessAnalyzer setProcessFlowOverrides(Map<String, String> processFlowOverrides);
 	
 	/**
 	 * This method can be used to override configured task duration of the model by own values.
@@ -277,17 +157,5 @@ public class AdvancedProcessAnalyzer extends ProcessAnalyzer {
 	 * value: new duration
 	 * @return
 	 */
-	public AdvancedProcessAnalyzer setDurationOverrides(Map<ElementTask, Duration> durationOverrides) {
-		this.durationOverrides = durationOverrides;
-		return this;
-	}
-	
-	private List<ProcessElement> convertToProcessElements(List<BaseElement> elements) {
-		return elements.stream().map(CommonElement::new).map(ProcessElement.class::cast).toList();
-	}
-	
-	private Map<ProcessElement, Duration> initTimeUntilStart(List<ProcessElement> elements) {
-		Map<ProcessElement, Duration> timeUntilStartAts = elements.stream().collect(Collectors.toMap(it -> it, it -> Duration.ZERO));
-		return timeUntilStartAts;
-	}
+	public AdvancedProcessAnalyzer setDurationOverrides(Map<ElementTask, Duration> durationOverrides);
 }

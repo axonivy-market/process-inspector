@@ -1,6 +1,5 @@
 package com.axonivy.utils.process.analyzer.test.internal;
 
-import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
@@ -10,7 +9,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.axonivy.utils.process.analyzer.internal.WorkflowPath;
+import com.axonivy.utils.process.analyzer.internal.PathFinder;
 import com.axonivy.utils.process.analyzer.internal.model.AnalysisPath;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
@@ -20,21 +19,21 @@ import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.Process;
 
 @IvyTest
-public class WorkflowPathTest extends InternalAbstractTest{
+public class WorkflowFinderTest extends InternalAbstractTest{
 	private static final String FLOW_EXAMPLE_BASIC = "FlowExampleBasic";
 	
-	private static WorkflowPath workflowPath;
+	private static PathFinder workflowPath;
 	
 	@BeforeAll
 	public static void setup() {
-		workflowPath = new WorkflowPath(emptyMap());
+		workflowPath = new PathFinder();
 	}
 
 	@Test
 	void shouldFindPathAtStart() throws Exception {
 		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
 		var start = ProcessGraphHelper.findByElementName(process, "start");		
-		Map<ProcessElement, List<AnalysisPath>> result = workflowPath.findPath("internal", new CommonElement(start));
+		Map<ProcessElement, List<AnalysisPath>> result = workflowPath.setFlowName("internal").setStartElements(List.of(new CommonElement(start))).findTaskOnPath();
 		List<ProcessElement> elements = result.values().stream().flatMap(List::stream).map(AnalysisPath::getElements).flatMap(List::stream).toList();
 		
 		var expected = Arrays.asList(
