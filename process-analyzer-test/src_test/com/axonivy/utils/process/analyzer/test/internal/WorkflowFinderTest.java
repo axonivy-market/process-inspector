@@ -39,7 +39,7 @@ public class WorkflowFinderTest extends InternalAbstractTest{
 		var expected = Arrays.asList(
 				"RequestStartZ:start (18DC44E096FDFF75-f0)",
 				"SequenceFlowZ:RequestStartZ->UserTaskZ",
-				"UserTaskZ:Task A\n(Element Label) (18DC44E096FDFF75-f2)",
+				"UserTaskZ:Task A (18DC44E096FDFF75-f2)",
 				"SequenceFlowZ:UserTaskZ->AlternativeZ",
 				"AlternativeZ:Alter (18DC44E096FDFF75-f4)", 
 				"SequenceFlowZ:AlternativeZ->AlternativeZ", 

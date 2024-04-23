@@ -37,7 +37,7 @@ public class FlowExampleBasicTest extends FlowExampleTest {
 		var detectedTasks = processAnalyzer.findAllTasks(start, UseCase.BIGPROJECT);
 
 		var expected = Arrays.array("Task A", "Alter", "int/ext?", "Alter2", "Task C", "Task B");
-		assertArrayEquals(expected, getTaskNames(detectedTasks));
+		assertArrayEquals(expected, getElementNames(detectedTasks));
 	}
 
 	@Test

@@ -38,6 +38,10 @@ public abstract class FlowExampleTest {
 		return tasks.stream().map(DetectedElement::getTaskName).toArray(String[]::new);
 	}
 	
+	protected String[] getElementNames(List<? extends DetectedElement> tasks ) {
+		return tasks.stream().map(DetectedElement::getElementName).toArray(String[]::new);
+	}
+	
 	protected DetectedElement findByElementName(List<? extends DetectedElement> tasks, String elementName ) {
 		return tasks.stream().filter(it -> elementName.equals(it.getElementName())).findFirst().orElse(null);
 	}
