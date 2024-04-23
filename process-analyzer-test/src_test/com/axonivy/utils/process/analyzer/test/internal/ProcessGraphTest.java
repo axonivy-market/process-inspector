@@ -17,7 +17,7 @@ import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 @IvyTest
 public class ProcessGraphTest extends InternalAbstractTest {
 	private static final String FLOW_EXAMPLE_BASIC = "FlowExampleBasic";
-	private static final String PARALLEL_TASKS_EXAMPLE = "ParallelTasksExample";	
+	private static final String PARALLEL_TASKS_EXAMPLE = "ParallelTasksExample";
 	private static ProcessGraph processGraph;
 	
 	@BeforeAll
@@ -28,7 +28,7 @@ public class ProcessGraphTest extends InternalAbstractTest {
 	@Test
 	void shouldGetTaskId() throws Exception {
 		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
-		var taskB = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task B");		
+		var taskB = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task B");
 		var result = processGraph.getTaskId(taskB, taskB.getAllTaskConfigs().get(0));
 		var expected = new ElementTask("18DC44E096FDFF75-f7");
 		

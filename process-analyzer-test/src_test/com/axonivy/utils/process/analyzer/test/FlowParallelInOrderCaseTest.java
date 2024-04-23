@@ -24,12 +24,12 @@ import ch.ivyteam.ivy.workflow.ITask;
 @IvyProcessTest
 public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 	private static final BpmProcess FLOW_PARALLEL_IN_ORDER = BpmProcess.name("FlowParallelInOrder");
-	
+
 	@BeforeEach
 	public void setupForEach() {
 		processAnalyzer = new ProcessAnalyzer();
 	}
-	
+
 	@Test
 	void shouldshouldFindAllTasksAtStart(BpmClient bpmClient) throws Exception {
 		ExecutionResult result = bpmClient.start().process(FLOW_PARALLEL_IN_ORDER.elementName("start")).execute();

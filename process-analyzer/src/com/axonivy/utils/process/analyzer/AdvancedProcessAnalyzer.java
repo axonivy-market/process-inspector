@@ -153,7 +153,7 @@ public interface AdvancedProcessAnalyzer {
 	/**
 	 * This method can be used to override configured task duration of the model by own values.
 	 * @param durationOverrides
-	 * key: element ID + task identifier (for support of callable sub-processes, we also need to add the path of parent elements. However, not needed in first versions.)
+	 * key: ElementTask -  with record ElementTask(element ID, task identifier)
 	 * value: new duration
 	 * @return
 	 */

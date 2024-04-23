@@ -14,18 +14,18 @@ import ch.ivyteam.ivy.environment.IvyTest;
 @IvyTest
 public class FlowExampleLoopTest extends FlowExampleTest {
 	private static final String PROCESS_NAME = "FlowExampleLoop";
-	
+
 	@BeforeAll
 	public static void setup() {
 		setup(PROCESS_NAME);
-		
+
 	}
-	
+
 	@BeforeEach
 	public void setupForEach() {
 		processAnalyzer = new ProcessAnalyzer();
 	}
-	
+
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameNull() throws Exception {
 		var start = ProcessGraphHelper.findByElementName(process, "start");

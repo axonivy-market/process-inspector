@@ -17,7 +17,7 @@ public class TaskTypesExampleTest extends FlowExampleTest {
 	
 	@BeforeAll	
 	public static void setup() {
-		setup(PROCESS_NAME);		
+		setup(PROCESS_NAME);
 	}
 	
 	@BeforeEach

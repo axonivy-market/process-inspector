@@ -64,29 +64,29 @@ class WorkflowPath {
 		return this;
 	}
 	
-	protected List<DetectedElement> findAllTasks(List<ProcessElement> froms, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStarts) throws Exception {		
+	protected List<DetectedElement> findAllTasks(List<ProcessElement> froms, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStarts) throws Exception {
 		Map<ProcessElement, List<AnalysisPath>> paths = new PathFinder()
 				.setProcessFlowOverrides(this.processFlowOverrides)
 				.setStartElements(froms)
 				.findAllTask();
 		
-		List<DetectedElement> detectedTasks = convertToDetectedElements(paths, useCase, timeUntilStarts);		
+		List<DetectedElement> detectedTasks = convertToDetectedElements(paths, useCase, timeUntilStarts);
 		return detectedTasks;
 	}
 	
-	protected List<DetectedElement> findTaskOnPath(List<ProcessElement> froms, Enum<?> useCase, String flowName, Map<ProcessElement, Duration> timeUntilStarts) throws Exception {		
+	protected List<DetectedElement> findTaskOnPath(List<ProcessElement> froms, Enum<?> useCase, String flowName, Map<ProcessElement, Duration> timeUntilStarts) throws Exception {
 		Map<ProcessElement, List<AnalysisPath>> paths = new PathFinder()
 				.setProcessFlowOverrides(this.processFlowOverrides)
 				.setFlowName(flowName)
 				.setStartElements(froms)
 				.findTaskOnPath();
 		
-		List<DetectedElement> detectedTasks = convertToDetectedElements(paths, useCase, timeUntilStarts);		
+		List<DetectedElement> detectedTasks = convertToDetectedElements(paths, useCase, timeUntilStarts);
 		return detectedTasks;
 	}
 	
 	protected List<DetectedElement> convertToDetectedElements(Map<ProcessElement, List<AnalysisPath>> allPaths, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStarts) {
-		List<DetectedElement> result = new ArrayList<>();		
+		List<DetectedElement> result = new ArrayList<>();
 		for (Entry<ProcessElement, List<AnalysisPath>> path : allPaths.entrySet()) {
 			List<DetectedElement> elements = convertPathToDetectedElements(path.getKey(), path.getValue(), useCase, timeUntilStarts);
 			result.addAll(elements);
@@ -154,7 +154,7 @@ class WorkflowPath {
 				var startedForGroup = element.getElement() == null ? timeUntilStarts : Map.of(element, durationStart);
 				
 				TaskParallelGroup group = (TaskParallelGroup) element;
-				var tasks = convertTaskParallelGroupToDetectedElement(group, useCase, startedForGroup);				
+				var tasks = convertTaskParallelGroupToDetectedElement(group, useCase, startedForGroup);
 				if (isNotEmpty(tasks)) {
 					result.addAll(tasks);
 					durationStart = getMaxDurationUntilEnd(tasks);
@@ -188,13 +188,13 @@ class WorkflowPath {
 		return result;
 	}
 	
-	private List<DetectedElement> convertTaskParallelGroupToDetectedElement(TaskParallelGroup group, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStartAts) {		
+	private List<DetectedElement> convertTaskParallelGroupToDetectedElement(TaskParallelGroup group, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStartAts) {
 		List<DetectedElement> tasksWithTaskEnd = convertTaskParallelGroupToDetectedElement(group, useCase, timeUntilStartAts, true);
-		List<DetectedElement> tasksInternal = convertTaskParallelGroupToDetectedElement(group, useCase, timeUntilStartAts, false);		
+		List<DetectedElement> tasksInternal = convertTaskParallelGroupToDetectedElement(group, useCase, timeUntilStartAts, false);
 		return ListUtils.union(tasksWithTaskEnd, tasksInternal);
 	}
 	
-	private List<DetectedElement> convertTaskParallelGroupToDetectedElement(TaskParallelGroup group, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStartAts, boolean withTaskEnd) {	
+	private List<DetectedElement> convertTaskParallelGroupToDetectedElement(TaskParallelGroup group, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStartAts, boolean withTaskEnd) {
 		Map<SequenceFlow, List<AnalysisPath>> internalPath = getInternalPath(group.getInternalPaths(), withTaskEnd);
 		 		
 		List<DetectedElement> result = new ArrayList<>();
@@ -234,7 +234,7 @@ class WorkflowPath {
 		Duration maxDurationUntilEnd = detectedElements.stream()
 				.filter(item -> item instanceof DetectedTask == true)
 				.map(DetectedTask.class::cast)
-				.map(DetectedTask::getTimeUntilEnd)				
+				.map(DetectedTask::getTimeUntilEnd)	
 				.max(Duration::compareTo)
 				.orElse(null);
 				
@@ -288,7 +288,7 @@ class WorkflowPath {
 		detectedTask.setTimeUntilEnd(timeUntilStartAt.plus(estimatedDuration));
 		
 		String customerInfo = getCustomInfoByCode(script);
-		detectedTask.setCustomInfo(customerInfo);		
+		detectedTask.setCustomInfo(customerInfo);
 		
 		return detectedTask;
 	}
@@ -301,7 +301,7 @@ class WorkflowPath {
 		return element;
 	}
 	
-	private DetectedElement createDetectedTask(TaskAndCaseModifier task, TaskConfig taskConfig,Enum<?> useCase, Duration timeUntilStartAt) {		
+	private DetectedElement createDetectedTask(TaskAndCaseModifier task, TaskConfig taskConfig,Enum<?> useCase, Duration timeUntilStartAt) {
 		DetectedTask detectedTask = new DetectedTask();
 		
 		detectedTask.setPid(processGraph.getTaskId(task, taskConfig).getId());		
