@@ -42,17 +42,17 @@ public class ProcessAnalyzerBean {
 	private static final List<String> PROCESS_FOLDERS = Arrays.asList("Bussiness Processes");
 
 	private List<Analyzer> analyzers = new ArrayList<>();
-	
+
 	private List<Process> processes = emptyList();
-	
+
 	private Analyzer selectedAnalyzer = null;
-	
+
 	AdvancedProcessAnalyzer processAnalyzer;
 
 	public ProcessAnalyzerBean() {
 		this.processes = getAllProcesses();
 	}
-	
+
 	public List<Analyzer> getAnalyzers() {
 		return analyzers;
 	}
@@ -64,7 +64,7 @@ public class ProcessAnalyzerBean {
 	public List<Process> getProcesses() {
 		return processes;
 	}
-	
+
 	public Analyzer getSelectedAnalyzer() {
 		return selectedAnalyzer;
 	}

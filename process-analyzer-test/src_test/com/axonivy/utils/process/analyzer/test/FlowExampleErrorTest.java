@@ -13,14 +13,14 @@ import ch.ivyteam.ivy.environment.IvyTest;
 
 @IvyTest
 public class FlowExampleErrorTest extends FlowExampleTest {
-	
+
 	private static final String PROCESS_NAME = "FlowExampleError";
-	
+
 	@BeforeAll
 	public static void setup() {
 		setup(PROCESS_NAME);
 	}
-	
+
 	@BeforeEach
 	public void setupForEach() {
 		processAnalyzer = new ProcessAnalyzer();

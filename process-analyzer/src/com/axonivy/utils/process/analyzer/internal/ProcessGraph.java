@@ -75,7 +75,7 @@ public class ProcessGraph {
 		List<String> nextTargetIds = alternative.getConditions().conditions().entrySet().stream()
 				.filter(entry -> script.equals(entry.getValue()))
 				.map(Entry::getKey)
-				.toList();		
+				.toList();
 		
 		return nextTargetIds;
 	}

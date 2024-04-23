@@ -19,17 +19,17 @@ import ch.ivyteam.ivy.environment.IvyTest;
 @IvyTest
 public class FlowExampleBasicTest extends FlowExampleTest {
 	private static final String PROCESS_NAME = "FlowExampleBasic";
-	
+
 	@BeforeAll
 	public static void setup() {
 		setup(PROCESS_NAME);
 	}
-	
+
 	@BeforeEach
 	public void setupForEach() {
 		processAnalyzer = new ProcessAnalyzer();
 	}
-	
+
 	@Test
 	void shouldFindAllTasksAtStartIncludeAlternative() throws Exception {
 		var start = ProcessGraphHelper.findByElementName(process, "start");		

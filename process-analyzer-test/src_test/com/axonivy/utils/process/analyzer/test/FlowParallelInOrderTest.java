@@ -26,7 +26,7 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 	public static void setup() {
 		setup(PROCESS_NAME);
 	}
-	
+
 	@BeforeEach
 	public void setupForEach() {
 		processAnalyzer = new ProcessAnalyzer();
