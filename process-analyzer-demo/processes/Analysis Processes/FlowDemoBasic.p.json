@@ -342,7 +342,7 @@
       "type" : "SubProcessCall",
       "name" : "FlowDemoSubProcessCall",
       "config" : {
-        "processCall" : "Bussiness Processes/FlowDemoSubProcessCall:call()",
+        "processCall" : "Analysis Processes/FlowDemoSubProcessCall:call()",
         "call" : {
           "map" : { },
           "code" : [

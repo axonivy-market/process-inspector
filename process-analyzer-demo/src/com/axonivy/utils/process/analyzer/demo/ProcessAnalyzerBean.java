@@ -39,7 +39,7 @@ import ch.ivyteam.ivy.workflow.start.IProcessWebStartable;
 import ch.ivyteam.ivy.workflow.start.IWebStartable;
 
 public class ProcessAnalyzerBean {
-	private static final List<String> PROCESS_FOLDERS = Arrays.asList("Bussiness Processes");
+	private static final List<String> PROCESS_FOLDERS = Arrays.asList("Analysis Processes");
 
 	private List<Analyzer> analyzers = new ArrayList<>();
 

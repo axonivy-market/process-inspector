@@ -144,7 +144,7 @@ public interface AdvancedProcessAnalyzer {
 	/**
 	 * This method can be used to override configured path taken after an alternative gateway.
 	 * @param processFlowOverrides
-	 * key: element ID
+	 * key: alternative element PID
 	 * value: chosen output PID
 	 * @return
 	 */
