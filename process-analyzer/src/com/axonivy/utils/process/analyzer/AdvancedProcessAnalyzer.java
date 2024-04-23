@@ -10,6 +10,26 @@ import com.axonivy.utils.process.analyzer.model.ElementTask;
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.workflow.ICase;
 
+/**
+ *  The AdvancedProcessAnalyzer tool is used to calculate duration to finish a workflow case.
+ *  It will list all tasks which must finish with duration until end base on estimate duration.
+ *   
+ *  The process diagram below with estimate duration for each task. 
+ *  start -> Task A (1h) -> [alternative] -{internal}-> Task B (2h) -> EndTask
+ *  							    	 |------------> Task C (3h) -> EndTask
+ * How to find all tasks ? 
+ * 	AdvancedProcessAnalyzer processAnalyzer = new ProcessAnalyzer();
+ * 	List<DetectedElement> result = processAnalyzer.findAllTasks(start, UseCase.BIGPROJECT);
+ * 	Result: Task A (1h), Task B (3h), Task C (4h)
+ *  => So duration to finish all tasks will task 4hours
+ * 
+ * How to find tasks on path? 
+ *  AdvancedProcessAnalyzer processAnalyzer = new ProcessAnalyzer();
+ * 	List<DetectedElement> result = processAnalyzer.findTasksOnPath(start, UseCase.BIGPROJECT, "internal");
+ * 	Result: Task A (1h), Task B (3h)
+ *  So duration to finish all tasks will task 3hours
+ */
+
 public interface AdvancedProcessAnalyzer {
 
 	/** 
