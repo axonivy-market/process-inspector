@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class DetectedTask extends DetectedElement {
-
 	private Duration estimatedDuration;
 	/**
 	 * Names of parent process elements in the order they appeared.
@@ -21,13 +20,18 @@ public class DetectedTask extends DetectedElement {
 	 * Custom string which can be set on the task element
 	 */
 	private String customInfo;
+	
+	public DetectedTask(String pid, String taskName, String elementName, Duration duration, List<String> parentElementNames, Duration timeUntilStart, Duration timeUntilEnd, String customInfo) {
+		super(pid, taskName, elementName);
+		this.estimatedDuration = duration;
+		this.parentElementNames = parentElementNames;
+		this.timeUntilStart = timeUntilStart;
+		this.timeUntilEnd = timeUntilEnd;
+		this.customInfo = customInfo;
+	}
 
 	public Duration getEstimatedDuration() {
 		return estimatedDuration;
-	}
-
-	public void setEstimatedDuration(Duration estimatedDuration) {
-		this.estimatedDuration = estimatedDuration;
 	}
 
 	public List<String> getParentElementNames() {
@@ -37,33 +41,16 @@ public class DetectedTask extends DetectedElement {
 	public String getDisplayParentElementNames() {
 		return parentElementNames.stream().collect(Collectors.joining(", "));
 	}
-
-	public void setParentElementNames(List<String> parentElementNames) {
-		this.parentElementNames = parentElementNames;
-	}
 	
 	public Duration getTimeUntilStart() {
 		return timeUntilStart;
-	}
-
-	public void setTimeUntilStart(Duration timeUntilStart) {
-		this.timeUntilStart = timeUntilStart;
 	}
 
 	public Duration getTimeUntilEnd() {
 		return timeUntilEnd;
 	}
 
-	public void setTimeUntilEnd(Duration timeUntilEnd) {
-		this.timeUntilEnd = timeUntilEnd;
-	}
-
 	public String getCustomInfo() {
 		return customInfo;
-	}
-	
-
-	public void setCustomInfo(String customInfo) {
-		this.customInfo = customInfo;
 	}
 }

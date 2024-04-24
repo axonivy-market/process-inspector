@@ -26,10 +26,7 @@
     }, {
       "id" : "f2",
       "type" : "UserTask",
-      "name" : [
-        "Task A",
-        "(Element Label)"
-      ],
+      "name" : "Task A",
       "config" : {
         "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
         "task" : {

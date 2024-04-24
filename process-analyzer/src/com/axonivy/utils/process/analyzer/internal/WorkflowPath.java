@@ -15,6 +15,8 @@ import java.util.Optional;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
+
 import com.axonivy.utils.process.analyzer.internal.model.AnalysisPath;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
@@ -37,10 +39,6 @@ import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 class WorkflowPath {
 	private static final Duration DURATION_MIN = Duration.ofMillis(Long.MIN_VALUE);
 	private ProcessGraph processGraph;
-	
-	private String flowName;
-	private List<ProcessElement> froms;	
-	
 	private boolean isEnableDescribeAlternative;
 	private Map<String, String> processFlowOverrides = emptyMap();
 	private Map<ElementTask, Duration> durationOverrides = emptyMap();
@@ -256,70 +254,57 @@ class WorkflowPath {
 	private DetectedAlternative createDetectedAlternative(ProcessElement processElement) {
 		if(processGraph.isAlternative(processElement.getElement())) {
 			Alternative alternative = (Alternative) processElement.getElement();
-			DetectedAlternative result = new DetectedAlternative();
-			result.setTaskName(alternative.getName());
-			result.setPid(alternative.getPid().getRawPid());
 			List<DetectedElement> options = alternative.getOutgoing()
 					.stream()
 					.map(item -> convertToDetectedElement(item))
 					.toList();
-			result.setOptions(options);
+			String elementName = alternative.getName();
+			String pid = alternative.getPid().getRawPid();
+			DetectedAlternative result = new DetectedAlternative(pid, elementName, options);
 			return result;
 		}
 		return null;
 	}
 	
-	private DetectedElement createDetectedTaskFromSubProcessCall(SubProcessCall subProcessCall, Enum<?> useCase, Duration timeUntilStartAt) {
-		DetectedTask detectedTask = new DetectedTask();
-		detectedTask.setPid(subProcessCall.getPid().getRawPid());		
-	
+	private DetectedElement createDetectedTaskFromSubProcessCall(SubProcessCall subProcessCall, Enum<?> useCase, Duration timeUntilStartAt) {	
+		String pid = subProcessCall.getPid().getRawPid();		
 		String script = subProcessCall.getParameters().getCode();
 		String taskName = getTaskNameByCode(script);
-		detectedTask.setTaskName(taskName);
-		detectedTask.setElementName(subProcessCall.getName());
+		String elementName = subProcessCall.getName();
 		
 		Duration estimatedDuration =  new WorkflowDuration()
 				.setDurationOverrides(this.durationOverrides)
 				.getDurationByTaskScript(script, useCase);
-		
-		detectedTask.setEstimatedDuration(estimatedDuration);
-		detectedTask.setTimeUntilStart(timeUntilStartAt);		
-		detectedTask.setParentElementNames(emptyList());
-		detectedTask.setTimeUntilEnd(timeUntilStartAt.plus(estimatedDuration));
-		
+		Duration timeUntilEnd = timeUntilStartAt.plus(estimatedDuration);
 		String customerInfo = getCustomInfoByCode(script);
-		detectedTask.setCustomInfo(customerInfo);
 		
+		DetectedTask detectedTask = new DetectedTask(pid, taskName, elementName, estimatedDuration, emptyList(), timeUntilStartAt, timeUntilEnd, customerInfo);
 		return detectedTask;
 	}
 
 	private DetectedElement convertToDetectedElement(SequenceFlow outcome) {
-		DetectedElement element = new DetectedElement() {};
-		element.setPid(outcome.getPid().getRawPid());
+		String pid = outcome.getPid().getRawPid();
 		String name = outcome.getName();
-		element.setElementName(name.equals(StringUtils.EMPTY) ? "No name" : name);
+		String elementName =  defaultIfEmpty(name, "No name");
+		DetectedElement element = new DetectedElement(pid, elementName);
 		return element;
 	}
 	
 	private DetectedElement createDetectedTask(TaskAndCaseModifier task, TaskConfig taskConfig,Enum<?> useCase, Duration timeUntilStartAt) {
-		DetectedTask detectedTask = new DetectedTask();
-		
-		detectedTask.setPid(processGraph.getTaskId(task, taskConfig).getId());		
-		detectedTask.setParentElementNames(getParentElementNames(task));
-		detectedTask.setTaskName(taskConfig.getName().getRawMacro());
-		detectedTask.setElementName(task.getName());		
-		detectedTask.setTimeUntilStart(timeUntilStartAt);
+		String pid = processGraph.getTaskId(task, taskConfig).getId();		
+		List<String> parentElementNames = getParentElementNames(task);
+		String taskName = taskConfig.getName().getRawMacro();
+		String elementName = task.getName();
 		
 		Duration estimatedDuration = new WorkflowDuration()
 				.setDurationOverrides(this.durationOverrides)
 				.getDuration(task, taskConfig, useCase);
-			
-		detectedTask.setEstimatedDuration(estimatedDuration);		
-		detectedTask.setTimeUntilEnd(timeUntilStartAt.plus(estimatedDuration));
+	
+		Duration timeUntilEnd = timeUntilStartAt.plus(estimatedDuration);
 		
 		String customerInfo = getCustomInfoByCode(taskConfig);
-		detectedTask.setCustomInfo(customerInfo);		
 		
+		DetectedTask detectedTask = new DetectedTask(pid, taskName, elementName, estimatedDuration, parentElementNames, timeUntilStartAt, timeUntilEnd, customerInfo);
 		return detectedTask;
 	}
 	
