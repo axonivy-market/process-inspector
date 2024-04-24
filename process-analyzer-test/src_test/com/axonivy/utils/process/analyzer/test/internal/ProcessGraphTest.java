@@ -12,6 +12,7 @@ import com.axonivy.utils.process.analyzer.test.ProcessGraphHelper;
 
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.Process;
+import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 
 @IvyTest
@@ -28,9 +29,9 @@ public class ProcessGraphTest extends InternalAbstractTest {
 	@Test
 	void shouldGetTaskId() throws Exception {
 		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
-		var taskB = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task B");
-		var result = processGraph.getTaskId(taskB, taskB.getAllTaskConfigs().get(0));
-		var expected = new ElementTask("18DC44E096FDFF75-f7");
+		var taskB = (SingleTaskCreator) ProcessGraphHelper.findByElementName(process, "Task B");
+		var result = processGraph.createElementTask(taskB, taskB.getTaskConfig());
+		var expected = ElementTask.createSingle("18DC44E096FDFF75-f7");	
 		
 		assertEquals(expected, result);
 	}
@@ -39,8 +40,8 @@ public class ProcessGraphTest extends InternalAbstractTest {
 	void shouldGetTaskIdOfMultiTask() throws Exception {
 		Process process = getProcessByName(PARALLEL_TASKS_EXAMPLE);
 		var task1 = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task1");
-		var result = processGraph.getTaskId(task1, task1.getAllTaskConfigs().get(0));
-		var expected = new ElementTask("18DD185B60B6E769-f2", "TaskA");
+		var result = processGraph.createElementTask(task1, task1.getAllTaskConfigs().get(0));
+		var expected = ElementTask.createGateway("18DD185B60B6E769-f2", "TaskA");
 		
 		assertEquals(expected, result);
 	}

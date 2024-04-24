@@ -15,9 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.axonivy.utils.process.analyzer.model.ElementTask;
 
-import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
-import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
-
 public class WorkflowDuration {
 	private ProcessGraph processGraph;
 	private Map<ElementTask, Duration> durationOverrides = emptyMap();
@@ -31,16 +28,15 @@ public class WorkflowDuration {
 		return this;
 	}
 
-	public Duration getDuration(TaskAndCaseModifier task, TaskConfig taskConfig, Enum<?> useCase) {
-		ElementTask key = processGraph.getTaskId(task, taskConfig);
-		Duration overriderDuration = this.durationOverrides.get(key);
+	public Duration getDuration(ElementTask elementTask, String script, Enum<?> useCase) {		
+		Duration overriderDuration = this.durationOverrides.get(elementTask);
 		Duration taskDuration = ofNullable(overriderDuration)
-				.orElse(getDurationByTaskScript(taskConfig.getScript(), useCase));
+				.orElse(getDurationByTaskScript(script, useCase));
 		
 		return taskDuration;
 	}
 
-	public Duration getDurationByTaskScript(String script, Enum<?> useCase) {
+	private Duration getDurationByTaskScript(String script, Enum<?> useCase) {
 		if (useCase != null) {
 			String useCasePrefix = getUseCasePrefix(useCase);
 			List<String> prefixs = Arrays.asList("APAConfig.setEstimate", useCasePrefix);

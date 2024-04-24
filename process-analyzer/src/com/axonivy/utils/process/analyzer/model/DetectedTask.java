@@ -1,6 +1,9 @@
 package com.axonivy.utils.process.analyzer.model;
 
+import static java.util.Collections.emptyList;
+
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,12 +24,16 @@ public class DetectedTask extends DetectedElement {
 	 */
 	private String customInfo;
 	
-	public DetectedTask(String pid, String taskName, String elementName, Duration duration, List<String> parentElementNames, Duration timeUntilStart, Duration timeUntilEnd, String customInfo) {
+	public DetectedTask(String pid, String taskName, String elementName, Duration timeUntilStart, Duration duration, String customInfo) {
+		this(pid, taskName, elementName, timeUntilStart, duration, emptyList(), customInfo);
+	}
+	
+	public DetectedTask(String pid, String taskName, String elementName, Duration timeUntilStart, Duration duration, List<String> parentElementNames,  String customInfo) {
 		super(pid, taskName, elementName);
 		this.estimatedDuration = duration;
 		this.parentElementNames = parentElementNames;
 		this.timeUntilStart = timeUntilStart;
-		this.timeUntilEnd = timeUntilEnd;
+		this.timeUntilEnd = timeUntilStart.plus(duration);
 		this.customInfo = customInfo;
 	}
 

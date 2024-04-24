@@ -68,8 +68,7 @@ public class ProcessAnalyzer implements AdvancedProcessAnalyzer{
 
 	@Override
 	public List<DetectedElement> findTasksOnPath(ICase icase, Enum<?> useCase, String flowName) throws Exception {
-		Map<ProcessElement, Duration> elementsWithSpentDuration = getStartElementsWithSpentDuration(icase);
-		
+		Map<ProcessElement, Duration> elementsWithSpentDuration = getStartElementsWithSpentDuration(icase);		
 		return findDelectElementsOnPath(elementsWithSpentDuration, useCase, flowName);
 	}
 
@@ -124,17 +123,15 @@ public class ProcessAnalyzer implements AdvancedProcessAnalyzer{
 	}
 
 	private List<DetectedElement> findAllDelectElements(List<BaseElement> startAtElements, Enum<?> useCase) throws Exception {
+		
 		Map<ProcessElement, Duration> startAtElementWithDurations = initTimeUntilStart(startAtElements);
 		List<DetectedElement> detectedTasks = findAllDelectElements(startAtElementWithDurations, useCase);
 		return detectedTasks;
 	}
 	
-	private List<DetectedElement> findAllDelectElements(Map<ProcessElement, Duration> startAtElementWithDuration, Enum<?> useCase) throws Exception {
-		List<ProcessElement> elements = startAtElementWithDuration.keySet().stream().toList();
-		List<DetectedElement> detectedTasks = new WorkflowPath()
-				.setDurationOverrides(durationOverrides)
-				.setIsEnableDescribeAlternative(isEnableDescribeAlternative)
-				.findAllTasks(elements, useCase, startAtElementWithDuration);
+	private List<DetectedElement> findAllDelectElements(Map<ProcessElement, Duration> startAtElementWithDuration, Enum<?> useCase) throws Exception {		
+		List<DetectedElement> detectedTasks = this.workflowPath()
+				.findAllTasks(startAtElementWithDuration, useCase);
 		
 		return detectedTasks;
 	}
@@ -144,13 +141,9 @@ public class ProcessAnalyzer implements AdvancedProcessAnalyzer{
 		return findDelectElementsOnPath(startAtDurations, useCase, flowName);		
 	}
 	
-	private List<DetectedElement> findDelectElementsOnPath(Map<ProcessElement, Duration> startAtElementWithDuration, Enum<?> useCase, String flowName ) throws Exception {
-		List<ProcessElement> elements = startAtElementWithDuration.keySet().stream().toList();
-		List<DetectedElement> detectedTasks = new WorkflowPath()
-				.setProcessFlowOverrides(processFlowOverrides)
-				.setDurationOverrides(durationOverrides)
-				.setIsEnableDescribeAlternative(isEnableDescribeAlternative)
-				.findTaskOnPath(elements, useCase, flowName, startAtElementWithDuration);
+	private List<DetectedElement> findDelectElementsOnPath(Map<ProcessElement, Duration> startAtElementWithDuration, Enum<?> useCase, String flowName ) throws Exception {		
+		List<DetectedElement> detectedTasks = this.workflowPath()
+				.findTaskOnPath(startAtElementWithDuration, useCase, flowName);
 		
 		return detectedTasks;
 	}
@@ -212,5 +205,12 @@ public class ProcessAnalyzer implements AdvancedProcessAnalyzer{
 			timeUntilStartAts.put(new CommonElement(it), Duration.ZERO);
 		});
 		return timeUntilStartAts;
+	}
+	
+	private WorkflowPath workflowPath() {
+		return new WorkflowPath()
+				.setDurationOverrides(durationOverrides)
+				.setProcessFlowOverrides(processFlowOverrides)
+				.setIsEnableDescribeAlternative(isEnableDescribeAlternative);
 	}
 }
