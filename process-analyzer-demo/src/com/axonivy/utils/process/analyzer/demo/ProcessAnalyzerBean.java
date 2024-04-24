@@ -176,7 +176,7 @@ public class ProcessAnalyzerBean {
 		return null;
 	}
 
-	private String getShortPid(String pid) {
+	public String getShortPid(String pid) {
 		int index = pid.indexOf("-");
 		return pid.substring(index + 1);
 	}
