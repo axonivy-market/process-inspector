@@ -51,7 +51,7 @@
             </p:column>
 
             <p:column headerText="PID" width="30px">
-                <h:outputText value="#{task.shortPid}"
+                <h:outputText value="#{data.processAnalyzerBean.getShortPid(task.pid)}"
                     title="#{task.pid}" />
             </p:column>
 

@@ -154,6 +154,25 @@ public class ProcessAnalyzerBean {
 				
 		return total;
 	}
+	
+	public String getDisplayDuration(Duration duration) {
+		return DateTimeHelper.getDisplayDuration(duration);
+	}
+	
+	public String getShortPid(String pid) {
+		int index = pid.indexOf("-");
+		return pid.substring(index + 1);
+	}
+	
+	public String getProcessWebLink() {
+		String guid = this.selectedAnalyzer.getProcess().getPid().getProcessGuid();
+		IWebStartable webStartable = Ivy.session().getStartables().stream().filter(it -> it.getLink().toRelativeUri().getPath().contains(guid)).findFirst().orElse(null);
+		
+		if(webStartable != null) {
+			return ProcessViewer.of((IProcessWebStartable) webStartable).url().toWebLink().getRelative();	
+		}	
+		return null;
+	}
 
 	private AdvancedProcessAnalyzer updateProcessAnalyzer(Analyzer analyzer) {
 		Map<String, String> flowOverrides = getProcessFlowOverride(analyzer);
@@ -182,16 +201,6 @@ public class ProcessAnalyzerBean {
 				.distinct()
 				.collect(Collectors.toList());
 		return processes;
-	}
-	
-	public String getProcessWebLink() {
-		String guid = this.selectedAnalyzer.getProcess().getPid().getProcessGuid();
-		IWebStartable webStartable = Ivy.session().getStartables().stream().filter(it -> it.getLink().toRelativeUri().getPath().contains(guid)).findFirst().orElse(null);
-		
-		if(webStartable != null) {
-			return ProcessViewer.of((IProcessWebStartable) webStartable).url().toWebLink().getRelative();	
-		}	
-		return null;
 	}
 	
 	private boolean isAcceptedProcess(List<String>folders, String fullQualifiedName) {
@@ -232,9 +241,5 @@ public class ProcessAnalyzerBean {
 		elememets.addAll(childElememts);
 		
 		return elememets;
-	}
-	
-	public String getDisplayDuration(Duration duration) {
-		return DateTimeHelper.getDisplayDuration(duration);
 	}
 }
