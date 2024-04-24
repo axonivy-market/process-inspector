@@ -92,7 +92,7 @@
 						title="#{alternative.pid}" />
 					<p:selectOneRadio layout="lineDirection" converter="pojoConverter">
 						<f:selectItems value="#{alternative.options}" var="out"
-							itemValue="#{out}" itemLabel="#{out.elementName} (#{out.shortPid})"
+							itemValue="#{out}" itemLabel="#{out.elementName} (#{data.processAnalyzerBean.getShortPid(out.pid)})"
 							itemDescription="#{out.pid}" />
 						<p:ajax listener="#{logic.onSelect}" event="change" />
 					</p:selectOneRadio>
