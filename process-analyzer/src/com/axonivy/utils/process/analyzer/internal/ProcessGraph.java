@@ -105,12 +105,16 @@ public class ProcessGraph {
 		return false;
 	}
 	
-	public ElementTask getTaskId(TaskAndCaseModifier task, TaskConfig taskConfig) {
-		String id = task.getPid().getRawPid();
+	public ElementTask getElementTask(SingleTaskCreator task) {
+		return ElementTask.createSingle(task.getPid().getRawPid());
+	}
+	
+	public ElementTask createElementTask(TaskAndCaseModifier task, TaskConfig taskConfig) {
+		String pid = task.getPid().getRawPid();		
 		if (task instanceof TaskSwitchGateway) {
-			return new ElementTask(id, taskConfig.getTaskIdentifier().getRawIdentifier());
+			return ElementTask.createGateway(pid, taskConfig.getTaskIdentifier().getRawIdentifier());
 		} else {
-			return new ElementTask(id);
+			return ElementTask.createSingle(pid);
 		}
 	}
 	

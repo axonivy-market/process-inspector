@@ -173,7 +173,7 @@ public interface AdvancedProcessAnalyzer {
 	/**
 	 * This method can be used to override configured task duration of the model by own values.
 	 * @param durationOverrides
-	 * key: ElementTask -  with record ElementTask(element ID, task identifier)
+	 * key: ElementTask -  with ElementTask.createGateway(element ID, task identifier) for TaskSwitchGateway, ElementTask.createSingle(element ID) for other  
 	 * value: new duration
 	 * @return
 	 */

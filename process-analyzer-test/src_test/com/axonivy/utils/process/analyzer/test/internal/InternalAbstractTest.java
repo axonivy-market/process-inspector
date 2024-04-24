@@ -10,5 +10,4 @@ abstract class InternalAbstractTest {
 		var manager = IProcessManager.instance().getProjectDataModelFor(pmv);
 		return manager.findProcessByPath(processName).getModel();		
 	}
-	
 }

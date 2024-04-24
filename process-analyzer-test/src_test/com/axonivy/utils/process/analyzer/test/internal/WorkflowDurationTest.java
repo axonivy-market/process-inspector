@@ -8,12 +8,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.axonivy.utils.process.analyzer.internal.WorkflowDuration;
+import com.axonivy.utils.process.analyzer.model.ElementTask;
 import com.axonivy.utils.process.analyzer.test.ProcessGraphHelper;
 import com.axonivy.utils.process.analyzer.test.UseCase;
 
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.Process;
-import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
+import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 
 @IvyTest
 public class WorkflowDurationTest extends InternalAbstractTest {
@@ -28,8 +29,9 @@ public class WorkflowDurationTest extends InternalAbstractTest {
 	@Test
 	void shouldGetDurationOfTaskCWithUseCaseBIGPROJECT() throws Exception {
 		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
-		var taskC = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task C");
-		var result = workflowDuration.getDuration(taskC, taskC.getAllTaskConfigs().get(0), UseCase.BIGPROJECT);
+		var taskC = (SingleTaskCreator) ProcessGraphHelper.findByElementName(process, "Task C");
+		ElementTask elementTask = ElementTask.createSingle(taskC.getPid().getRawPid());
+		var result = workflowDuration.getDuration(elementTask, taskC.getTaskConfig().getScript(), UseCase.BIGPROJECT);
 
 		assertEquals(Duration.ofHours(4), result);
 	}
@@ -37,8 +39,9 @@ public class WorkflowDurationTest extends InternalAbstractTest {
 	@Test
 	void shouldGetDurationOfTaskCWithUseCaseMEDIUMPROJECT() throws Exception {
 		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
-		TaskAndCaseModifier taskC = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task C");
-		var result = workflowDuration.getDuration(taskC, taskC.getAllTaskConfigs().get(0), UseCase.MEDIUMPROJECT);
+		SingleTaskCreator taskC = (SingleTaskCreator) ProcessGraphHelper.findByElementName(process, "Task C");
+		ElementTask elementTask = ElementTask.createSingle(taskC.getPid().getRawPid());
+		var result = workflowDuration.getDuration(elementTask, taskC.getTaskConfig().getScript(), UseCase.MEDIUMPROJECT);
 
 		assertEquals(Duration.ofHours(3), result);
 	}
@@ -46,9 +49,12 @@ public class WorkflowDurationTest extends InternalAbstractTest {
 	@Test
 	void shouldGetDurationOfTaskCWithUseCaseSMALLPROJECT() throws Exception {
 		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
-		TaskAndCaseModifier taskC = (TaskAndCaseModifier) ProcessGraphHelper.findByElementName(process, "Task C");
-		var result = workflowDuration.getDuration(taskC, taskC.getAllTaskConfigs().get(0), UseCase.SMALLPROJECT);
+		SingleTaskCreator taskC = (SingleTaskCreator) ProcessGraphHelper.findByElementName(process, "Task C");
+		ElementTask elementTask = ElementTask.createSingle(taskC.getPid().getRawPid());
+		var result = workflowDuration.getDuration(elementTask, taskC.getTaskConfig().getScript(), UseCase.SMALLPROJECT);
 
 		assertEquals(Duration.ofHours(2), result);
 	}
+	
+	
 }

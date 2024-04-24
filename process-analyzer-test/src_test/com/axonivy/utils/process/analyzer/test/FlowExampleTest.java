@@ -46,6 +46,10 @@ public abstract class FlowExampleTest {
 		return tasks.stream().filter(it -> elementName.equals(it.getElementName())).findFirst().orElse(null);
 	}
 	
+	protected DetectedElement findByPid(List<DetectedElement> tasks, String pid ) {
+		return tasks.stream().filter(it -> pid.equals(it.getPid())).findFirst().orElse(null);
+	}
+	
 	protected ITask findTaskByElementName(List<ITask> tasks, String elementName ) {
 		return tasks.stream().filter(it -> elementName.equals(it.getName())).findFirst().orElse(null);
 	}

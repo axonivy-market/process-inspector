@@ -1,6 +1,7 @@
 package com.axonivy.utils.process.analyzer.demo;
 
 import static java.util.Collections.emptyList;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -159,11 +160,12 @@ public class ProcessAnalyzerBean {
 		return DateTimeHelper.getDisplayDuration(duration);
 	}
 	
-	public String getShortPid(String pid) {
-		int index = pid.indexOf("-");
-		return pid.substring(index + 1);
+	public String getDisplayDetectedElement(DetectedElement element) {
+		String elementName = defaultIfEmpty(element.getElementName(), "No name");
+		String shortPid = getShortPid(element.getPid());
+		return String.format("%s (%s)", elementName, shortPid);
 	}
-	
+
 	public String getProcessWebLink() {
 		String guid = this.selectedAnalyzer.getProcess().getPid().getProcessGuid();
 		IWebStartable webStartable = Ivy.session().getStartables().stream().filter(it -> it.getLink().toRelativeUri().getPath().contains(guid)).findFirst().orElse(null);
@@ -174,6 +176,11 @@ public class ProcessAnalyzerBean {
 		return null;
 	}
 
+	private String getShortPid(String pid) {
+		int index = pid.indexOf("-");
+		return pid.substring(index + 1);
+	}
+	
 	private AdvancedProcessAnalyzer updateProcessAnalyzer(Analyzer analyzer) {
 		Map<String, String> flowOverrides = getProcessFlowOverride(analyzer);
 		processAnalyzer.disableDescribeAlternativeElements();
