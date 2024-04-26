@@ -1,6 +1,6 @@
 # Advanced Process Analyzer
 
-Axon Ivy’s [Advanced Process Analyzer] helps you to:
+Axon Ivy’s Advanced Process Analyzer tool helps you to calculate duration to finish a workflow case. Key features:
 
 - Configure needed information directly in the process model
 	- Default duration of a task for multiple use cases. Each task can have multiple named default durations.
