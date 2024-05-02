@@ -41,35 +41,35 @@ public class ProcessAnalyzer implements AdvancedProcessAnalyzer{
 
 	@Override
 	public List<DetectedElement> findAllTasks(BaseElement startAtElement, Enum<?> useCase) throws Exception {
-		return findAllDelectElements(List.of(startAtElement), useCase);
+		return findAllDetectedElements(List.of(startAtElement), useCase);
 	}
 
 	@Override
 	public List<DetectedElement> findAllTasks(List<BaseElement> startAtElements, Enum<?> useCase) throws Exception {
-		return findAllDelectElements(startAtElements, useCase);
+		return findAllDetectedElements(startAtElements, useCase);
 	}
 	
 	@Override
 	public List<DetectedElement> findAllTasks(ICase icase, Enum<?> useCase) throws Exception {		
 		Map<ProcessElement, Duration> elementsWithSpentDuration = getStartElementsWithSpentDuration(icase);
 		
-		return findAllDelectElements(elementsWithSpentDuration, useCase);
+		return findAllDetectedElements(elementsWithSpentDuration, useCase);
 	}
 	
 	@Override
 	public List<DetectedElement> findTasksOnPath(BaseElement startAtElement, Enum<?> useCase, String flowName)	throws Exception {
-		return findDelectElementsOnPath(List.of(startAtElement), useCase, flowName);
+		return findDetectedElementsOnPath(List.of(startAtElement), useCase, flowName);
 	}
 
 	@Override
 	public List<DetectedElement> findTasksOnPath(List<BaseElement> startAtElements, Enum<?> useCase, String flowName) throws Exception {
-		return findDelectElementsOnPath(startAtElements, useCase, flowName);
+		return findDetectedElementsOnPath(startAtElements, useCase, flowName);
 	}
 
 	@Override
 	public List<DetectedElement> findTasksOnPath(ICase icase, Enum<?> useCase, String flowName) throws Exception {
 		Map<ProcessElement, Duration> elementsWithSpentDuration = getStartElementsWithSpentDuration(icase);		
-		return findDelectElementsOnPath(elementsWithSpentDuration, useCase, flowName);
+		return findDetectedElementsOnPath(elementsWithSpentDuration, useCase, flowName);
 	}
 
 	@Override
@@ -122,26 +122,26 @@ public class ProcessAnalyzer implements AdvancedProcessAnalyzer{
 		return this;
 	}
 
-	private List<DetectedElement> findAllDelectElements(List<BaseElement> startAtElements, Enum<?> useCase) throws Exception {
+	private List<DetectedElement> findAllDetectedElements(List<BaseElement> startAtElements, Enum<?> useCase) throws Exception {
 		
 		Map<ProcessElement, Duration> startAtElementWithDurations = initTimeUntilStart(startAtElements);
-		List<DetectedElement> detectedTasks = findAllDelectElements(startAtElementWithDurations, useCase);
+		List<DetectedElement> detectedTasks = findAllDetectedElements(startAtElementWithDurations, useCase);
 		return detectedTasks;
 	}
 	
-	private List<DetectedElement> findAllDelectElements(Map<ProcessElement, Duration> startAtElementWithDuration, Enum<?> useCase) throws Exception {		
+	private List<DetectedElement> findAllDetectedElements(Map<ProcessElement, Duration> startAtElementWithDuration, Enum<?> useCase) throws Exception {		
 		List<DetectedElement> detectedTasks = this.workflowPath()
 				.findAllTasks(startAtElementWithDuration, useCase);
 		
 		return detectedTasks;
 	}
 	
-	private List<DetectedElement> findDelectElementsOnPath(List<BaseElement> startAtElements, Enum<?> useCase, String flowName) throws Exception {
+	private List<DetectedElement> findDetectedElementsOnPath(List<BaseElement> startAtElements, Enum<?> useCase, String flowName) throws Exception {
 		Map<ProcessElement, Duration> startAtDurations = initTimeUntilStart(startAtElements);		
-		return findDelectElementsOnPath(startAtDurations, useCase, flowName);		
+		return findDetectedElementsOnPath(startAtDurations, useCase, flowName);		
 	}
 	
-	private List<DetectedElement> findDelectElementsOnPath(Map<ProcessElement, Duration> startAtElementWithDuration, Enum<?> useCase, String flowName ) throws Exception {		
+	private List<DetectedElement> findDetectedElementsOnPath(Map<ProcessElement, Duration> startAtElementWithDuration, Enum<?> useCase, String flowName ) throws Exception {		
 		List<DetectedElement> detectedTasks = this.workflowPath()
 				.findTaskOnPath(startAtElementWithDuration, useCase, flowName);
 		
@@ -160,8 +160,8 @@ public class ProcessAnalyzer implements AdvancedProcessAnalyzer{
 		
 		Map<ProcessElement, Duration> startAtDurations = initTimeUntilStart(elements);
 		List<DetectedElement> detectedTasks = isFindAllTask 
-				? findAllDelectElements(startAtDurations, useCase)
-				: findDelectElementsOnPath(startAtDurations, useCase, flowName);
+				? findAllDetectedElements(startAtDurations, useCase)
+				: findDetectedElementsOnPath(startAtDurations, useCase, flowName);
 		
 		return detectedTasks.stream()
 				.filter(it -> it instanceof DetectedTask)

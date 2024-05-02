@@ -206,7 +206,15 @@ class WorkflowPath {
 				.map(DetectedTask.class::cast)
 				.toList();
 		int size =  detectedTasks.size();
-		return size > 0 ? detectedTasks.get(size - 1).getTimeUntilEnd() : defaultAt;
+		Duration duration = defaultAt;
+		if(size > 0) {
+			duration = detectedTasks.get(size - 1).getTimeUntilEnd();
+			if(duration.isNegative()) {
+				duration = Duration.ZERO;	
+			}
+		}
+		
+		return duration;
 	}
 	
 	private Duration getMaxDurationUntilEnd(List<DetectedElement> detectedElements) {
