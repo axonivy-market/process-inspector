@@ -89,10 +89,26 @@ class WorkflowPath {
 	private List<DetectedElement> convertPathToDetectedElements(ProcessElement startElement, List<AnalysisPath> paths, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStarts) {
 		List<List<DetectedElement>> allPaths = new ArrayList<>();
 		paths.forEach(path -> {
-			allPaths.add(convertPathToDetectedElements(startElement, path, useCase, timeUntilStarts));
+			ProcessElement correctedStartElement = correctStartElement(startElement, path, timeUntilStarts);
+			allPaths.add(convertPathToDetectedElements(correctedStartElement, path, useCase, timeUntilStarts));
 		});
 		List<DetectedElement> result = allPaths.stream().flatMap(List::stream).toList();
 		return result;
+	}
+	
+	private ProcessElement correctStartElement(ProcessElement startElement, AnalysisPath path, Map<ProcessElement, Duration> timeUntilStarts) {
+		if(timeUntilStarts.containsKey(startElement)) {
+			return startElement;
+		}
+		
+		if(isNotEmpty(path.getElements())) {
+			ProcessElement firstElement = path.getElements().get(0);
+			if(timeUntilStarts.containsKey(firstElement)) {
+				return firstElement;
+			}
+		}
+		// Unknown case
+		return startElement;
 	}
 	
 	private List<DetectedElement> convertPathToDetectedElements(ProcessElement startElement, AnalysisPath path, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStarts) {
@@ -182,19 +198,22 @@ class WorkflowPath {
 			SequenceFlow sequenceFlow = (SequenceFlow)entry.getKey();
 			Duration startedAt = timeUntilStartAts.get(group); 
 			
+			ProcessElement key = new CommonElement(sequenceFlow);
+			Map<ProcessElement, List<AnalysisPath>> path = Map.of(key, entry.getValue());
+			Map<ProcessElement, Duration> startTimeDuration = null;
+			
+			List<DetectedElement> tasks = emptyList();
 			if(group.getElement() != null) {
 				var startTask = createStartTaskFromTaskSwitchGateway(sequenceFlow, startedAt, useCase);
 				result.add(startTask);
-				startedAt = ((DetectedTask)startTask).getTimeUntilEnd();
-			} 
-			
-			ProcessElement key = new CommonElement(sequenceFlow);
-			Map<ProcessElement, List<AnalysisPath>> path = Map.of(key, entry.getValue());
-			if(startedAt == null) {
-				startedAt = timeUntilStartAts.get(new CommonElement(sequenceFlow.getTarget()));
-			}
 				
-			var tasks = convertToDetectedElements(path, useCase, Map.of(key, startedAt));
+				startedAt = ((DetectedTask)startTask).getTimeUntilEnd();
+				startTimeDuration = Map.of(key, startedAt);
+			} else {
+				startTimeDuration = timeUntilStartAts;				
+			}
+			
+			tasks = convertToDetectedElements(path, useCase, startTimeDuration);
 			result.addAll(tasks);
 		}
 		

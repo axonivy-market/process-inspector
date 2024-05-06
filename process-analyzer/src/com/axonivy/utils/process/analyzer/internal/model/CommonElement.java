@@ -1,5 +1,7 @@
 package com.axonivy.utils.process.analyzer.internal.model;
 
+import java.util.Objects;
+
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.value.PID;
 
@@ -25,7 +27,7 @@ public class CommonElement implements ProcessElement{
 	
 	@Override
 	public String toString() {
-		return element.toString();
+		return Objects.toString(element);
 	}
 
 	@Override

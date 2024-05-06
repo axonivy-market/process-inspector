@@ -4,6 +4,9 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
+import com.axonivy.utils.process.analyzer.model.ElementTask;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
@@ -27,26 +30,27 @@ public class TaskParallelGroup implements ProcessElement {
 
 	@Override
 	public int hashCode() {
-		if (element != null) {
-			return element.hashCode();
-		}
-		return 0;
+		return Objects.hash(this.element, this.internalPaths);
 	}
 
 	@Override
 	public String toString() {
-		if (element != null) {
-			return element.toString();
-		}
-		return EMPTY;
+		return String.format("%s : %s ",  Objects.toString(element, EMPTY),  Objects.toString(internalPaths, EMPTY));		
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof TaskParallelGroup) {
-			return ((TaskParallelGroup) obj).element.equals(element);
+	public boolean equals(Object other) {
+		if (this == other) {
+			return true;
 		}
-		return false;
+		if (other == null) {
+			return false;
+		}
+		if (!(other instanceof TaskParallelGroup)) {
+			return false;
+		}
+		TaskParallelGroup task = (TaskParallelGroup) other;
+		return Objects.equals(task.element, this.element) && Objects.equals(task.internalPaths, this.internalPaths);
 	}
 
 	@Override
