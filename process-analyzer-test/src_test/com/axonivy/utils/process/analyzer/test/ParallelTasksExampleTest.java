@@ -35,12 +35,12 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 	}
 	
 	@Test
-	void shouldFindAllTasksAtStartWithFlowNameNull() throws Exception {
+	void shouldFindAllTasksAtStartWithFlowNameNullAndContainDefaultTaskName() throws Exception {
 		var start = ProcessGraphHelper.findByElementName(process, "start");
 		var detectedTasks = processAnalyzer.findAllTasks(start, null);
 
 		var names = getTaskNames(detectedTasks);
-		assertArrayEquals(Arrays.array("Task1A", "Task1B", "Task2", "Task3B", "Task3A"), names);
+		assertArrayEquals(Arrays.array("TaskA", "Task1B", "Task2", "Task3B", "Task3A"), names);
 	}
 	
 	@Test
@@ -49,7 +49,7 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 		var detectedTasks = processAnalyzer.findTasksOnPath(start, null, null);
 
 		var names = getTaskNames(detectedTasks);
-		assertArrayEquals(Arrays.array("Task1A", "Task1B", "Task2", "Task3B", "Task3A"), names);
+		assertArrayEquals(Arrays.array("TaskA", "Task1B", "Task2", "Task3B", "Task3A"), names);
 	}
 	
 	@Test
@@ -58,7 +58,7 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 		var detectedTasks = processAnalyzer.findTasksOnPath(start, null, "shortcut");
 
 		var names = getTaskNames(detectedTasks);
-		assertArrayEquals(Arrays.array("Task1A", "Task1B", "Task2"), names);
+		assertArrayEquals(Arrays.array("TaskA", "Task1B", "Task2"), names);
 	}
 	
 	@Test
