@@ -30,7 +30,6 @@
       "config" : {
         "tasks" : [ {
             "id" : "TaskA",
-            "name" : "Task1A",
             "code" : [
               "import java.util.concurrent.TimeUnit;",
               "import com.axonivy.utils.process.analyzer.test.UseCase;",

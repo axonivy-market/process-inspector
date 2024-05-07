@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -282,7 +283,7 @@ class WorkflowPath {
 	private DetectedElement createDetectedTask(TaskAndCaseModifier task, TaskConfig taskConfig, Enum<?> useCase, Duration timeUntilStartAt) {
 	
 		String elementName = task.getName();
-		String taskName = taskConfig.getName().getRawMacro();		
+		String taskName = defaultIfBlank(taskConfig.getName().getRawMacro(), taskConfig.getTaskIdentifier().getRawIdentifier()) ;		
 		String script = taskConfig.getScript();
 		String customerInfo = getCustomInfoByCode(script);
 		
