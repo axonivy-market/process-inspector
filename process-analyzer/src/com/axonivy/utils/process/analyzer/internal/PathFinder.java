@@ -2,6 +2,7 @@ package com.axonivy.utils.process.analyzer.internal;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptySet;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -9,14 +10,17 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.collections4.SetUtils;
 
 import com.axonivy.utils.process.analyzer.internal.model.AnalysisPath;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
@@ -87,7 +91,7 @@ public class PathFinder {
 			result.put(from, path);
 		}
 		
-		ProcessElement intersectionTask  = findFirstIntersectionTaskSwitchGateway(result);
+		ProcessElement intersectionTask  = findIntersectionTaskSwitchGateway(result);
 		if(intersectionTask == null) {
 			return result;	
 		}
@@ -146,38 +150,35 @@ public class PathFinder {
 		return result;
 	}
 	
-	private ProcessElement findFirstIntersectionTaskSwitchGateway(Map<ProcessElement, List<AnalysisPath>> paths) {
-		ProcessElement intersert = null;		
-		if (paths.size() > 1) {
-			Map<ProcessElement, List<ProcessElement>> taskSwitchGateways = new LinkedHashMap<>();
-			for (Entry<ProcessElement, List<AnalysisPath>> path : paths.entrySet()) {
-				AnalysisPath analysisPathWithTaskSwitchGateway =  findFirstAnalysisPathWithTaskSwitchGateway(path.getValue());
-				if (analysisPathWithTaskSwitchGateway != null) {
-					List<ProcessElement> taskGroup = analysisPathWithTaskSwitchGateway.getElements().stream()
-							.filter(it -> it.getElement() instanceof TaskSwitchGateway == true)
-							.toList();
-
-					taskSwitchGateways.put(path.getKey(), taskGroup);
-				}
-			}
-			
-			List<ProcessElement> intersertsOfAll = taskSwitchGateways.values().stream().findFirst().orElse(emptyList());
-			for (Entry<ProcessElement, List<ProcessElement>> entry : taskSwitchGateways.entrySet()) {
-				List<ProcessElement> interserts = ListUtils.intersection(entry.getValue(), intersertsOfAll);
-				if(interserts.size() == 0) {
-					break;
-				} else {
-					intersertsOfAll = interserts;
-				}
-			}
-			
-			intersert = intersertsOfAll.stream()
-					.filter(it -> ((TaskSwitchGateway) it.getElement()).getIncoming().size() > 1)
-					.findFirst().orElse(null);
-			
+	private ProcessElement findIntersectionTaskSwitchGateway(Map<ProcessElement, List<AnalysisPath>> paths) {
+		if (paths.size() <= 1) {
+			return null;
 		}
-		
-		return intersert;
+
+		Map<ProcessElement, Set<ProcessElement>> intersections = getIntersectionTaskSwitchGatewayWithStartElement(paths);
+		return intersections.entrySet().stream()
+				.max((a, b) -> Integer.compare(a.getValue().size(), b.getValue().size())).map(Entry::getKey)
+				.orElse(null);
+	}
+
+	private Map<ProcessElement, Set<ProcessElement>> getIntersectionTaskSwitchGatewayWithStartElement(Map<ProcessElement, List<AnalysisPath>> paths) {
+		Map<ProcessElement, Set<ProcessElement>> intersectNodes = new HashMap<>();
+		for (ProcessElement startElement : paths.keySet()) {
+			for (AnalysisPath path : paths.getOrDefault(startElement, emptyList())) {
+				for (ProcessElement element : path.getElements()) {
+					if (element.getElement() instanceof TaskSwitchGateway) {
+						TaskSwitchGateway taskSwitch = (TaskSwitchGateway) element.getElement();
+						if (taskSwitch.getIncoming().size() > 1) {
+							Set<ProcessElement> startElements = intersectNodes.getOrDefault(element, emptySet());
+
+							intersectNodes.put(element, SetUtils.union(startElements, Set.of(startElement)));
+						}
+					}
+
+				}
+			}
+		}
+		return intersectNodes;
 	}
 	
 	private AnalysisPath findFirstAnalysisPathWithTaskSwitchGateway(List<AnalysisPath> paths) {
