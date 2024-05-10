@@ -124,7 +124,6 @@ public class PathFinder {
 				.filter(entry -> !pathBeforeIntersection.keySet().contains(entry.getKey()))
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 		
-	
 		TaskParallelGroup taskGroup = convertToTaskParallelGroup(pathBeforeIntersection);
 		
 		List<AnalysisPath> fullPathWithIntersection = addToPath(List.of(new AnalysisPath(List.of(taskGroup))), subPath);
@@ -321,7 +320,7 @@ public class PathFinder {
 		}
 
 		List<AnalysisPath> path = new ArrayList<>();
-		path = addToPath(path, from);
+		path = addAllToPath(path, List.of(from));
 		
 		if (from.getElement() instanceof NodeElement) {
 				
@@ -341,7 +340,7 @@ public class PathFinder {
 				//If last element is CommonElement(TaskSwitchGateway)-> We will remove it.				
 				path = removeLastTaskSwitchGateway(path);
 
-				path = addToPath(path, taskParallelGroup);
+				path = addAllToPath(path, List.of(taskParallelGroup));
 				from = getJoinTaskSwithGateWay(taskParallelGroup);
 				
 				if( from == null) {
@@ -382,11 +381,6 @@ public class PathFinder {
 		
 		return result;
 	}
-
-	private List<AnalysisPath> addToPath(List<AnalysisPath> paths, ProcessElement from) {
-		List<AnalysisPath> result = addAllToPath(paths, List.of(from));
-		return result;
-	}
 	
 	private List<AnalysisPath> addToPath(List<AnalysisPath> paths, List<AnalysisPath> subPaths) {
 		if(subPaths.isEmpty()) {
@@ -424,7 +418,7 @@ public class PathFinder {
 			pathOptions.entrySet().forEach(it -> {
 				ProcessElement sequenceFlowElement = new CommonElement(it.getKey());
 				if (it.getValue().isEmpty()) {
-					result.addAll(addToPath(paths, sequenceFlowElement));
+					result.addAll(addAllToPath(paths, List.of(sequenceFlowElement)));
 				} else {
 					it.getValue().forEach(path -> {
 						List<ProcessElement> elememts = ListUtils.union(List.of(sequenceFlowElement),
