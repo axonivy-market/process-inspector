@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import com.axonivy.utils.process.analyzer.model.ElementTask;
-
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.value.PID;

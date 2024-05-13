@@ -24,6 +24,7 @@ import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.IvyScriptExpression;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
+import ch.ivyteam.ivy.process.model.element.value.task.TaskIdentifier;
 
 public class ProcessGraph {
 
@@ -112,7 +113,12 @@ public class ProcessGraph {
 	public ElementTask createElementTask(TaskAndCaseModifier task, TaskConfig taskConfig) {
 		String pid = task.getPid().getRawPid();		
 		if (task instanceof TaskSwitchGateway) {
-			return ElementTask.createGateway(pid, taskConfig.getTaskIdentifier().getRawIdentifier());
+			String taskIdentifier = Optional.ofNullable(taskConfig)
+					.map(TaskConfig::getTaskIdentifier)
+					.map(TaskIdentifier::getRawIdentifier)
+					.orElse(EMPTY);
+			
+			return ElementTask.createGateway(pid, taskIdentifier);
 		} else {
 			return ElementTask.createSingle(pid);
 		}

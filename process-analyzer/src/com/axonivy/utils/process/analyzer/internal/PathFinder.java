@@ -33,6 +33,8 @@ import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
+import ch.ivyteam.ivy.process.model.diagram.edge.DiagramEdge;
+import ch.ivyteam.ivy.process.model.diagram.value.Label;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
@@ -73,7 +75,7 @@ public class PathFinder {
 	public Map<ProcessElement, List<AnalysisPath>> findAllTask() throws Exception {
 		Map<ProcessElement, List<AnalysisPath>> paths = emptyMap();
 		if (froms != null) {
-			paths = findPath(this.froms, null, FindType.ALL_TASKS, emptyList());
+			paths = findPath(this.froms, null, FindType.ALL_TASKS);
 		}
 		return paths;
 	}
@@ -81,15 +83,15 @@ public class PathFinder {
 	public Map<ProcessElement, List<AnalysisPath>> findTaskOnPath() throws Exception {
 		Map<ProcessElement, List<AnalysisPath>> paths = emptyMap();
 		if (froms != null) {
-			paths = findPath(this.froms, this.flowName, FindType.TASKS_ON_PATH, emptyList());
+			paths = findPath(this.froms, this.flowName, FindType.TASKS_ON_PATH);
 		}
 		return paths;
 	}
-	
-	private Map<ProcessElement, List<AnalysisPath>> findPath(List<ProcessElement> froms, String flowName, FindType findType, List<AnalysisPath> previousElements) throws Exception {
+		
+	private Map<ProcessElement, List<AnalysisPath>> findPath(List<ProcessElement> froms, String flowName, FindType findType) throws Exception {
 		Map<ProcessElement, List<AnalysisPath>>  result = new LinkedHashMap<>();
 		for(ProcessElement from : froms) {
-			List<AnalysisPath> path = findPath(from, flowName, findType, emptyList());
+			List<AnalysisPath> path = findAnalysisPaths(from, flowName, findType, emptyList());
 			result.put(from, path);
 		}
 		
@@ -99,7 +101,7 @@ public class PathFinder {
 		}
 		
 		//Find again from intersection task
-		List<AnalysisPath> subPath = findPath(new CommonElement(intersectionTask.getElement()), flowName, findType, emptyList());
+		List<AnalysisPath> subPath = findAnalysisPaths(new CommonElement(intersectionTask.getElement()), flowName, findType, emptyList());
 
 		Map<ProcessElement, List<AnalysisPath>> fullPath = mergePath(result, intersectionTask, subPath);
 				
@@ -136,16 +138,15 @@ public class PathFinder {
 	}
 	
 	private TaskParallelGroup convertToTaskParallelGroup(Map<ProcessElement, List<AnalysisPath>> pathBeforeIntersection) {	
-		
-		Map<ProcessElement, List<AnalysisPath>> pathHaveNotIntersection = emptyMap();
+		Map<ProcessElement, List<AnalysisPath>> pathHaveNoIntersection = emptyMap();
 		Map<ProcessElement, List<AnalysisPath>> pathHaveIntersection = pathBeforeIntersection;
 		
 		var haveNextIntersection = getLastIntersectionByStartElements(pathBeforeIntersection);
 		final Set<ProcessElement> startEleWithoutIntersection = new HashSet<>();
 		if(haveNextIntersection.size() > 0) {
-			pathHaveNotIntersection = getPathHaveNotIntersection(pathBeforeIntersection, haveNextIntersection);
+			pathHaveNoIntersection = getPathHaveNoIntersection(pathBeforeIntersection, haveNextIntersection);
 			
-			startEleWithoutIntersection.addAll(pathHaveNotIntersection.keySet());
+			startEleWithoutIntersection.addAll(pathHaveNoIntersection.keySet());
 			
 			pathHaveIntersection = pathBeforeIntersection.entrySet().stream()
 					.filter(entry -> !startEleWithoutIntersection.contains(entry.getKey()))
@@ -155,7 +156,7 @@ public class PathFinder {
 		List<AnalysisPath> pathsWithIntersection = convertToAnalysisPaths(pathHaveIntersection);
 				
 		Map<ProcessElement, List<AnalysisPath>> internalPath = new LinkedHashMap<>();
-		internalPath.putAll(pathHaveNotIntersection);
+		internalPath.putAll(pathHaveNoIntersection);
 		
 		if (isNotEmpty(pathsWithIntersection)) {
 			
@@ -169,7 +170,6 @@ public class PathFinder {
 	}
 	
 	private List<AnalysisPath> convertToAnalysisPaths(Map<ProcessElement, List<AnalysisPath>> source) {
-		
 		List<AnalysisPath> result = new ArrayList<AnalysisPath>();
 		
 		Map<ProcessElement, Set<ProcessElement>> intersections  = getLastIntersectionByStartElements(source);
@@ -199,13 +199,12 @@ public class PathFinder {
 		return result;
 	}
 
-	private Map<ProcessElement, List<AnalysisPath>> getPathHaveNotIntersection(Map<ProcessElement, List<AnalysisPath>> source, Map<ProcessElement, Set<ProcessElement>> intersections) {
-				
-		List<ProcessElement> startEleWithIntersection = intersections.values().stream()
+	private Map<ProcessElement, List<AnalysisPath>> getPathHaveNoIntersection(Map<ProcessElement, List<AnalysisPath>> source, Map<ProcessElement, Set<ProcessElement>> intersections) {
+		List<ProcessElement> startElementWithIntersection = intersections.values().stream()
 				.flatMap(Collection::stream).toList();
 		
 		return source.entrySet().stream()
-				.filter(entry -> !startEleWithIntersection.contains(entry.getKey()))
+				.filter(entry -> !startElementWithIntersection.contains(entry.getKey()))
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 	}
 	
@@ -313,13 +312,13 @@ public class PathFinder {
 	/**
 	 * Using Recursion Algorithm To Find Tasks On Graph.
 	 */
-	private List<AnalysisPath> findPath(ProcessElement from, String flowName, FindType findType, List<AnalysisPath> currentPath) throws Exception {
+	private List<AnalysisPath> findAnalysisPaths(ProcessElement from, String flowName, FindType findType, List<AnalysisPath> currentPath) throws Exception {
+		List<AnalysisPath> path = emptyList();		
 		// Prevent loop
 		if (isContains(currentPath, from)) {
-			return emptyList();
+			return path;
 		}
-
-		List<AnalysisPath> path = new ArrayList<>();
+		
 		path = addAllToPath(path, List.of(from));
 		
 		if (from.getElement() instanceof NodeElement) {
@@ -334,7 +333,6 @@ public class PathFinder {
 			}
 			
 			while(isStartTaskSwitchGateway(from)) {
-				
 				var taskParallelGroup = getTaskParallelGroup(from, flowName, findType, currentPath);
 				
 				//If last element is CommonElement(TaskSwitchGateway)-> We will remove it.				
@@ -358,7 +356,7 @@ public class PathFinder {
 			for (SequenceFlow out : outs) {
 				CommonElement outElement = new CommonElement(out);
 				List<AnalysisPath> newPath = addAllToPath(currentPath, Arrays.asList(from, outElement));
-				List<AnalysisPath> nextOfPath = findPath(new CommonElement(out.getTarget()), flowName, findType, newPath);
+				List<AnalysisPath> nextOfPath = findAnalysisPaths(new CommonElement(out.getTarget()), flowName, findType, newPath);
 				pathOptions.put(out, nextOfPath);
 			}
 
@@ -427,7 +425,6 @@ public class PathFinder {
 						result.addAll(addAllToPath(paths, elememts));
 					});
 				}
-
 			});
 		}
 		return result;
@@ -461,7 +458,7 @@ public class PathFinder {
 		for (SequenceFlow out : outs) {
 			CommonElement outElement = new CommonElement(out);
 			List<AnalysisPath> newPath = addAllToPath(currentPath, Arrays.asList(from, outElement));
-			List<AnalysisPath> nextOfPath = findPath(new CommonElement(out.getTarget()), flowName, findType, newPath);
+			List<AnalysisPath> nextOfPath = findAnalysisPaths(new CommonElement(out.getTarget()), flowName, findType, newPath);
 			paths.put(out, nextOfPath);
 		}
 
@@ -474,10 +471,9 @@ public class PathFinder {
 	 * Find path on sub process
 	 */	
 	private List<AnalysisPath> findPathOfSubProcess(ProcessElement subProcessElement, String flowName, FindType findType) throws Exception {
-		// find start element EmbeddedProcessElement subProcessElement.getEmbeddedProcess()
 		EmbeddedProcessElement processElement = (EmbeddedProcessElement)subProcessElement.getElement();
 		BaseElement start = processGraph.findOneStartElementOfProcess(processElement.getEmbeddedProcess());
-		List<AnalysisPath> path = findPath(new CommonElement(start), flowName, findType, emptyList());		
+		List<AnalysisPath> path = findAnalysisPaths(new CommonElement(start), flowName, findType, emptyList());		
 		return path;
 	}	
 	
@@ -573,7 +569,11 @@ public class PathFinder {
 	}
 
 	private boolean hasFlowName(SequenceFlow sequenceFlow, String flowName) {
-		String label = sequenceFlow.getEdge().getLabel().getText();
+		String label = Optional.ofNullable(sequenceFlow)
+				.map(SequenceFlow::getEdge)
+				.map(DiagramEdge::getLabel)
+				.map(Label::getText)
+				.orElse(null);
 		return isNotBlank(label) && label.contains(flowName);
 	}
 	

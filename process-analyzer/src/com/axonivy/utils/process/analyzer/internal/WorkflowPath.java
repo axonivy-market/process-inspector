@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 
 import java.time.Duration;
@@ -34,7 +35,9 @@ import ch.ivyteam.ivy.process.model.element.activity.SubProcessCall;
 import ch.ivyteam.ivy.process.model.element.event.end.TaskEnd;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
+import ch.ivyteam.ivy.process.model.element.value.MacroExpression;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
+import ch.ivyteam.ivy.process.model.element.value.task.TaskIdentifier;
 
 class WorkflowPath {
 	private static final Duration DURATION_MIN = Duration.ofMillis(Long.MIN_VALUE);
@@ -128,9 +131,9 @@ class WorkflowPath {
 
 			// CommonElement(Alternative)
 			if (processGraph.isAlternative(element.getElement()) && this.isEnableDescribeAlternative) {
-				var delectedAlternative = createDetectedAlternative(element);
-				if (delectedAlternative != null) {
-					result.add(delectedAlternative);
+				var detectedAlternative = createDetectedAlternative(element);
+				if (detectedAlternative != null) {
+					result.add(detectedAlternative);
 				}
 			}
 			
@@ -205,10 +208,13 @@ class WorkflowPath {
 			List<DetectedElement> tasks = emptyList();
 			if(group.getElement() != null) {
 				var startTask = createStartTaskFromTaskSwitchGateway(sequenceFlow, startedAt, useCase);
-				result.add(startTask);
+				if(startTask != null) {
+					result.add(startTask);					
+					startedAt = ((DetectedTask)startTask).getTimeUntilEnd();
+				}
 				
-				startedAt = ((DetectedTask)startTask).getTimeUntilEnd();
 				startTimeDuration = Map.of(key, startedAt);
+				
 			} else {
 				startTimeDuration = timeUntilStartAts;				
 			}
@@ -299,11 +305,11 @@ class WorkflowPath {
 	private DetectedElement createDetectedTask(SingleTaskCreator task, Enum<?> useCase, Duration timeUntilStartAt) {
 		return createDetectedTask(task, task.getTaskConfig(), useCase, timeUntilStartAt);
 	}
-	private DetectedElement createDetectedTask(TaskAndCaseModifier task, TaskConfig taskConfig, Enum<?> useCase, Duration timeUntilStartAt) {
 	
-		String elementName = task.getName();
-		String taskName = defaultIfBlank(taskConfig.getName().getRawMacro(), taskConfig.getTaskIdentifier().getRawIdentifier()) ;		
-		String script = taskConfig.getScript();
+	private DetectedElement createDetectedTask(TaskAndCaseModifier task, TaskConfig taskConfig, Enum<?> useCase, Duration timeUntilStartAt) {
+		String elementName = task.getName();				
+		String taskName = getTaskName(taskConfig) ;
+		String script = Optional.ofNullable(taskConfig).map(TaskConfig::getScript).orElse(EMPTY);
 		String customerInfo = getCustomInfoByCode(script);
 		
 		ElementTask elementTask = processGraph.createElementTask(task, taskConfig);
@@ -374,7 +380,7 @@ class WorkflowPath {
 		return !pids.contains(detectedElement.getPid());
 	}
 	
-	public Map<SequenceFlow, List<AnalysisPath>> getInternalPath(Map<SequenceFlow, List<AnalysisPath>> internalPath, boolean withTaskEnd) {
+	private Map<SequenceFlow, List<AnalysisPath>> getInternalPath(Map<SequenceFlow, List<AnalysisPath>> internalPath, boolean withTaskEnd) {
 		Map<SequenceFlow, List<AnalysisPath>> paths = new LinkedHashMap<>();
 
 		// Priority the path go to end first
@@ -410,5 +416,19 @@ class WorkflowPath {
 	private WorkflowDuration workflowDuration() {
 		return new WorkflowDuration()
 				.setDurationOverrides(durationOverrides);
+	}
+	
+	private String getTaskName(TaskConfig taskConfig) {
+		String taskNameFromRawMacro = Optional.ofNullable(taskConfig)
+				.map(TaskConfig::getName)
+				.map(MacroExpression::getRawMacro)
+				.orElse(EMPTY);
+		
+		String taskIdentifier = Optional.ofNullable(taskConfig)
+				.map(TaskConfig::getTaskIdentifier)
+				.map(TaskIdentifier::getRawIdentifier)
+				.orElse(EMPTY);
+		
+		return defaultIfBlank(taskNameFromRawMacro, taskIdentifier);
 	}
 }
