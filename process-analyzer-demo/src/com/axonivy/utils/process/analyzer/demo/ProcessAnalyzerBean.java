@@ -24,7 +24,6 @@ import com.axonivy.utils.process.analyzer.internal.ProcessAnalyzer;
 import com.axonivy.utils.process.analyzer.model.DetectedAlternative;
 import com.axonivy.utils.process.analyzer.model.DetectedElement;
 
-import ch.ivyteam.ivy.application.IProcessModelVersion;
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.EmbeddedProcess;
@@ -34,13 +33,13 @@ import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.ProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
+import ch.ivyteam.ivy.process.rdm.IProcess;
 import ch.ivyteam.ivy.process.rdm.IProcessManager;
 import ch.ivyteam.ivy.process.viewer.api.ProcessViewer;
 import ch.ivyteam.ivy.workflow.start.IProcessWebStartable;
 import ch.ivyteam.ivy.workflow.start.IWebStartable;
 
 public class ProcessAnalyzerBean {
-	private static final List<String> PROCESS_FOLDERS = Arrays.asList("Analysis Processes");
 
 	private List<Analyzer> analyzers = new ArrayList<>();
 
@@ -201,12 +200,10 @@ public class ProcessAnalyzerBean {
 	}
 	
 	private List<Process> getAllProcesses() {
-		var manager = IProcessManager.instance().getProjectDataModelFor(IProcessModelVersion.current());
-		List<Process> processes = manager.search().find().stream()
-				.map(start -> start.getRootProcess())
-				.filter(process -> isAcceptedProcess(PROCESS_FOLDERS, process.getFullQualifiedName().getName()))
-				.distinct()
-				.collect(Collectors.toList());
+		List<Process> processes = IProcessManager.instance().getProjectDataModels().stream()
+				.flatMap(project -> project.getProcesses().stream())
+				.map(IProcess::getModel)
+				.toList();
 		return processes;
 	}
 	
