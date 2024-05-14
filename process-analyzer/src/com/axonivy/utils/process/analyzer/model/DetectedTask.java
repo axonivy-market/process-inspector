@@ -3,7 +3,6 @@ package com.axonivy.utils.process.analyzer.model;
 import static java.util.Collections.emptyList;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 

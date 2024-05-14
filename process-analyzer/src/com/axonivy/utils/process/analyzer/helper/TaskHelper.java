@@ -7,12 +7,12 @@ import ch.ivyteam.ivy.workflow.ITask;
 import ch.ivyteam.ivy.workflow.IWorkflowProcessModelVersion;
 
 public class TaskHelper {
-	
+
 	public static BaseElement getBaseElementOf(ITask task) {
-		if(task == null) {
+		if (task == null) {
 			return null;
 		}
-		
+
 		var pid = task.getStart().getProcessElementId();
 		IWorkflowProcessModelVersion pmv = task.getProcessModelVersion();
 		var manager = IProcessManager.instance().getProjectDataModelFor(pmv);
