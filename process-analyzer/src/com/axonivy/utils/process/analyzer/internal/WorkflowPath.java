@@ -45,51 +45,56 @@ class WorkflowPath {
 	private boolean isEnableDescribeAlternative;
 	private Map<String, String> processFlowOverrides = emptyMap();
 	private Map<ElementTask, Duration> durationOverrides = emptyMap();
-	
+
 	protected WorkflowPath() {
 		this.processGraph = new ProcessGraph();
 	}
-	
+
 	protected WorkflowPath setProcessFlowOverrides(Map<String, String> processFlowOverrides) {
 		this.processFlowOverrides = processFlowOverrides;
 		return this;
 	}
-	
+
 	protected WorkflowPath setDurationOverrides(Map<ElementTask, Duration> durationOverrides) {
 		this.durationOverrides = durationOverrides;
 		return this;
 	}
-	
+
 	protected WorkflowPath setIsEnableDescribeAlternative(boolean isEnableDescribeAlternative) {
 		this.isEnableDescribeAlternative = isEnableDescribeAlternative;
 		return this;
 	}
-	
-	protected List<DetectedElement> findAllTasks(Map<ProcessElement, Duration> timeUntilStarts, Enum<?> useCase) throws Exception {		
-		Map<ProcessElement, List<AnalysisPath>> paths = this.pathFinder(timeUntilStarts, null).findAllTask();				
-		
+
+	protected List<DetectedElement> findAllTasks(Map<ProcessElement, Duration> timeUntilStarts, Enum<?> useCase)
+			throws Exception {
+		Map<ProcessElement, List<AnalysisPath>> paths = this.pathFinder(timeUntilStarts, null).findAllTask();
+
 		List<DetectedElement> detectedTasks = convertToDetectedElements(paths, useCase, timeUntilStarts);
 		return detectedTasks;
 	}
-	
-	protected List<DetectedElement> findTaskOnPath(Map<ProcessElement, Duration> startAtElements, Enum<?> useCase, String flowName) throws Exception {		
+
+	protected List<DetectedElement> findTaskOnPath(Map<ProcessElement, Duration> startAtElements, Enum<?> useCase,
+			String flowName) throws Exception {
 		Map<ProcessElement, List<AnalysisPath>> paths = this.pathFinder(startAtElements, flowName).findTaskOnPath();
-		
+
 		List<DetectedElement> detectedTasks = convertToDetectedElements(paths, useCase, startAtElements);
 		return detectedTasks;
 	}
-	
-	protected List<DetectedElement> convertToDetectedElements(Map<ProcessElement, List<AnalysisPath>> allPaths, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStarts) {
+
+	protected List<DetectedElement> convertToDetectedElements(Map<ProcessElement, List<AnalysisPath>> allPaths,
+			Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStarts) {
 		List<DetectedElement> result = new ArrayList<>();
 		for (Entry<ProcessElement, List<AnalysisPath>> path : allPaths.entrySet()) {
-			List<DetectedElement> elements = convertPathToDetectedElements(path.getKey(), path.getValue(), useCase, timeUntilStarts);
+			List<DetectedElement> elements = convertPathToDetectedElements(path.getKey(), path.getValue(), useCase,
+					timeUntilStarts);
 			result.addAll(elements);
 		}
 		result = keepMaxTimeUtilEndDetectedElement(result);
 		return result;
 	}
-	
-	private List<DetectedElement> convertPathToDetectedElements(ProcessElement startElement, List<AnalysisPath> paths, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStarts) {
+
+	private List<DetectedElement> convertPathToDetectedElements(ProcessElement startElement, List<AnalysisPath> paths,
+			Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStarts) {
 		List<List<DetectedElement>> allPaths = new ArrayList<>();
 		paths.forEach(path -> {
 			ProcessElement correctedStartElement = correctStartElement(startElement, path, timeUntilStarts);
@@ -98,23 +103,25 @@ class WorkflowPath {
 		List<DetectedElement> result = allPaths.stream().flatMap(List::stream).toList();
 		return result;
 	}
-	
-	private ProcessElement correctStartElement(ProcessElement startElement, AnalysisPath path, Map<ProcessElement, Duration> timeUntilStarts) {
-		if(timeUntilStarts.containsKey(startElement)) {
+
+	private ProcessElement correctStartElement(ProcessElement startElement, AnalysisPath path,
+			Map<ProcessElement, Duration> timeUntilStarts) {
+		if (timeUntilStarts.containsKey(startElement)) {
 			return startElement;
 		}
-		
-		if(isNotEmpty(path.getElements())) {
+
+		if (isNotEmpty(path.getElements())) {
 			ProcessElement firstElement = path.getElements().get(0);
-			if(timeUntilStarts.containsKey(firstElement)) {
+			if (timeUntilStarts.containsKey(firstElement)) {
 				return firstElement;
 			}
 		}
 		// Unknown case
 		return startElement;
 	}
-	
-	private List<DetectedElement> convertPathToDetectedElements(ProcessElement startElement, AnalysisPath path, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStarts) {
+
+	private List<DetectedElement> convertPathToDetectedElements(ProcessElement startElement, AnalysisPath path,
+			Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStarts) {
 		List<DetectedElement> result = new ArrayList<>();
 		Duration timeUntilStart = timeUntilStarts.get(startElement);
 		Duration durationStart = timeUntilEnd(result, timeUntilStart);
@@ -125,7 +132,8 @@ class WorkflowPath {
 				continue;
 			}
 
-			if (processGraph.isTaskAndCaseModifier(element.getElement()) && processGraph.isSystemTask(element.getElement())) {
+			if (processGraph.isTaskAndCaseModifier(element.getElement())
+					&& processGraph.isSystemTask(element.getElement())) {
 				continue;
 			}
 
@@ -136,17 +144,18 @@ class WorkflowPath {
 					result.add(detectedAlternative);
 				}
 			}
-			
+
 			// Sub process call
-			if(processGraph.isSubProcessCall(element.getElement())) {
-				SubProcessCall subProcessCall = (SubProcessCall)element.getElement();
-				if(processGraph.isHandledAsTask(subProcessCall)) {
-					var detectedSubProcessCall = createDetectedTaskFromSubProcessCall(subProcessCall, useCase, durationStart);
+			if (processGraph.isSubProcessCall(element.getElement())) {
+				SubProcessCall subProcessCall = (SubProcessCall) element.getElement();
+				if (processGraph.isHandledAsTask(subProcessCall)) {
+					var detectedSubProcessCall = createDetectedTaskFromSubProcessCall(subProcessCall, useCase,
+							durationStart);
 					if (detectedSubProcessCall != null) {
 						result.add(detectedSubProcessCall);
 						durationStart = timeUntilEnd(result, timeUntilStart);
 					}
-				}				
+				}
 			}
 
 			// CommonElement(SingleTaskCreator)
@@ -162,7 +171,7 @@ class WorkflowPath {
 
 			if (element instanceof TaskParallelGroup) {
 				var startedForGroup = element.getElement() == null ? timeUntilStarts : Map.of(element, durationStart);
-				
+
 				TaskParallelGroup group = (TaskParallelGroup) element;
 				var tasks = convertTaskParallelGroupToDetectedElement(group, useCase, startedForGroup);
 				if (isNotEmpty(tasks)) {
@@ -186,93 +195,90 @@ class WorkflowPath {
 		}
 		return result;
 	}
-	
-	private List<DetectedElement> convertTaskParallelGroupToDetectedElement(TaskParallelGroup group, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStartAts) {
-		List<DetectedElement> tasksWithTaskEnd = convertTaskParallelGroupToDetectedElement(group, useCase, timeUntilStartAts, true);
-		List<DetectedElement> tasksInternal = convertTaskParallelGroupToDetectedElement(group, useCase, timeUntilStartAts, false);
+
+	private List<DetectedElement> convertTaskParallelGroupToDetectedElement(TaskParallelGroup group, Enum<?> useCase,
+			Map<ProcessElement, Duration> timeUntilStartAts) {
+		List<DetectedElement> tasksWithTaskEnd = convertTaskParallelGroupToDetectedElement(group, useCase,
+				timeUntilStartAts, true);
+		List<DetectedElement> tasksInternal = convertTaskParallelGroupToDetectedElement(group, useCase,
+				timeUntilStartAts, false);
 		return ListUtils.union(tasksWithTaskEnd, tasksInternal);
 	}
-	
-	private List<DetectedElement> convertTaskParallelGroupToDetectedElement(TaskParallelGroup group, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStartAts, boolean withTaskEnd) {
+
+	private List<DetectedElement> convertTaskParallelGroupToDetectedElement(TaskParallelGroup group, Enum<?> useCase,
+			Map<ProcessElement, Duration> timeUntilStartAts, boolean withTaskEnd) {
 		Map<SequenceFlow, List<AnalysisPath>> internalPath = getInternalPath(group.getInternalPaths(), withTaskEnd);
-		 		
+
 		List<DetectedElement> result = new ArrayList<>();
 		for (Entry<SequenceFlow, List<AnalysisPath>> entry : internalPath.entrySet()) {
-			SequenceFlow sequenceFlow = (SequenceFlow)entry.getKey();
-			Duration startedAt = timeUntilStartAts.get(group); 
-			
+			SequenceFlow sequenceFlow = entry.getKey();
+			Duration startedAt = timeUntilStartAts.get(group);
+
 			ProcessElement key = new CommonElement(sequenceFlow);
 			Map<ProcessElement, List<AnalysisPath>> path = Map.of(key, entry.getValue());
 			Map<ProcessElement, Duration> startTimeDuration = null;
-			
+
 			List<DetectedElement> tasks = emptyList();
-			if(group.getElement() != null) {
+			if (group.getElement() != null) {
 				var startTask = createStartTaskFromTaskSwitchGateway(sequenceFlow, startedAt, useCase);
-				if(startTask != null) {
-					result.add(startTask);					
-					startedAt = ((DetectedTask)startTask).getTimeUntilEnd();
+				if (startTask != null) {
+					result.add(startTask);
+					startedAt = ((DetectedTask) startTask).getTimeUntilEnd();
 				}
-				
+
 				startTimeDuration = Map.of(key, startedAt);
-				
+
 			} else {
-				startTimeDuration = timeUntilStartAts;				
+				startTimeDuration = timeUntilStartAts;
 			}
-			
+
 			tasks = convertToDetectedElements(path, useCase, startTimeDuration);
 			result.addAll(tasks);
 		}
-		
+
 		return result;
 	}
-	
+
 	private Duration timeUntilEnd(List<DetectedElement> detectedElements, Duration defaultAt) {
-		List<DetectedTask> detectedTasks = detectedElements.stream()
-				.filter(item -> item instanceof DetectedTask)
-				.map(DetectedTask.class::cast)
-				.toList();
-		int size =  detectedTasks.size();
+		List<DetectedTask> detectedTasks = detectedElements.stream().filter(item -> item instanceof DetectedTask)
+				.map(DetectedTask.class::cast).toList();
+		int size = detectedTasks.size();
 		Duration duration = defaultAt;
-		if(size > 0) {
+		if (size > 0) {
 			duration = detectedTasks.get(size - 1).getTimeUntilEnd();
-			if(duration.isNegative()) {
-				duration = Duration.ZERO;	
+			if (duration.isNegative()) {
+				duration = Duration.ZERO;
 			}
 		}
-		
+
 		return duration;
 	}
-	
+
 	private Duration getMaxDurationUntilEnd(List<DetectedElement> detectedElements) {
-		Duration maxDurationUntilEnd = detectedElements.stream()
-				.filter(item -> item instanceof DetectedTask == true)
-				.map(DetectedTask.class::cast)
-				.map(DetectedTask::getTimeUntilEnd)	
-				.max(Duration::compareTo)
-				.orElse(null);
-				
+		Duration maxDurationUntilEnd = detectedElements.stream().filter(item -> item instanceof DetectedTask == true)
+				.map(DetectedTask.class::cast).map(DetectedTask::getTimeUntilEnd).max(Duration::compareTo).orElse(null);
+
 		return maxDurationUntilEnd;
 	}
-	
-	private DetectedElement createStartTaskFromTaskSwitchGateway(SequenceFlow sequenceFlow, Duration timeUntilStartedAt, Enum<?> useCase) {
+
+	private DetectedElement createStartTaskFromTaskSwitchGateway(SequenceFlow sequenceFlow, Duration timeUntilStartedAt,
+			Enum<?> useCase) {
 		DetectedElement task = null;
 		if (sequenceFlow.getSource() instanceof TaskSwitchGateway) {
 			TaskSwitchGateway taskSwitchGateway = (TaskSwitchGateway) sequenceFlow.getSource();
 			if (!processGraph.isSystemTask(taskSwitchGateway)) {
 				TaskConfig startTask = processGraph.getStartTaskConfig(sequenceFlow);
-				task = createDetectedTask((TaskAndCaseModifier) taskSwitchGateway, startTask, useCase, timeUntilStartedAt);
+				task = createDetectedTask(taskSwitchGateway, startTask, useCase, timeUntilStartedAt);
 			}
 		}
 		return task;
 	}
-	
+
 	private DetectedAlternative createDetectedAlternative(ProcessElement processElement) {
-		if(processGraph.isAlternative(processElement.getElement())) {
+		if (processGraph.isAlternative(processElement.getElement())) {
 			Alternative alternative = (Alternative) processElement.getElement();
-			List<DetectedElement> options = alternative.getOutgoing()
-					.stream()
-					.map(item -> convertToDetectedElement(item))
-					.toList();
+			List<DetectedElement> options = alternative.getOutgoing().stream()
+					.map(item -> convertToDetectedElement(item)).toList();
 			String elementName = alternative.getName();
 			String pid = alternative.getPid().getRawPid();
 			DetectedAlternative result = new DetectedAlternative(pid, elementName, options);
@@ -280,107 +286,108 @@ class WorkflowPath {
 		}
 		return null;
 	}
-	
-	private DetectedElement createDetectedTaskFromSubProcessCall(SubProcessCall subProcessCall, Enum<?> useCase, Duration timeUntilStartAt) {
+
+	private DetectedElement createDetectedTaskFromSubProcessCall(SubProcessCall subProcessCall, Enum<?> useCase,
+			Duration timeUntilStartAt) {
 		String pid = subProcessCall.getPid().getRawPid();
 		String elementName = subProcessCall.getName();
-		
+
 		String script = subProcessCall.getParameters().getCode();
 		String taskName = getTaskNameByCode(script);
 		String customerInfo = getCustomInfoByCode(script);
 		Duration duration = this.workflowDuration().getDuration(ElementTask.createSingle(pid), script, useCase);
-		
-		DetectedTask detectedTask = new DetectedTask(pid, taskName, elementName, timeUntilStartAt, duration, customerInfo);
+
+		DetectedTask detectedTask = new DetectedTask(pid, taskName, elementName, timeUntilStartAt, duration,
+				customerInfo);
 		return detectedTask;
 	}
 
 	private DetectedElement convertToDetectedElement(SequenceFlow outcome) {
 		String pid = outcome.getPid().getRawPid();
 		String elementName = outcome.getName();
-		
+
 		DetectedElement element = new DetectedElement(pid, elementName);
 		return element;
 	}
-	
+
 	private DetectedElement createDetectedTask(SingleTaskCreator task, Enum<?> useCase, Duration timeUntilStartAt) {
 		return createDetectedTask(task, task.getTaskConfig(), useCase, timeUntilStartAt);
 	}
-	
-	private DetectedElement createDetectedTask(TaskAndCaseModifier task, TaskConfig taskConfig, Enum<?> useCase, Duration timeUntilStartAt) {
-		String elementName = task.getName();				
-		String taskName = getTaskName(taskConfig) ;
+
+	private DetectedElement createDetectedTask(TaskAndCaseModifier task, TaskConfig taskConfig, Enum<?> useCase,
+			Duration timeUntilStartAt) {
+		String elementName = task.getName();
+		String taskName = getTaskName(taskConfig);
 		String script = Optional.ofNullable(taskConfig).map(TaskConfig::getScript).orElse(EMPTY);
 		String customerInfo = getCustomInfoByCode(script);
-		
+
 		ElementTask elementTask = processGraph.createElementTask(task, taskConfig);
 		Duration duration = this.workflowDuration().getDuration(elementTask, script, useCase);
 		List<String> parentElementNames = getParentElementNames(task);
-				
-		DetectedTask detectedTask = new DetectedTask(elementTask.getId(), taskName, elementName, timeUntilStartAt, duration, parentElementNames, customerInfo);
+
+		DetectedTask detectedTask = new DetectedTask(elementTask.getId(), taskName, elementName, timeUntilStartAt,
+				duration, parentElementNames, customerInfo);
 		return detectedTask;
 	}
-	
+
 	private List<DetectedElement> keepMaxTimeUtilEndDetectedElement(List<DetectedElement> detectedElements) {
 		Map<String, Duration> taskGroupWithMaxTimeUntilEnd = detectedElements.stream()
-				.filter(DetectedTask.class::isInstance)
-				.map(DetectedTask.class::cast)
-				//Only get greater than value if it is duplicated
-				.collect(toMap(DetectedTask::getPid, DetectedTask::getTimeUntilEnd, (a, b) -> b.compareTo(a) > 0 ? b : a));
-		
-		List<DetectedElement> result = new ArrayList<>();		
+				.filter(DetectedTask.class::isInstance).map(DetectedTask.class::cast)
+				// Only get greater than value if it is duplicated
+				.collect(toMap(DetectedTask::getPid, DetectedTask::getTimeUntilEnd,
+						(a, b) -> b.compareTo(a) > 0 ? b : a));
+
+		List<DetectedElement> result = new ArrayList<>();
 		for (DetectedElement element : detectedElements) {
-			if(isNotContains(result, element)) {
+			if (isNotContains(result, element)) {
 				if (element instanceof DetectedAlternative) {
 					result.add(element);
 				}
-				
+
 				if (element instanceof DetectedTask) {
 					Duration maxDuration = taskGroupWithMaxTimeUntilEnd.getOrDefault(element.getPid(), DURATION_MIN);
 					Duration duration = ((DetectedTask) element).getTimeUntilEnd();
 					if (duration.compareTo(maxDuration) >= 0) {
 						result.add(element);
 					}
-				}	
-			}			
+				}
+			}
 		}
-		
+
 		return result;
 	}
-	
-	private List<String> getParentElementNames(TaskAndCaseModifier task){
+
+	private List<String> getParentElementNames(TaskAndCaseModifier task) {
 		List<String> parentElementNames = emptyList();
-		if(task.getParent() instanceof EmbeddedProcessElement) {
+		if (task.getParent() instanceof EmbeddedProcessElement) {
 			parentElementNames = processGraph.getParentElementNamesEmbeddedProcessElement(task.getParent());
-		}		
-		return parentElementNames ;
+		}
+		return parentElementNames;
 	}
 
 	private String getCustomInfoByCode(String script) {
-		String wfEstimateCode = processGraph.getCodeLineByPrefix(script, "APAConfig.setCustomInfo");		
-		String result = Optional.ofNullable(wfEstimateCode)
-				.filter(StringUtils::isNotEmpty)
-				.map(it -> StringUtils.substringBetween(it, "(\"", "\")"))
-				.orElse(null);
-		
+		String wfEstimateCode = processGraph.getCodeLineByPrefix(script, "APAConfig.setCustomInfo");
+		String result = Optional.ofNullable(wfEstimateCode).filter(StringUtils::isNotEmpty)
+				.map(it -> StringUtils.substringBetween(it, "(\"", "\")")).orElse(null);
+
 		return result;
 	}
-	
+
 	private String getTaskNameByCode(String script) {
-		String wfEstimateCode = processGraph.getCodeLineByPrefix(script, "APAConfig.setTaskName");		
-		String result = Optional.ofNullable(wfEstimateCode)
-				.filter(StringUtils::isNotEmpty)
-				.map(it -> StringUtils.substringBetween(it, "(\"", "\")"))
-				.orElse(null);
-		
+		String wfEstimateCode = processGraph.getCodeLineByPrefix(script, "APAConfig.setTaskName");
+		String result = Optional.ofNullable(wfEstimateCode).filter(StringUtils::isNotEmpty)
+				.map(it -> StringUtils.substringBetween(it, "(\"", "\")")).orElse(null);
+
 		return result;
 	}
-	
+
 	private boolean isNotContains(List<DetectedElement> detectedElements, DetectedElement detectedElement) {
 		List<String> pids = detectedElements.stream().map(DetectedElement::getPid).toList();
 		return !pids.contains(detectedElement.getPid());
 	}
-	
-	private Map<SequenceFlow, List<AnalysisPath>> getInternalPath(Map<SequenceFlow, List<AnalysisPath>> internalPath, boolean withTaskEnd) {
+
+	private Map<SequenceFlow, List<AnalysisPath>> getInternalPath(Map<SequenceFlow, List<AnalysisPath>> internalPath,
+			boolean withTaskEnd) {
 		Map<SequenceFlow, List<AnalysisPath>> paths = new LinkedHashMap<>();
 
 		// Priority the path go to end first
@@ -401,34 +408,27 @@ class WorkflowPath {
 
 		return paths;
 	}
-	
+
 	private <T> T getLast(List<T> elements) {
 		return elements.stream().reduce((first, second) -> second).orElse(null);
 	}
-	
+
 	private PathFinder pathFinder(Map<ProcessElement, Duration> startAtElements, String flowName) {
-		return new PathFinder()
-				.setProcessFlowOverrides(processFlowOverrides)
-				.setFlowName(flowName)
+		return new PathFinder().setProcessFlowOverrides(processFlowOverrides).setFlowName(flowName)
 				.setStartElements(startAtElements.keySet().stream().toList());
 	}
-	
+
 	private WorkflowDuration workflowDuration() {
-		return new WorkflowDuration()
-				.setDurationOverrides(durationOverrides);
+		return new WorkflowDuration().setDurationOverrides(durationOverrides);
 	}
-	
+
 	private String getTaskName(TaskConfig taskConfig) {
-		String taskNameFromRawMacro = Optional.ofNullable(taskConfig)
-				.map(TaskConfig::getName)
-				.map(MacroExpression::getRawMacro)
-				.orElse(EMPTY);
-		
-		String taskIdentifier = Optional.ofNullable(taskConfig)
-				.map(TaskConfig::getTaskIdentifier)
-				.map(TaskIdentifier::getRawIdentifier)
-				.orElse(EMPTY);
-		
+		String taskNameFromRawMacro = Optional.ofNullable(taskConfig).map(TaskConfig::getName)
+				.map(MacroExpression::getRawMacro).orElse(EMPTY);
+
+		String taskIdentifier = Optional.ofNullable(taskConfig).map(TaskConfig::getTaskIdentifier)
+				.map(TaskIdentifier::getRawIdentifier).orElse(EMPTY);
+
 		return defaultIfBlank(taskNameFromRawMacro, taskIdentifier);
 	}
 }

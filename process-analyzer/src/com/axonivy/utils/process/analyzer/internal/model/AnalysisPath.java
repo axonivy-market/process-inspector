@@ -22,7 +22,7 @@ public class AnalysisPath {
 	public void setElements(List<ProcessElement> elements) {
 		this.elements = elements;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(this.elements);
@@ -42,7 +42,7 @@ public class AnalysisPath {
 		AnalysisPath path = (AnalysisPath) other;
 		return Objects.equals(path.elements, this.elements);
 	}
-	
+
 	@Override
 	public String toString() {
 		return Objects.toString(elements);

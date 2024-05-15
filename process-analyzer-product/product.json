@@ -6,7 +6,7 @@
       "data": {
         "projects": [
           {
-            "groupId": "com.axonivy.utils.process.analyzer.demo",
+            "groupId": "com.axonivy.utils.process.analyzer",
             "artifactId": "process-analyzer-demo",
             "version": "${version}",
             "type": "iar"

@@ -18,7 +18,6 @@ public class FlowExampleLoopTest extends FlowExampleTest {
 	@BeforeAll
 	public static void setup() {
 		setup(PROCESS_NAME);
-
 	}
 
 	@BeforeEach
@@ -30,10 +29,10 @@ public class FlowExampleLoopTest extends FlowExampleTest {
 	void shouldFindTasksOnPathAtStartWithFlowNameNull() throws Exception {
 		var start = ProcessGraphHelper.findByElementName(process, "start");
 		var detectedTasks = processAnalyzer.findTasksOnPath(start, null, null);
-		
+
 		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(detectedTasks));
 	}
-	
+
 	@Test
 	void shouldFindAllTasksStartWithFlowNameNull() throws Exception {
 		var start = ProcessGraphHelper.findByElementName(process, "start");
@@ -41,7 +40,7 @@ public class FlowExampleLoopTest extends FlowExampleTest {
 
 		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(detectedTasks));
 	}
-	
+
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameSuccess() throws Exception {
 		var start = ProcessGraphHelper.findByElementName(process, "start");

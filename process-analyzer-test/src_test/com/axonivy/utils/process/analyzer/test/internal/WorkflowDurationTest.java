@@ -41,7 +41,8 @@ public class WorkflowDurationTest extends InternalAbstractTest {
 		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
 		SingleTaskCreator taskC = (SingleTaskCreator) ProcessGraphHelper.findByElementName(process, "Task C");
 		ElementTask elementTask = ElementTask.createSingle(taskC.getPid().getRawPid());
-		var result = workflowDuration.getDuration(elementTask, taskC.getTaskConfig().getScript(), UseCase.MEDIUMPROJECT);
+		var result = workflowDuration.getDuration(elementTask, taskC.getTaskConfig().getScript(),
+				UseCase.MEDIUMPROJECT);
 
 		assertEquals(Duration.ofHours(3), result);
 	}
@@ -55,6 +56,5 @@ public class WorkflowDurationTest extends InternalAbstractTest {
 
 		assertEquals(Duration.ofHours(2), result);
 	}
-	
-	
+
 }

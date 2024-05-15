@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.axonivy.utils.process.analyzer.demo.constant.UseCase;
 import com.axonivy.utils.process.analyzer.demo.constant.FindType;
+import com.axonivy.utils.process.analyzer.demo.constant.UseCase;
 import com.axonivy.utils.process.analyzer.demo.helper.DateTimeHelper;
 import com.axonivy.utils.process.analyzer.model.DetectedAlternative;
 import com.axonivy.utils.process.analyzer.model.DetectedElement;
@@ -126,7 +126,7 @@ public class Analyzer {
 	}
 
 	public String getDisplayTotalDuration() {
-		return DateTimeHelper.getDisplayDuration (totalDuration);
+		return DateTimeHelper.getDisplayDuration(totalDuration);
 	}
 
 	public String getElementNames() {

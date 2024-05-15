@@ -23,16 +23,15 @@ public class WorkflowDuration {
 		this.processGraph = new ProcessGraph();
 	}
 
-	public WorkflowDuration setDurationOverrides (Map<ElementTask, Duration> durationOverrides) {
+	public WorkflowDuration setDurationOverrides(Map<ElementTask, Duration> durationOverrides) {
 		this.durationOverrides = durationOverrides;
 		return this;
 	}
 
-	public Duration getDuration(ElementTask elementTask, String script, Enum<?> useCase) {		
+	public Duration getDuration(ElementTask elementTask, String script, Enum<?> useCase) {
 		Duration overriderDuration = this.durationOverrides.get(elementTask);
-		Duration taskDuration = ofNullable(overriderDuration)
-				.orElse(getDurationByTaskScript(script, useCase));
-		
+		Duration taskDuration = ofNullable(overriderDuration).orElse(getDurationByTaskScript(script, useCase));
+
 		return taskDuration;
 	}
 
@@ -87,6 +86,5 @@ public class WorkflowDuration {
 
 		return usePrefix;
 	}
-
 
 }

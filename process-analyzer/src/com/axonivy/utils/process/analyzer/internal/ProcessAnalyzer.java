@@ -22,9 +22,10 @@ import ch.ivyteam.ivy.workflow.ICase;
 import ch.ivyteam.ivy.workflow.ITask;
 import ch.ivyteam.ivy.workflow.TaskState;
 
-public class ProcessAnalyzer implements AdvancedProcessAnalyzer{	
-	private static final List<TaskState> OPEN_TASK_STATES = List.of(TaskState.SUSPENDED, TaskState.PARKED, TaskState.RESUMED);
-		
+public class ProcessAnalyzer implements AdvancedProcessAnalyzer {
+	private static final List<TaskState> OPEN_TASK_STATES = List.of(TaskState.SUSPENDED, TaskState.PARKED,
+			TaskState.RESUMED);
+
 	private boolean isEnableDescribeAlternative;
 	private Map<ElementTask, Duration> durationOverrides = emptyMap();
 	private Map<String, String> processFlowOverrides = emptyMap();
@@ -48,27 +49,29 @@ public class ProcessAnalyzer implements AdvancedProcessAnalyzer{
 	public List<DetectedElement> findAllTasks(List<BaseElement> startAtElements, Enum<?> useCase) throws Exception {
 		return findAllDetectedElements(startAtElements, useCase);
 	}
-	
+
 	@Override
-	public List<DetectedElement> findAllTasks(ICase icase, Enum<?> useCase) throws Exception {		
+	public List<DetectedElement> findAllTasks(ICase icase, Enum<?> useCase) throws Exception {
 		Map<ProcessElement, Duration> elementsWithSpentDuration = getStartElementsWithSpentDuration(icase);
-		
+
 		return findAllDetectedElements(elementsWithSpentDuration, useCase);
 	}
-	
+
 	@Override
-	public List<DetectedElement> findTasksOnPath(BaseElement startAtElement, Enum<?> useCase, String flowName)	throws Exception {
+	public List<DetectedElement> findTasksOnPath(BaseElement startAtElement, Enum<?> useCase, String flowName)
+			throws Exception {
 		return findDetectedElementsOnPath(List.of(startAtElement), useCase, flowName);
 	}
 
 	@Override
-	public List<DetectedElement> findTasksOnPath(List<BaseElement> startAtElements, Enum<?> useCase, String flowName) throws Exception {
+	public List<DetectedElement> findTasksOnPath(List<BaseElement> startAtElements, Enum<?> useCase, String flowName)
+			throws Exception {
 		return findDetectedElementsOnPath(startAtElements, useCase, flowName);
 	}
 
 	@Override
 	public List<DetectedElement> findTasksOnPath(ICase icase, Enum<?> useCase, String flowName) throws Exception {
-		Map<ProcessElement, Duration> elementsWithSpentDuration = getStartElementsWithSpentDuration(icase);		
+		Map<ProcessElement, Duration> elementsWithSpentDuration = getStartElementsWithSpentDuration(icase);
 		return findDetectedElementsOnPath(elementsWithSpentDuration, useCase, flowName);
 	}
 
@@ -77,13 +80,13 @@ public class ProcessAnalyzer implements AdvancedProcessAnalyzer{
 		Duration total = calculateMaxDuration(List.of(startElement), useCase);
 		return total;
 	}
-	
+
 	@Override
 	public Duration calculateWorstCaseDuration(List<BaseElement> startElements, Enum<?> useCase) throws Exception {
 		Duration total = calculateMaxDuration(startElements, useCase);
 		return total;
 	}
-	
+
 	@Override
 	public Duration calculateWorstCaseDuration(ICase icase, Enum<?> useCase) throws Exception {
 		List<BaseElement> elements = getStartElements(icase);
@@ -92,13 +95,15 @@ public class ProcessAnalyzer implements AdvancedProcessAnalyzer{
 	}
 
 	@Override
-	public Duration calculateDurationOfPath(BaseElement startElement, Enum<?> useCase, String flowName) throws Exception {
+	public Duration calculateDurationOfPath(BaseElement startElement, Enum<?> useCase, String flowName)
+			throws Exception {
 		Duration total = calculateMaxDuration(List.of(startElement), useCase, flowName);
 		return total;
 	}
 
 	@Override
-	public Duration calculateDurationOfPath(List<BaseElement> startElements, Enum<?> useCase, String flowName) throws Exception {
+	public Duration calculateDurationOfPath(List<BaseElement> startElements, Enum<?> useCase, String flowName)
+			throws Exception {
 		Duration total = calculateMaxDuration(startElements, useCase, flowName);
 		return total;
 	}
@@ -122,83 +127,82 @@ public class ProcessAnalyzer implements AdvancedProcessAnalyzer{
 		return this;
 	}
 
-	private List<DetectedElement> findAllDetectedElements(List<BaseElement> startAtElements, Enum<?> useCase) throws Exception {
-		
+	private List<DetectedElement> findAllDetectedElements(List<BaseElement> startAtElements, Enum<?> useCase)
+			throws Exception {
+
 		Map<ProcessElement, Duration> startAtElementWithDurations = initTimeUntilStart(startAtElements);
 		List<DetectedElement> detectedTasks = findAllDetectedElements(startAtElementWithDurations, useCase);
 		return detectedTasks;
 	}
-	
-	private List<DetectedElement> findAllDetectedElements(Map<ProcessElement, Duration> startAtElementWithDuration, Enum<?> useCase) throws Exception {		
-		List<DetectedElement> detectedTasks = this.workflowPath()
-				.findAllTasks(startAtElementWithDuration, useCase);
-		
+
+	private List<DetectedElement> findAllDetectedElements(Map<ProcessElement, Duration> startAtElementWithDuration,
+			Enum<?> useCase) throws Exception {
+		List<DetectedElement> detectedTasks = this.workflowPath().findAllTasks(startAtElementWithDuration, useCase);
+
 		return detectedTasks;
 	}
-	
-	private List<DetectedElement> findDetectedElementsOnPath(List<BaseElement> startAtElements, Enum<?> useCase, String flowName) throws Exception {
-		Map<ProcessElement, Duration> startAtDurations = initTimeUntilStart(startAtElements);		
-		return findDetectedElementsOnPath(startAtDurations, useCase, flowName);		
+
+	private List<DetectedElement> findDetectedElementsOnPath(List<BaseElement> startAtElements, Enum<?> useCase,
+			String flowName) throws Exception {
+		Map<ProcessElement, Duration> startAtDurations = initTimeUntilStart(startAtElements);
+		return findDetectedElementsOnPath(startAtDurations, useCase, flowName);
 	}
-	
-	private List<DetectedElement> findDetectedElementsOnPath(Map<ProcessElement, Duration> startAtElementWithDuration, Enum<?> useCase, String flowName ) throws Exception {		
-		List<DetectedElement> detectedTasks = this.workflowPath()
-				.findTaskOnPath(startAtElementWithDuration, useCase, flowName);
-		
+
+	private List<DetectedElement> findDetectedElementsOnPath(Map<ProcessElement, Duration> startAtElementWithDuration,
+			Enum<?> useCase, String flowName) throws Exception {
+		List<DetectedElement> detectedTasks = this.workflowPath().findTaskOnPath(startAtElementWithDuration, useCase,
+				flowName);
+
 		return detectedTasks;
 	}
-	
+
 	private Duration calculateMaxDuration(List<BaseElement> startAtElements, Enum<?> useCase) throws Exception {
 		return calculateMaxDuration(startAtElements, useCase, null, true);
 	}
 
-	private Duration calculateMaxDuration(List<BaseElement> startAtElements, Enum<?> useCase, String flowName) throws Exception {
+	private Duration calculateMaxDuration(List<BaseElement> startAtElements, Enum<?> useCase, String flowName)
+			throws Exception {
 		return calculateMaxDuration(startAtElements, useCase, flowName, false);
 	}
 
-	private Duration calculateMaxDuration(List<BaseElement> elements, Enum<?> useCase, String flowName, boolean isFindAllTask) throws Exception {
-		
+	private Duration calculateMaxDuration(List<BaseElement> elements, Enum<?> useCase, String flowName,
+			boolean isFindAllTask) throws Exception {
+
 		Map<ProcessElement, Duration> startAtDurations = initTimeUntilStart(elements);
-		List<DetectedElement> detectedTasks = isFindAllTask 
-				? findAllDetectedElements(startAtDurations, useCase)
+		List<DetectedElement> detectedTasks = isFindAllTask ? findAllDetectedElements(startAtDurations, useCase)
 				: findDetectedElementsOnPath(startAtDurations, useCase, flowName);
-		
-		return detectedTasks.stream()
-				.filter(it -> it instanceof DetectedTask)
-				.map(DetectedTask.class::cast)
-				.map(DetectedTask::getTimeUntilEnd)
-				.max(Duration::compareTo)
-				.orElse(Duration.ZERO);
+
+		return detectedTasks.stream().filter(it -> it instanceof DetectedTask).map(DetectedTask.class::cast)
+				.map(DetectedTask::getTimeUntilEnd).max(Duration::compareTo).orElse(Duration.ZERO);
 	}
-	
+
 	private Map<ProcessElement, Duration> getStartElementsWithSpentDuration(ICase icase) {
 		List<ITask> tasks = getCaseITasks(icase);
 		Map<ProcessElement, Duration> result = new LinkedHashMap<>();
-		for(ITask task : tasks) {			
+		for (ITask task : tasks) {
 			BaseElement element = TaskHelper.getBaseElementOf(task);
 			Duration spentDuration = DateTimeHelper.getBusinessDuration(task.getStartTimestamp(), new Date());
-			
-			//Around to minutes
+
+			// Around to minutes
 			result.put(new CommonElement(element), Duration.ZERO.minus(spentDuration));
 		}
-		
+
 		return result;
 	}
-	
+
 	private List<BaseElement> getStartElements(ICase icase) {
 		List<ITask> tasks = getCaseITasks(icase);
-		List<BaseElement> elements = tasks.stream()
-				.map(task -> TaskHelper.getBaseElementOf(task))
-				.toList();
+		List<BaseElement> elements = tasks.stream().map(task -> TaskHelper.getBaseElementOf(task)).toList();
 
 		return elements;
 	}
-	
+
 	private List<ITask> getCaseITasks(ICase icase) {
-		List<ITask> tasks = icase.tasks().all().stream().filter(task -> OPEN_TASK_STATES.contains(task.getState())).toList();
+		List<ITask> tasks = icase.tasks().all().stream().filter(task -> OPEN_TASK_STATES.contains(task.getState()))
+				.toList();
 		return tasks;
 	}
-	
+
 	private Map<ProcessElement, Duration> initTimeUntilStart(List<BaseElement> elements) {
 		Map<ProcessElement, Duration> timeUntilStartAts = new LinkedHashMap<>();
 		elements.forEach(it -> {
@@ -206,11 +210,9 @@ public class ProcessAnalyzer implements AdvancedProcessAnalyzer{
 		});
 		return timeUntilStartAts;
 	}
-	
+
 	private WorkflowPath workflowPath() {
-		return new WorkflowPath()
-				.setDurationOverrides(durationOverrides)
-				.setProcessFlowOverrides(processFlowOverrides)
+		return new WorkflowPath().setDurationOverrides(durationOverrides).setProcessFlowOverrides(processFlowOverrides)
 				.setIsEnableDescribeAlternative(isEnableDescribeAlternative);
 	}
 }

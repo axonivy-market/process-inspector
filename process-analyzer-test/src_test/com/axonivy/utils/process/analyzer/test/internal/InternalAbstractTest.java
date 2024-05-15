@@ -8,6 +8,6 @@ abstract class InternalAbstractTest {
 	protected Process getProcessByName(String processName) {
 		var pmv = Ivy.request().getProcessModelVersion();
 		var manager = IProcessManager.instance().getProjectDataModelFor(pmv);
-		return manager.findProcessByPath(processName).getModel();		
+		return manager.findProcessByPath(processName).getModel();
 	}
 }

@@ -25,7 +25,7 @@ public class FlowExampleErrorTest extends FlowExampleTest {
 	public void setupForEach() {
 		processAnalyzer = new ProcessAnalyzer();
 	}
-	
+
 	@Test
 	void shouldFindTasksOnPathAtStartWithFlowNameSuccess() throws Exception {
 		var start = ProcessGraphHelper.findByElementName(process, "start");
@@ -34,43 +34,43 @@ public class FlowExampleErrorTest extends FlowExampleTest {
 		assertEquals(1, detectedTasks.size());
 		assertEquals("Task A", getTaskNames(detectedTasks)[0]);
 	}
-	
+
 	@Test
-	void shouldThrowExceptionWhenFindTasksOnPathAtStartWithFlowNameNull()  {
+	void shouldThrowExceptionWhenFindTasksOnPathAtStartWithFlowNameNull() {
 		var start = ProcessGraphHelper.findByElementName(process, "start");
 		Exception exception = assertThrows(Exception.class, () -> {
 			processAnalyzer.findTasksOnPath(start, null, null);
-	    });
+		});
 
-	    String expectedMessage = "Not found path";
-	    String actualMessage = exception.getMessage();
+		String expectedMessage = "Not found path";
+		String actualMessage = exception.getMessage();
 
-	    assertEquals(expectedMessage, actualMessage);
+		assertEquals(expectedMessage, actualMessage);
 	}
-	
+
 	@Test
-	void shouldThrowExceptionWhenFindTasksOnPathAtStart2WithInternal()  {
+	void shouldThrowExceptionWhenFindTasksOnPathAtStart2WithInternal() {
 		var start2 = ProcessGraphHelper.findByElementName(process, "start2");
 		Exception exception = assertThrows(Exception.class, () -> {
 			processAnalyzer.findTasksOnPath(start2, null, "internal");
-	    });
+		});
 
-	    String expectedMessage = "Have more than one out going with flowname internal";
-	    String actualMessage = exception.getMessage();
+		String expectedMessage = "Have more than one out going with flowname internal";
+		String actualMessage = exception.getMessage();
 
-	    assertEquals(expectedMessage, actualMessage);
+		assertEquals(expectedMessage, actualMessage);
 	}
-	
+
 	@Test
-	void shouldThrowExceptionWhenFindTasksOnPathAtStart2WithFlowNameNull()  {
+	void shouldThrowExceptionWhenFindTasksOnPathAtStart2WithFlowNameNull() {
 		var start2 = ProcessGraphHelper.findByElementName(process, "start2");
 		Exception exception = assertThrows(Exception.class, () -> {
 			processAnalyzer.findTasksOnPath(start2, null, null);
-	    });
+		});
 
-	    String expectedMessage = "Have more than one out going with default path";
-	    String actualMessage = exception.getMessage();
+		String expectedMessage = "Have more than one out going with default path";
+		String actualMessage = exception.getMessage();
 
-	    assertEquals(expectedMessage, actualMessage);
+		assertEquals(expectedMessage, actualMessage);
 	}
 }

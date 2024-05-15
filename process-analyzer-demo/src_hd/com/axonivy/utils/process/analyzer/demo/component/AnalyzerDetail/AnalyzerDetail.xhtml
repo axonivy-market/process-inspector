@@ -1,25 +1,25 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:f="http://xmlns.jcp.org/jsf/core"
-    xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
-    xmlns:h="http://xmlns.jcp.org/jsf/html"
-    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-    xmlns:cc="http://xmlns.jcp.org/jsf/composite"
-    xmlns:ic="http://ivyteam.ch/jsf/component"
-    xmlns:p="http://primefaces.org/ui"
-    xmlns:pe="http://primefaces.org/ui/extensions">
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:cc="http://xmlns.jcp.org/jsf/composite"
+	xmlns:ic="http://ivyteam.ch/jsf/component"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions">
 <cc:interface componentType="IvyComponent">
-    <cc:attribute name="analyzer" required="true" />
+	<cc:attribute name="analyzer" required="true" />
 </cc:interface>
 
 <cc:implementation>
-    <h:outputStylesheet name="analyzer-detail.css" library="ivy-dialog" />
-    <c:set var="analyzer" value="#{cc.attrs.analyzer}" />
+	<h:outputStylesheet name="analyzer-detail.css" library="ivy-dialog" />
+	<c:set var="analyzer" value="#{cc.attrs.analyzer}" />
 
-    <p:fieldset id="analyzer-detail-fieldset" style="width: 100%"
-        legend="Process GUID: #{analyzer.process.pid.processGuid}">
+	<p:fieldset id="analyzer-detail-fieldset" style="width: 100%"
+		legend="Process GUID: #{analyzer.process.pid.processGuid}">
 		<p:panelGrid columns="6" layout="grid"
-            columnClasses="ui-grid-col-2, ui-grid-col-4, ui-grid-col-2, ui-grid-col-4"
-            contentStyleClass="ui-fluid">
+			columnClasses="ui-grid-col-2, ui-grid-col-4, ui-grid-col-2, ui-grid-col-4"
+			contentStyleClass="ui-fluid">
 			<p:outputLabel value="Process: " styleClass="text-bold" />
 			<p:outputLabel value="#{analyzer.process.name}" />
 
@@ -42,49 +42,53 @@
 			<p:outputLabel value="#{analyzer.displayTotalDuration}" />
 		</p:panelGrid>
 
-        <p:dataTable value="#{analyzer.tasks}" var="task"
-            stripedRows="true" lazy="false" resizableColumns="true"
-            rowIndexVar="row" widgetVar="tableTask"
-            styleClass="ui-datatable-sm ui-datatable-gridlines">
-            <p:column headerText="#" width="20px">
-                <h:outputText value="#{row + 1}" />
-            </p:column>
+		<p:dataTable value="#{analyzer.tasks}" var="task" stripedRows="true"
+			lazy="false" resizableColumns="true" rowIndexVar="row"
+			widgetVar="tableTask"
+			styleClass="ui-datatable-sm ui-datatable-gridlines">
+			<p:column headerText="#" width="20px">
+				<h:outputText value="#{row + 1}" />
+			</p:column>
 
-            <p:column headerText="PID" width="30px">
-                <h:outputText value="#{data.processAnalyzerBean.getShortPid(task.pid)}"
-                    title="#{task.pid}" />
-            </p:column>
+			<p:column headerText="PID" width="30px">
+				<h:outputText
+					value="#{data.processAnalyzerBean.getShortPid(task.pid)}"
+					title="#{task.pid}" />
+			</p:column>
 
-            <p:column headerText="Task Name">
-                <h:outputText value="#{task.taskName}" />
-            </p:column>
+			<p:column headerText="Task Name">
+				<h:outputText value="#{task.taskName}" />
+			</p:column>
 
-            <p:column headerText="Element Name">
-                <h:outputText value="#{task.elementName}" />
-            </p:column>
+			<p:column headerText="Element Name">
+				<h:outputText value="#{task.elementName}" />
+			</p:column>
 
-            <p:column headerText="Estimated Duration">
-                <h:outputText value="#{data.processAnalyzerBean.getDisplayDuration(task.estimatedDuration)}" />
-            </p:column>
+			<p:column headerText="Estimated Duration">
+				<h:outputText
+					value="#{data.processAnalyzerBean.getDisplayDuration(task.estimatedDuration)}" />
+			</p:column>
 
-            <p:column headerText="Parent Element Names"
-                styleClass="text-overflow">
-                <h:outputText value="#{task.displayParentElementNames}"
-                    title="#{task.displayParentElementNames}" />
-            </p:column>
+			<p:column headerText="Parent Element Names"
+				styleClass="text-overflow">
+				<h:outputText value="#{task.displayParentElementNames}"
+					title="#{task.displayParentElementNames}" />
+			</p:column>
 
-            <p:column headerText="Time Until Start">
-              <h:outputText value="#{data.processAnalyzerBean.getDisplayDuration(task.timeUntilStart)}" />
-            </p:column>
-            
-            <p:column headerText="Time Until End">
-              <h:outputText value="#{data.processAnalyzerBean.getDisplayDuration(task.timeUntilEnd)}" />
-            </p:column>
-            <p:column headerText="Custom Info">
-                <h:outputText value="#{task.customInfo}" />
-            </p:column>
-        </p:dataTable>
-    </p:fieldset>
+			<p:column headerText="Time Until Start">
+				<h:outputText
+					value="#{data.processAnalyzerBean.getDisplayDuration(task.timeUntilStart)}" />
+			</p:column>
+
+			<p:column headerText="Time Until End">
+				<h:outputText
+					value="#{data.processAnalyzerBean.getDisplayDuration(task.timeUntilEnd)}" />
+			</p:column>
+			<p:column headerText="Custom Info">
+				<h:outputText value="#{task.customInfo}" />
+			</p:column>
+		</p:dataTable>
+	</p:fieldset>
 </cc:implementation>
 
 </html>
