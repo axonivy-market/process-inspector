@@ -8,7 +8,7 @@ public enum FindType {
 	private FindType(String displayName) {
 		this.displayName = displayName;
 	}
-	
+
 	public String getDisplayName() {
 		return this.displayName;
 	}

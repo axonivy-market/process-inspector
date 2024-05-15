@@ -16,12 +16,12 @@ public class DateTimeHelper {
 		DateTime result = GERMANY_CALENDAR.getBusinessTimeIn(startDateTime, new BusinessDuration(0));
 		return result.toJavaDate();
 	}
-	
-	public static Duration getBusinessDuration(Date startJavaDateTime, Date endJavaDateTime) {		
+
+	public static Duration getBusinessDuration(Date startJavaDateTime, Date endJavaDateTime) {
 		DateTime startDateTime = new DateTime(startJavaDateTime);
 		DateTime endDateTime = new DateTime(endJavaDateTime);
-		
+
 		BusinessDuration duration = GERMANY_CALENDAR.getBusinessDuration(startDateTime, endDateTime);
 		return Duration.ofSeconds(duration.toNumber());
-	} 
+	}
 }

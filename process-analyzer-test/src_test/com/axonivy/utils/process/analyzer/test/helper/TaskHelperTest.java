@@ -26,7 +26,7 @@ public class TaskHelperTest {
 	void shouldGetBaseElementOfTaskB(BpmClient bpmClient) {
 		ExecutionResult result = bpmClient.start().process(FLOW_EXAMPLE_COMMON_START).execute();
 		ITask startTask = result.workflow().executedTask();
-		
+
 		BaseElement startElement = TaskHelper.getBaseElementOf(startTask);
 		assertNotNull(startElement);
 		assertEquals("start", startElement.getName());

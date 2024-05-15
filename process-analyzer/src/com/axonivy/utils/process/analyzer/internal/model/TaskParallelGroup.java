@@ -33,7 +33,7 @@ public class TaskParallelGroup implements ProcessElement {
 
 	@Override
 	public String toString() {
-		return String.format("%s : %s ",  Objects.toString(element, EMPTY),  Objects.toString(internalPaths, EMPTY));		
+		return String.format("%s : %s ", Objects.toString(element, EMPTY), Objects.toString(internalPaths, EMPTY));
 	}
 
 	@Override

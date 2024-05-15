@@ -16,7 +16,7 @@ public class TaskHelper {
 		var pid = task.getStart().getProcessElementId();
 		IWorkflowProcessModelVersion pmv = task.getProcessModelVersion();
 		var manager = IProcessManager.instance().getProjectDataModelFor(pmv);
-		Process processRdm = (Process) manager.findProcess(pid.getProcessGuid(), true).getModel();
+		Process processRdm = manager.findProcess(pid.getProcessGuid(), true).getModel();
 		BaseElement taskElement = processRdm.search().pid(pid).findOneDeep();
 		return taskElement;
 	}

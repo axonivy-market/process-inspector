@@ -75,42 +75,38 @@ public class ProcessAnalyzerBean {
 
 	public List<SingleTaskCreator> getAllTaskModifier() {
 		this.processAnalyzer = new ProcessAnalyzer();
-		return  getElementOfProcess(this.selectedAnalyzer.getProcess()).stream()
-			.filter(item -> item instanceof SingleTaskCreator)
-			.map(SingleTaskCreator.class::cast)
-			.toList();
+		return getElementOfProcess(this.selectedAnalyzer.getProcess()).stream()
+				.filter(item -> item instanceof SingleTaskCreator).map(SingleTaskCreator.class::cast).toList();
 	}
-	
-	public List<FindType> getAllFindType(){
-		return  Arrays.stream(FindType.values()).toList();
+
+	public List<FindType> getAllFindType() {
+		return Arrays.stream(FindType.values()).toList();
 	}
-	
-	public List<UseCase> getAllUseCases(){
-		return  Arrays.stream(UseCase.values()).toList();
+
+	public List<UseCase> getAllUseCases() {
+		return Arrays.stream(UseCase.values()).toList();
 	}
-	
+
 	public List<DetectedAlternative> getALternativeWithMoreThanOneOutgoing() throws Exception {
-		
+
 		processAnalyzer.enableDescribeAlternativeElements();
-		
-		List<DetectedAlternative> alternatives = processAnalyzer.findAllTasks(selectedAnalyzer.getStartElement(), null).stream()
-				.filter(item -> item instanceof DetectedAlternative)
-				.map(DetectedAlternative.class::cast)
-				.filter(item -> item.getOptions().size() > 1)
-				.toList();
-		return alternatives;	
+
+		List<DetectedAlternative> alternatives = processAnalyzer.findAllTasks(selectedAnalyzer.getStartElement(), null)
+				.stream().filter(item -> item instanceof DetectedAlternative).map(DetectedAlternative.class::cast)
+				.filter(item -> item.getOptions().size() > 1).toList();
+		return alternatives;
 	}
-	
+
 	public void onSelectSequenceFlow(AjaxBehaviorEvent event) {
 		if (event.getSource() != null) {
 			DetectedElement newSequenceFlow = (DetectedElement) ((SelectOneRadio) event.getSource()).getValue();
 			String sequenceFlowId = newSequenceFlow.getPid();
-			
+
 			SequenceFlow sequenceFlow = getElementOfProcess(selectedAnalyzer.getProcess()).stream()
 					.filter(it -> it.getPid().getRawPid().equals(sequenceFlowId))
 					.filter(it -> it instanceof SequenceFlow == true).map(SequenceFlow.class::cast).findFirst()
 					.orElse(null);
-			
+
 			if (sequenceFlow != null) {
 				if (sequenceFlow.getSource() instanceof Alternative) {
 					Alternative alternative = (Alternative) sequenceFlow.getSource();
@@ -119,13 +115,13 @@ public class ProcessAnalyzerBean {
 			}
 		}
 	}
-	
-	public List<DetectedElement> getDetectedTask() throws Exception {		
+
+	public List<DetectedElement> getDetectedTask() throws Exception {
 		UseCase useCase = selectedAnalyzer.getUseCase();
 		String flowName = selectedAnalyzer.getFlowName();
 		SingleTaskCreator startElement = selectedAnalyzer.getStartElement();
 		processAnalyzer = updateProcessAnalyzer(selectedAnalyzer);
-		
+
 		long startTime = System.currentTimeMillis();
 		List<?> detectedElements = null;
 		if (FindType.ALL_TASK.equals(selectedAnalyzer.getFindType())) {
@@ -140,25 +136,25 @@ public class ProcessAnalyzerBean {
 		return detectedElements.stream().map(DetectedElement.class::cast).toList();
 	}
 
-	public Duration getDetectedTaskCalculate() throws Exception{
+	public Duration getDetectedTaskCalculate() throws Exception {
 		UseCase useCase = selectedAnalyzer.getUseCase();
 		String flowName = selectedAnalyzer.getFlowName();
 		SingleTaskCreator startElement = selectedAnalyzer.getStartElement();
 		processAnalyzer = updateProcessAnalyzer(selectedAnalyzer);
 		Duration total = Duration.ZERO;
 		if (FindType.ALL_TASK.equals(selectedAnalyzer.getFindType())) {
-			total = processAnalyzer.calculateWorstCaseDuration(startElement, useCase);	
+			total = processAnalyzer.calculateWorstCaseDuration(startElement, useCase);
 		} else {
 			total = processAnalyzer.calculateDurationOfPath(startElement, useCase, flowName);
 		}
-				
+
 		return total;
 	}
-	
+
 	public String getDisplayDuration(Duration duration) {
 		return DateTimeHelper.getDisplayDuration(duration);
 	}
-	
+
 	public String getDisplayDetectedElement(DetectedElement element) {
 		String elementName = defaultIfEmpty(element.getElementName(), "No name");
 		String shortPid = getShortPid(element.getPid());
@@ -167,11 +163,12 @@ public class ProcessAnalyzerBean {
 
 	public String getProcessWebLink() {
 		String guid = this.selectedAnalyzer.getProcess().getPid().getProcessGuid();
-		IWebStartable webStartable = Ivy.session().getStartables().stream().filter(it -> it.getLink().toRelativeUri().getPath().contains(guid)).findFirst().orElse(null);
-		
-		if(webStartable != null) {
-			return ProcessViewer.of((IProcessWebStartable) webStartable).url().toWebLink().getRelative();	
-		}	
+		IWebStartable webStartable = Ivy.session().getStartables().stream()
+				.filter(it -> it.getLink().toRelativeUri().getPath().contains(guid)).findFirst().orElse(null);
+
+		if (webStartable != null) {
+			return ProcessViewer.of((IProcessWebStartable) webStartable).url().toWebLink().getRelative();
+		}
 		return null;
 	}
 
@@ -179,15 +176,15 @@ public class ProcessAnalyzerBean {
 		int index = pid.indexOf("-");
 		return pid.substring(index + 1);
 	}
-	
+
 	private AdvancedProcessAnalyzer updateProcessAnalyzer(Analyzer analyzer) {
 		Map<String, String> flowOverrides = getProcessFlowOverride(analyzer);
 		processAnalyzer.disableDescribeAlternativeElements();
-		processAnalyzer.setProcessFlowOverrides(flowOverrides);		
+		processAnalyzer.setProcessFlowOverrides(flowOverrides);
 		return processAnalyzer;
 	}
 
-	private Map<String, String> getProcessFlowOverride(Analyzer analyzer) {		
+	private Map<String, String> getProcessFlowOverride(Analyzer analyzer) {
 		Map<Alternative, SequenceFlow> alternativeFlows = analyzer.getAlternativeFlows();
 		Map<String, String> processFlowOverride = new HashMap<String, String>();
 
@@ -198,52 +195,44 @@ public class ProcessAnalyzerBean {
 		}
 		return processFlowOverride;
 	}
-	
+
 	private List<Process> getAllProcesses() {
 		List<Process> processes = IProcessManager.instance().getProjectDataModels().stream()
-				.flatMap(project -> project.getProcesses().stream())
-				.map(IProcess::getModel)
-				.toList();
+				.flatMap(project -> project.getProcesses().stream()).map(IProcess::getModel).toList();
 		return processes;
 	}
-	
-	private boolean isAcceptedProcess(List<String>folders, String fullQualifiedName) {
+
+	private boolean isAcceptedProcess(List<String> folders, String fullQualifiedName) {
 		return folders.stream().anyMatch(folder -> fullQualifiedName.contains(folder));
 	}
-	
-	private static List<BaseElement> getElementOfProcess (Process process) {
+
+	private static List<BaseElement> getElementOfProcess(Process process) {
 		var processElements = process.getProcessElements();
 		var childElments = getElementOfProcesses(processElements);
 		var elements = process.getElements();
 		elements.addAll(childElments);
-		
+
 		return elements;
 	}
-	
-	private static List<BaseElement> getElementOfProcesses (List<ProcessElement> processElements) {
-		if(processElements.isEmpty()) {
+
+	private static List<BaseElement> getElementOfProcesses(List<ProcessElement> processElements) {
+		if (processElements.isEmpty()) {
 			return emptyList();
 		}
-		var embeddedProcess = processElements.stream()
-				.filter(it -> it instanceof EmbeddedProcessElement == true)
-				.map(EmbeddedProcessElement.class::cast)
-				.map(it -> it.getEmbeddedProcess())
+		var embeddedProcess = processElements.stream().filter(it -> it instanceof EmbeddedProcessElement == true)
+				.map(EmbeddedProcessElement.class::cast).map(it -> it.getEmbeddedProcess())
 				.collect(Collectors.toList());
 
-		var elememets = embeddedProcess.stream()
-				.map(EmbeddedProcess::getElements)
-				.flatMap(List::stream)
+		var elememets = embeddedProcess.stream().map(EmbeddedProcess::getElements).flatMap(List::stream)
 				.collect(Collectors.toList());
-		
-		var childProcessElements = embeddedProcess.stream()
-				.map(EmbeddedProcess::getProcessElements)
-				.flatMap(List::stream)
-				.collect(Collectors.toList());
-		
+
+		var childProcessElements = embeddedProcess.stream().map(EmbeddedProcess::getProcessElements)
+				.flatMap(List::stream).collect(Collectors.toList());
+
 		var childElememts = getElementOfProcesses(childProcessElements);
-		
+
 		elememets.addAll(childElememts);
-		
+
 		return elememets;
 	}
 }
