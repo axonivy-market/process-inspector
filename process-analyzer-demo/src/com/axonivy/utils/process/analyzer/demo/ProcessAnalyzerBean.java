@@ -202,10 +202,6 @@ public class ProcessAnalyzerBean {
 		return processes;
 	}
 
-	private boolean isAcceptedProcess(List<String> folders, String fullQualifiedName) {
-		return folders.stream().anyMatch(folder -> fullQualifiedName.contains(folder));
-	}
-
 	private static List<BaseElement> getElementOfProcess(Process process) {
 		var processElements = process.getProcessElements();
 		var childElments = getElementOfProcesses(processElements);
