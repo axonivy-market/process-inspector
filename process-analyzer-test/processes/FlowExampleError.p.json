@@ -42,6 +42,7 @@
     }, {
       "id" : "f7",
       "type" : "Alternative",
+      "name" : "alter1",
       "config" : {
         "conditions" : {
           "f8" : "true",
@@ -49,7 +50,8 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 448, "y" : 64 }
+        "at" : { "x" : 448, "y" : 64 },
+        "labelOffset" : { "x" : 16, "y" : -16 }
       },
       "connect" : [
         { "id" : "f8", "to" : "f1", "label" : {

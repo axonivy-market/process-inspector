@@ -42,7 +42,7 @@ public class FlowExampleErrorTest extends FlowExampleTest {
 			processAnalyzer.findTasksOnPath(start, null, null);
 		});
 
-		String expectedMessage = "Not found path";
+		String expectedMessage = "Not found path after element alter1-18DD16F8AA39F5DE-f7";
 		String actualMessage = exception.getMessage();
 
 		assertEquals(expectedMessage, actualMessage);

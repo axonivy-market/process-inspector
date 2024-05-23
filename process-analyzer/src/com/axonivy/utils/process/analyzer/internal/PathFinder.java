@@ -19,17 +19,19 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.axonivy.utils.process.analyzer.internal.model.AnalysisPath;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
 import com.axonivy.utils.process.analyzer.internal.model.TaskParallelGroup;
 
-import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
@@ -368,8 +370,7 @@ public class PathFinder {
 
 			List<SequenceFlow> outs = getSequenceFlows((NodeElement) from.getElement(), flowName, findType);
 			if (from.getElement() instanceof Alternative && outs.isEmpty()) {
-				Ivy.log().error("Can not found the out going from a alternative {0}", from.getPid().getRawPid());
-				throw new Exception("Not found path");
+				throw new Exception("Not found path after element " + getAlternativeNameId(from.getElement()));
 			}
 
 			Map<SequenceFlow, List<AnalysisPath>> pathOptions = new LinkedHashMap<>();
@@ -385,6 +386,11 @@ public class PathFinder {
 		}
 
 		return path;
+	}
+
+	private String getAlternativeNameId(BaseElement alternative) {
+		return Stream.of(alternative.getName(), alternative.getPid().getRawPid()).filter(StringUtils::isNotEmpty)
+				.collect(Collectors.joining("-"));
 	}
 
 	private List<AnalysisPath> removeLastTaskSwitchGateway(List<AnalysisPath> paths) {
