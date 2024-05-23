@@ -21,12 +21,14 @@ import org.apache.commons.lang3.StringUtils;
 import com.axonivy.utils.process.analyzer.internal.model.AnalysisPath;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
+import com.axonivy.utils.process.analyzer.internal.model.SubProcessGroup;
 import com.axonivy.utils.process.analyzer.internal.model.TaskParallelGroup;
 import com.axonivy.utils.process.analyzer.model.DetectedAlternative;
 import com.axonivy.utils.process.analyzer.model.DetectedElement;
 import com.axonivy.utils.process.analyzer.model.DetectedTask;
 import com.axonivy.utils.process.analyzer.model.ElementTask;
 
+import ch.ivyteam.ivy.process.model.HierarchicElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
@@ -132,7 +134,8 @@ class WorkflowPath {
 				continue;
 			}
 
-			if (processGraph.isTaskAndCaseModifier(element.getElement())
+			if (element instanceof CommonElement 
+					&& processGraph.isTaskAndCaseModifier(element.getElement())
 					&& processGraph.isSystemTask(element.getElement())) {
 				continue;
 			}
@@ -169,6 +172,24 @@ class WorkflowPath {
 				continue;
 			}
 
+			if (element instanceof SubProcessGroup) {
+				List<AnalysisPath> subPaths = ((SubProcessGroup) element).getInternalPaths();
+				List<DetectedElement> allTaskFromSubPath = new ArrayList<>();
+				for(AnalysisPath subPath : subPaths) {
+					ProcessElement startSubElement = subPath.getElements().get(0);
+					var startedForSubProcess = Map.of(startSubElement, durationStart);
+					 List<DetectedElement> subResult = convertPathToDetectedElements(startSubElement, subPath, useCase , startedForSubProcess);
+					 allTaskFromSubPath.addAll(subResult);
+				}
+				
+				if(isNotEmpty(allTaskFromSubPath)) {
+					result.addAll(allTaskFromSubPath);
+					durationStart = getMaxDurationUntilEnd(allTaskFromSubPath);
+				}
+				
+				continue;
+			}
+			
 			if (element instanceof TaskParallelGroup) {
 				var startedForGroup = element.getElement() == null ? timeUntilStarts : Map.of(element, durationStart);
 
@@ -296,9 +317,10 @@ class WorkflowPath {
 		String taskName = getTaskNameByCode(script);
 		String customerInfo = getCustomInfoByCode(script);
 		Duration duration = this.workflowDuration().getDuration(ElementTask.createSingle(pid), script, useCase);
-
+		List<String> parentElementNames = getParentElementNames(subProcessCall);
+		
 		DetectedTask detectedTask = new DetectedTask(pid, taskName, elementName, timeUntilStartAt, duration,
-				customerInfo);
+				parentElementNames, customerInfo);
 		return detectedTask;
 	}
 
@@ -357,8 +379,9 @@ class WorkflowPath {
 		return result;
 	}
 
-	private List<String> getParentElementNames(TaskAndCaseModifier task) {
+	private List<String> getParentElementNames(HierarchicElement task) {
 		List<String> parentElementNames = emptyList();
+		if(task instanceof TaskAndCaseModifier || task instanceof SubProcessCall)
 		if (task.getParent() instanceof EmbeddedProcessElement) {
 			parentElementNames = processGraph.getParentElementNamesEmbeddedProcessElement(task.getParent());
 		}
