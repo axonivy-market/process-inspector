@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.axonivy.utils.process.analyzer.internal.model.AnalysisPath;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
+import com.axonivy.utils.process.analyzer.internal.model.SubProcessGroup;
 import com.axonivy.utils.process.analyzer.internal.model.TaskParallelGroup;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -346,8 +347,11 @@ public class PathFinder {
 		if (from.getElement() instanceof NodeElement) {
 
 			if (from.getElement() instanceof EmbeddedProcessElement) {
-				List<AnalysisPath> pathFromSubProcess = findPathOfSubProcess(from, flowName, findType);
-				path = addToPath(path, pathFromSubProcess);
+				SubProcessGroup subProcessGroup = findPathOfSubProcess(from, flowName, findType);
+				
+				path = removeLastElementByClassType(path, EmbeddedProcessElement.class);
+				
+				path = addAllToPath(path, List.of(subProcessGroup));
 			}
 
 			if (isJoinTaskSwitchGateway(currentPath, from)) {
@@ -358,7 +362,7 @@ public class PathFinder {
 				var taskParallelGroup = getTaskParallelGroup(from, flowName, findType, currentPath);
 
 				// If last element is CommonElement(TaskSwitchGateway)-> We will remove it.
-				path = removeLastTaskSwitchGateway(path);
+				path = removeLastElementByClassType(path, TaskSwitchGateway.class);
 
 				path = addAllToPath(path, List.of(taskParallelGroup));
 				from = getJoinTaskSwithGateWay(taskParallelGroup);
@@ -392,22 +396,25 @@ public class PathFinder {
 		return Stream.of(alternative.getName(), alternative.getPid().getRawPid()).filter(StringUtils::isNotEmpty)
 				.collect(Collectors.joining("-"));
 	}
+	
+	private List<AnalysisPath> removeLastElementByClassType(List<AnalysisPath> paths , Class clazz) {
 
-	private List<AnalysisPath> removeLastTaskSwitchGateway(List<AnalysisPath> paths) {
 		List<AnalysisPath> result = new ArrayList<>();
 		for (AnalysisPath path : paths) {
 			int lastIndex = getLastIndex(path.getElements());
 			List<ProcessElement> pathElements = new ArrayList<>(path.getElements());
-			if (pathElements.get(lastIndex) instanceof CommonElement
-					&& pathElements.get(lastIndex).getElement() instanceof TaskSwitchGateway) {
+			ProcessElement lastElement = pathElements.get(lastIndex);
+			
+			if (lastElement instanceof CommonElement && clazz.isInstance(lastElement.getElement())) {
 				pathElements.remove(lastIndex);
 			}
+			
 			result.add(new AnalysisPath(pathElements));
 		}
 
 		return result;
 	}
-
+	
 	private List<AnalysisPath> addToPath(List<AnalysisPath> paths, List<AnalysisPath> subPaths) {
 		if (subPaths.isEmpty()) {
 			return paths;
@@ -499,12 +506,15 @@ public class PathFinder {
 	/**
 	 * Find path on sub process
 	 */
-	private List<AnalysisPath> findPathOfSubProcess(ProcessElement subProcessElement, String flowName,
+	private SubProcessGroup findPathOfSubProcess(ProcessElement subProcessElement, String flowName,
 			FindType findType) throws Exception {
 		EmbeddedProcessElement processElement = (EmbeddedProcessElement) subProcessElement.getElement();
 		BaseElement start = processGraph.findOneStartElementOfProcess(processElement.getEmbeddedProcess());
 		List<AnalysisPath> path = findAnalysisPaths(new CommonElement(start), flowName, findType, emptyList());
-		return path;
+		
+		SubProcessGroup subProcessGroup = new SubProcessGroup(processElement);
+		subProcessGroup.setInternalPaths(path);
+		return subProcessGroup;
 	}
 
 	private List<SequenceFlow> getSequenceFlows(NodeElement from, String flowName, FindType findType) throws Exception {
