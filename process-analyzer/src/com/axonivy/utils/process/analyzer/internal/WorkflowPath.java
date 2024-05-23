@@ -27,6 +27,7 @@ import com.axonivy.utils.process.analyzer.model.DetectedElement;
 import com.axonivy.utils.process.analyzer.model.DetectedTask;
 import com.axonivy.utils.process.analyzer.model.ElementTask;
 
+import ch.ivyteam.ivy.process.model.HierarchicElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
@@ -296,9 +297,10 @@ class WorkflowPath {
 		String taskName = getTaskNameByCode(script);
 		String customerInfo = getCustomInfoByCode(script);
 		Duration duration = this.workflowDuration().getDuration(ElementTask.createSingle(pid), script, useCase);
-
+		List<String> parentElementNames = getParentElementNames(subProcessCall);
+		
 		DetectedTask detectedTask = new DetectedTask(pid, taskName, elementName, timeUntilStartAt, duration,
-				customerInfo);
+				parentElementNames, customerInfo);
 		return detectedTask;
 	}
 
@@ -357,8 +359,9 @@ class WorkflowPath {
 		return result;
 	}
 
-	private List<String> getParentElementNames(TaskAndCaseModifier task) {
+	private List<String> getParentElementNames(HierarchicElement task) {
 		List<String> parentElementNames = emptyList();
+		if(task instanceof TaskAndCaseModifier || task instanceof SubProcessCall)
 		if (task.getParent() instanceof EmbeddedProcessElement) {
 			parentElementNames = processGraph.getParentElementNamesEmbeddedProcessElement(task.getParent());
 		}

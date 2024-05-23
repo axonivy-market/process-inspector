@@ -56,12 +56,12 @@
 					title="#{task.pid}" />
 			</p:column>
 
-			<p:column headerText="Task Name">
-				<h:outputText value="#{task.taskName}" />
+			<p:column headerText="Task Name" styleClass="text-overflow">
+				<h:outputText value="#{task.taskName}" title="#{task.taskName}" />
 			</p:column>
 
-			<p:column headerText="Element Name">
-				<h:outputText value="#{task.elementName}" />
+			<p:column headerText="Element Name" styleClass="text-overflow">
+				<h:outputText value="#{task.elementName}" title="#{task.elementName}" />
 			</p:column>
 
 			<p:column headerText="Estimated Duration">
@@ -69,8 +69,7 @@
 					value="#{data.processAnalyzerBean.getDisplayDuration(task.estimatedDuration)}" />
 			</p:column>
 
-			<p:column headerText="Parent Element Names"
-				styleClass="text-overflow">
+			<p:column headerText="Parent Element Names" styleClass="text-overflow">
 				<h:outputText value="#{task.displayParentElementNames}"
 					title="#{task.displayParentElementNames}" />
 			</p:column>
