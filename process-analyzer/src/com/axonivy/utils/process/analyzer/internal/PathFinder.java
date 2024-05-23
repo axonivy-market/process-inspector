@@ -564,7 +564,8 @@ public class PathFinder {
 				return flow;
 			}
 		}
-
+		
+		//Sequence flow after Task
 		Optional<SequenceFlow> flow = outs.stream().filter(out -> hasFlowNameOrEmpty(out, flowName)).findFirst();
 
 		return flow;
@@ -624,7 +625,7 @@ public class PathFinder {
 	}
 
 	private boolean isDefaultPath(Alternative alternative, SequenceFlow sequenceFlow) {
-		String currentElementId = sequenceFlow.getPid().getFieldId();
+		String currentElementId = sequenceFlow.getPid().getFieldIds();
 		List<String> nextTargetIds = processGraph.getNextTargetIdsByCondition(alternative, EMPTY);
 		return nextTargetIds.contains(currentElementId);
 	}
