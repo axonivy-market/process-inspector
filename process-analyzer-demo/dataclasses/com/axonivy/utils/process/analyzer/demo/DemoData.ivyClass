@@ -1,0 +1,4 @@
+DemoData #class
+com.axonivy.utils.process.analyzer.demo #namespace
+bean com.axonivy.utils.process.analyzer.demo.ProcessAnalyzerBean #field
+bean PERSISTENT #fieldModifier

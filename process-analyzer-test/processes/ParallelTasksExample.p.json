@@ -1,0 +1,229 @@
+{
+  "$schema" : "https://json-schema.axonivy.com/process/11.2.2/process.json",
+  "id" : "18DD185B60B6E769",
+  "config" : {
+    "data" : "com.axonivy.utils.process.analyzer.test.Data"
+  },
+  "elements" : [ {
+      "id" : "f0",
+      "type" : "RequestStart",
+      "name" : "start",
+      "config" : {
+        "signature" : "start"
+      },
+      "visual" : {
+        "at" : { "x" : 40, "y" : 48 }
+      },
+      "connect" : [
+        { "id" : "f3", "to" : "f2", "var" : "in1" }
+      ]
+    }, {
+      "id" : "f1",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 1208, "y" : 48 }
+      }
+    }, {
+      "id" : "f2",
+      "type" : "TaskSwitchGateway",
+      "name" : "Task1",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "code" : [
+              "import java.util.concurrent.TimeUnit;",
+              "import com.axonivy.utils.process.analyzer.test.UseCase;",
+              "import com.axonivy.utils.process.analyzer.APAConfig;",
+              "",
+              "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            ]
+          }, {
+            "id" : "TaskB",
+            "name" : "Task1B"
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 184, "y" : 48 },
+        "labelOffset" : { "x" : -8, "y" : -8 }
+      },
+      "connect" : [
+        { "id" : "f5", "to" : "f4", "condition" : "ivp==\"TaskA.ivp\"", "var" : "in1" },
+        { "id" : "f8", "to" : "f7", "condition" : "ivp==\"TaskB.ivp\"" }
+      ]
+    }, {
+      "id" : "f4",
+      "type" : "TaskSwitchGateway",
+      "name" : "Join",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "name" : "JoiningTask",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 1000, "y" : 48 },
+        "labelOffset" : { "x" : -8, "y" : -8 }
+      },
+      "connect" : [
+        { "id" : "f6", "to" : "f1", "condition" : "ivp==\"TaskA.ivp\"" }
+      ]
+    }, {
+      "id" : "f7",
+      "type" : "TaskSwitchEvent",
+      "name" : "Task2",
+      "config" : {
+        "task" : {
+          "name" : "Task2"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 184, "y" : 136 },
+        "labelOffset" : { "x" : 14, "y" : 34 }
+      },
+      "connect" : [
+        { "id" : "f9", "to" : "f10" }
+      ]
+    }, {
+      "id" : "f10",
+      "type" : "Alternative",
+      "config" : {
+        "conditions" : {
+          "f14" : "true",
+          "f11" : ""
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 424, "y" : 136 }
+      },
+      "connect" : [
+        { "id" : "f11", "to" : "f15", "color" : "def", "var" : "in2" },
+        { "id" : "f14", "to" : "f23", "label" : {
+            "name" : "{shortcut}"
+          } }
+      ]
+    }, {
+      "id" : "f15",
+      "type" : "TaskSwitchGateway",
+      "name" : "Task3",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskB",
+            "name" : "Task3B"
+          }, {
+            "id" : "TaskA",
+            "name" : "Task3A",
+            "code" : [
+              "import java.util.concurrent.TimeUnit;",
+              "import com.axonivy.utils.process.analyzer.test.UseCase;",
+              "import com.axonivy.utils.process.analyzer.APAConfig;",
+              "",
+              "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            ]
+          } ],
+        "output" : {
+          "map" : {
+            "out" : "in2"
+          }
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 424, "y" : 208 },
+        "labelOffset" : { "x" : -8, "y" : -8 }
+      },
+      "connect" : [
+        { "id" : "f16", "to" : "f13", "via" : [ { "x" : 424, "y" : 288 } ], "condition" : "ivp==\"TaskB.ivp\"" },
+        { "id" : "f12", "to" : "f21", "condition" : "ivp==\"TaskA.ivp\"", "var" : "in2" }
+      ]
+    }, {
+      "id" : "f13",
+      "type" : "Script",
+      "visual" : {
+        "at" : { "x" : 744, "y" : 288 }
+      },
+      "connect" : [
+        { "id" : "f17", "to" : "f21", "via" : [ { "x" : 1000, "y" : 288 } ], "var" : "in4" }
+      ]
+    }, {
+      "id" : "f18",
+      "type" : "ProcessAnnotation",
+      "name" : "green path = default path with empty condition",
+      "visual" : {
+        "at" : { "x" : 200, "y" : 239 },
+        "size" : { "width" : 294, "height" : 19 },
+        "color" : "def"
+      }
+    }, {
+      "id" : "f19",
+      "type" : "ProcessAnnotation",
+      "name" : [
+        "useCase=null / flowName = null",
+        "",
+        "findAllTasks( start.ivp ) => Task1A, Task1B, Task2, Task3A, Task3B",
+        "findTasksOnPath( start.ivp ) => Task1A, Task1B, Task2, Task3A, Task3B",
+        "",
+        "----",
+        "",
+        "useCase=null / flowName = shortcut",
+        "",
+        "findTasksOnPath( start.ivp ) => Task1A, Task1B, Task2"
+      ],
+      "visual" : {
+        "at" : { "x" : 288, "y" : 431 },
+        "size" : { "width" : 504, "height" : 163 }
+      }
+    }, {
+      "id" : "f20",
+      "type" : "ProcessAnnotation",
+      "name" : [
+        "Notes:",
+        "Order of parallel task is not important. We don't know wheter Task1A or Task1B is followed first. But we need to calculate both when it comes to duration estimations.",
+        "",
+        "Tasks assigned to SYSTEM must be ignored. We don't handle them! For example the SYSTEM task of the join element will not show up in any result."
+      ],
+      "visual" : {
+        "at" : { "x" : 783, "y" : 432 },
+        "size" : { "width" : 407, "height" : 158 }
+      }
+    }, {
+      "id" : "f21",
+      "type" : "TaskSwitchGateway",
+      "name" : "Join",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          } ],
+        "output" : {
+          "map" : {
+            "out" : "in2"
+          }
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 1000, "y" : 208 },
+        "labelOffset" : { "x" : -8, "y" : -8 }
+      },
+      "connect" : [
+        { "id" : "f22", "to" : "f23", "condition" : "ivp==\"TaskA.ivp\"" }
+      ]
+    }, {
+      "id" : "f23",
+      "type" : "Alternative",
+      "visual" : {
+        "at" : { "x" : 1000, "y" : 136 }
+      },
+      "connect" : [
+        { "id" : "f24", "to" : "f4", "var" : "in2" }
+      ]
+    } ],
+  "layout" : {
+    "colors" : {
+      "def" : "#2ff906"
+    }
+  }
+}

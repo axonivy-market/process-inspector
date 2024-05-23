@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+        
+    <wb-module deploy-name="process-analyzer-demo">
+                
+        <wb-resource deploy-path="/" source-path="/webContent" tag="defaultRootSource"/>
+                
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+                
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src_wsproc"/>
+                
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src_dataClasses"/>
+                
+        <property name="java-output-path" value="/process-analyzer-demo/target/classes"/>
+        <property name="context-root" value="process-analyzer-demo"/>
+            
+    </wb-module>
+    
+</project-modules>

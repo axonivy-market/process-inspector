@@ -1,20 +1,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.axonivy.market</groupId><!-- your group id: e.g. com.axonivy.connector.<myconnector> or com.axonivy.utils.<myutil> -->
-  <name>my-product</name><!-- fill your product name -->
-  <artifactId>my-product-modules</artifactId><!-- fill your product name + a "-modules" postfix -->
-  <version>10.0.0-SNAPSHOT</version><!-- identicate your minimal compliant ivy version with the first 2 digits -->
+  <groupId>com.axonivy.utils.process.analyzer</groupId>
+  <name>advanced-process-analyzer</name>
+  <artifactId>advanced-process-analyzer-modules</artifactId>
+  <version>11.2.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
-    <module>${project.name}</module>
-    <module>${project.name}-demo</module>
-    <module>${project.name}-test</module>
-    <module>${project.name}-product</module>
+    <module>process-analyzer</module>
+    <module>process-analyzer-demo</module>
+    <module>process-analyzer-test</module>
+    <module>process-analyzer-product</module>
   </modules>
 
   <scm>
-    <developerConnection>scm:git:https://github.com/axonivy-market/${project.name}.git</developerConnection>
+    <developerConnection>scm:git:https://github.com/axonivy-professional-services/market-${project.name}.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 

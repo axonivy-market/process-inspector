@@ -1,0 +1,69 @@
+{
+  "$schema" : "https://json-schema.axonivy.com/process/11.2.2/process.json",
+  "id" : "18E180F943F963D5",
+  "config" : {
+    "data" : "com.axonivy.utils.process.analyzer.demo.DemoData"
+  },
+  "elements" : [ {
+      "id" : "f0",
+      "type" : "RequestStart",
+      "name" : "start",
+      "config" : {
+        "signature" : "start",
+        "request" : {
+          "name" : "ProcessAnalyzerDemo"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 80, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f2", "to" : "f5" }
+      ]
+    }, {
+      "id" : "f1",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 552, "y" : 64 }
+      }
+    }, {
+      "id" : "f3",
+      "type" : "DialogCall",
+      "name" : "Table Show",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.ProcessAnalyzerTable:start(com.axonivy.utils.process.analyzer.demo.ProcessAnalyzerBean)",
+        "call" : {
+          "map" : {
+            "param.processAnalyzerBean" : "in.bean"
+          }
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 408, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f4", "to" : "f1" }
+      ]
+    }, {
+      "id" : "f5",
+      "type" : "Script",
+      "name" : "init data",
+      "config" : {
+        "output" : {
+          "code" : [
+            "import com.axonivy.utils.process.analyzer.demo.model.Analyzer;",
+            "import com.axonivy.utils.process.analyzer.demo.ProcessAnalyzerBean;",
+            "",
+            "in.bean = new ProcessAnalyzerBean();",
+            "in.bean.selectedAnalyzer = new Analyzer();"
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 224, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f6", "to" : "f3" }
+      ]
+    } ]
+}

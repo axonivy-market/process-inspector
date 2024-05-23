@@ -1,0 +1,373 @@
+{
+  "$schema" : "https://json-schema.axonivy.com/process/11.2.2/process.json",
+  "id" : "18E180A64355D4D9",
+  "config" : {
+    "data" : "com.axonivy.utils.process.analyzer.demo.Data",
+    "permissions" : {
+      "view" : {
+        "allowed" : false
+      }
+    }
+  },
+  "elements" : [ {
+      "id" : "f0",
+      "type" : "RequestStart",
+      "name" : "Start",
+      "config" : {
+        "signature" : "start"
+      },
+      "visual" : {
+        "at" : { "x" : 224, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f3", "to" : "f2" }
+      ]
+    }, {
+      "id" : "f1",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 1224, "y" : 64 }
+      }
+    }, {
+      "id" : "f2",
+      "type" : "UserTask",
+      "name" : "Task A",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
+        "task" : {
+          "name" : "Task A",
+          "code" : [
+            "import com.axonivy.utils.process.analyzer.demo.constant.UseCase;",
+            "import com.axonivy.utils.process.analyzer.APAConfig;",
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);",
+            "APAConfig.setEstimate(3,TimeUnit.HOURS,UseCase.SMALLPROJECT);"
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 336, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f5", "to" : "f4" }
+      ]
+    }, {
+      "id" : "f4",
+      "type" : "Alternative",
+      "name" : "alter1",
+      "config" : {
+        "conditions" : {
+          "f13" : "true"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 440, "y" : 64 },
+        "labelOffset" : { "x" : 16, "y" : -16 }
+      },
+      "connect" : [
+        { "id" : "f13", "to" : "f12", "label" : {
+            "name" : [
+              "{internal}",
+              "{external}",
+              "{mixed}"
+            ]
+          } },
+        { "id" : "f15", "to" : "f7", "color" : "default path" }
+      ]
+    }, {
+      "id" : "f6",
+      "type" : "Alternative",
+      "name" : "alter2",
+      "visual" : {
+        "at" : { "x" : 720, "y" : 64 },
+        "labelOffset" : { "x" : 16, "y" : -16 }
+      },
+      "connect" : [
+        { "id" : "f9", "to" : "f8" }
+      ]
+    }, {
+      "id" : "f8",
+      "type" : "Alternative",
+      "name" : "alter3",
+      "visual" : {
+        "at" : { "x" : 864, "y" : 64 },
+        "labelOffset" : { "x" : 16, "y" : -16 }
+      },
+      "connect" : [
+        { "id" : "f10", "to" : "f37" }
+      ]
+    }, {
+      "id" : "f11",
+      "type" : "UserTask",
+      "name" : "Task C",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
+        "task" : {
+          "name" : "Task C",
+          "code" : [
+            "import com.axonivy.utils.process.analyzer.demo.constant.UseCase;",
+            "import com.axonivy.utils.process.analyzer.APAConfig;",
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "APAConfig.setEstimate(8,TimeUnit.HOURS,UseCase.BIGPROJECT);",
+            "APAConfig.setEstimate(4,TimeUnit.HOURS,UseCase.SMALLPROJECT);"
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 592, "y" : 192 }
+      },
+      "connect" : [
+        { "id" : "f19", "to" : "f6", "via" : [ { "x" : 720, "y" : 192 } ] }
+      ]
+    }, {
+      "id" : "f12",
+      "type" : "Alternative",
+      "name" : "int/ext?",
+      "config" : {
+        "conditions" : {
+          "f14" : "true"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 440, "y" : 192 },
+        "labelOffset" : { "x" : -32, "y" : -8 }
+      },
+      "connect" : [
+        { "id" : "f14", "to" : "f11", "label" : {
+            "name" : "{internal}",
+            "offset" : { "x" : -7, "y" : -2 }
+          } },
+        { "id" : "f21", "to" : "f20", "color" : "default path", "label" : {
+            "name" : "{external}"
+          } }
+      ]
+    }, {
+      "id" : "f7",
+      "type" : "UserTask",
+      "name" : "Task B",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
+        "task" : {
+          "name" : "Task B",
+          "code" : [
+            "import com.axonivy.utils.process.analyzer.demo.constant.UseCase;",
+            "import com.axonivy.utils.process.analyzer.APAConfig;",
+            "import java.util.concurrent.TimeUnit;",
+            "",
+            "APAConfig.setEstimate(3,TimeUnit.HOURS,UseCase.BIGPROJECT);",
+            "APAConfig.setEstimate(1,TimeUnit.HOURS,UseCase.SMALLPROJECT);"
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 584, "y" : 64 }
+      },
+      "connect" : [
+        { "id" : "f16", "to" : "f6" }
+      ]
+    }, {
+      "id" : "f17",
+      "type" : "RequestStart",
+      "name" : "NewStart",
+      "config" : {
+        "signature" : "start2"
+      },
+      "visual" : {
+        "at" : { "x" : 232, "y" : 192 }
+      },
+      "connect" : [
+        { "id" : "f18", "to" : "f12" }
+      ]
+    }, {
+      "id" : "f20",
+      "type" : "UserTask",
+      "name" : "Task D",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
+        "task" : {
+          "name" : "Task D",
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "import com.axonivy.utils.process.analyzer.demo.constant.UseCase;",
+            "import com.axonivy.utils.process.analyzer.APAConfig;",
+            "",
+            "APAConfig.setEstimate(9,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 440, "y" : 376 }
+      },
+      "connect" : [
+        { "id" : "f26", "to" : "f22", "var" : "in1" }
+      ]
+    }, {
+      "id" : "f22",
+      "type" : "TaskSwitchGateway",
+      "name" : "Task1",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "name" : "Task1A",
+            "code" : [
+              "import java.util.concurrent.TimeUnit;",
+              "import com.axonivy.utils.process.analyzer.demo.constant.UseCase;",
+              "import com.axonivy.utils.process.analyzer.APAConfig;",
+              "",
+              "APAConfig.setEstimate(1,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            ]
+          }, {
+            "id" : "TaskB",
+            "name" : "Task1B",
+            "code" : [
+              "import java.util.concurrent.TimeUnit;",
+              "import com.axonivy.utils.process.analyzer.demo.constant.UseCase;",
+              "import com.axonivy.utils.process.analyzer.APAConfig;",
+              "",
+              "APAConfig.setEstimate(2,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            ]
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 560, "y" : 376 },
+        "labelOffset" : { "x" : -16, "y" : -16 }
+      },
+      "connect" : [
+        { "id" : "f27", "to" : "f23", "via" : [ { "x" : 560, "y" : 320 } ], "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f28", "to" : "f24", "via" : [ { "x" : 560, "y" : 432 } ], "condition" : "ivp==\"TaskB.ivp\"" }
+      ]
+    }, {
+      "id" : "f23",
+      "type" : "UserTask",
+      "name" : "Task K",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
+        "task" : {
+          "name" : "Task K",
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "import com.axonivy.utils.process.analyzer.demo.constant.UseCase;",
+            "import com.axonivy.utils.process.analyzer.APAConfig;",
+            "",
+            "APAConfig.setEstimate(6,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 656, "y" : 320 }
+      },
+      "connect" : [
+        { "id" : "f29", "to" : "f25", "via" : [ { "x" : 752, "y" : 320 } ], "var" : "in1" }
+      ]
+    }, {
+      "id" : "f24",
+      "type" : "UserTask",
+      "name" : "Task G",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
+        "task" : {
+          "name" : "Task G",
+          "code" : [
+            "import java.util.concurrent.TimeUnit;",
+            "import com.axonivy.utils.process.analyzer.demo.constant.UseCase;",
+            "import com.axonivy.utils.process.analyzer.APAConfig;",
+            "",
+            "APAConfig.setEstimate(2,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 656, "y" : 432 }
+      },
+      "connect" : [
+        { "id" : "f30", "to" : "f25", "via" : [ { "x" : 752, "y" : 432 } ], "var" : "in2" }
+      ]
+    }, {
+      "id" : "f25",
+      "type" : "TaskSwitchGateway",
+      "name" : "Join",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 752, "y" : 368 },
+        "labelOffset" : { "x" : -16, "y" : 8 }
+      },
+      "connect" : [
+        { "id" : "f32", "to" : "f35", "condition" : "ivp==\"TaskA.ivp\"" }
+      ]
+    }, {
+      "id" : "f31",
+      "type" : "Alternative",
+      "name" : "alter4",
+      "config" : {
+        "conditions" : {
+          "f34" : "true",
+          "f33" : ""
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 864, "y" : 248 },
+        "labelOffset" : { "x" : 48, "y" : 8 }
+      },
+      "connect" : [
+        { "id" : "f33", "to" : "f8", "color" : "default path" },
+        { "id" : "f34", "to" : "f12", "via" : [ { "x" : 472, "y" : 248 } ] }
+      ]
+    }, {
+      "id" : "f35",
+      "type" : "UserTask",
+      "name" : "Task F",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.demo.Dummy:start()",
+        "task" : {
+          "name" : "Task F"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 864, "y" : 368 }
+      },
+      "connect" : [
+        { "id" : "f36", "to" : "f31" }
+      ]
+    }, {
+      "id" : "f37",
+      "type" : "SubProcessCall",
+      "name" : "FlowDemoSubProcessCall",
+      "config" : {
+        "processCall" : "Analysis Processes/FlowDemoSubProcessCall:call()",
+        "call" : {
+          "map" : { },
+          "code" : [
+            "import com.axonivy.utils.process.analyzer.demo.constant.UseCase;",
+            "import java.util.concurrent.TimeUnit;",
+            "import com.axonivy.utils.process.analyzer.APAConfig;",
+            "",
+            "APAConfig.handleAsTask();",
+            "APAConfig.setTaskName(\"Task sub\");",
+            "APAConfig.setCustomInfo(\"Custom info\");",
+            "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 1048, "y" : 64 },
+        "size" : { "width" : 176, "height" : 52 }
+      },
+      "connect" : [
+        { "id" : "f38", "to" : "f1" }
+      ]
+    } ],
+  "layout" : {
+    "colors" : {
+      "default path" : "#1af929"
+    }
+  }
+}
