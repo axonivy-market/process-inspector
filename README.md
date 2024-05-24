@@ -1,6 +1,6 @@
 # Advanced Process Analyzer
 
-[![CI Build](https://github.com/axonivy-professional-services/market-process-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/axonivy-professional-services/market-process-analyzer/actions/workflows/ci.yml)
+[![CI Build](https://github.com/axonivy-market/advanced-process-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/axonivy-market/advanced-process-analyzer/actions/workflows/ci.yml)
 
 - Configure needed information directly in the process model
 	- Default duration of a task for multiple use cases. Each task can have multiple named default durations.

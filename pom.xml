@@ -14,7 +14,7 @@
   </modules>
 
   <scm>
-    <developerConnection>scm:git:https://github.com/axonivy-professional-services/market-${project.name}.git</developerConnection>
+    <developerConnection>scm:git:https://github.com/axonivy-market/${project.name}.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
