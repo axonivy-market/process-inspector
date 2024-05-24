@@ -87,4 +87,15 @@ public class ParallelTasksExampleTest extends FlowExampleTest {
 
 		assertEquals(taskA.getEstimatedDuration().toHours(), 5);
 	}
+	
+	@Test
+	void shouldFindAllTasksStart5() throws Exception {
+
+		var start5 = ProcessGraphHelper.findByElementName(process, "start5");
+		var detectedTasks = processAnalyzer.findAllTasks(start5, null);
+
+		var expected = Arrays.array("TaskA5", "TaskC5", "TaskB5", "TaskE5", "TaskD5", "TaskF5", "TaskG5");
+		var taskNames = getTaskNames(detectedTasks);
+		assertArrayEquals(expected, taskNames);
+	}
 }

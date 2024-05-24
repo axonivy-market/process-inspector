@@ -82,7 +82,7 @@ public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 		DetectedTask taskD = (DetectedTask) findByElementName(detectedTasks, "Task D");
 
 		assertTrue(Duration.ZERO.compareTo(taskC.getTimeUntilStart()) >= 0);
-		assertEquals(taskC.getTimeUntilEnd(), taskD.getTimeUntilStart());
-		assertEquals(taskC.getTimeUntilEnd().plus(taskD.getEstimatedDuration()), taskD.getTimeUntilEnd());
+		//Delay of previous task is not impact next task
+		assertEquals(Duration.ZERO, taskD.getTimeUntilStart());
 	}
 }

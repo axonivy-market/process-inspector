@@ -11,6 +11,10 @@ public class AnalysisPath {
 		this.elements = new ArrayList<>();
 	}
 
+	public AnalysisPath(ProcessElement element) {
+		this.elements = List.of(element);
+	}
+	
 	public AnalysisPath(List<ProcessElement> elements) {
 		this.elements = elements;
 	}

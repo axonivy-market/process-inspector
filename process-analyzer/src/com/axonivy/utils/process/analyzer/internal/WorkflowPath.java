@@ -75,15 +75,15 @@ class WorkflowPath {
 		return detectedTasks;
 	}
 
-	protected List<DetectedElement> findTaskOnPath(Map<ProcessElement, Duration> startAtElements, Enum<?> useCase,
+	protected List<DetectedElement> findTaskOnPath(Map<ProcessElement, Duration> timeUntilStarts, Enum<?> useCase,
 			String flowName) throws Exception {
-		Map<ProcessElement, List<AnalysisPath>> paths = this.pathFinder(startAtElements, flowName).findTaskOnPath();
+		Map<ProcessElement, List<AnalysisPath>> paths = this.pathFinder(timeUntilStarts, flowName).findTaskOnPath();
 
-		List<DetectedElement> detectedTasks = convertToDetectedElements(paths, useCase, startAtElements);
+		List<DetectedElement> detectedTasks = convertToDetectedElements(paths, useCase, timeUntilStarts);
 		return detectedTasks;
 	}
 
-	protected List<DetectedElement> convertToDetectedElements(Map<ProcessElement, List<AnalysisPath>> allPaths,
+	protected List<DetectedElement> convertToDetectedElements(Map<ProcessElement, List<AnalysisPath>> allPaths, 
 			Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStarts) {
 		List<DetectedElement> result = new ArrayList<>();
 		for (Entry<ProcessElement, List<AnalysisPath>> path : allPaths.entrySet()) {
@@ -279,6 +279,10 @@ class WorkflowPath {
 		Duration maxDurationUntilEnd = detectedElements.stream().filter(item -> item instanceof DetectedTask == true)
 				.map(DetectedTask.class::cast).map(DetectedTask::getTimeUntilEnd).max(Duration::compareTo).orElse(null);
 
+		if(maxDurationUntilEnd.isNegative()) {
+			maxDurationUntilEnd = Duration.ZERO;
+		}
+		
 		return maxDurationUntilEnd;
 	}
 
