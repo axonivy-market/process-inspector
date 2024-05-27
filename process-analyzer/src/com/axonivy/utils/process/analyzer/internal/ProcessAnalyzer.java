@@ -1,12 +1,18 @@
 package com.axonivy.utils.process.analyzer.internal;
 
 import static java.util.Collections.emptyMap;
+import static java.util.Optional.ofNullable;
 
 import java.time.Duration;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
 import com.axonivy.utils.process.analyzer.helper.DateTimeHelper;
@@ -18,7 +24,11 @@ import com.axonivy.utils.process.analyzer.model.DetectedTask;
 import com.axonivy.utils.process.analyzer.model.ElementTask;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
+import ch.ivyteam.ivy.process.model.ProcessKind;
+import ch.ivyteam.ivy.process.model.value.PID;
+import ch.ivyteam.ivy.workflow.ICallStack;
 import ch.ivyteam.ivy.workflow.ICase;
+import ch.ivyteam.ivy.workflow.IProcessData;
 import ch.ivyteam.ivy.workflow.ITask;
 import ch.ivyteam.ivy.workflow.TaskState;
 
@@ -137,6 +147,7 @@ public class ProcessAnalyzer implements AdvancedProcessAnalyzer {
 
 	private List<DetectedElement> findAllDetectedElements(Map<ProcessElement, Duration> startAtElementWithDuration,
 			Enum<?> useCase) throws Exception {
+		
 		List<DetectedElement> detectedTasks = this.workflowPath().findAllTasks(startAtElementWithDuration, useCase);
 
 		return detectedTasks;
@@ -180,7 +191,11 @@ public class ProcessAnalyzer implements AdvancedProcessAnalyzer {
 		List<ITask> tasks = getCaseITasks(icase);
 		Map<ProcessElement, Duration> result = new LinkedHashMap<>();
 		for (ITask task : tasks) {
-			BaseElement element = TaskHelper.getBaseElementOf(task);
+			BaseElement element = TaskHelper.getBaseElementOf(task);			
+			if (isTaskInCallableSub(element)) {
+				element = getOriginalCallerElement(task);
+			}
+			
 			Duration spentDuration = DateTimeHelper.getBusinessDuration(task.getStartTimestamp(), new Date());
 
 			// Around to minutes
@@ -214,5 +229,36 @@ public class ProcessAnalyzer implements AdvancedProcessAnalyzer {
 	private WorkflowPath workflowPath() {
 		return new WorkflowPath().setDurationOverrides(durationOverrides).setProcessFlowOverrides(processFlowOverrides)
 				.setIsEnableDescribeAlternative(isEnableDescribeAlternative);
+	}
+	
+	private BaseElement getOriginalCallerElement(ITask task) {
+		String[] returnAddressPaths = ofNullable(task.getInternalStartProcessData())
+				.map(IProcessData::getCallStack)
+				.map(ICallStack::getReturnAddressPath)
+				.orElse(ArrayUtils.EMPTY_STRING_ARRAY);
+
+		BaseElement originalElement = Stream.of(returnAddressPaths)
+				.map(it -> getOriginalCallerId(it))
+				.filter(Objects::nonNull).map(PID::of)
+				.map(pid -> TaskHelper.getBaseElementByPid(pid, task.getProcessModelVersion()))
+				.findFirst()
+				.orElse(null);
+
+		return originalElement;
+	}
+	
+	private String getOriginalCallerId(String addressPath) {
+		// Path example: 2:18DE58E0441486DF-S30-f1/jump=18EEB810DDACA1D0-f0/isExt=true/uuid=3642e994-4f46-4c41-96ad-0d9d368cb5a0
+		String[] elementIds = addressPath.split("/");
+		if (ArrayUtils.isNotEmpty(elementIds)) {
+			// callNodeId: 2:18DE58E0441486DF-S30-f1
+			String callerNodeId = elementIds[0];
+			return callerNodeId.split(":")[1];
+		}
+		return null;
+	}
+
+	private boolean isTaskInCallableSub(BaseElement element) {
+		return ProcessKind.CALLABLE_SUB.equals(element.getRootProcess().getKind());
 	}
 }

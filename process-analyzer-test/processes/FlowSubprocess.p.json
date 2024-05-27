@@ -72,7 +72,14 @@
               "config" : {
                 "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
                 "task" : {
-                  "name" : "Task A"
+                  "name" : "Task A",
+                  "code" : [
+                    "import java.util.concurrent.TimeUnit;",
+                    "import com.axonivy.utils.process.analyzer.APAConfig;",
+                    "import com.axonivy.utils.process.analyzer.test.UseCase;",
+                    "",
+                    "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+                  ]
                 }
               },
               "visual" : {
@@ -122,7 +129,14 @@
           "name" : "Task B",
           "config" : {
             "task" : {
-              "name" : "Task B"
+              "name" : "Task B",
+              "code" : [
+                "import java.util.concurrent.TimeUnit;",
+                "import com.axonivy.utils.process.analyzer.APAConfig;",
+                "import com.axonivy.utils.process.analyzer.test.UseCase;",
+                "",
+                "APAConfig.setEstimate(4,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+              ]
             }
           },
           "visual" : {
@@ -149,7 +163,7 @@
         "findTasksOnPath( start.ivp ) => TaskA, TaskB"
       ],
       "visual" : {
-        "at" : { "x" : 376, "y" : 343 },
+        "at" : { "x" : 824, "y" : 167 },
         "size" : { "width" : 476, "height" : 97 }
       }
     }, {
@@ -197,6 +211,111 @@
       "type" : "TaskEnd",
       "visual" : {
         "at" : { "x" : 488, "y" : 192 }
+      }
+    }, {
+      "id" : "f10",
+      "type" : "RequestStart",
+      "name" : "start3",
+      "config" : {
+        "signature" : "start3"
+      },
+      "visual" : {
+        "at" : { "x" : 96, "y" : 312 }
+      },
+      "connect" : [
+        { "id" : "f11", "to" : "S30" }
+      ]
+    }, {
+      "id" : "S30",
+      "type" : "EmbeddedProcess",
+      "name" : "Sub Process A",
+      "elements" : [ {
+          "id" : "S30-g0",
+          "type" : "EmbeddedStart",
+          "visual" : {
+            "at" : { "x" : 64, "y" : 256 }
+          },
+          "parentConnector" : "f11",
+          "connect" : [
+            { "id" : "S30-f0", "to" : "S30-f1" }
+          ]
+        }, {
+          "id" : "S30-g1",
+          "type" : "EmbeddedEnd",
+          "visual" : {
+            "at" : { "x" : 496, "y" : 256 }
+          },
+          "parentConnector" : "f13"
+        }, {
+          "id" : "S30-f1",
+          "type" : "SubProcessCall",
+          "name" : "CallSubProcess A",
+          "config" : {
+            "processCall" : "FlowSubProcessCall:call()",
+            "call" : {
+              "map" : { },
+              "code" : [
+                "import com.axonivy.utils.process.analyzer.test.UseCase;",
+                "import java.util.concurrent.TimeUnit;",
+                "import com.axonivy.utils.process.analyzer.APAConfig;",
+                "",
+                "APAConfig.handleAsTask();",
+                "APAConfig.setTaskName(\"CallSubProcess A\");",
+                "APAConfig.setEstimate(10,TimeUnit.DAYS,UseCase.BIGPROJECT);",
+                "APAConfig.setEstimate(5,TimeUnit.DAYS,UseCase.SMALLPROJECT);"
+              ]
+            }
+          },
+          "visual" : {
+            "at" : { "x" : 208, "y" : 256 }
+          },
+          "connect" : [
+            { "id" : "S30-f2", "to" : "S30-f3" }
+          ]
+        }, {
+          "id" : "S30-f3",
+          "type" : "UserTask",
+          "name" : "TaskC",
+          "config" : {
+            "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
+            "task" : {
+              "name" : "TaskC"
+            }
+          },
+          "visual" : {
+            "at" : { "x" : 368, "y" : 256 }
+          },
+          "connect" : [
+            { "id" : "S30-f4", "to" : "S30-g1" }
+          ]
+        } ],
+      "visual" : {
+        "at" : { "x" : 288, "y" : 312 }
+      },
+      "connect" : [
+        { "id" : "f13", "to" : "f12" }
+      ]
+    }, {
+      "id" : "f12",
+      "type" : "UserTask",
+      "name" : "TaskB",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
+        "task" : {
+          "name" : "TaskB"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 480, "y" : 312 }
+      },
+      "connect" : [
+        { "id" : "f15", "to" : "f14" }
+      ]
+    }, {
+      "id" : "f14",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 672, "y" : 312 }
       }
     } ]
 }

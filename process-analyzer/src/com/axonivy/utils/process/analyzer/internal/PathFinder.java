@@ -1,5 +1,8 @@
 package com.axonivy.utils.process.analyzer.internal;
 
+import static com.axonivy.utils.process.analyzer.internal.helper.AnalysisPathHelper.addAllToPath;
+import static com.axonivy.utils.process.analyzer.internal.helper.AnalysisPathHelper.addToPath;
+import static com.axonivy.utils.process.analyzer.internal.helper.AnalysisPathHelper.replaceFirstElement;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
@@ -23,10 +26,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.axonivy.utils.process.analyzer.internal.helper.AnalysisPathHelper;
 import com.axonivy.utils.process.analyzer.internal.model.AnalysisPath;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
@@ -34,6 +37,7 @@ import com.axonivy.utils.process.analyzer.internal.model.SubProcessGroup;
 import com.axonivy.utils.process.analyzer.internal.model.TaskParallelGroup;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
+import ch.ivyteam.ivy.process.model.HierarchicElement;
 import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.diagram.edge.DiagramEdge;
@@ -78,7 +82,7 @@ public class PathFinder {
 	public Map<ProcessElement, List<AnalysisPath>> findAllTask() throws Exception {
 		Map<ProcessElement, List<AnalysisPath>> paths = emptyMap();
 		if (froms != null) {
-			paths = findPath(this.froms, null, FindType.ALL_TASKS);
+			paths = findPathWithParentElement(this.froms, null, FindType.ALL_TASKS);
 		}
 		return paths;
 	}
@@ -86,9 +90,50 @@ public class PathFinder {
 	public Map<ProcessElement, List<AnalysisPath>> findTaskOnPath() throws Exception {
 		Map<ProcessElement, List<AnalysisPath>> paths = emptyMap();
 		if (froms != null) {
-			paths = findPath(this.froms, this.flowName, FindType.TASKS_ON_PATH);
+			paths = findPathWithParentElement(this.froms, this.flowName, FindType.TASKS_ON_PATH);
 		}
 		return paths;
+	}
+	
+	private Map<ProcessElement, List<AnalysisPath>> findPathWithParentElement(List<ProcessElement> startElement,String flowName, FindType findType) throws Exception {
+		Map<ProcessElement, List<AnalysisPath>> paths = findPath(startElement, flowName, findType);
+		
+		//This block to find the parent's path which is  EmbeddedProcessElement
+		Map<ProcessElement, List<AnalysisPath>> result = new LinkedHashMap<>();
+		for(Entry<ProcessElement, List<AnalysisPath>>  entry : paths.entrySet()) {
+			var pathWithParent = getParentPathOf(entry.getKey(), flowName, findType, entry.getValue());
+			result.put(entry.getKey(), pathWithParent);
+		}
+		
+		return result;
+	}
+	
+	private List<AnalysisPath> getParentPathOf(ProcessElement startElement,String flowName, FindType findType, List<AnalysisPath> paths) throws Exception {
+		ProcessElement parentElement = getParentElement(startElement);
+		
+		List<AnalysisPath> result = paths;
+		if(parentElement != null) {
+			SubProcessGroup subProcess = new SubProcessGroup(parentElement.getElement(), paths);
+			
+			Map<ProcessElement, List<AnalysisPath>> parentPaths = findPath(List.of(parentElement), flowName, findType);
+			List<AnalysisPath> subPaths = parentPaths.getOrDefault(parentElement, emptyList());
+			
+			List<AnalysisPath> fullParentPath = replaceFirstElement(subProcess, subPaths);
+			
+			result = getParentPathOf(parentElement, flowName, findType, fullParentPath);
+		}
+
+		return result;
+	}
+	
+	private ProcessElement getParentElement(ProcessElement startElement) {
+		if (startElement.getElement() instanceof HierarchicElement) {
+			var parentElement = ((HierarchicElement) startElement.getElement()).getParent();
+			if (parentElement instanceof EmbeddedProcessElement) {
+				return new CommonElement(parentElement);
+			}
+		}
+		return null;
 	}
 
 	private Map<ProcessElement, List<AnalysisPath>> findPath(List<ProcessElement> froms, String flowName,
@@ -414,57 +459,6 @@ public class PathFinder {
 
 		return result;
 	}
-	
-	private List<AnalysisPath> addToPath(List<AnalysisPath> paths, List<AnalysisPath> subPaths) {
-		if (subPaths.isEmpty()) {
-			return paths;
-		}
-
-		List<AnalysisPath> result = paths;
-		for (AnalysisPath path : subPaths) {
-			result = addAllToPath(result, path.getElements());
-		}
-
-		return result;
-	}
-
-	private List<AnalysisPath> addAllToPath(List<AnalysisPath> paths, List<ProcessElement> elements) {
-		List<AnalysisPath> result = new ArrayList<>();
-		if (paths.isEmpty()) {
-			if (isNotEmpty(elements)) {
-				result.add(new AnalysisPath(elements));
-			}
-		} else {
-			paths.forEach(it -> {
-				result.add(new AnalysisPath(ListUtils.union(it.getElements(), elements)));
-			});
-		}
-
-		return result;
-	}
-
-	private List<AnalysisPath> addAllToPath(List<AnalysisPath> paths,
-			Map<SequenceFlow, List<AnalysisPath>> pathOptions) {
-		List<AnalysisPath> result = new ArrayList<>();
-		if (pathOptions.isEmpty()) {
-			result.addAll(paths);
-		} else {
-			pathOptions.entrySet().forEach(it -> {
-				ProcessElement sequenceFlowElement = new CommonElement(it.getKey());
-				if (it.getValue().isEmpty()) {
-					result.addAll(addAllToPath(paths, List.of(sequenceFlowElement)));
-				} else {
-					it.getValue().forEach(path -> {
-						List<ProcessElement> elememts = ListUtils.union(List.of(sequenceFlowElement),
-								path.getElements());
-
-						result.addAll(addAllToPath(paths, elememts));
-					});
-				}
-			});
-		}
-		return result;
-	}
 
 	private boolean isContains(List<AnalysisPath> currentPaths, final ProcessElement from) {
 		boolean isContains = false;
@@ -492,7 +486,7 @@ public class PathFinder {
 		Map<SequenceFlow, List<AnalysisPath>> paths = new LinkedHashMap<>();
 		for (SequenceFlow out : outs) {
 			CommonElement outElement = new CommonElement(out);
-			List<AnalysisPath> newPath = addAllToPath(currentPath, Arrays.asList(from, outElement));
+			List<AnalysisPath> newPath = AnalysisPathHelper.addAllToPath(currentPath, Arrays.asList(from, outElement));
 			List<AnalysisPath> nextOfPath = findAnalysisPaths(new CommonElement(out.getTarget()), flowName, findType,
 					newPath);
 			paths.put(out, nextOfPath);
@@ -512,8 +506,7 @@ public class PathFinder {
 		BaseElement start = processGraph.findOneStartElementOfProcess(processElement.getEmbeddedProcess());
 		List<AnalysisPath> path = findAnalysisPaths(new CommonElement(start), flowName, findType, emptyList());
 		
-		SubProcessGroup subProcessGroup = new SubProcessGroup(processElement);
-		subProcessGroup.setInternalPaths(path);
+		SubProcessGroup subProcessGroup = new SubProcessGroup(processElement, path);		
 		return subProcessGroup;
 	}
 
@@ -604,7 +597,6 @@ public class PathFinder {
 		if (isEmpty(sequenceFlow.getEdge().getLabel().getText())) {
 			return true;
 		}
-		;
 
 		return false;
 	}
