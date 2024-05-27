@@ -16,6 +16,11 @@ public class SubProcessGroup implements ProcessElement {
 		this.element = element;
 	}
 
+	public SubProcessGroup(BaseElement element, List<AnalysisPath> internalPaths) {
+		this(element);
+		this.internalPaths = internalPaths;
+	}
+	
 	public List<AnalysisPath> getInternalPaths() {
 		return internalPaths;
 	}
