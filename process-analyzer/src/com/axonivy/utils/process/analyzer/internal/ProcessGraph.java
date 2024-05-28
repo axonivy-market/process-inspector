@@ -8,11 +8,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.axonivy.utils.process.analyzer.model.ElementTask;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
-import ch.ivyteam.ivy.process.model.Process;
+import ch.ivyteam.ivy.process.model.EmbeddedProcess;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
@@ -60,8 +64,12 @@ public class ProcessGraph {
 		return result;
 	}
 
-	public BaseElement findOneStartElementOfProcess(Process process) {
-		BaseElement start = process.getElements().stream().filter(item -> item instanceof StartEvent).findFirst()
+	public BaseElement findOneStartElementOfProcess(EmbeddedProcessElement embeddedProcessElement) {
+		EmbeddedProcess process = embeddedProcessElement.getEmbeddedProcess();
+		BaseElement start = process.getElements().stream()
+				.filter(item -> item instanceof StartEvent)
+				.filter(it -> ((StartEvent) it).getParent().getPid().equals(embeddedProcessElement.getPid()))
+				.findFirst()
 				.orElse(null);
 
 		return start;
@@ -147,6 +155,10 @@ public class ProcessGraph {
 		return containPrefixs(subProcessCall.getParameters().getCode(), "APAConfig.handleAsTask");
 	}
 
+	public String getAlternativeNameId(BaseElement alternative) {
+		return Stream.of(alternative.getName(), alternative.getPid().getRawPid()).filter(StringUtils::isNotEmpty)
+				.collect(Collectors.joining("-"));
+	}
 	private boolean containPrefixs(String content, String... prefix) {
 		return List.of(prefix).stream().allMatch(it -> content.contains(it));
 	}
