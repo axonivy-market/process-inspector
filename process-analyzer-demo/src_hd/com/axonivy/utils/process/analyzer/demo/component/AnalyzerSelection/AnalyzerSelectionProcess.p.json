@@ -75,7 +75,6 @@
           "code" : [
             "if(in.processAnalyzerBean.selectedAnalyzer is initialized) {",
             "  in.processAnalyzerBean.selectedAnalyzer.elements = in.processAnalyzerBean.getAllTaskModifier();",
-            "  in.processAnalyzerBean.selectedAnalyzer.processPath = in.processAnalyzerBean.getProcessWebLink();",
             "}"
           ]
         }
@@ -192,7 +191,10 @@
       "name" : "init alternative",
       "config" : {
         "output" : {
-          "code" : "in.processAnalyzerBean.selectedAnalyzer.alternatives = in.processAnalyzerBean.getALternativeWithMoreThanOneOutgoing();"
+          "code" : [
+            "in.processAnalyzerBean.selectedAnalyzer.alternatives = in.processAnalyzerBean.getALternativeWithMoreThanOneOutgoing();",
+            "in.processAnalyzerBean.selectedAnalyzer.processPath = in.processAnalyzerBean.getProcessWebLink(in.processAnalyzerBean.selectedAnalyzer.startElement);"
+          ]
         }
       },
       "visual" : {

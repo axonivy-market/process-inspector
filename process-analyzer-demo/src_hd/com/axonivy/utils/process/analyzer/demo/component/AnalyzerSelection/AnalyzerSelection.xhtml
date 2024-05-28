@@ -27,7 +27,7 @@
 				<f:selectItems value="#{data.processAnalyzerBean.processes}"
 					var="process" itemLabel="#{process.name}" itemValue="#{process}" />
 				<p:ajax event="change" listener="#{logic.onChooseProcess}"
-					update="process-analyzer:analyzer-selection:selectOneElement process-analyzer:analyzer-selection:process-viewer-diagram @parent:alternative-selection"
+					update="process-analyzer:analyzer-selection:selectOneElement @parent:alternative-selection"
 					process="@this" />
 			</p:selectOneMenu>
 
@@ -40,7 +40,7 @@
 					value="#{data.processAnalyzerBean.selectedAnalyzer.elements}"
 					var="element" itemLabel="#{element.name}" itemValue="#{element}" />
 				<p:ajax event="change" listener="#{logic.onChooseElement}"
-					update="process-analyzer:analyzer-selection:selectOneElement @parent:alternative-selection"
+					update="process-analyzer:analyzer-selection:selectOneElement process-analyzer:analyzer-selection:process-viewer-diagram @parent:alternative-selection"
 					process="@this" />
 			</p:selectOneMenu>
 
