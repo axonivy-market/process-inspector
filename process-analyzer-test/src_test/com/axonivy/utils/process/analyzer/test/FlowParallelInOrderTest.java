@@ -174,4 +174,15 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 		var taskNames = getTaskNames(detectedTasks);
 		assertArrayEquals(expected, taskNames);
 	}
+	
+	@Test
+	void shouldFindAllTasksAtStart5() throws Exception {
+		var start5 = ProcessGraphHelper.findByElementName(process, "start5");
+		
+		var detectedTasks = processAnalyzer.findAllTasks(start5, null);
+		var expected = Arrays.array("TaskA5", "TaskC5", "TaskE5", "TaskF5", "TaskI5", "TaskG5", "TaskH5", "TaskD5", "TaskB5", "TaskJ5");
+
+		var taskNames = getTaskNames(detectedTasks);
+		assertArrayEquals(expected, taskNames);
+	}
 }

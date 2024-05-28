@@ -44,8 +44,7 @@ public class AnalysisPathHelper {
 		return result;
 	}
 
-	public static List<AnalysisPath> addAllToPath(List<AnalysisPath> paths,
-			Map<SequenceFlow, List<AnalysisPath>> pathOptions) {
+	public static List<AnalysisPath> addAllToPath(List<AnalysisPath> paths, Map<SequenceFlow, List<AnalysisPath>> pathOptions) {
 		List<AnalysisPath> result = new ArrayList<>();
 		if (pathOptions.isEmpty()) {
 			result.addAll(paths);
@@ -78,6 +77,29 @@ public class AnalysisPathHelper {
 			int size = path.getElements().size();
 			List<ProcessElement> withoutStartElement = size > 0 ? path.getElements().subList(1, size) : emptyList();
 			result.add(new AnalysisPath(ListUtils.union(List.of(element), withoutStartElement)));
+		}
+
+		return result;
+	}
+	
+	public static <T> int getLastIndex(AnalysisPath path) {
+		List<ProcessElement> elements = path.getElements();
+		return elements.size() == 0 ? 0 : elements.size() - 1;
+	}
+	
+	public static List<AnalysisPath> removeLastElementByClassType(List<AnalysisPath> paths , Class clazz) {
+
+		List<AnalysisPath> result = new ArrayList<>();
+		for (AnalysisPath path : paths) {
+			int lastIndex = AnalysisPathHelper.getLastIndex(path);
+			List<ProcessElement> pathElements = new ArrayList<>(path.getElements());
+			ProcessElement lastElement = pathElements.get(lastIndex);
+			
+			if (lastElement instanceof CommonElement && clazz.isInstance(lastElement.getElement())) {
+				pathElements.remove(lastIndex);
+			}
+			
+			result.add(new AnalysisPath(pathElements));
 		}
 
 		return result;
