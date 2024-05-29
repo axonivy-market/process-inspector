@@ -22,8 +22,8 @@ import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 import ch.ivyteam.ivy.process.model.element.activity.SubProcessCall;
+import ch.ivyteam.ivy.process.model.element.event.start.EmbeddedStart;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
-import ch.ivyteam.ivy.process.model.element.event.start.StartEvent;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.IvyScriptExpression;
@@ -49,7 +49,7 @@ public class ProcessGraph {
 		return wfEstimateCode;
 	}
 
-	public List<String> getParentElementNamesEmbeddedProcessElement(BaseElement parentElement) {
+	public List<String> getParentElementNamesEmbeddedProcessElement(BaseElement parentElement) {	
 		List<String> result = new ArrayList<>();
 		if (parentElement instanceof EmbeddedProcessElement) {
 			EmbeddedProcessElement processElement = (EmbeddedProcessElement) parentElement;
@@ -64,14 +64,13 @@ public class ProcessGraph {
 		return result;
 	}
 
-	public BaseElement findOneStartElementOfProcess(EmbeddedProcessElement embeddedProcessElement) {
+	public BaseElement findStartElementOfProcess(SequenceFlow sequenceFlow, EmbeddedProcessElement embeddedProcessElement) {
 		EmbeddedProcess process = embeddedProcessElement.getEmbeddedProcess();
 		BaseElement start = process.getElements().stream()
-				.filter(item -> item instanceof StartEvent)
-				.filter(it -> ((StartEvent) it).getParent().getPid().equals(embeddedProcessElement.getPid()))
+				.filter(item -> item instanceof EmbeddedStart)
+				.filter(it -> sequenceFlow == null || ((EmbeddedStart) it).getConnectedOuterSequenceFlow().equals(sequenceFlow))
 				.findFirst()
-				.orElse(null);
-
+				.orElse(null);		
 		return start;
 	}
 
