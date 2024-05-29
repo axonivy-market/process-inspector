@@ -43,7 +43,6 @@ import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
-import ch.ivyteam.ivy.process.model.element.event.start.StartEvent;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 
@@ -387,7 +386,7 @@ public class PathFinder {
 		if (from.getElement() instanceof NodeElement) {
 
 			if (from.getElement() instanceof EmbeddedProcessElement) {
-				SubProcessGroup subProcessGroup = findPathOfSubProcess(from, flowName, findType);				
+				SubProcessGroup subProcessGroup = findPathOfSubProcess(from, flowName, findType, currentPath);				
 				path = AnalysisPathHelper.removeLastElementByClassType(path, EmbeddedProcessElement.class);				
 				path = addAllToPath(path, List.of(subProcessGroup));
 			}
@@ -491,13 +490,19 @@ public class PathFinder {
 	/**
 	 * Find path on sub process
 	 */
-	private SubProcessGroup findPathOfSubProcess(ProcessElement subProcessElement, String flowName, FindType findType) throws Exception {
+	private SubProcessGroup findPathOfSubProcess(ProcessElement subProcessElement, String flowName, FindType findType, List<AnalysisPath> currentPath) throws Exception {
 		EmbeddedProcessElement processElement = (EmbeddedProcessElement) subProcessElement.getElement();
 		
+		List<ProcessElement> currentElements = AnalysisPathHelper.getAllProcessElement(currentPath);
+		SequenceFlow lastElement = currentElements.stream()
+				.reduce((a, b) -> b)
+				.map(ProcessElement::getElement)
+				.map(SequenceFlow.class::cast).orElse(null);
+		
 		//TODO: Which subprocess with more than one EmbeddedStart, how to handle it?
-		BaseElement start = processGraph.findOneStartElementOfProcess(processElement);
+		BaseElement start = processGraph.findStartElementOfProcess((SequenceFlow)lastElement, processElement);
 		List<AnalysisPath> path = findAnalysisPaths(new CommonElement(start), flowName, findType, emptyList());
-		((StartEvent) start).getParent();
+		
 		SubProcessGroup subProcessGroup = new SubProcessGroup(processElement, path);		
 		return subProcessGroup;
 	}
@@ -652,10 +657,7 @@ public class PathFinder {
 			var taskSwitchGateway = (TaskSwitchGateway) baseElement;
 			if (taskSwitchGateway.getIncoming().size() > 1) {
 
-				List<BaseElement> elements = paths.stream()
-						.map(AnalysisPath::getElements)
-						.flatMap(List::stream)
-						.flatMap(it -> getAllProcessElement(it).stream())
+				List<BaseElement> elements = AnalysisPathHelper.getAllProcessElement(paths).stream()						
 						.map(ProcessElement::getElement)
 						.toList();
 				
@@ -682,41 +684,13 @@ public class PathFinder {
 	}
 
 	private ProcessElement getJoinTaskSwithGateWay(TaskParallelGroup taskParallelGroup) {
-		List<ProcessElement> elements = getAllProcessElement(taskParallelGroup);
+		List<ProcessElement> elements = AnalysisPathHelper.getAllProcessElement(taskParallelGroup);
 		
 		int size = elements.size();
 		return size > 0 ? elements.get(size - 1) : null;
 	}
 
-	private List<ProcessElement> getAllProcessElement(ProcessElement element) {
-		if(element instanceof CommonElement) {
-			return List.of(element);
-		}
-		
-		if(element instanceof TaskParallelGroup) {
-			List<ProcessElement> result = new ArrayList<>();
-			
-			TaskParallelGroup group = (TaskParallelGroup) element;
-			if(group.getElement() != null) {
-				result.add(new CommonElement(group.getElement()));
-			}
-						
-			for(Entry<SequenceFlow, List<AnalysisPath>> entry : group.getInternalPaths().entrySet()) {
-				List<ProcessElement> allProcessElement = entry.getValue().stream()
-						.map(AnalysisPath::getElements)
-						.flatMap(List::stream)
-						.flatMap(it -> getAllProcessElement(it).stream())
-						.toList();
-				
-				result.add(new CommonElement(entry.getKey()));				
-				result.addAll(allProcessElement);
-			}
-			
-			return result;
-		}
-		
-		return emptyList();
-	}
+	
 	
 	private List<SequenceFlow> getSequenceFlowOfTaskSwitchGateway(TaskSwitchGateway taskSwitchGateway, NodeElement startNode) {
 		List<SequenceFlow> sequenceFlows = taskSwitchGateway.getIncoming();
