@@ -15,6 +15,7 @@ import javax.faces.event.AjaxBehaviorEvent;
 
 import org.primefaces.component.selectoneradio.SelectOneRadio;
 
+import com.axonivy.portal.components.util.CaseUtils;
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
 import com.axonivy.utils.process.analyzer.demo.constant.FindType;
 import com.axonivy.utils.process.analyzer.demo.constant.UseCase;
@@ -36,6 +37,7 @@ import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.rdm.IProcess;
 import ch.ivyteam.ivy.process.rdm.IProcessManager;
 import ch.ivyteam.ivy.process.viewer.api.ProcessViewer;
+import ch.ivyteam.ivy.workflow.ICase;
 import ch.ivyteam.ivy.workflow.start.IProcessWebStartable;
 import ch.ivyteam.ivy.workflow.start.IWebStartable;
 
@@ -119,15 +121,23 @@ public class ProcessAnalyzerBean {
 	public List<DetectedElement> getDetectedTask() throws Exception {
 		UseCase useCase = selectedAnalyzer.getUseCase();
 		String flowName = selectedAnalyzer.getFlowName();
-		SingleTaskCreator startElement = selectedAnalyzer.getStartElement();
+		
+		ICase icase = CaseUtils.findCase("2ac3b67e-1350-44da-a00a-429d643be475");
+		
+		//SingleTaskCreator startElement = selectedAnalyzer.getStartElement();
 		processAnalyzer = updateProcessAnalyzer(selectedAnalyzer);
-
+		Duration total = Duration.ZERO;
+		if (FindType.ALL_TASK.equals(selectedAnalyzer.getFindType())) {
+			total = processAnalyzer.calculateWorstCaseDuration(icase, useCase);
+		} else {
+			total = processAnalyzer.calculateDurationOfPath(icase, useCase, flowName);
+		}
 		long startTime = System.currentTimeMillis();
 		List<?> detectedElements = null;
 		if (FindType.ALL_TASK.equals(selectedAnalyzer.getFindType())) {
-			detectedElements = processAnalyzer.findAllTasks(startElement, useCase);
+			detectedElements = processAnalyzer.findAllTasks(icase, useCase);
 		} else {
-			detectedElements = processAnalyzer.findTasksOnPath(startElement, useCase, flowName);
+			detectedElements = processAnalyzer.findTasksOnPath(icase, useCase, flowName);
 		}
 
 		long executionTime = System.currentTimeMillis() - startTime;
@@ -139,13 +149,15 @@ public class ProcessAnalyzerBean {
 	public Duration getDetectedTaskCalculate() throws Exception {
 		UseCase useCase = selectedAnalyzer.getUseCase();
 		String flowName = selectedAnalyzer.getFlowName();
+		ICase icase = CaseUtils.findCase("2ac3b67e-1350-44da-a00a-429d643be475");
+		
 		SingleTaskCreator startElement = selectedAnalyzer.getStartElement();
 		processAnalyzer = updateProcessAnalyzer(selectedAnalyzer);
 		Duration total = Duration.ZERO;
 		if (FindType.ALL_TASK.equals(selectedAnalyzer.getFindType())) {
-			total = processAnalyzer.calculateWorstCaseDuration(startElement, useCase);
+			total = processAnalyzer.calculateWorstCaseDuration(icase, useCase);
 		} else {
-			total = processAnalyzer.calculateDurationOfPath(startElement, useCase, flowName);
+			total = processAnalyzer.calculateDurationOfPath(icase, useCase, flowName);
 		}
 
 		return total;

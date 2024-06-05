@@ -28,6 +28,7 @@ import com.axonivy.utils.process.analyzer.model.DetectedElement;
 import com.axonivy.utils.process.analyzer.model.DetectedTask;
 import com.axonivy.utils.process.analyzer.model.ElementTask;
 
+import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.HierarchicElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
@@ -228,11 +229,11 @@ class WorkflowPath {
 
 	private List<DetectedElement> convertTaskParallelGroupToDetectedElement(TaskParallelGroup group, Enum<?> useCase,
 			Map<ProcessElement, Duration> timeUntilStartAts, boolean withTaskEnd) {
-		Map<SequenceFlow, List<AnalysisPath>> internalPath = getInternalPath(group.getInternalPaths(), withTaskEnd);
+		Map<BaseElement, List<AnalysisPath>> internalPath = getInternalPath(group.getInternalPaths(), withTaskEnd);
 
 		List<DetectedElement> result = new ArrayList<>();
-		for (Entry<SequenceFlow, List<AnalysisPath>> entry : internalPath.entrySet()) {
-			SequenceFlow sequenceFlow = entry.getKey();
+		for (Entry<BaseElement, List<AnalysisPath>> entry : internalPath.entrySet()) {
+			BaseElement sequenceFlow = entry.getKey();
 			Duration startedAt = timeUntilStartAts.get(group);
 
 			ProcessElement key = new CommonElement(sequenceFlow);
@@ -240,8 +241,8 @@ class WorkflowPath {
 			Map<ProcessElement, Duration> startTimeDuration = null;
 
 			List<DetectedElement> tasks = emptyList();
-			if (group.getElement() != null) {
-				var startTask = createStartTaskFromTaskSwitchGateway(sequenceFlow, startedAt, useCase);
+			if (group.getElement() != null && sequenceFlow instanceof SequenceFlow) {
+				var startTask = createStartTaskFromTaskSwitchGateway((SequenceFlow) sequenceFlow, startedAt, useCase);
 				if (startTask != null) {
 					result.add(startTask);
 					startedAt = ((DetectedTask) startTask).getTimeUntilEnd();
@@ -413,12 +414,12 @@ class WorkflowPath {
 		return !pids.contains(detectedElement.getPid());
 	}
 
-	private Map<SequenceFlow, List<AnalysisPath>> getInternalPath(Map<SequenceFlow, List<AnalysisPath>> internalPath,
+	private Map<BaseElement, List<AnalysisPath>> getInternalPath(Map<BaseElement, List<AnalysisPath>> internalPath,
 			boolean withTaskEnd) {
-		Map<SequenceFlow, List<AnalysisPath>> paths = new LinkedHashMap<>();
+		Map<BaseElement, List<AnalysisPath>> paths = new LinkedHashMap<>();
 
 		// Priority the path go to end first
-		for (SequenceFlow sf : internalPath.keySet()) {
+		for (BaseElement sf : internalPath.keySet()) {
 			List<AnalysisPath> analysisPaths = new ArrayList<>();
 			for (AnalysisPath path : internalPath.get(sf)) {
 				ProcessElement last = getLast(path.getElements());

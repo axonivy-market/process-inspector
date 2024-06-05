@@ -14,6 +14,12 @@
 			<artifactId>process-analyzer</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.axonivy.portal</groupId>
+			<artifactId>portal-components</artifactId>
+			<version>11.2.1</version>
+			<type>iar</type>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

@@ -64,6 +64,16 @@ public class ProcessGraph {
 		return result;
 	}
 
+	public List<EmbeddedStart> findAllStartElementOfProcess(EmbeddedProcessElement embeddedProcessElement) {
+		EmbeddedProcess process = embeddedProcessElement.getEmbeddedProcess();
+		List<EmbeddedStart> starts = process.getElements().stream()
+				.filter(item -> item instanceof EmbeddedStart)
+				.map(EmbeddedStart.class::cast)
+				.toList();
+		
+		return starts;
+	}
+	
 	public BaseElement findStartElementOfProcess(SequenceFlow sequenceFlow, EmbeddedProcessElement embeddedProcessElement) {
 		EmbeddedProcess process = embeddedProcessElement.getEmbeddedProcess();
 		BaseElement start = process.getElements().stream()

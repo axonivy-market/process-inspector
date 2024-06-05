@@ -130,7 +130,7 @@ public class AnalysisPathHelper {
 				result.add(new CommonElement(group.getElement()));
 			}
 						
-			for(Entry<SequenceFlow, List<AnalysisPath>> entry : group.getInternalPaths().entrySet()) {
+			for(Entry<BaseElement, List<AnalysisPath>> entry : group.getInternalPaths().entrySet()) {
 				List<ProcessElement> allProcessElement = entry.getValue().stream()
 						.map(AnalysisPath::getElements)
 						.flatMap(List::stream)

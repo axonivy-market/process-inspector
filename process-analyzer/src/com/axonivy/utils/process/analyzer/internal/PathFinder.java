@@ -42,6 +42,7 @@ import ch.ivyteam.ivy.process.model.diagram.value.Label;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
+import ch.ivyteam.ivy.process.model.element.event.start.EmbeddedStart;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
@@ -266,11 +267,12 @@ public class PathFinder {
 		return taskGroup;
 	}
 
-	private Map<SequenceFlow, List<AnalysisPath>> convertToInternalPathForTaskParallelGroup(
+	private Map<BaseElement, List<AnalysisPath>> convertToInternalPathForTaskParallelGroup(
 			Map<ProcessElement, List<AnalysisPath>> internalPath) {
-		Map<SequenceFlow, List<AnalysisPath>> result = new LinkedHashMap<>();
+		Map<BaseElement, List<AnalysisPath>> result = new LinkedHashMap<>();
 		internalPath.entrySet().forEach(it -> {
-			result.put(((TaskAndCaseModifier) it.getKey().getElement()).getIncoming().get(0), it.getValue());
+			BaseElement start = ((NodeElement) it.getKey().getElement()).getIncoming().stream().findFirst().orElse(null);			
+			result.put(start != null ? start :  it.getKey().getElement(), it.getValue());			
 		});
 		return result;
 	}
@@ -448,6 +450,22 @@ public class PathFinder {
 
 		return pathOptions;
 	}
+	
+	private Map<SequenceFlow, List<AnalysisPath>> findAnalysisPath(List<SequenceFlow> outs, String flowName,
+			FindType findType, List<AnalysisPath> currentPath) throws Exception {
+		
+		Map<SequenceFlow, List<AnalysisPath>> pathOptions = new LinkedHashMap<>();
+		for (SequenceFlow out : outs) {
+			CommonElement outElement = new CommonElement(out);
+			List<AnalysisPath> newPath = addAllToPath(currentPath, Arrays.asList(outElement));
+			
+			ProcessElement nextStartElement = new CommonElement(out.getTarget());
+			List<AnalysisPath> nextOfPath = findAnalysisPaths(nextStartElement, flowName, findType, newPath);
+			pathOptions.put(out, nextOfPath);
+		}
+
+		return pathOptions;
+	}
 
 	private boolean isContains(List<AnalysisPath> currentPaths, final ProcessElement from) {
 		boolean isContains = false;
@@ -472,7 +490,7 @@ public class PathFinder {
 		TaskParallelGroup result = new TaskParallelGroup(from.getElement());
 		List<SequenceFlow> outs = getSequenceFlows((NodeElement) from.getElement(), flowName, findType);
 
-		Map<SequenceFlow, List<AnalysisPath>> paths = new LinkedHashMap<>();
+		Map<BaseElement, List<AnalysisPath>> paths = new LinkedHashMap<>();
 		for (SequenceFlow out : outs) {
 			CommonElement outElement = new CommonElement(out);
 			List<AnalysisPath> newPath = addAllToPath(currentPath, Arrays.asList(from, outElement));
@@ -501,6 +519,20 @@ public class PathFinder {
 		
 		//TODO: Which subprocess with more than one EmbeddedStart, how to handle it?
 		BaseElement start = processGraph.findStartElementOfProcess((SequenceFlow)lastElement, processElement);
+		List<ProcessElement> elements = processGraph.findAllStartElementOfProcess( processElement).stream()
+				.map(CommonElement::new)
+				.map(ProcessElement.class::cast)
+				.toList();
+				
+		List<SequenceFlow> start1 = elements.stream()
+				.map(ProcessElement::getElement)
+				.map(NodeElement.class::cast)
+				.map(it -> it.getOutgoing().stream().findFirst().orElse(null))
+				.map(SequenceFlow.class::cast)
+				.toList();
+		
+		var result =  findAnalysisPath(start1, flowName, findType, List.of(new AnalysisPath(elements)));
+		
 		List<AnalysisPath> path = findAnalysisPaths(new CommonElement(start), flowName, findType, emptyList());
 		
 		SubProcessGroup subProcessGroup = new SubProcessGroup(processElement, path);		
@@ -673,7 +705,7 @@ public class PathFinder {
 						.map(NodeElement.class::cast)
 						.orElse(null);
 				//TODO: Should find another solution to check
-				List<SequenceFlow> sequenceFlows = getSequenceFlowOfTaskSwitchGateway(taskSwitchGateway, firstNode);
+				List<SequenceFlow> sequenceFlows = taskSwitchGateway.getIncoming();//  getSequenceFlowOfTaskSwitchGateway(taskSwitchGateway, firstNode);
 				long count = sequenceFlowToParalletTasks.stream().filter(el -> sequenceFlows.contains(el)).count();
 				if (count >= sequenceFlows.size()) {
 					hasFullInComing = true;

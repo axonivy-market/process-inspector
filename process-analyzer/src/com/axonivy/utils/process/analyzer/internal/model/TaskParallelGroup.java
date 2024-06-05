@@ -12,17 +12,17 @@ import ch.ivyteam.ivy.process.model.value.PID;
 
 public class TaskParallelGroup implements ProcessElement {
 	private BaseElement element;
-	private Map<SequenceFlow, List<AnalysisPath>> internalPaths;
+	private Map<BaseElement, List<AnalysisPath>> internalPaths;
 
 	public TaskParallelGroup(BaseElement element) {
 		this.element = element;
 	}
 
-	public Map<SequenceFlow, List<AnalysisPath>> getInternalPaths() {
+	public Map<BaseElement, List<AnalysisPath>> getInternalPaths() {
 		return internalPaths;
 	}
 
-	public void setInternalPaths(Map<SequenceFlow, List<AnalysisPath>> internalPaths) {
+	public void setInternalPaths(Map<BaseElement, List<AnalysisPath>> internalPaths) {
 		this.internalPaths = internalPaths;
 	}
 
