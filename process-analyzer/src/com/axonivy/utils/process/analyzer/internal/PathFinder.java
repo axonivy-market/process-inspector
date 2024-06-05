@@ -433,7 +433,8 @@ public class PathFinder {
 		
 		List<SequenceFlow> outs = getSequenceFlows((NodeElement) from.getElement(), flowName, findType);
 		if (from.getElement() instanceof Alternative && outs.isEmpty()) {
-			throw new Exception("Not found path after element " + processGraph.getAlternativeNameId(from.getElement()));
+			String mgs = String.format("Not found path after element: \"%s\"", processGraph.getAlternativeNameId(from.getElement()));
+			throw new Exception(mgs);
 		}
 
 		Map<SequenceFlow, List<AnalysisPath>> pathOptions = new LinkedHashMap<>();
