@@ -114,7 +114,8 @@
             "in.processAnalyzerBean.selectedAnalyzer.tasks = in.processAnalyzerBean.getDetectedTask();",
             "in.processAnalyzerBean.selectedAnalyzer.totalDuration = in.processAnalyzerBean.getDetectedTaskCalculate();"
           ]
-        }
+        },
+        "sudo" : true
       },
       "visual" : {
         "at" : { "x" : 288, "y" : 360 }
