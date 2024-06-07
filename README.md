@@ -2,6 +2,8 @@
 
 [![CI Build](https://github.com/axonivy-market/advanced-process-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/axonivy-market/advanced-process-analyzer/actions/workflows/ci.yml)
 
+Use this tool to analyze your process model and calculate the expected case completion time.
+
 - Configure needed information directly in the process model
 	- Default duration of a task for multiple use cases. Each task can have multiple named default durations.
 	- Different “happy path” flows. It’s possible to set multiple named process paths.
