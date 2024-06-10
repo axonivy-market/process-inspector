@@ -32,6 +32,7 @@ import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.ProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
+import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.rdm.IProcess;
 import ch.ivyteam.ivy.process.rdm.IProcessManager;
@@ -161,10 +162,28 @@ public class ProcessAnalyzerBean {
 		return String.format("%s (%s)", elementName, shortPid);
 	}
 
-	public String getProcessWebLink() {
+	public String getProcessWebLink(SingleTaskCreator startElement) throws Exception {
+		IWebStartable webStartable = null;
 		String guid = this.selectedAnalyzer.getProcess().getPid().getProcessGuid();
-		IWebStartable webStartable = Ivy.session().getStartables().stream()
-				.filter(it -> it.getLink().toRelativeUri().getPath().contains(guid)).findFirst().orElse(null);
+		List<BaseElement> listStartElement = getStartElementsOfProcess(this.selectedAnalyzer.getProcess());
+
+		List<String> startElementNames = listStartElement.stream().map(BaseElement::getName).toList();
+		String elementName = startElementNames.stream().filter(name -> name.equals(startElement.getName())).findFirst()
+				.orElse(null);
+
+		for (BaseElement startNode : listStartElement) {
+			List<DetectedElement> listElements = this.processAnalyzer.findAllTasks(startNode, null);
+			boolean isExist = listElements.stream().anyMatch(it -> it.getElementName().equals(startElement.getName()));
+			if (isExist) {
+				elementName = startNode.getName();
+				break;
+			}
+		}
+
+		final String startName = elementName;
+		webStartable = Ivy.session().getStartables().stream()
+				.filter(it -> it.getLink().toRelativeUri().getPath().contains(guid + "/" + startName)).findFirst()
+				.orElse(null);
 
 		if (webStartable != null) {
 			return ProcessViewer.of((IProcessWebStartable) webStartable).url().toWebLink().getRelative();
@@ -209,6 +228,10 @@ public class ProcessAnalyzerBean {
 		elements.addAll(childElments);
 
 		return elements;
+	}
+
+	private List<BaseElement> getStartElementsOfProcess(Process process) {
+		return getElementOfProcess(process).stream().filter(item -> item instanceof RequestStart).toList();
 	}
 
 	private static List<BaseElement> getElementOfProcesses(List<ProcessElement> processElements) {

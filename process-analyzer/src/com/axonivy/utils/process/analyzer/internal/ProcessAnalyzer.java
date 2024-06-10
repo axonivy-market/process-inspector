@@ -4,12 +4,12 @@ import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -207,7 +207,14 @@ public class ProcessAnalyzer implements AdvancedProcessAnalyzer {
 
 	private List<BaseElement> getStartElements(ICase icase) {
 		List<ITask> tasks = getCaseITasks(icase);
-		List<BaseElement> elements = tasks.stream().map(task -> TaskHelper.getBaseElementOf(task)).toList();
+		List<BaseElement> elements = new ArrayList<>();
+		for (ITask task : tasks) {
+			BaseElement element = TaskHelper.getBaseElementOf(task);
+			if (isTaskInCallableSub(element)) {
+				element = getOriginalCallerElement(task);
+			}			
+			elements.add(element);
+		}
 
 		return elements;
 	}

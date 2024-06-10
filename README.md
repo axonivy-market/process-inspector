@@ -1,6 +1,6 @@
 # Advanced Process Analyzer
 
-[![CI Build](https://github.com/axonivy-market/advanced-process-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/axonivy-market/advanced-process-analyzer/actions/workflows/ci.yml)
+[![CI Build](https://github.com/axonivy-market/process-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/axonivy-market/process-analyzer/actions/workflows/ci.yml)
 
 Use this tool to analyze your process model and calculate the expected case completion time.
 

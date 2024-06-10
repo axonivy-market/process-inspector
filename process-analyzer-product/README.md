@@ -1,10 +1,10 @@
 # Advanced Process Analyzer
 
-Axon Ivyís Advanced Process Analyzer tool helps you to calculate duration to finish a workflow case. Key features:
+Axon Ivy‚Äôs Advanced Process Analyzer tool helps you to calculate duration to finish a workflow case. Key features:
 
 - Configure needed information directly in the process model
 	- Default duration of a task for multiple use cases. Each task can have multiple named default durations.
-	- Different ìhappy pathî flows. Itís possible to set multiple named process paths.
+	- Different ‚Äúhappy path‚Äù flows. It‚Äôs possible to set multiple named process paths.
 - Possibilities to override settings of the process model
 	- Override duration
 	- Override default path for the gateways
@@ -84,7 +84,7 @@ In the project, you only add the dependency in your pom.xml and call public APIs
 	
 	/**
 	 * This method can be used to calculate expected worst case duration from a starting point in a process until all task are done and end of process is reached.
-	 * In case of parallel process flows, it will always use the ìcritical pathî (which means path with longer duration).
+	 * In case of parallel process flows, it will always use the ‚Äúcritical path‚Äù (which means path with longer duration).
 	 * @param startElement - Element where we start traversing the process
 	 * @param useCase - Use case that should be used to read duration values. Durations will be set to 0 in case not provided.
 	 * If it is null, it will get first duration configure line
@@ -94,7 +94,7 @@ In the project, you only add the dependency in your pom.xml and call public APIs
 	public Duration calculateWorstCaseDuration(BaseElement startElement, Enum<?> useCase) throws Exception
 ```
 
-## Example
+### Example
 
 - Now we will practice How to analyze the process below with some scenarios.
  ![workflow-estimator-demo](images/exampleWorkflow.png)

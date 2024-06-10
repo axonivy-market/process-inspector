@@ -6,13 +6,16 @@ import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.collections4.ListUtils;
 
 import com.axonivy.utils.process.analyzer.internal.model.AnalysisPath;
 import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
+import com.axonivy.utils.process.analyzer.internal.model.TaskParallelGroup;
 
+import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 
 public class AnalysisPathHelper {
@@ -44,8 +47,7 @@ public class AnalysisPathHelper {
 		return result;
 	}
 
-	public static List<AnalysisPath> addAllToPath(List<AnalysisPath> paths,
-			Map<SequenceFlow, List<AnalysisPath>> pathOptions) {
+	public static List<AnalysisPath> addAllToPath(List<AnalysisPath> paths, Map<SequenceFlow, List<AnalysisPath>> pathOptions) {
 		List<AnalysisPath> result = new ArrayList<>();
 		if (pathOptions.isEmpty()) {
 			result.addAll(paths);
@@ -81,5 +83,67 @@ public class AnalysisPathHelper {
 		}
 
 		return result;
+	}
+	
+	public static <T> int getLastIndex(AnalysisPath path) {
+		List<ProcessElement> elements = path.getElements();
+		return elements.size() == 0 ? 0 : elements.size() - 1;
+	}
+	
+	public static List<AnalysisPath> removeLastElementByClassType(List<AnalysisPath> paths , Class clazz) {
+
+		List<AnalysisPath> result = new ArrayList<>();
+		for (AnalysisPath path : paths) {
+			int lastIndex = AnalysisPathHelper.getLastIndex(path);
+			List<ProcessElement> pathElements = new ArrayList<>(path.getElements());
+			ProcessElement lastElement = pathElements.get(lastIndex);
+			
+			if (lastElement instanceof CommonElement && clazz.isInstance(lastElement.getElement())) {
+				pathElements.remove(lastIndex);
+			}
+			
+			result.add(new AnalysisPath(pathElements));
+		}
+
+		return result;
+	}
+	
+	public static List<ProcessElement> getAllProcessElement(List<AnalysisPath> paths) {
+		List<ProcessElement> elements = paths.stream()
+				.map(AnalysisPath::getElements)
+				.flatMap(List::stream)
+				.flatMap(it -> getAllProcessElement(it).stream())
+				.toList();
+		return elements;
+	}
+	
+	public static List<ProcessElement> getAllProcessElement(ProcessElement element) {
+		if(element instanceof CommonElement) {
+			return List.of(element);
+		}
+		
+		if(element instanceof TaskParallelGroup) {
+			List<ProcessElement> result = new ArrayList<>();
+			
+			TaskParallelGroup group = (TaskParallelGroup) element;
+			if(group.getElement() != null) {
+				result.add(new CommonElement(group.getElement()));
+			}
+						
+			for(Entry<SequenceFlow, List<AnalysisPath>> entry : group.getInternalPaths().entrySet()) {
+				List<ProcessElement> allProcessElement = entry.getValue().stream()
+						.map(AnalysisPath::getElements)
+						.flatMap(List::stream)
+						.flatMap(it -> getAllProcessElement(it).stream())
+						.toList();
+				
+				result.add(new CommonElement(entry.getKey()));				
+				result.addAll(allProcessElement);
+			}
+			
+			return result;
+		}
+		
+		return emptyList();
 	}
 }

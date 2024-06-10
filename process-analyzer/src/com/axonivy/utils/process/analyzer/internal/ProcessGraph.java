@@ -8,18 +8,22 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.axonivy.utils.process.analyzer.model.ElementTask;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
-import ch.ivyteam.ivy.process.model.Process;
+import ch.ivyteam.ivy.process.model.EmbeddedProcess;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 import ch.ivyteam.ivy.process.model.element.activity.SubProcessCall;
+import ch.ivyteam.ivy.process.model.element.event.start.EmbeddedStart;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
-import ch.ivyteam.ivy.process.model.element.event.start.StartEvent;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.IvyScriptExpression;
@@ -45,7 +49,7 @@ public class ProcessGraph {
 		return wfEstimateCode;
 	}
 
-	public List<String> getParentElementNamesEmbeddedProcessElement(BaseElement parentElement) {
+	public List<String> getParentElementNamesEmbeddedProcessElement(BaseElement parentElement) {	
 		List<String> result = new ArrayList<>();
 		if (parentElement instanceof EmbeddedProcessElement) {
 			EmbeddedProcessElement processElement = (EmbeddedProcessElement) parentElement;
@@ -60,10 +64,13 @@ public class ProcessGraph {
 		return result;
 	}
 
-	public BaseElement findOneStartElementOfProcess(Process process) {
-		BaseElement start = process.getElements().stream().filter(item -> item instanceof StartEvent).findFirst()
-				.orElse(null);
-
+	public BaseElement findStartElementOfProcess(SequenceFlow sequenceFlow, EmbeddedProcessElement embeddedProcessElement) {
+		EmbeddedProcess process = embeddedProcessElement.getEmbeddedProcess();
+		BaseElement start = process.getElements().stream()
+				.filter(item -> item instanceof EmbeddedStart)
+				.filter(it -> sequenceFlow == null || ((EmbeddedStart) it).getConnectedOuterSequenceFlow().equals(sequenceFlow))
+				.findFirst()
+				.orElse(null);		
 		return start;
 	}
 
@@ -147,6 +154,10 @@ public class ProcessGraph {
 		return containPrefixs(subProcessCall.getParameters().getCode(), "APAConfig.handleAsTask");
 	}
 
+	public String getAlternativeNameId(BaseElement alternative) {
+		return Stream.of(alternative.getName(), alternative.getPid().getRawPid()).filter(StringUtils::isNotEmpty)
+				.collect(Collectors.joining("-"));
+	}
 	private boolean containPrefixs(String content, String... prefix) {
 		return List.of(prefix).stream().allMatch(it -> content.contains(it));
 	}

@@ -750,6 +750,349 @@
       "connect" : [
         { "id" : "f97", "to" : "f33", "var" : "in2" }
       ]
+    }, {
+      "id" : "f34",
+      "type" : "RequestStart",
+      "name" : "start5",
+      "config" : {
+        "signature" : "start5"
+      },
+      "visual" : {
+        "at" : { "x" : 224, "y" : 1376 }
+      },
+      "connect" : [
+        { "id" : "f93", "to" : "f91", "var" : "in1" }
+      ]
+    }, {
+      "id" : "f91",
+      "type" : "TaskSwitchGateway",
+      "name" : "split1",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          }, {
+            "id" : "TaskB",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 328, "y" : 1376 },
+        "labelOffset" : { "x" : -40, "y" : -24 }
+      },
+      "connect" : [
+        { "id" : "f98", "to" : "f94", "via" : [ { "x" : 328, "y" : 1296 } ], "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f101", "to" : "f100", "via" : [ { "x" : 328, "y" : 1616 } ], "condition" : "ivp==\"TaskB.ivp\"" }
+      ]
+    }, {
+      "id" : "f94",
+      "type" : "UserTask",
+      "name" : "TaskA5",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
+        "task" : {
+          "name" : "TaskA5"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 424, "y" : 1296 }
+      },
+      "connect" : [
+        { "id" : "f103", "to" : "f102", "var" : "in1" }
+      ]
+    }, {
+      "id" : "f100",
+      "type" : "UserTask",
+      "name" : "TaskB5",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
+        "task" : {
+          "name" : "TaskB5"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 472, "y" : 1616 }
+      },
+      "connect" : [
+        { "id" : "f110", "to" : "f111", "via" : [ { "x" : 1416, "y" : 1616 } ], "var" : "in1" }
+      ]
+    }, {
+      "id" : "f102",
+      "type" : "TaskSwitchGateway",
+      "name" : "split2",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          }, {
+            "id" : "TaskB",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 536, "y" : 1296 },
+        "labelOffset" : { "x" : -8, "y" : -16 }
+      },
+      "connect" : [
+        { "id" : "f105", "to" : "f104", "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f107", "to" : "f106", "condition" : "ivp==\"TaskB.ivp\"" }
+      ]
+    }, {
+      "id" : "f104",
+      "type" : "UserTask",
+      "name" : "TaskC5",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
+        "task" : {
+          "name" : "TaskC5"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 640, "y" : 1296 }
+      },
+      "connect" : [
+        { "id" : "f116", "to" : "f109" }
+      ]
+    }, {
+      "id" : "f106",
+      "type" : "UserTask",
+      "name" : "TaskD5",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
+        "task" : {
+          "name" : "TaskD5"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 536, "y" : 1528 }
+      },
+      "connect" : [
+        { "id" : "f108", "to" : "f111", "via" : [ { "x" : 1360, "y" : 1528 } ], "var" : "in2" }
+      ]
+    }, {
+      "id" : "f109",
+      "type" : "Alternative",
+      "config" : {
+        "conditions" : {
+          "f118" : "true",
+          "f121" : "true"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 736, "y" : 1296 }
+      },
+      "connect" : [
+        { "id" : "f118", "to" : "f117" },
+        { "id" : "f121", "to" : "f119", "via" : [ { "x" : 736, "y" : 1232 }, { "x" : 952, "y" : 1232 } ], "label" : {
+            "name" : "{happy}",
+            "segment" : 1.49
+          } }
+      ]
+    }, {
+      "id" : "f117",
+      "type" : "UserTask",
+      "name" : "TaskE5",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
+        "task" : {
+          "name" : "TaskE5"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 840, "y" : 1296 }
+      },
+      "connect" : [
+        { "id" : "f120", "to" : "f119" }
+      ]
+    }, {
+      "id" : "f119",
+      "type" : "Alternative",
+      "visual" : {
+        "at" : { "x" : 952, "y" : 1296 }
+      },
+      "connect" : [
+        { "id" : "f123", "to" : "f122", "var" : "in1" }
+      ]
+    }, {
+      "id" : "f122",
+      "type" : "TaskSwitchGateway",
+      "name" : "split3",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          }, {
+            "id" : "TaskB",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 952, "y" : 1360 },
+        "labelOffset" : { "x" : -32, "y" : 16 }
+      },
+      "connect" : [
+        { "id" : "f125", "to" : "f124", "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f140", "to" : "f139", "condition" : "ivp==\"TaskB.ivp\"" }
+      ]
+    }, {
+      "id" : "f124",
+      "type" : "UserTask",
+      "name" : "TaskF5",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
+        "task" : {
+          "name" : "TaskF5"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 1056, "y" : 1360 }
+      },
+      "connect" : [
+        { "id" : "f127", "to" : "f126" }
+      ]
+    }, {
+      "id" : "f126",
+      "type" : "Alternative",
+      "config" : {
+        "conditions" : {
+          "f129" : "true",
+          "f138" : "true"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 1192, "y" : 1360 }
+      },
+      "connect" : [
+        { "id" : "f129", "to" : "f128" },
+        { "id" : "f138", "to" : "f130", "via" : [ { "x" : 1192, "y" : 1296 }, { "x" : 1416, "y" : 1296 } ], "label" : {
+            "name" : "{happy}",
+            "segment" : 1.46
+          } }
+      ]
+    }, {
+      "id" : "f128",
+      "type" : "UserTask",
+      "name" : "TaskI5",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
+        "task" : {
+          "name" : "TaskI5"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 1304, "y" : 1360 }
+      },
+      "connect" : [
+        { "id" : "f131", "to" : "f130" }
+      ]
+    }, {
+      "id" : "f130",
+      "type" : "Alternative",
+      "visual" : {
+        "at" : { "x" : 1416, "y" : 1360 }
+      },
+      "connect" : [
+        { "id" : "f133", "to" : "f111", "var" : "in4" }
+      ]
+    }, {
+      "id" : "f134",
+      "type" : "UserTask",
+      "name" : "TaskJ5",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
+        "task" : {
+          "name" : "TaskJ5"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 1536, "y" : 1448 }
+      },
+      "connect" : [
+        { "id" : "f137", "to" : "f136" }
+      ]
+    }, {
+      "id" : "f136",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 1648, "y" : 1448 }
+      }
+    }, {
+      "id" : "f139",
+      "type" : "UserTask",
+      "name" : "TaskG5",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
+        "task" : {
+          "name" : "TaskG5"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 952, "y" : 1448 }
+      },
+      "connect" : [
+        { "id" : "f142", "to" : "f141" }
+      ]
+    }, {
+      "id" : "f141",
+      "type" : "UserTask",
+      "name" : "TaskH5",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
+        "task" : {
+          "name" : "TaskH5"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 1160, "y" : 1448 }
+      },
+      "connect" : [
+        { "id" : "f143", "to" : "f111", "var" : "in3" }
+      ]
+    }, {
+      "id" : "f111",
+      "type" : "TaskSwitchGateway",
+      "name" : "join",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 1416, "y" : 1448 },
+        "labelOffset" : { "x" : 48, "y" : -8 }
+      },
+      "connect" : [
+        { "id" : "f112", "to" : "f134", "condition" : "ivp==\"TaskA.ivp\"" }
+      ]
+    }, {
+      "id" : "f113",
+      "type" : "RequestStart",
+      "name" : "start6",
+      "config" : {
+        "signature" : "start6"
+      },
+      "visual" : {
+        "at" : { "x" : 536, "y" : 1216 },
+        "labelOffset" : { "x" : -31, "y" : 1 }
+      },
+      "connect" : [
+        { "id" : "f114", "to" : "f102", "var" : "in2" }
+      ]
     } ],
   "layout" : {
     "colors" : {

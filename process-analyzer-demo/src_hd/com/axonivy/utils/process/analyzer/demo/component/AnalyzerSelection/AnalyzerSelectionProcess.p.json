@@ -75,7 +75,6 @@
           "code" : [
             "if(in.processAnalyzerBean.selectedAnalyzer is initialized) {",
             "  in.processAnalyzerBean.selectedAnalyzer.elements = in.processAnalyzerBean.getAllTaskModifier();",
-            "  in.processAnalyzerBean.selectedAnalyzer.processPath = in.processAnalyzerBean.getProcessWebLink();",
             "}"
           ]
         }
@@ -115,7 +114,8 @@
             "in.processAnalyzerBean.selectedAnalyzer.tasks = in.processAnalyzerBean.getDetectedTask();",
             "in.processAnalyzerBean.selectedAnalyzer.totalDuration = in.processAnalyzerBean.getDetectedTaskCalculate();"
           ]
-        }
+        },
+        "sudo" : true
       },
       "visual" : {
         "at" : { "x" : 288, "y" : 360 }
@@ -192,7 +192,10 @@
       "name" : "init alternative",
       "config" : {
         "output" : {
-          "code" : "in.processAnalyzerBean.selectedAnalyzer.alternatives = in.processAnalyzerBean.getALternativeWithMoreThanOneOutgoing();"
+          "code" : [
+            "in.processAnalyzerBean.selectedAnalyzer.alternatives = in.processAnalyzerBean.getALternativeWithMoreThanOneOutgoing();",
+            "in.processAnalyzerBean.selectedAnalyzer.processPath = in.processAnalyzerBean.getProcessWebLink(in.processAnalyzerBean.selectedAnalyzer.startElement);"
+          ]
         }
       },
       "visual" : {

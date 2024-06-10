@@ -45,6 +45,17 @@ public class FlowSubProcessTest extends FlowExampleTest {
 
 		assertArrayEquals(Arrays.array("Task A", "Task B"), getTaskNames(detectedTasks));
 	}
+	
+	@Test
+	void shouldFindAllTasksAtStart4() throws Exception {
+		var start4 = ProcessGraphHelper.findByElementName(process, "start4");
+		var detectedTasks = processAnalyzer.findAllTasks(start4, null);
+
+		var expected = Arrays.array("TaskA4", "Sub1-TaskA", "Sub2-TaskE", "Sub2-TaskB", "Sub2-TaskC", "Sub3-TaskA", "Sub2-TaskA", "Sub2-TaskD");
+		var taskNames = getTaskNames(detectedTasks);
+		
+		assertArrayEquals(expected, taskNames);
+	}
 
 	@Test
 	void shouldFindTaskParentNames() throws Exception {
