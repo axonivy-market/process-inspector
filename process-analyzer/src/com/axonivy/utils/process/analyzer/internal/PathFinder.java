@@ -41,7 +41,7 @@ import ch.ivyteam.ivy.process.model.diagram.edge.DiagramEdge;
 import ch.ivyteam.ivy.process.model.diagram.value.Label;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
-import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
+import ch.ivyteam.ivy.process.model.element.event.end.TaskEnd;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
@@ -56,7 +56,7 @@ public class PathFinder {
 	private List<ProcessElement> froms;
 	private String flowName;
 	private Map<String, String> processFlowOverrides = emptyMap();
-
+	
 	public PathFinder() {
 		this.processGraph = new ProcessGraph();
 	}
@@ -133,8 +133,7 @@ public class PathFinder {
 		return null;
 	}
 
-	private Map<ProcessElement, List<AnalysisPath>> findPath(List<ProcessElement> froms, String flowName,
-			FindType findType) throws Exception {
+	private Map<ProcessElement, List<AnalysisPath>> findPath(List<ProcessElement> froms, String flowName, FindType findType) throws Exception {
 		Map<ProcessElement, List<AnalysisPath>> result = new LinkedHashMap<>();
 		for (ProcessElement from : froms) {
 			List<AnalysisPath> path = findAnalysisPaths(from, flowName, findType, emptyList());
@@ -147,10 +146,10 @@ public class PathFinder {
 		}
 
 		// Find again from intersection task
-		List<AnalysisPath> subPath = findAnalysisPaths(new CommonElement(intersectionTask.getElement()), flowName,
-				findType, emptyList());
+		ProcessElement startElement = new CommonElement(intersectionTask.getElement());
+		Map<ProcessElement, List<AnalysisPath>> subPaths = findPath(List.of(startElement), flowName, findType);
 
-		Map<ProcessElement, List<AnalysisPath>> fullPath = mergePath(result, intersectionTask, subPath);
+		Map<ProcessElement, List<AnalysisPath>> fullPath = mergePath(result, intersectionTask, subPaths.getOrDefault(startElement, emptyList()));
 
 		return fullPath;
 	}
@@ -270,7 +269,8 @@ public class PathFinder {
 			Map<ProcessElement, List<AnalysisPath>> internalPath) {
 		Map<SequenceFlow, List<AnalysisPath>> result = new LinkedHashMap<>();
 		internalPath.entrySet().forEach(it -> {
-			result.put(((TaskAndCaseModifier) it.getKey().getElement()).getIncoming().get(0), it.getValue());
+			NodeElement element = (NodeElement) it.getKey().getElement();
+			result.put(element.getIncoming().get(0), it.getValue());
 		});
 		return result;
 	}
@@ -386,8 +386,8 @@ public class PathFinder {
 		if (from.getElement() instanceof NodeElement) {
 
 			if (from.getElement() instanceof EmbeddedProcessElement) {
-				SubProcessGroup subProcessGroup = findPathOfSubProcess(from, flowName, findType, currentPath);				
-				path = AnalysisPathHelper.removeLastElementByClassType(path, EmbeddedProcessElement.class);				
+				SubProcessGroup subProcessGroup = findPathOfSubProcess(from, flowName, findType, currentPath);
+				path = AnalysisPathHelper.removeLastElementByClassType(path, EmbeddedProcessElement.class);	
 				path = addAllToPath(path, List.of(subProcessGroup));
 			}
 
@@ -421,14 +421,18 @@ public class PathFinder {
 			}
 			
 			// Call recursion for next normal node
-			var pathOptions = findAnalysisPathForNextNode(from, flowName, findType, currentPath);
+			var newPath = addToPath(currentPath, path);
+			if (shouldStopFindTask(newPath, findType)) {
+				return path;
+			}
+			var pathOptions = findAnalysisPathForNextNode(from, flowName, findType, newPath);
 			path = addAllToPath(path, pathOptions);	
 		}
 		
 		return path;
 	}
 
-	private Map<SequenceFlow, List<AnalysisPath>> findAnalysisPathForNextNode(ProcessElement from, String flowName,
+	private Map<SequenceFlow, List<AnalysisPath>> findAnalysisPathForNextNode(ProcessElement from, String flowName, 
 			FindType findType, List<AnalysisPath> currentPath) throws Exception {
 		
 		List<SequenceFlow> outs = getSequenceFlows((NodeElement) from.getElement(), flowName, findType);
@@ -440,7 +444,7 @@ public class PathFinder {
 		Map<SequenceFlow, List<AnalysisPath>> pathOptions = new LinkedHashMap<>();
 		for (SequenceFlow out : outs) {
 			CommonElement outElement = new CommonElement(out);
-			List<AnalysisPath> newPath = addAllToPath(currentPath, Arrays.asList(from, outElement));
+			List<AnalysisPath> newPath = addAllToPath(currentPath, Arrays.asList(outElement));
 			
 			ProcessElement nextStartElement = new CommonElement(out.getTarget());
 			List<AnalysisPath> nextOfPath = findAnalysisPaths(nextStartElement, flowName, findType, newPath);
@@ -500,7 +504,6 @@ public class PathFinder {
 				.map(ProcessElement::getElement)
 				.map(SequenceFlow.class::cast).orElse(null);
 		
-		//TODO: Which subprocess with more than one EmbeddedStart, how to handle it?
 		BaseElement start = processGraph.findStartElementOfProcess((SequenceFlow)lastElement, processElement);
 		List<AnalysisPath> path = findAnalysisPaths(new CommonElement(start), flowName, findType, emptyList());
 		
@@ -641,7 +644,6 @@ public class PathFinder {
 			}
 
 			result = hasStartBefore && !hasFullInComing;
-
 		}
 		return result;
 	}
@@ -691,8 +693,6 @@ public class PathFinder {
 		return size > 0 ? elements.get(size - 1) : null;
 	}
 
-	
-	
 	private List<SequenceFlow> getSequenceFlowOfTaskSwitchGateway(TaskSwitchGateway taskSwitchGateway, NodeElement startNode) {
 		List<SequenceFlow> sequenceFlows = taskSwitchGateway.getIncoming();
 		
@@ -715,6 +715,24 @@ public class PathFinder {
 				return true;
 			}
 		}	
+		return false;
+	}
+	
+	private boolean shouldStopFindTask(SubProcessGroup element, FindType findType) {
+		List<AnalysisPath> paths = element.getInternalPaths();
+		return shouldStopFindTask(paths, findType);
+	}
+	
+	private boolean shouldStopFindTask(List<AnalysisPath> paths, FindType findType) {
+		
+		if (FindType.TASKS_ON_PATH.equals(findType) && isNotEmpty(paths)) {
+			ProcessElement lastElement = AnalysisPathHelper.getLastElement(paths.get(0));
+			if (lastElement.getElement() instanceof TaskEnd) {
+				return true;
+			} else if (lastElement instanceof SubProcessGroup) {
+				return shouldStopFindTask((SubProcessGroup) lastElement, findType);
+			}
+		}
 		return false;
 	}
 }

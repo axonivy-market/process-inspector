@@ -89,6 +89,12 @@ public class AnalysisPathHelper {
 		return elements.size() == 0 ? 0 : elements.size() - 1;
 	}
 	
+	public static ProcessElement getLastElement(AnalysisPath path) {
+		List<ProcessElement> elements = path.getElements();
+		int size = elements.size();
+		return size == 0 ? null : elements.get(size - 1);
+	}
+	
 	public static List<AnalysisPath> removeLastElementByClassType(List<AnalysisPath> paths , Class<?> clazz) {
 
 		List<AnalysisPath> result = new ArrayList<>();
