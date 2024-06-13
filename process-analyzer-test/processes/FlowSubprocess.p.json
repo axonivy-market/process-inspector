@@ -328,7 +328,7 @@
         "at" : { "x" : 96, "y" : 440 }
       },
       "connect" : [
-        { "id" : "f18", "to" : "f32", "var" : "in1" }
+        { "id" : "f18", "to" : "S70" }
       ]
     }, {
       "id" : "S40",
@@ -687,30 +687,6 @@
         "at" : { "x" : 808, "y" : 440 }
       }
     }, {
-      "id" : "f32",
-      "type" : "UserTask",
-      "name" : "TaskA4",
-      "config" : {
-        "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
-        "task" : {
-          "name" : "TaskA4",
-          "code" : [
-            "import com.axonivy.utils.process.analyzer.APAConfig;",
-            "import com.axonivy.utils.process.analyzer.test.UseCase;",
-            "import java.util.concurrent.TimeUnit;",
-            "",
-            "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);",
-            "APAConfig.setEstimate(3,TimeUnit.HOURS,UseCase.SMALLPROJECT);"
-          ]
-        }
-      },
-      "visual" : {
-        "at" : { "x" : 224, "y" : 440 }
-      },
-      "connect" : [
-        { "id" : "f33", "to" : "f17", "var" : "in1" }
-      ]
-    }, {
       "id" : "S60",
       "type" : "EmbeddedProcess",
       "name" : "Sub Process 3",
@@ -762,5 +738,169 @@
       "connect" : [
         { "id" : "f25", "to" : "f27", "var" : "in2" }
       ]
-    } ]
+    }, {
+      "id" : "S70",
+      "type" : "EmbeddedProcess",
+      "name" : "Sub Process 0",
+      "elements" : [ {
+          "id" : "S70-g0",
+          "type" : "EmbeddedStart",
+          "visual" : {
+            "at" : { "x" : 64, "y" : 256 }
+          },
+          "parentConnector" : "f18",
+          "connect" : [
+            { "id" : "S70-f0", "to" : "S70-f1" }
+          ]
+        }, {
+          "id" : "S70-g1",
+          "type" : "EmbeddedEnd",
+          "visual" : {
+            "at" : { "x" : 592, "y" : 256 }
+          },
+          "parentConnector" : "f29"
+        }, {
+          "id" : "S70-f1",
+          "type" : "UserTask",
+          "name" : "Sub0-TaskA",
+          "config" : {
+            "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
+            "task" : {
+              "name" : "Sub0-TaskA",
+              "code" : [
+                "import com.axonivy.utils.process.analyzer.APAConfig;",
+                "import com.axonivy.utils.process.analyzer.test.UseCase;",
+                "import java.util.concurrent.TimeUnit;",
+                "",
+                "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);",
+                "APAConfig.setEstimate(3,TimeUnit.HOURS,UseCase.SMALLPROJECT);"
+              ]
+            }
+          },
+          "visual" : {
+            "at" : { "x" : 184, "y" : 256 }
+          },
+          "connect" : [
+            { "id" : "S70-f2", "to" : "S70-f3" }
+          ]
+        }, {
+          "id" : "S70-f3",
+          "type" : "Alternative",
+          "config" : {
+            "conditions" : {
+              "S70-f4" : "true",
+              "S70-f7" : ""
+            }
+          },
+          "visual" : {
+            "at" : { "x" : 320, "y" : 256 }
+          },
+          "connect" : [
+            { "id" : "S70-f7", "to" : "S70-f22" },
+            { "id" : "S70-f4", "to" : "S70-S10", "label" : {
+                "name" : "{happy}"
+              } }
+          ]
+        }, {
+          "id" : "S70-f22",
+          "type" : "TaskEnd",
+          "visual" : {
+            "at" : { "x" : 320, "y" : 352 },
+            "color" : "End"
+          }
+        }, {
+          "id" : "S70-S10",
+          "type" : "EmbeddedProcess",
+          "name" : "Sub Process 0-0",
+          "elements" : [ {
+              "id" : "S70-S10-g0",
+              "type" : "EmbeddedStart",
+              "visual" : {
+                "at" : { "x" : 64, "y" : 256 }
+              },
+              "parentConnector" : "S70-f4",
+              "connect" : [
+                { "id" : "S70-S10-f0", "to" : "S70-S10-f1" }
+              ]
+            }, {
+              "id" : "S70-S10-g1",
+              "type" : "EmbeddedEnd",
+              "visual" : {
+                "at" : { "x" : 560, "y" : 256 }
+              },
+              "parentConnector" : "S70-f8"
+            }, {
+              "id" : "S70-S10-f1",
+              "type" : "UserTask",
+              "name" : "Sub00-TaskA",
+              "config" : {
+                "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
+                "task" : {
+                  "name" : "Sub00-TaskA"
+                }
+              },
+              "visual" : {
+                "at" : { "x" : 192, "y" : 256 }
+              },
+              "connect" : [
+                { "id" : "S70-S10-f2", "to" : "S70-S10-f3" }
+              ]
+            }, {
+              "id" : "S70-S10-f3",
+              "type" : "Alternative",
+              "config" : {
+                "conditions" : {
+                  "S70-S10-f4" : "true"
+                }
+              },
+              "visual" : {
+                "at" : { "x" : 320, "y" : 256 }
+              },
+              "connect" : [
+                { "id" : "S70-S10-f4", "to" : "S70-S10-f5" },
+                { "id" : "S70-S10-f7", "to" : "S70-S10-f22" }
+              ]
+            }, {
+              "id" : "S70-S10-f5",
+              "type" : "UserTask",
+              "name" : "Sub00-TaskB",
+              "config" : {
+                "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
+                "task" : {
+                  "name" : "Sub00-TaskB"
+                }
+              },
+              "visual" : {
+                "at" : { "x" : 432, "y" : 256 }
+              },
+              "connect" : [
+                { "id" : "S70-S10-f6", "to" : "S70-S10-g1" }
+              ]
+            }, {
+              "id" : "S70-S10-f22",
+              "type" : "TaskEnd",
+              "visual" : {
+                "at" : { "x" : 320, "y" : 328 },
+                "color" : "End"
+              }
+            } ],
+          "visual" : {
+            "at" : { "x" : 448, "y" : 256 }
+          },
+          "connect" : [
+            { "id" : "S70-f8", "to" : "S70-g1" }
+          ]
+        } ],
+      "visual" : {
+        "at" : { "x" : 224, "y" : 440 }
+      },
+      "connect" : [
+        { "id" : "f29", "to" : "f17", "var" : "in1" }
+      ]
+    } ],
+  "layout" : {
+    "colors" : {
+      "End" : "#ef0606"
+    }
+  }
 }
