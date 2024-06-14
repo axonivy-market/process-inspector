@@ -420,11 +420,13 @@ public class PathFinder {
 				}
 			}
 			
-			// Call recursion for next normal node
+
 			var newPath = addToPath(currentPath, path);
+			//It stop finding tasks when the end node is TaskEnd for TASKS_ON_PATH case
 			if (shouldStopFindTask(newPath, findType)) {
 				return path;
 			}
+			// Call recursion for next normal node
 			var pathOptions = findAnalysisPathForNextNode(from, flowName, findType, newPath);
 			path = addAllToPath(path, pathOptions);	
 		}

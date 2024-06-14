@@ -237,13 +237,13 @@
           },
           "parentConnector" : "f11",
           "connect" : [
-            { "id" : "S30-f0", "to" : "S30-f1" }
+            { "id" : "S30-f0", "to" : "S30-f5", "var" : "in1" }
           ]
         }, {
           "id" : "S30-g1",
           "type" : "EmbeddedEnd",
           "visual" : {
-            "at" : { "x" : 496, "y" : 256 }
+            "at" : { "x" : 672, "y" : 256 }
           },
           "parentConnector" : "f13"
         }, {
@@ -267,7 +267,7 @@
             }
           },
           "visual" : {
-            "at" : { "x" : 208, "y" : 256 }
+            "at" : { "x" : 424, "y" : 256 }
           },
           "connect" : [
             { "id" : "S30-f2", "to" : "S30-f3" }
@@ -283,10 +283,82 @@
             }
           },
           "visual" : {
-            "at" : { "x" : 368, "y" : 256 }
+            "at" : { "x" : 568, "y" : 256 }
           },
           "connect" : [
             { "id" : "S30-f4", "to" : "S30-g1" }
+          ]
+        }, {
+          "id" : "S30-f5",
+          "type" : "TaskSwitchGateway",
+          "config" : {
+            "tasks" : [ {
+                "id" : "TaskA",
+                "responsible" : {
+                  "activator" : "SYSTEM"
+                }
+              }, {
+                "id" : "TaskB",
+                "responsible" : {
+                  "activator" : "SYSTEM"
+                }
+              } ]
+          },
+          "visual" : {
+            "at" : { "x" : 136, "y" : 256 }
+          },
+          "connect" : [
+            { "id" : "S30-f6", "to" : "S30-f7", "via" : [ { "x" : 136, "y" : 208 } ], "condition" : "ivp==\"TaskA.ivp\"" },
+            { "id" : "S30-f12", "to" : "S30-f11", "via" : [ { "x" : 136, "y" : 304 } ], "condition" : "ivp==\"TaskB.ivp\"" }
+          ]
+        }, {
+          "id" : "S30-f7",
+          "type" : "UserTask",
+          "name" : "SubA-TaskA",
+          "config" : {
+            "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
+            "task" : {
+              "name" : "SubA-TaskA"
+            }
+          },
+          "visual" : {
+            "at" : { "x" : 232, "y" : 208 }
+          },
+          "connect" : [
+            { "id" : "S30-f8", "to" : "S30-f9", "via" : [ { "x" : 320, "y" : 208 } ], "var" : "in1" }
+          ]
+        }, {
+          "id" : "S30-f9",
+          "type" : "TaskSwitchGateway",
+          "config" : {
+            "tasks" : [ {
+                "id" : "TaskA",
+                "responsible" : {
+                  "activator" : "SYSTEM"
+                }
+              } ]
+          },
+          "visual" : {
+            "at" : { "x" : 320, "y" : 256 }
+          },
+          "connect" : [
+            { "id" : "S30-f10", "to" : "S30-f1", "condition" : "ivp==\"TaskA.ivp\"" }
+          ]
+        }, {
+          "id" : "S30-f11",
+          "type" : "UserTask",
+          "name" : "SubA-TaskB",
+          "config" : {
+            "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
+            "task" : {
+              "name" : "SubA-TaskB"
+            }
+          },
+          "visual" : {
+            "at" : { "x" : 232, "y" : 304 }
+          },
+          "connect" : [
+            { "id" : "S30-f13", "to" : "S30-f9", "via" : [ { "x" : 320, "y" : 304 } ], "var" : "in2" }
           ]
         } ],
       "visual" : {
