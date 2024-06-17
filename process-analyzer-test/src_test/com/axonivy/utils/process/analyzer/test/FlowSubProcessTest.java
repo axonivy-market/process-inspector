@@ -79,12 +79,15 @@ public class FlowSubProcessTest extends FlowExampleTest {
 	}
 
 	@Test
-	void shouldFindSubProcessTest() throws Exception {
+	void shouldFindSubProcessTestAtStart2() throws Exception {
 		var start2 = ProcessGraphHelper.findByElementName(process, "start2");
 		var detectedTasks = processAnalyzer.findAllTasks(start2, UseCase.BIGPROJECT);
+				
+		var expected = Arrays.array("Task sub", "Sub2-TaskA");
+		var taskNames = getTaskNames(detectedTasks);		
+		assertArrayEquals(expected, taskNames);
+		
 		var detectedTask = (DetectedTask) detectedTasks.get(0);
-
-		assertEquals(1, detectedTasks.size());
 		assertEquals("18DE58E0441486DF-f5", detectedTask.getPid());
 		assertEquals("Custom info", detectedTask.getCustomInfo());
 		assertEquals("FlowSubProcessCall", detectedTask.getElementName());

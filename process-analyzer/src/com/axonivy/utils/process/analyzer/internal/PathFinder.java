@@ -110,7 +110,7 @@ public class PathFinder {
 		
 		List<AnalysisPath> result = paths;
 		if(parentElement != null) {
-			SubProcessGroup subProcess = new SubProcessGroup(parentElement.getElement(), paths);
+			SubProcessGroup subProcess = new SubProcessGroup((EmbeddedProcessElement) parentElement.getElement(), paths);
 			
 			Map<ProcessElement, List<AnalysisPath>> parentPaths = findPath(List.of(parentElement), flowName, findType);
 			List<AnalysisPath> subPaths = parentPaths.getOrDefault(parentElement, emptyList());
@@ -458,8 +458,8 @@ public class PathFinder {
 
 	private boolean isContains(List<AnalysisPath> currentPaths, final ProcessElement from) {
 		boolean isContains = false;
-		if (from.getElement() instanceof SingleTaskCreator && from.getElement() instanceof RequestStart == false) {
-			SingleTaskCreator node = (SingleTaskCreator) from.getElement();
+		if (from.getElement() instanceof NodeElement && from.getElement() instanceof RequestStart == false) {
+			NodeElement node = (NodeElement) from.getElement();
 			if (node.getIncoming().size() > 0) {
 				SequenceFlow sequenceFlow = node.getIncoming().get(0);
 				List<AnalysisPath> pathWithConnectToFrom = currentPaths.stream().filter(path -> {

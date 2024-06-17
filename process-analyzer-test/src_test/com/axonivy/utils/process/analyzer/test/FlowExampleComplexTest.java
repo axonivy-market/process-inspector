@@ -109,7 +109,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		var start = ProcessGraphHelper.findByElementName(process, "start");
 		var detectedTasks = processAnalyzer.findTasksOnPath(start, UseCase.BIGPROJECT, "internal");
 
-		var expected = Arrays.array("Task A", "Task B", "Task2B", "Task G", "Task2A", "Task H");
+		var expected = Arrays.array("Task A", "Task B", "Task2A", "Task H", "Task2B", "Task G");
 		var taskNames = (getTaskNames(detectedTasks));
 		assertArrayEquals(expected, taskNames);
 	}
@@ -120,7 +120,7 @@ public class FlowExampleComplexTest extends FlowExampleTest {
 		var taskC = ProcessGraphHelper.findByElementName(process, "Task C");
 		Duration duration = processAnalyzer.calculateWorstCaseDuration(List.of(taskB, taskC), UseCase.BIGPROJECT);
 
-		assertEquals(Duration.ofHours(18), duration);
+		assertEquals(Duration.ofHours(15), duration);
 	}
 
 	@Test
