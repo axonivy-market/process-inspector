@@ -6,17 +6,18 @@ import java.util.List;
 import java.util.Objects;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
+import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.value.PID;
 
 public class SubProcessGroup implements ProcessElement {
-	private BaseElement element;
+	private EmbeddedProcessElement element;
 	List<AnalysisPath> internalPaths;
 
-	public SubProcessGroup(BaseElement element) {
+	public SubProcessGroup(EmbeddedProcessElement element) {
 		this.element = element;
 	}
 
-	public SubProcessGroup(BaseElement element, List<AnalysisPath> internalPaths) {
+	public SubProcessGroup(EmbeddedProcessElement element, List<AnalysisPath> internalPaths) {
 		this(element);
 		this.internalPaths = internalPaths;
 	}

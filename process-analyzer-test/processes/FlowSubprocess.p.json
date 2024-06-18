@@ -163,7 +163,7 @@
         "findTasksOnPath( start.ivp ) => TaskA, TaskB"
       ],
       "visual" : {
-        "at" : { "x" : 824, "y" : 167 },
+        "at" : { "x" : 968, "y" : 63 },
         "size" : { "width" : 476, "height" : 97 }
       }
     }, {
@@ -191,7 +191,7 @@
         "size" : { "width" : 128, "height" : 60 }
       },
       "connect" : [
-        { "id" : "f9", "to" : "f8" }
+        { "id" : "f9", "to" : "S80" }
       ]
     }, {
       "id" : "f6",
@@ -210,7 +210,7 @@
       "id" : "f8",
       "type" : "TaskEnd",
       "visual" : {
-        "at" : { "x" : 488, "y" : 192 }
+        "at" : { "x" : 728, "y" : 192 }
       }
     }, {
       "id" : "f10",
@@ -968,6 +968,63 @@
       },
       "connect" : [
         { "id" : "f29", "to" : "f17", "var" : "in1" }
+      ]
+    }, {
+      "id" : "S80",
+      "type" : "EmbeddedProcess",
+      "name" : "Sub2",
+      "elements" : [ {
+          "id" : "S80-g0",
+          "type" : "EmbeddedStart",
+          "visual" : {
+            "at" : { "x" : 64, "y" : 256 }
+          },
+          "parentConnector" : "f9",
+          "connect" : [
+            { "id" : "S80-f0", "to" : "S80-f3" }
+          ]
+        }, {
+          "id" : "S80-g1",
+          "type" : "EmbeddedEnd",
+          "visual" : {
+            "at" : { "x" : 520, "y" : 256 }
+          },
+          "parentConnector" : "f32"
+        }, {
+          "id" : "S80-f1",
+          "type" : "UserTask",
+          "name" : "Sub2-TaskA",
+          "config" : {
+            "dialog" : "com.axonivy.utils.process.analyzer.test.Dummy:start()",
+            "task" : {
+              "name" : "Sub2-TaskA"
+            }
+          },
+          "visual" : {
+            "at" : { "x" : 368, "y" : 256 }
+          },
+          "connect" : [
+            { "id" : "S80-f2", "to" : "S80-g1" }
+          ]
+        }, {
+          "id" : "S80-f3",
+          "type" : "TriggerCall",
+          "name" : "Sub2-TriggerA",
+          "config" : {
+            "processCall" : "FlowTriggerCall:start()"
+          },
+          "visual" : {
+            "at" : { "x" : 192, "y" : 256 }
+          },
+          "connect" : [
+            { "id" : "S80-f4", "to" : "S80-f1" }
+          ]
+        } ],
+      "visual" : {
+        "at" : { "x" : 512, "y" : 192 }
+      },
+      "connect" : [
+        { "id" : "f32", "to" : "f8" }
       ]
     } ],
   "layout" : {

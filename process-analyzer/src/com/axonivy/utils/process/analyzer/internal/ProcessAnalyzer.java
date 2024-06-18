@@ -220,8 +220,11 @@ public class ProcessAnalyzer implements AdvancedProcessAnalyzer {
 	}
 
 	private List<ITask> getCaseITasks(ICase icase) {
-		List<ITask> tasks = icase.tasks().all().stream().filter(task -> OPEN_TASK_STATES.contains(task.getState()))
+		List<ITask> tasks = icase.tasks().all().stream()
+				.filter(task -> OPEN_TASK_STATES.contains(task.getState()))
+				.filter(it -> it.getCase().uuid().equals(icase.uuid()))
 				.toList();
+				
 		return tasks;
 	}
 
