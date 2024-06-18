@@ -278,10 +278,14 @@ class WorkflowPath {
 	}
 
 	private Duration getMaxDurationUntilEnd(List<DetectedElement> detectedElements) {
-		Duration maxDurationUntilEnd = detectedElements.stream().filter(item -> item instanceof DetectedTask == true)
-				.map(DetectedTask.class::cast).map(DetectedTask::getTimeUntilEnd).max(Duration::compareTo).orElse(null);
+		Duration maxDurationUntilEnd = detectedElements.stream()
+				.filter(item -> item instanceof DetectedTask == true)
+				.map(DetectedTask.class::cast)
+				.map(DetectedTask::getTimeUntilEnd)
+				.max(Duration::compareTo)
+				.orElse(null);
 
-		if(maxDurationUntilEnd.isNegative()) {
+		if (maxDurationUntilEnd == null || maxDurationUntilEnd.isNegative()) {
 			maxDurationUntilEnd = Duration.ZERO;
 		}
 		
