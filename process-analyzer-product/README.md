@@ -60,7 +60,7 @@ In the project, you only add the dependency in your pom.xml and call public APIs
 	public void enableDescribeAlternativeElements()
 	public void disableDescribeAlternativeElements()
 ``` 
-**4. You can call `findAllTasks`, `findTasksOnPath`, `calculateEstimatedDuration` to analyze your process.**
+**4. You can call `findAllTasks`, `findTasksOnPath`, `calculateWorstCaseDuration` `calculateDurationOfPath` to analyze your process.**
 ```java
 	/**
 	 * Return a list of all tasks in the process which can be reached from the starting element.
@@ -92,6 +92,19 @@ In the project, you only add the dependency in your pom.xml and call public APIs
 	 * @throws Exception
 	 */
 	public Duration calculateWorstCaseDuration(BaseElement startElement, Enum<?> useCase) throws Exception
+	
+	/**
+	 * This method can be used to calculate expected duration from a starting point
+	 * using a named flow or default flow. For parallel segments of the process, it
+	 * will still use the “critical path” (same logic like worst case duration).
+	 * 
+	 * @param startElement - Element where we start traversing the process
+	 * @param useCase      - Use case that should be used to read duration values.
+	 *                     Durations will be set to 0 in case not provided.
+	 * @return
+	 * @throws Exception
+	 */
+	 public Duration calculateDurationOfPath(BaseElement startElement, Enum<?> useCase, String flowName) throws Exception;
 ```
 
 ### Example

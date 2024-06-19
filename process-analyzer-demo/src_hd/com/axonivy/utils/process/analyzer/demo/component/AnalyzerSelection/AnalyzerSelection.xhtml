@@ -13,15 +13,16 @@
 	<cc:attribute name="updateFormId" />
 </cc:interface>
 <cc:implementation>
-
+	<h:outputStylesheet name="analyzer-selection.css" library="ivy-dialog" />
 	<p:panel id="analyzer-selection">
 		<p:panelGrid columns="6" layout="grid"
 			columnClasses="ui-grid-col-1, ui-grid-col-3, ui-grid-col-1, ui-grid-col-3, ui-grid-col-1, ui-grid-col-3"
-			styleClass="customPanelGrid" contentStyleClass="ui-fluid">
+			styleClass="customPanelGrid ui-grid-selection" contentStyleClass="ui-fluid">
 			<p:outputLabel for="selectOneProcess" value="Process:" />
 			<p:selectOneMenu id="selectOneProcess" converter="pojoConverter"
 				required="true" requiredMessage="Process is required"
-				value="#{data.processAnalyzerBean.selectedAnalyzer.process}">
+				value="#{data.processAnalyzerBean.selectedAnalyzer.process}"
+				filter="true" filterMatchMode="contains">
 				<f:selectItem itemLabel="Select a process..." itemValue="null"
 					noSelectionOption="true" />
 				<f:selectItems value="#{data.processAnalyzerBean.processes}"
@@ -34,7 +35,8 @@
 			<p:outputLabel for="selectOneElement" value="Start Elements:" />
 			<p:selectOneMenu id="selectOneElement" converter="pojoConverter"
 				required="true" requiredMessage="Start element is required"
-				value="#{data.processAnalyzerBean.selectedAnalyzer.startElement}">
+				value="#{data.processAnalyzerBean.selectedAnalyzer.startElement}"
+				filter="true" filterMatchMode="contains">
 				<f:selectItem itemLabel="Select an elements..." itemValue="" />
 				<f:selectItems
 					value="#{data.processAnalyzerBean.selectedAnalyzer.elements}"
@@ -47,7 +49,8 @@
 			<p:outputLabel for="selectOneFindType" value="Find Type:" />
 			<p:selectOneMenu id="selectOneFindType" converter="pojoConverter"
 				required="true" requiredMessage="Find type is required"
-				value="#{data.processAnalyzerBean.selectedAnalyzer.findType}">
+				value="#{data.processAnalyzerBean.selectedAnalyzer.findType}"
+				filter="true" filterMatchMode="contains">
 				<f:selectItem itemLabel="Select an find type" itemValue="" />
 				<f:selectItems value="#{data.processAnalyzerBean.allFindType}"
 					var="type" itemLabel="#{type.displayName}" itemValue="#{type}" />
@@ -55,7 +58,8 @@
 
 			<p:outputLabel for="selectOneUseCase" value="Use Case:" />
 			<p:selectOneMenu id="selectOneUseCase" converter="pojoConverter"
-				value="#{data.processAnalyzerBean.selectedAnalyzer.useCase}">
+				value="#{data.processAnalyzerBean.selectedAnalyzer.useCase}"
+				filter="true" filterMatchMode="contains">
 				<f:selectItem itemLabel="Select use case" itemValue=""
 					noSelectionOption="true" />
 				<f:selectItems value="#{data.processAnalyzerBean.allUseCases}"

@@ -4,3 +4,17 @@
 	white-space: nowrap;
 	text-overflow: ellipsis;
 }
+.ui-datatable-header-filter .ui-selectonemenu {
+	width: 100%;
+	min-width: 100% !important;
+}
+
+.ui-datatable-header-filter .ui-selectonemenu-label {
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+table thead tr {
+	vertical-align: text-top;
+}
+    

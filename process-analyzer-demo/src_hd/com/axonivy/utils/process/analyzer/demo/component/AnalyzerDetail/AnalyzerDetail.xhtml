@@ -45,7 +45,8 @@
 		<p:dataTable value="#{analyzer.tasks}" var="task" stripedRows="true"
 			lazy="false" resizableColumns="true" rowIndexVar="row"
 			widgetVar="tableTask"
-			styleClass="ui-datatable-sm ui-datatable-gridlines">
+			filterBy="#{data.processAnalyzerBean.filterBy}"
+			styleClass="ui-datatable-sm ui-datatable-gridlines ui-datatable-header-filter">
 			<p:column headerText="#" width="20px">
 				<h:outputText value="#{row + 1}" />
 			</p:column>
@@ -56,11 +57,11 @@
 					title="#{task.pid}" />
 			</p:column>
 
-			<p:column headerText="Task Name" styleClass="text-overflow">
+			<p:column headerText="Task Name" sortBy="#{task.taskName}" filterBy="#{task.taskName}" styleClass="text-overflow">
 				<h:outputText value="#{task.taskName}" title="#{task.taskName}" />
 			</p:column>
 
-			<p:column headerText="Element Name" styleClass="text-overflow">
+			<p:column headerText="Element Name" sortBy="#{task.elementName}" filterBy="#{task.elementName}" styleClass="text-overflow">
 				<h:outputText value="#{task.elementName}" title="#{task.elementName}" />
 			</p:column>
 
@@ -69,7 +70,20 @@
 					value="#{data.processAnalyzerBean.getDisplayDuration(task.estimatedDuration)}" />
 			</p:column>
 
-			<p:column headerText="Parent Element Names" styleClass="text-overflow">
+			<p:column headerText="Parent Element Names"
+				sortBy="#{task.displayParentElementNames}"
+				filterBy="#{task.displayParentElementNames}"
+				styleClass="text-overflow">
+				
+				<f:facet name="filter">
+					<p:selectOneMenu onchange="PF('tableTask').filter()"
+						styleClass="ui-custom-filter" filter="true"
+						filterMatchMode="contains">
+						<f:selectItem itemLabel="All" itemValue="#{null}" noSelectionOption="true" />
+						<f:selectItems value="#{data.processAnalyzerBean.getParentElementNames()}" />
+					</p:selectOneMenu>
+				</f:facet>
+                
 				<h:outputText value="#{task.displayParentElementNames}"
 					title="#{task.displayParentElementNames}" />
 			</p:column>

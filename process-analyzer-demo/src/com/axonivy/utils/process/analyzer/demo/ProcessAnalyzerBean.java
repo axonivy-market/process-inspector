@@ -11,9 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.faces.event.AjaxBehaviorEvent;
 
 import org.primefaces.component.selectoneradio.SelectOneRadio;
+import org.primefaces.model.FilterMeta;
 
 import com.axonivy.utils.process.analyzer.AdvancedProcessAnalyzer;
 import com.axonivy.utils.process.analyzer.demo.constant.FindType;
@@ -23,6 +25,7 @@ import com.axonivy.utils.process.analyzer.demo.model.Analyzer;
 import com.axonivy.utils.process.analyzer.internal.ProcessAnalyzer;
 import com.axonivy.utils.process.analyzer.model.DetectedAlternative;
 import com.axonivy.utils.process.analyzer.model.DetectedElement;
+import com.axonivy.utils.process.analyzer.model.DetectedTask;
 
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -45,7 +48,9 @@ public class ProcessAnalyzerBean {
 	private List<Analyzer> analyzers = new ArrayList<>();
 
 	private List<Process> processes = emptyList();
-
+	
+	private List<FilterMeta> filterBy;
+	
 	private Analyzer selectedAnalyzer = null;
 
 	AdvancedProcessAnalyzer processAnalyzer;
@@ -73,7 +78,19 @@ public class ProcessAnalyzerBean {
 	public void setSelectedAnalyzer(Analyzer selectedAnalyzer) {
 		this.selectedAnalyzer = selectedAnalyzer;
 	}
+	
+	public List<FilterMeta> getFilterBy() {
+		return filterBy;
+	}
 
+	public void setFilterBy(List<FilterMeta> filterBy) {
+		this.filterBy = filterBy;
+	}
+
+	@PostConstruct
+	public void init() {
+		filterBy = new ArrayList<>();
+	}	 
 	public List<SingleTaskCreator> getAllTaskModifier() {
 		this.processAnalyzer = new ProcessAnalyzer();
 		return getElementOfProcess(this.selectedAnalyzer.getProcess()).stream()
@@ -196,6 +213,17 @@ public class ProcessAnalyzerBean {
 		return pid.substring(index + 1);
 	}
 
+	public List<String> getParentElementNames(){
+		if(selectedAnalyzer != null) {
+			return selectedAnalyzer.getTasks().stream()
+					.filter(DetectedTask.class::isInstance)
+					.map(DetectedTask.class::cast)
+					.map(DetectedTask::getDisplayParentElementNames)
+					.distinct()
+					.toList();
+		}
+		return emptyList();
+	}
 	private AdvancedProcessAnalyzer updateProcessAnalyzer(Analyzer analyzer) {
 		Map<String, String> flowOverrides = getProcessFlowOverride(analyzer);
 		processAnalyzer.disableDescribeAlternativeElements();
