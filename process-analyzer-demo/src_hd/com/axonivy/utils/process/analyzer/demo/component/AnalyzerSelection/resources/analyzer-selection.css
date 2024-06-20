@@ -1,0 +1,11 @@
+@charset "ISO-8859-1";
+
+.ui-grid-selection .ui-selectonemenu {
+	width: 100%;
+	min-width: 100% !important;
+}
+
+.ui-grid-selection .ui-selectonemenu-label {
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
