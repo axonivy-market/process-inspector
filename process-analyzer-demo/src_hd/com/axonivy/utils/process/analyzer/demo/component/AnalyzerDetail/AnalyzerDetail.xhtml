@@ -57,12 +57,17 @@
 					title="#{task.pid}" />
 			</p:column>
 
-			<p:column headerText="Task Name" sortBy="#{task.taskName}" filterBy="#{task.taskName}" styleClass="text-overflow">
+			<p:column headerText="Task Name" sortBy="#{task.taskName}"
+				filterBy="#{task.taskName}" filterMatchMode="contains"
+				styleClass="text-overflow">
 				<h:outputText value="#{task.taskName}" title="#{task.taskName}" />
 			</p:column>
 
-			<p:column headerText="Element Name" sortBy="#{task.elementName}" filterBy="#{task.elementName}" styleClass="text-overflow">
-				<h:outputText value="#{task.elementName}" title="#{task.elementName}" />
+			<p:column headerText="Element Name" sortBy="#{task.elementName}"
+				filterBy="#{task.elementName}" filterMatchMode="contains"
+				styleClass="text-overflow">
+				<h:outputText value="#{task.elementName}"
+					title="#{task.elementName}" />
 			</p:column>
 
 			<p:column headerText="Estimated Duration">

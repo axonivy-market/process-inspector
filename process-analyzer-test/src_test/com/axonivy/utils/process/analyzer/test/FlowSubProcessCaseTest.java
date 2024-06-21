@@ -59,6 +59,24 @@ public class FlowSubProcessCaseTest extends FlowExampleTest {
 	}
 	
 	@Test
+	void shouldFindAllTasksAtWaitTask(BpmClient bpmClient) throws Exception {
+		ExecutionResult result = bpmClient.start().process(FLOW_SUB_PROCESS.elementName("start")).execute();
+		ICase icase = result.workflow().activeCase();
+
+		List<ITask> activeTasks = result.workflow().activeTasks();
+		ITask taskA = findTaskByElementName(activeTasks, "Task A");
+
+		bpmClient.mock().uiOf(FLOW_SUB_PROCESS.elementName("Task A")).withNoAction();
+		result = bpmClient.start().task(taskA).as().everybody().execute();
+				
+		var detectedTasks = processAnalyzer.findAllTasks(icase, null);
+
+		var expected = Arrays.array("Task B");
+		var taskNames = getTaskNames(detectedTasks);
+		assertArrayEquals(expected, taskNames);
+	}
+	
+	@Test
 	void shouldCalculateWorstCaseDuration(BpmClient bpmClient) throws Exception {
 		ExecutionResult result = bpmClient.start().process(FLOW_SUB_PROCESS.elementName("start")).execute();
 		ICase icase = result.workflow().activeCase();
