@@ -41,7 +41,7 @@
           "id" : "S10-g1",
           "type" : "EmbeddedEnd",
           "visual" : {
-            "at" : { "x" : 576, "y" : 256 }
+            "at" : { "x" : 448, "y" : 256 }
           },
           "parentConnector" : "f3"
         }, {
@@ -90,10 +90,23 @@
               ]
             } ],
           "visual" : {
-            "at" : { "x" : 312, "y" : 256 }
+            "at" : { "x" : 208, "y" : 256 }
           },
           "connect" : [
-            { "id" : "S10-f1", "to" : "S10-g1" }
+            { "id" : "S10-f1", "to" : "S10-f2" }
+          ]
+        }, {
+          "id" : "S10-f2",
+          "type" : "WaitEvent",
+          "config" : {
+            "javaClass" : "com.axonivy.utils.process.analyzer.test.WaitTaskBean",
+            "eventId" : "com.axonivy.utils.process.analyzer.test.WaitTaskBean.createEventIdentifierForTask()"
+          },
+          "visual" : {
+            "at" : { "x" : 352, "y" : 256 }
+          },
+          "connect" : [
+            { "id" : "S10-f3", "to" : "S10-g1" }
           ]
         } ],
       "visual" : {
