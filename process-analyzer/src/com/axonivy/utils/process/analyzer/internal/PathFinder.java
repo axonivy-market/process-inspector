@@ -8,6 +8,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.apache.commons.collections4.ListUtils.union;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -40,8 +41,7 @@ import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.diagram.edge.DiagramEdge;
 import ch.ivyteam.ivy.process.model.diagram.value.Label;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
-import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
-import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
+import ch.ivyteam.ivy.process.model.element.event.end.TaskEnd;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
@@ -56,7 +56,7 @@ public class PathFinder {
 	private List<ProcessElement> froms;
 	private String flowName;
 	private Map<String, String> processFlowOverrides = emptyMap();
-
+	
 	public PathFinder() {
 		this.processGraph = new ProcessGraph();
 	}
@@ -110,7 +110,7 @@ public class PathFinder {
 		
 		List<AnalysisPath> result = paths;
 		if(parentElement != null) {
-			SubProcessGroup subProcess = new SubProcessGroup(parentElement.getElement(), paths);
+			SubProcessGroup subProcess = new SubProcessGroup((EmbeddedProcessElement) parentElement.getElement(), paths);
 			
 			Map<ProcessElement, List<AnalysisPath>> parentPaths = findPath(List.of(parentElement), flowName, findType);
 			List<AnalysisPath> subPaths = parentPaths.getOrDefault(parentElement, emptyList());
@@ -133,8 +133,7 @@ public class PathFinder {
 		return null;
 	}
 
-	private Map<ProcessElement, List<AnalysisPath>> findPath(List<ProcessElement> froms, String flowName,
-			FindType findType) throws Exception {
+	private Map<ProcessElement, List<AnalysisPath>> findPath(List<ProcessElement> froms, String flowName, FindType findType) throws Exception {
 		Map<ProcessElement, List<AnalysisPath>> result = new LinkedHashMap<>();
 		for (ProcessElement from : froms) {
 			List<AnalysisPath> path = findAnalysisPaths(from, flowName, findType, emptyList());
@@ -147,10 +146,10 @@ public class PathFinder {
 		}
 
 		// Find again from intersection task
-		List<AnalysisPath> subPath = findAnalysisPaths(new CommonElement(intersectionTask.getElement()), flowName,
-				findType, emptyList());
+		ProcessElement startElement = new CommonElement(intersectionTask.getElement());
+		Map<ProcessElement, List<AnalysisPath>> subPaths = findPath(List.of(startElement), flowName, findType);
 
-		Map<ProcessElement, List<AnalysisPath>> fullPath = mergePath(result, intersectionTask, subPath);
+		Map<ProcessElement, List<AnalysisPath>> fullPath = mergePath(result, intersectionTask, subPaths.getOrDefault(startElement, emptyList()));
 
 		return fullPath;
 	}
@@ -270,7 +269,8 @@ public class PathFinder {
 			Map<ProcessElement, List<AnalysisPath>> internalPath) {
 		Map<SequenceFlow, List<AnalysisPath>> result = new LinkedHashMap<>();
 		internalPath.entrySet().forEach(it -> {
-			result.put(((TaskAndCaseModifier) it.getKey().getElement()).getIncoming().get(0), it.getValue());
+			NodeElement element = (NodeElement) it.getKey().getElement();
+			result.put(element.getIncoming().get(0), it.getValue());
 		});
 		return result;
 	}
@@ -386,8 +386,8 @@ public class PathFinder {
 		if (from.getElement() instanceof NodeElement) {
 
 			if (from.getElement() instanceof EmbeddedProcessElement) {
-				SubProcessGroup subProcessGroup = findPathOfSubProcess(from, flowName, findType, currentPath);				
-				path = AnalysisPathHelper.removeLastElementByClassType(path, EmbeddedProcessElement.class);				
+				SubProcessGroup subProcessGroup = findPathOfSubProcess(from, flowName, findType, currentPath);
+				path = AnalysisPathHelper.removeLastElementByClassType(path, EmbeddedProcessElement.class);	
 				path = addAllToPath(path, List.of(subProcessGroup));
 			}
 
@@ -420,15 +420,21 @@ public class PathFinder {
 				}
 			}
 			
+
+			var newPath = addToPath(currentPath, path);
+			//It stop finding tasks when the end node is TaskEnd for TASKS_ON_PATH case
+			if (shouldStopFindTask(newPath, findType)) {
+				return path;
+			}
 			// Call recursion for next normal node
-			var pathOptions = findAnalysisPathForNextNode(from, flowName, findType, currentPath);
+			var pathOptions = findAnalysisPathForNextNode(from, flowName, findType, newPath);
 			path = addAllToPath(path, pathOptions);	
 		}
 		
 		return path;
 	}
 
-	private Map<SequenceFlow, List<AnalysisPath>> findAnalysisPathForNextNode(ProcessElement from, String flowName,
+	private Map<SequenceFlow, List<AnalysisPath>> findAnalysisPathForNextNode(ProcessElement from, String flowName, 
 			FindType findType, List<AnalysisPath> currentPath) throws Exception {
 		
 		List<SequenceFlow> outs = getSequenceFlows((NodeElement) from.getElement(), flowName, findType);
@@ -440,7 +446,7 @@ public class PathFinder {
 		Map<SequenceFlow, List<AnalysisPath>> pathOptions = new LinkedHashMap<>();
 		for (SequenceFlow out : outs) {
 			CommonElement outElement = new CommonElement(out);
-			List<AnalysisPath> newPath = addAllToPath(currentPath, Arrays.asList(from, outElement));
+			List<AnalysisPath> newPath = addAllToPath(currentPath, Arrays.asList(outElement));
 			
 			ProcessElement nextStartElement = new CommonElement(out.getTarget());
 			List<AnalysisPath> nextOfPath = findAnalysisPaths(nextStartElement, flowName, findType, newPath);
@@ -452,8 +458,8 @@ public class PathFinder {
 
 	private boolean isContains(List<AnalysisPath> currentPaths, final ProcessElement from) {
 		boolean isContains = false;
-		if (from.getElement() instanceof SingleTaskCreator && from.getElement() instanceof RequestStart == false) {
-			SingleTaskCreator node = (SingleTaskCreator) from.getElement();
+		if (from.getElement() instanceof NodeElement && from.getElement() instanceof RequestStart == false) {
+			NodeElement node = (NodeElement) from.getElement();
 			if (node.getIncoming().size() > 0) {
 				SequenceFlow sequenceFlow = node.getIncoming().get(0);
 				List<AnalysisPath> pathWithConnectToFrom = currentPaths.stream().filter(path -> {
@@ -500,7 +506,6 @@ public class PathFinder {
 				.map(ProcessElement::getElement)
 				.map(SequenceFlow.class::cast).orElse(null);
 		
-		//TODO: Which subprocess with more than one EmbeddedStart, how to handle it?
 		BaseElement start = processGraph.findStartElementOfProcess((SequenceFlow)lastElement, processElement);
 		List<AnalysisPath> path = findAnalysisPaths(new CommonElement(start), flowName, findType, emptyList());
 		
@@ -600,8 +605,12 @@ public class PathFinder {
 	}
 
 	private boolean hasFlowName(SequenceFlow sequenceFlow, String flowName) {
-		String label = Optional.ofNullable(sequenceFlow).map(SequenceFlow::getEdge).map(DiagramEdge::getLabel)
-				.map(Label::getText).orElse(null);
+		String label = Optional.ofNullable(sequenceFlow)
+				.map(SequenceFlow::getEdge)
+				.map(DiagramEdge::getLabel)
+				.map(Label::getText)
+				.orElse(null);
+		
 		return isNotBlank(label) && label.contains(flowName);
 	}
 
@@ -641,7 +650,6 @@ public class PathFinder {
 			}
 
 			result = hasStartBefore && !hasFullInComing;
-
 		}
 		return result;
 	}
@@ -650,31 +658,19 @@ public class PathFinder {
 		if(from == null) {
 			return false;
 		}
-		
+
 		BaseElement baseElement = from.getElement();
 		boolean hasFullInComing = false;
 		//Make sure it is join task switch  
 		if (baseElement instanceof TaskSwitchGateway) {
 			var taskSwitchGateway = (TaskSwitchGateway) baseElement;
-			if (taskSwitchGateway.getIncoming().size() > 1) {
-
-				List<BaseElement> elements = AnalysisPathHelper.getAllProcessElement(paths).stream()						
-						.map(ProcessElement::getElement)
-						.toList();
+			
+			if (taskSwitchGateway.getIncoming().size() > 1) {				
+				List<SequenceFlow> sequenceFlowToParalletTasks = findIncomingsFromPaths(paths, from);
 				
-				List<BaseElement> sequenceFlowToParalletTasks =	elements.stream()
-						.filter(SequenceFlow.class::isInstance)
-						.filter(it -> ((SequenceFlow)it).getTarget() instanceof TaskSwitchGateway)			
-						.distinct()
-						.toList();
-
-				NodeElement firstNode =  elements.stream()
-						.filter(NodeElement.class::isInstance)
-						.findFirst()
-						.map(NodeElement.class::cast)
-						.orElse(null);
-				//TODO: Should find another solution to check
-				List<SequenceFlow> sequenceFlows = getSequenceFlowOfTaskSwitchGateway(taskSwitchGateway, firstNode);
+				NodeElement startNode = AnalysisPathHelper.getFirstNodeElement(paths);				
+				List<SequenceFlow> sequenceFlows = getSequenceFlowOf(from, startNode);
+				
 				long count = sequenceFlowToParalletTasks.stream().filter(el -> sequenceFlows.contains(el)).count();
 				if (count >= sequenceFlows.size()) {
 					hasFullInComing = true;
@@ -686,24 +682,18 @@ public class PathFinder {
 
 	private ProcessElement getJoinTaskSwithGateWay(TaskParallelGroup taskParallelGroup) {
 		List<ProcessElement> elements = AnalysisPathHelper.getAllProcessElement(taskParallelGroup);
-		
-		int size = elements.size();
-		return size > 0 ? elements.get(size - 1) : null;
+		return AnalysisPathHelper.getLastElement(new AnalysisPath(elements));		
 	}
 
-	
-	
-	private List<SequenceFlow> getSequenceFlowOfTaskSwitchGateway(TaskSwitchGateway taskSwitchGateway, NodeElement startNode) {
-		List<SequenceFlow> sequenceFlows = taskSwitchGateway.getIncoming();
-		
-		return sequenceFlows.stream().filter(it -> isStartedFromOf(startNode, it)).toList();
-	}
-	
-	private boolean isStartedFromOf(NodeElement startNode, SequenceFlow sequenceFlow) {
+	private boolean isStartedFromOf(NodeElement startNode, SequenceFlow sequenceFlow, List<BaseElement> pathChecked) {
 		if(startNode == null) {
 			return false;
 		}
 		NodeElement node = sequenceFlow.getSource();
+		if(pathChecked.contains(node)) {
+			return false;
+		}
+		
 		if(startNode.equals(node)) {
 			return true;
 		} 
@@ -711,10 +701,59 @@ public class PathFinder {
 		// Maybe have a loop here.
 		List<SequenceFlow> sequenceFlows = node.getIncoming();
 		for (SequenceFlow flow : sequenceFlows) {
-			if (isStartedFromOf(startNode, flow)) {
+			List<BaseElement> newPathChecked = union(pathChecked, List.of(node, flow));
+			if (isStartedFromOf(startNode, flow, newPathChecked)) {
 				return true;
 			}
-		}	
+		}
 		return false;
+	}
+	
+	private boolean shouldStopFindTask(SubProcessGroup element, FindType findType) {
+		List<AnalysisPath> paths = element.getInternalPaths();
+		return shouldStopFindTask(paths, findType);
+	}
+	
+	private boolean shouldStopFindTask(List<AnalysisPath> paths, FindType findType) {
+		
+		if (FindType.TASKS_ON_PATH.equals(findType) && isNotEmpty(paths)) {
+			ProcessElement lastElement = AnalysisPathHelper.getLastElement(paths.get(0));
+			if (lastElement.getElement() instanceof TaskEnd) {
+				return true;
+			} else if (lastElement instanceof SubProcessGroup) {
+				return shouldStopFindTask((SubProcessGroup) lastElement, findType);
+			}
+		}
+		return false;
+	}
+	
+	private List<SequenceFlow> getSequenceFlowOf(ProcessElement from,  NodeElement startNode) {
+		long numberOfStarts = processGraph.countStartElement(from.getElement());
+		List<SequenceFlow> incomings = ((NodeElement)from.getElement()).getIncoming();
+		
+		List<SequenceFlow> sequenceFlows = emptyList();				
+		if(numberOfStarts == 1) {
+			//If there are only on start node -> just get incoming
+			sequenceFlows = incomings;
+		} else {			
+			//TODO: Should find another solution to check
+			sequenceFlows = incomings.stream().filter(it -> isStartedFromOf(startNode, it, emptyList())).toList();
+		}
+		return sequenceFlows;
+	}
+	
+	private List<SequenceFlow> findIncomingsFromPaths(List<AnalysisPath> paths, ProcessElement from) {
+		List<BaseElement> elements = AnalysisPathHelper.getAllProcessElement(paths).stream()						
+				.map(ProcessElement::getElement)
+				.toList();
+		
+		List<SequenceFlow> sequenceFlows =	elements.stream()
+				.filter(SequenceFlow.class::isInstance)
+				.map(SequenceFlow.class::cast)
+				.filter(it -> it.getTarget().equals(from.getElement()))			
+				.distinct()				
+				.toList();
+		
+		return sequenceFlows;
 	}
 }

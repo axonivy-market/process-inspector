@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 
 import com.axonivy.utils.process.analyzer.internal.model.AnalysisPath;
@@ -83,8 +84,7 @@ class WorkflowPath {
 		return detectedTasks;
 	}
 
-	protected List<DetectedElement> convertToDetectedElements(Map<ProcessElement, List<AnalysisPath>> allPaths, 
-			Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStarts) {
+	protected List<DetectedElement> convertToDetectedElements(Map<ProcessElement, List<AnalysisPath>> allPaths, Enum<?> useCase, Map<ProcessElement, Duration> timeUntilStarts) {
 		List<DetectedElement> result = new ArrayList<>();
 		for (Entry<ProcessElement, List<AnalysisPath>> path : allPaths.entrySet()) {
 			List<DetectedElement> elements = convertPathToDetectedElements(path.getKey(), path.getValue(), useCase,
@@ -177,7 +177,9 @@ class WorkflowPath {
 				List<DetectedElement> allTaskFromSubPath = new ArrayList<>();
 				for(AnalysisPath subPath : subPaths) {
 					ProcessElement startSubElement = subPath.getElements().get(0);
-					var startedForSubProcess = Map.of(startSubElement, durationStart);
+					var startedForSubProcess = new HashedMap<>(timeUntilStarts);
+					startedForSubProcess.put(startSubElement, durationStart);
+							
 					 List<DetectedElement> subResult = convertPathToDetectedElements(startSubElement, subPath, useCase , startedForSubProcess);
 					 allTaskFromSubPath.addAll(subResult);
 				}
@@ -276,10 +278,14 @@ class WorkflowPath {
 	}
 
 	private Duration getMaxDurationUntilEnd(List<DetectedElement> detectedElements) {
-		Duration maxDurationUntilEnd = detectedElements.stream().filter(item -> item instanceof DetectedTask == true)
-				.map(DetectedTask.class::cast).map(DetectedTask::getTimeUntilEnd).max(Duration::compareTo).orElse(null);
+		Duration maxDurationUntilEnd = detectedElements.stream()
+				.filter(item -> item instanceof DetectedTask == true)
+				.map(DetectedTask.class::cast)
+				.map(DetectedTask::getTimeUntilEnd)
+				.max(Duration::compareTo)
+				.orElse(null);
 
-		if(maxDurationUntilEnd.isNegative()) {
+		if (maxDurationUntilEnd == null || maxDurationUntilEnd.isNegative()) {
 			maxDurationUntilEnd = Duration.ZERO;
 		}
 		

@@ -34,7 +34,7 @@ import ch.ivyteam.ivy.workflow.TaskState;
 
 public class ProcessAnalyzer implements AdvancedProcessAnalyzer {
 	private static final List<TaskState> OPEN_TASK_STATES = List.of(TaskState.SUSPENDED, TaskState.PARKED,
-			TaskState.RESUMED);
+			TaskState.RESUMED, TaskState.WAITING_FOR_INTERMEDIATE_EVENT);
 
 	private boolean isEnableDescribeAlternative;
 	private Map<ElementTask, Duration> durationOverrides = emptyMap();
@@ -220,8 +220,11 @@ public class ProcessAnalyzer implements AdvancedProcessAnalyzer {
 	}
 
 	private List<ITask> getCaseITasks(ICase icase) {
-		List<ITask> tasks = icase.tasks().all().stream().filter(task -> OPEN_TASK_STATES.contains(task.getState()))
+		List<ITask> tasks = icase.tasks().all().stream()
+				.filter(task -> OPEN_TASK_STATES.contains(task.getState()))
+				.filter(it -> it.getCase().uuid().equals(icase.uuid()))
 				.toList();
+				
 		return tasks;
 	}
 

@@ -11,12 +11,15 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.axonivy.utils.process.analyzer.model.ElementTask;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.EmbeddedProcess;
+import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
@@ -64,21 +67,36 @@ public class ProcessGraph {
 		return result;
 	}
 
-	public BaseElement findStartElementOfProcess(SequenceFlow sequenceFlow, EmbeddedProcessElement embeddedProcessElement) {
-		EmbeddedProcess process = embeddedProcessElement.getEmbeddedProcess();
-		BaseElement start = process.getElements().stream()
-				.filter(item -> item instanceof EmbeddedStart)
+	public BaseElement findStartElementOfProcess(SequenceFlow sequenceFlow, EmbeddedProcessElement embeddedProcessElement) {		
+		BaseElement start = findStartElementOfProcess(embeddedProcessElement).stream()				
 				.filter(it -> sequenceFlow == null || ((EmbeddedStart) it).getConnectedOuterSequenceFlow().equals(sequenceFlow))
 				.findFirst()
 				.orElse(null);		
 		return start;
 	}
 
+	public long countStartElement(BaseElement element) {
+		if(element instanceof NodeElement) {
+			BaseElement parent = ((NodeElement) element).getParent();
+			if(parent instanceof  EmbeddedProcessElement) {
+				return findStartElementOfProcess((EmbeddedProcessElement)parent).stream()
+						.map(EmbeddedStart.class::cast)
+						.filter(it -> it.getOutgoing().size() > 0)
+						.count();
+			} else {
+				return ((NodeElement) element).getRootProcess().getElements().stream()
+						.filter(RequestStart.class::isInstance)
+						.count();
+			}
+		}
+		return 0;
+	}
+	
 	public List<String> getNextTargetIdsByCondition(Alternative alternative, String condition) {
 		IvyScriptExpression script = IvyScriptExpression.script(defaultString(condition));
 		List<String> nextTargetIds = alternative.getConditions().conditions().entrySet().stream()
 				.filter(entry -> script.equals(entry.getValue())).map(Entry::getKey).toList();
-
+		
 		return nextTargetIds;
 	}
 
@@ -158,7 +176,16 @@ public class ProcessGraph {
 		return Stream.of(alternative.getName(), alternative.getPid().getRawPid()).filter(StringUtils::isNotEmpty)
 				.collect(Collectors.joining("-"));
 	}
+	
 	private boolean containPrefixs(String content, String... prefix) {
 		return List.of(prefix).stream().allMatch(it -> content.contains(it));
+	}
+	
+	private List<BaseElement> findStartElementOfProcess(EmbeddedProcessElement embeddedProcessElement) {
+		EmbeddedProcess process = embeddedProcessElement.getEmbeddedProcess();
+		List<BaseElement> starts = process.getElements().stream()
+				.filter(EmbeddedStart.class::isInstance)
+				.toList();	
+		return starts;
 	}
 }

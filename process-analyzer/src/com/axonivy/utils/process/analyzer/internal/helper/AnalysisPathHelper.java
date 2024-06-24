@@ -15,7 +15,7 @@ import com.axonivy.utils.process.analyzer.internal.model.CommonElement;
 import com.axonivy.utils.process.analyzer.internal.model.ProcessElement;
 import com.axonivy.utils.process.analyzer.internal.model.TaskParallelGroup;
 
-import ch.ivyteam.ivy.process.model.BaseElement;
+import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 
 public class AnalysisPathHelper {
@@ -90,7 +90,23 @@ public class AnalysisPathHelper {
 		return elements.size() == 0 ? 0 : elements.size() - 1;
 	}
 	
-	public static List<AnalysisPath> removeLastElementByClassType(List<AnalysisPath> paths , Class clazz) {
+	public static ProcessElement getLastElement(AnalysisPath path) {
+		List<ProcessElement> elements = path.getElements();
+		int size = elements.size();
+		return size == 0 ? null : elements.get(size - 1);
+	}
+	
+	public static NodeElement getFirstNodeElement(List<AnalysisPath> paths) {
+		NodeElement startNode =  AnalysisPathHelper.getAllProcessElement(paths).stream()						
+				.map(ProcessElement::getElement)							
+				.filter(NodeElement.class::isInstance)
+				.findFirst()
+				.map(NodeElement.class::cast)
+				.orElse(null);
+		return startNode;
+	}
+	
+	public static List<AnalysisPath> removeLastElementByClassType(List<AnalysisPath> paths , Class<?> clazz) {
 
 		List<AnalysisPath> result = new ArrayList<>();
 		for (AnalysisPath path : paths) {

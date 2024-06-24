@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Duration;
+import java.util.List;
 
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +17,7 @@ import ch.ivyteam.ivy.bpm.engine.client.ExecutionResult;
 import ch.ivyteam.ivy.bpm.engine.client.element.BpmProcess;
 import ch.ivyteam.ivy.bpm.exec.client.IvyProcessTest;
 import ch.ivyteam.ivy.workflow.ICase;
+import ch.ivyteam.ivy.workflow.ITask;
 
 @IvyProcessTest
 public class FlowSubProcessCaseTest extends FlowExampleTest {
@@ -29,11 +31,17 @@ public class FlowSubProcessCaseTest extends FlowExampleTest {
 	@Test
 	void shouldFindAllTasksAtStart3(BpmClient bpmClient) throws Exception {
 		ExecutionResult result = bpmClient.start().process(FLOW_SUB_PROCESS.elementName("start3")).execute();
-		ICase icase = result.workflow().activeCase();
 		
+		List<ITask> parallelTasks = result.workflow().activeTasks();
+		
+		for (ITask task : parallelTasks) {
+			result = bpmClient.start().task(task).as().systemUser().execute();
+		}
+		
+		ICase icase = result.workflow().activeCase();
 		var detectedTasks = processAnalyzer.findAllTasks(icase, null);
 
-		var expected = Arrays.array("CallSubProcess A", "TaskC", "TaskB");
+		var expected = Arrays.array("SubA-TaskA", "SubA-TaskB", "CallSubProcess A", "TaskC", "TaskB");
 		var taskNames = getTaskNames(detectedTasks);
 		assertArrayEquals(expected, taskNames);
 	}
@@ -46,6 +54,24 @@ public class FlowSubProcessCaseTest extends FlowExampleTest {
 		var detectedTasks = processAnalyzer.findAllTasks(icase, null);
 
 		var expected = Arrays.array("Task A", "Task B");
+		var taskNames = getTaskNames(detectedTasks);
+		assertArrayEquals(expected, taskNames);
+	}
+	
+	@Test
+	void shouldFindAllTasksAtWaitTask(BpmClient bpmClient) throws Exception {
+		ExecutionResult result = bpmClient.start().process(FLOW_SUB_PROCESS.elementName("start")).execute();
+		ICase icase = result.workflow().activeCase();
+
+		List<ITask> activeTasks = result.workflow().activeTasks();
+		ITask taskA = findTaskByElementName(activeTasks, "Task A");
+
+		bpmClient.mock().uiOf(FLOW_SUB_PROCESS.elementName("Task A")).withNoAction();
+		result = bpmClient.start().task(taskA).as().everybody().execute();
+				
+		var detectedTasks = processAnalyzer.findAllTasks(icase, null);
+
+		var expected = Arrays.array("Task B");
 		var taskNames = getTaskNames(detectedTasks);
 		assertArrayEquals(expected, taskNames);
 	}

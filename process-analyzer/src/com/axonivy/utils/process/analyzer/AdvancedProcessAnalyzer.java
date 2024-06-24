@@ -175,7 +175,7 @@ public interface AdvancedProcessAnalyzer {
 	/**
 	 * This method can be used to calculate expected duration from a starting point
 	 * using a named flow or default flow. For parallel segments of the process, it
-	 * will still use the “critical path” (same logic like worst case duration). *
+	 * will still use the “critical path” (same logic like worst case duration). 
 	 * 
 	 * @param startElement - Element where we start traversing the process
 	 * @param useCase      - Use case that should be used to read duration values.
@@ -189,7 +189,7 @@ public interface AdvancedProcessAnalyzer {
 	/**
 	 * This method can be used to calculate expected duration from a starting point
 	 * using a named flow or default flow. For parallel segments of the process, it
-	 * will still use the “critical path” (same logic like worst case duration).
+	 * will still use the â€œcritical pathâ€� (same logic like worst case duration).
 	 * 
 	 * @param useCase - Use case that should be used to read duration values.
 	 *                Durations will be set to 0 in case not provided.
