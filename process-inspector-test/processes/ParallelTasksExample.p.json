@@ -1,0 +1,435 @@
+{
+  "$schema" : "https://json-schema.axonivy.com/process/11.2.2/process.json",
+  "id" : "18DD185B60B6E769",
+  "config" : {
+    "data" : "com.axonivy.utils.process.inspector.test.Data"
+  },
+  "elements" : [ {
+      "id" : "f0",
+      "type" : "RequestStart",
+      "name" : "start",
+      "config" : {
+        "signature" : "start"
+      },
+      "visual" : {
+        "at" : { "x" : 40, "y" : 48 }
+      },
+      "connect" : [
+        { "id" : "f3", "to" : "f2", "var" : "in1" }
+      ]
+    }, {
+      "id" : "f1",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 1208, "y" : 48 }
+      }
+    }, {
+      "id" : "f2",
+      "type" : "TaskSwitchGateway",
+      "name" : "Task1",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "code" : [
+              "import java.util.concurrent.TimeUnit;",
+              "import com.axonivy.utils.process.inspector.test.UseCase;",
+              "import com.axonivy.utils.process.inspector.APAConfig;",
+              "",
+              "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            ]
+          }, {
+            "id" : "TaskB",
+            "name" : "Task1B"
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 184, "y" : 48 },
+        "labelOffset" : { "x" : -8, "y" : -8 }
+      },
+      "connect" : [
+        { "id" : "f5", "to" : "f4", "condition" : "ivp==\"TaskA.ivp\"", "var" : "in1" },
+        { "id" : "f8", "to" : "f7", "condition" : "ivp==\"TaskB.ivp\"" }
+      ]
+    }, {
+      "id" : "f4",
+      "type" : "TaskSwitchGateway",
+      "name" : "Join",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "name" : "JoiningTask",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 1000, "y" : 48 },
+        "labelOffset" : { "x" : -8, "y" : -8 }
+      },
+      "connect" : [
+        { "id" : "f6", "to" : "f1", "condition" : "ivp==\"TaskA.ivp\"" }
+      ]
+    }, {
+      "id" : "f7",
+      "type" : "TaskSwitchEvent",
+      "name" : "Task2",
+      "config" : {
+        "task" : {
+          "name" : "Task2"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 184, "y" : 136 },
+        "labelOffset" : { "x" : 14, "y" : 34 }
+      },
+      "connect" : [
+        { "id" : "f9", "to" : "f10" }
+      ]
+    }, {
+      "id" : "f10",
+      "type" : "Alternative",
+      "config" : {
+        "conditions" : {
+          "f14" : "true",
+          "f11" : ""
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 424, "y" : 136 }
+      },
+      "connect" : [
+        { "id" : "f11", "to" : "f15", "color" : "def", "var" : "in2" },
+        { "id" : "f14", "to" : "f23", "label" : {
+            "name" : "{shortcut}"
+          } }
+      ]
+    }, {
+      "id" : "f15",
+      "type" : "TaskSwitchGateway",
+      "name" : "Task3",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskB",
+            "name" : "Task3B"
+          }, {
+            "id" : "TaskA",
+            "name" : "Task3A",
+            "code" : [
+              "import java.util.concurrent.TimeUnit;",
+              "import com.axonivy.utils.process.inspector.test.UseCase;",
+              "import com.axonivy.utils.process.inspector.APAConfig;",
+              "",
+              "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+            ]
+          } ],
+        "output" : {
+          "map" : {
+            "out" : "in2"
+          }
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 424, "y" : 208 },
+        "labelOffset" : { "x" : -8, "y" : -8 }
+      },
+      "connect" : [
+        { "id" : "f16", "to" : "f13", "via" : [ { "x" : 424, "y" : 288 } ], "condition" : "ivp==\"TaskB.ivp\"" },
+        { "id" : "f12", "to" : "f21", "condition" : "ivp==\"TaskA.ivp\"", "var" : "in2" }
+      ]
+    }, {
+      "id" : "f13",
+      "type" : "Script",
+      "visual" : {
+        "at" : { "x" : 744, "y" : 288 }
+      },
+      "connect" : [
+        { "id" : "f17", "to" : "f21", "via" : [ { "x" : 1000, "y" : 288 } ], "var" : "in4" }
+      ]
+    }, {
+      "id" : "f18",
+      "type" : "ProcessAnnotation",
+      "name" : "green path = default path with empty condition",
+      "visual" : {
+        "at" : { "x" : 200, "y" : 239 },
+        "size" : { "width" : 294, "height" : 19 },
+        "color" : "def"
+      }
+    }, {
+      "id" : "f19",
+      "type" : "ProcessAnnotation",
+      "name" : [
+        "useCase=null / flowName = null",
+        "",
+        "findAllTasks( start.ivp ) => Task1A, Task1B, Task2, Task3A, Task3B",
+        "findTasksOnPath( start.ivp ) => Task1A, Task1B, Task2, Task3A, Task3B",
+        "",
+        "----",
+        "",
+        "useCase=null / flowName = shortcut",
+        "",
+        "findTasksOnPath( start.ivp ) => Task1A, Task1B, Task2"
+      ],
+      "visual" : {
+        "at" : { "x" : 288, "y" : 431 },
+        "size" : { "width" : 504, "height" : 163 }
+      }
+    }, {
+      "id" : "f20",
+      "type" : "ProcessAnnotation",
+      "name" : [
+        "Notes:",
+        "Order of parallel task is not important. We don't know wheter Task1A or Task1B is followed first. But we need to calculate both when it comes to duration estimations.",
+        "",
+        "Tasks assigned to SYSTEM must be ignored. We don't handle them! For example the SYSTEM task of the join element will not show up in any result."
+      ],
+      "visual" : {
+        "at" : { "x" : 783, "y" : 432 },
+        "size" : { "width" : 407, "height" : 158 }
+      }
+    }, {
+      "id" : "f21",
+      "type" : "TaskSwitchGateway",
+      "name" : "Join",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          } ],
+        "output" : {
+          "map" : {
+            "out" : "in2"
+          }
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 1000, "y" : 208 },
+        "labelOffset" : { "x" : -8, "y" : -8 }
+      },
+      "connect" : [
+        { "id" : "f22", "to" : "f23", "condition" : "ivp==\"TaskA.ivp\"" }
+      ]
+    }, {
+      "id" : "f23",
+      "type" : "Alternative",
+      "visual" : {
+        "at" : { "x" : 1000, "y" : 136 }
+      },
+      "connect" : [
+        { "id" : "f24", "to" : "f4", "var" : "in2" }
+      ]
+    }, {
+      "id" : "f34",
+      "type" : "RequestStart",
+      "name" : "start5",
+      "config" : {
+        "signature" : "start5"
+      },
+      "visual" : {
+        "at" : { "x" : 56, "y" : 744 }
+      },
+      "connect" : [
+        { "id" : "f93", "to" : "f91" }
+      ]
+    }, {
+      "id" : "f91",
+      "type" : "UserTask",
+      "name" : "TaskA5",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.inspector.test.Dummy:start()",
+        "task" : {
+          "name" : "TaskA5"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 216, "y" : 744 }
+      },
+      "connect" : [
+        { "id" : "f98", "to" : "f94", "var" : "in1" }
+      ]
+    }, {
+      "id" : "f94",
+      "type" : "TaskSwitchGateway",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          }, {
+            "id" : "TaskB",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          }, {
+            "id" : "TaskC",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 352, "y" : 744 }
+      },
+      "connect" : [
+        { "id" : "f25", "to" : "f102", "via" : [ { "x" : 352, "y" : 624 } ], "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f26", "to" : "f103", "via" : [ { "x" : 352, "y" : 864 } ], "condition" : "ivp==\"TaskB.ivp\"" },
+        { "id" : "f27", "to" : "f100", "condition" : "ivp==\"TaskC.ivp\"" }
+      ]
+    }, {
+      "id" : "f100",
+      "type" : "UserTask",
+      "name" : "TaskC5",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.inspector.test.Dummy:start()",
+        "task" : {
+          "name" : "TaskC5"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 448, "y" : 744 }
+      },
+      "connect" : [
+        { "id" : "f107", "to" : "f106", "var" : "in1" }
+      ]
+    }, {
+      "id" : "f102",
+      "type" : "UserTask",
+      "name" : "TaskB5",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.inspector.test.Dummy:start()",
+        "task" : {
+          "name" : "TaskB5"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 560, "y" : 624 }
+      },
+      "connect" : [
+        { "id" : "f111", "to" : "f110" }
+      ]
+    }, {
+      "id" : "f103",
+      "type" : "UserTask",
+      "name" : "TaskD5",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.inspector.test.Dummy:start()",
+        "task" : {
+          "name" : "TaskD5"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 560, "y" : 864 }
+      },
+      "connect" : [
+        { "id" : "f116", "to" : "f114", "via" : [ { "x" : 840, "y" : 864 } ], "var" : "in2" }
+      ]
+    }, {
+      "id" : "f110",
+      "type" : "UserTask",
+      "name" : "TaskE5",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.inspector.test.Dummy:start()",
+        "task" : {
+          "name" : "TaskE5"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 712, "y" : 624 }
+      },
+      "connect" : [
+        { "id" : "f117", "to" : "f114", "via" : [ { "x" : 840, "y" : 624 } ], "var" : "in3" }
+      ]
+    }, {
+      "id" : "f112",
+      "type" : "UserTask",
+      "name" : "TaskF5",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.inspector.test.Dummy:start()",
+        "task" : {
+          "name" : "TaskF5"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 712, "y" : 744 }
+      },
+      "connect" : [
+        { "id" : "f115", "to" : "f114", "var" : "in1" }
+      ]
+    }, {
+      "id" : "f114",
+      "type" : "TaskSwitchGateway",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 840, "y" : 744 }
+      },
+      "connect" : [
+        { "id" : "f119", "to" : "f118", "condition" : "ivp==\"TaskA.ivp\"" }
+      ]
+    }, {
+      "id" : "f118",
+      "type" : "UserTask",
+      "name" : "TaskG5",
+      "config" : {
+        "dialog" : "com.axonivy.utils.process.inspector.test.Dummy:start()",
+        "task" : {
+          "name" : "TaskG5"
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 968, "y" : 744 }
+      },
+      "connect" : [
+        { "id" : "f121", "to" : "f120" }
+      ]
+    }, {
+      "id" : "f120",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 1128, "y" : 744 }
+      }
+    }, {
+      "id" : "f106",
+      "type" : "TaskSwitchGateway",
+      "config" : {
+        "tasks" : [ {
+            "id" : "TaskA",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          }, {
+            "id" : "TaskB",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          }, {
+            "id" : "TaskC",
+            "responsible" : {
+              "activator" : "SYSTEM"
+            }
+          } ]
+      },
+      "visual" : {
+        "at" : { "x" : 560, "y" : 744 }
+      },
+      "connect" : [
+        { "id" : "f108", "to" : "f102", "condition" : "ivp==\"TaskA.ivp\"" },
+        { "id" : "f109", "to" : "f103", "condition" : "ivp==\"TaskB.ivp\"" },
+        { "id" : "f113", "to" : "f112", "condition" : "ivp==\"TaskC.ivp\"" }
+      ]
+    } ],
+  "layout" : {
+    "colors" : {
+      "def" : "#2ff906"
+    }
+  }
+}

@@ -1,12 +1,12 @@
-# Advanced Process Analyzer
+# Process Inspector
 
-[![CI Build](https://github.com/axonivy-market/process-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/axonivy-market/process-analyzer/actions/workflows/ci.yml)
+[![CI Build](https://github.com/axonivy-market/process-inspector/actions/workflows/ci.yml/badge.svg)](https://github.com/axonivy-market/process-inspector/actions/workflows/ci.yml)
 
 Use this tool to analyze your process model and calculate the expected case completion time.
 
 - Configure needed information directly in the process model
 	- Default duration of a task for multiple use cases. Each task can have multiple named default durations.
-	- Different “happy path” flows. It’s possible to set multiple named process paths.
+	- Different "happy path" flows. It`s possible to set multiple named process paths.
 - Possibilities to override settings of the process model
 	- Override duration
 	- Override default path for the gateways
@@ -14,4 +14,4 @@ Use this tool to analyze your process model and calculate the expected case comp
 - Get configured duration for a task.
 - Get all upcoming tasks on a configured process path with expected start timestamp for each task.
 
-Read our [documentation](process-analyzer-product/README.md).
+Read our [documentation](process-inspector-product/README.md).

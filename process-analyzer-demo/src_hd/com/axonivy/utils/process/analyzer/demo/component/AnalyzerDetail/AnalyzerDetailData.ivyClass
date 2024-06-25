@@ -1,6 +1,0 @@
-AnalyzerDetailData #class
-com.axonivy.utils.process.analyzer.demo.component.AnalyzerDetail #namespace
-processAnalyzerBean com.axonivy.utils.process.analyzer.demo.ProcessAnalyzerBean #field
-processAnalyzerBean PERSISTENT #fieldModifier
-analyzer com.axonivy.utils.process.analyzer.demo.model.Analyzer #field
-analyzer PERSISTENT #fieldModifier
