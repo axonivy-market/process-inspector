@@ -19,10 +19,12 @@ import ch.ivyteam.ivy.workflow.ICase;
  * A (1h) -> [alternative] -{internal}-> Task B (2h) -> EndTask 
  * 						  |------------> Task C (3h) -> EndTask
  * How to find all tasks ? 
- * ProcessInspector ProcessInspector = new ProcessAnalyzer(); 
- * List<DetectedElement> result = processAnalyzer.findAllTasks(start, UseCase.BIGPROJECT); Result: 
+ * ProcessInspector processInspector = new ProcessProcessInspector(); 
+ * List<DetectedElement> result = processInspector.findAllTasks(start, UseCase.BIGPROJECT); Result: 
  * Task A (1h), Task B (3h), Task C (4h) => So duration to finish all tasks will task 4hours
- * How to find tasks on path? ProcessInspector processInspector = new ProcessInspector(); 
+ * 
+ * How to find tasks on path? 
+ * ProcessInspector processInspector = new ProcessInspector(); 
  * List<DetectedElement> result = processInspector.findTasksOnPath(start, UseCase.BIGPROJECT, "internal");
  * Result: Task A (1h), Task B (3h) So duration to finish all tasks will task 3hours
  */

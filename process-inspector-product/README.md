@@ -125,13 +125,13 @@ In the project, you only add the dependency in your pom.xml and call public APIs
 	
 **2. How to analyze the workflow base on the process flow override?**
 ```java
-	// We create a new process analyzer with flowName is null.
+	// We create a new process inspector with flowName is null.
 	// Basically, the path taken after alternative will base on default path. But we will override it by setProcessFlowOverrides API
 	var processInspector = new AdvancedProcessInspector(process);
 	var flowOverrides = new HashMap<String, String>();
 	flowOverrides.put("18E180A64355D4D9-f4", "18E180A64355D4D9-f13"); //alter1 -> sequence flow {internal}\n{external}\n{mixed}
 	flowOverrides.put("18E180A64355D4D9-f12", "18E180A64355D4D9-f14"); //int/ext? -> sequence flow {internal}
-	processAnalyzer.setProcessFlowOverrides(flowOverrides);
+	processInspector.setProcessFlowOverrides(flowOverrides);
 		
 	public List<DetectedElement> detectedTasks = processInspector.findTasksOnPath(start, null, null);
 	
@@ -141,9 +141,9 @@ In the project, you only add the dependency in your pom.xml and call public APIs
 ## Demo
 
 - Select the process and some configuration which need for your analysis
-![process-inspector-demo](images/advancedProcessAnalyzerSelectionDemo.png)
+![process-inspector-demo](images/advancedProcessInspectorSelectionDemo.png)
 - Hit the **Run** button to get the analysis result
-![process-inspector-demo](images/advancedProcessAnalyzerResultDemo.png)
+![process-inspector-demo](images/advancedProcessInspectorResultDemo.png)
 
 
 
