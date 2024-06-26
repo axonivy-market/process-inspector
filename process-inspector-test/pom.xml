@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.axonivy.utils.process.inspector</groupId>
+  <artifactId>process-inspector-test</artifactId>
+  <version>11.2.1-SNAPSHOT</version>
+  <packaging>iar</packaging>
+   <properties>
+		<build.plugin.version>11.2.0</build.plugin.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>com.axonivy.utils.process.inspector</groupId>
+			<artifactId>process-inspector</artifactId>
+			<version>${project.version}</version>			
+		</dependency>
+		<dependency>
+			<groupId>com.axonivy.ivy.test</groupId>
+			<artifactId>unit-tester</artifactId>
+			<version>11.2.0</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<build>
+		<testSourceDirectory>src_test</testSourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>com.axonivy.ivy.ci</groupId>
+				<artifactId>project-build-plugin</artifactId>
+				<version>${build.plugin.version}</version>
+				<extensions>true</extensions>
+			</plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>3.0.0-M1</version>
+					<configuration>
+						<skip>true</skip>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>

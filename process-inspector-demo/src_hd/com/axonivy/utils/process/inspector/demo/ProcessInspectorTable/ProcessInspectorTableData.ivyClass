@@ -1,0 +1,4 @@
+ProcessInspectorTableData #class
+com.axonivy.utils.process.inspector.demo.ProcessInspectorTable #namespace
+processInspectorBean com.axonivy.utils.process.inspector.demo.ProcessInspectorBean #field
+processInspectorBean PERSISTENT #fieldModifier
