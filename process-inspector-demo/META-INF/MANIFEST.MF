@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: process-inspector-demo
+Bundle-SymbolicName: process-inspector-demo
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: process.inspector.demo
+Export-Package: com.axonivy.utils.process.inspector.demo,
+ com.axonivy.utils.process.inspector.demo.constant,
+ com.axonivy.utils.process.inspector.demo.converter,
+ com.axonivy.utils.process.inspector.demo.helper,
+ com.axonivy.utils.process.inspector.demo.model
+Require-Bundle: ch.ivyteam.ivy.process.rdm;bundle-version="11.2.1"

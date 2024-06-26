@@ -1,16 +1,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.axonivy.utils.process.analyzer</groupId>
-  <name>process-analyzer</name>
-  <artifactId>process-analyzer-modules</artifactId>
-  <version>11.2.3-SNAPSHOT</version>
+  <groupId>com.axonivy.utils.process.inspector</groupId>
+  <name>process-inspector</name>
+  <artifactId>process-inspector-modules</artifactId>
+  <version>11.2.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
-    <module>process-analyzer</module>
-    <module>process-analyzer-demo</module>
-    <module>process-analyzer-test</module>
-    <module>process-analyzer-product</module>
+    <module>process-inspector</module>
+    <module>process-inspector-demo</module>
+    <module>process-inspector-test</module>
+    <module>process-inspector-product</module>
   </modules>
 
   <scm>

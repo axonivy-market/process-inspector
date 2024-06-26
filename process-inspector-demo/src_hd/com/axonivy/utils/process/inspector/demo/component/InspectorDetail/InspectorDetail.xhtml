@@ -1,0 +1,112 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:cc="http://xmlns.jcp.org/jsf/composite"
+	xmlns:ic="http://ivyteam.ch/jsf/component"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+<cc:interface componentType="IvyComponent">
+	<cc:attribute name="inspector" required="true" />
+</cc:interface>
+
+<cc:implementation>
+	<h:outputStylesheet name="inspector-detail.css" library="ivy-dialog" />
+	<c:set var="inspector" value="#{cc.attrs.inspector}" />
+
+	<p:fieldset id="inspector-detail-fieldset" style="width: 100%"
+		legend="Process GUID: #{inspector.process.pid.processGuid}">
+		<p:panelGrid columns="6" layout="grid"
+			columnClasses="ui-grid-col-2, ui-grid-col-4, ui-grid-col-2, ui-grid-col-4"
+			contentStyleClass="ui-fluid">
+			<p:outputLabel value="Process: " styleClass="text-bold" />
+			<p:outputLabel value="#{inspector.process.name}" />
+
+			<p:outputLabel value="Start Elements: " styleClass="text-bold" />
+			<p:outputLabel value="#{inspector.startElement.name}" />
+
+			<p:outputLabel value="Find Type: " styleClass="text-bold" />
+			<p:outputLabel value="#{inspector.findType.displayName}" />
+
+			<p:outputLabel value="Use case: " styleClass="text-bold" />
+			<p:outputLabel value="#{inspector.useCase.name()}" />
+
+			<p:outputLabel value="Flow Name: " styleClass="text-bold" />
+			<p:outputLabel value="#{inspector.flowName}" />
+
+			<p:outputLabel value="Calculation Time: " styleClass="text-bold" />
+			<p:outputLabel value="#{inspector.executionTime} miliseconds" />
+
+			<p:outputLabel value="Total Duration: " styleClass="text-bold" />
+			<p:outputLabel value="#{inspector.displayTotalDuration}" />
+		</p:panelGrid>
+
+		<p:dataTable value="#{inspector.tasks}" var="task" stripedRows="true"
+			lazy="false" resizableColumns="true" rowIndexVar="row"
+			widgetVar="tableTask"
+			filterBy="#{data.processInspectorBean.filterBy}"
+			styleClass="ui-datatable-sm ui-datatable-gridlines ui-datatable-header-filter">
+			<p:column headerText="#" width="20px">
+				<h:outputText value="#{row + 1}" />
+			</p:column>
+
+			<p:column headerText="PID" width="30px">
+				<h:outputText
+					value="#{data.processInspectorBean.getShortPid(task.pid)}"
+					title="#{task.pid}" />
+			</p:column>
+
+			<p:column headerText="Task Name" sortBy="#{task.taskName}"
+				filterBy="#{task.taskName}" filterMatchMode="contains"
+				styleClass="text-overflow">
+				<h:outputText value="#{task.taskName}" title="#{task.taskName}" />
+			</p:column>
+
+			<p:column headerText="Element Name" sortBy="#{task.elementName}"
+				filterBy="#{task.elementName}" filterMatchMode="contains"
+				styleClass="text-overflow">
+				<h:outputText value="#{task.elementName}"
+					title="#{task.elementName}" />
+			</p:column>
+
+			<p:column headerText="Estimated Duration">
+				<h:outputText
+					value="#{data.processInspectorBean.getDisplayDuration(task.estimatedDuration)}" />
+			</p:column>
+
+			<p:column headerText="Parent Element Names"
+				sortBy="#{task.displayParentElementNames}"
+				filterBy="#{task.displayParentElementNames}"
+				styleClass="text-overflow">
+				
+				<f:facet name="filter">
+					<p:selectOneMenu onchange="PF('tableTask').filter()"
+						styleClass="ui-custom-filter" filter="true"
+						filterMatchMode="contains">
+						<f:selectItem itemLabel="All" itemValue="#{null}" noSelectionOption="true" />
+						<f:selectItems value="#{data.processInspectorBean.getParentElementNames()}" />
+					</p:selectOneMenu>
+				</f:facet>
+                
+				<h:outputText value="#{task.displayParentElementNames}"
+					title="#{task.displayParentElementNames}" />
+			</p:column>
+
+			<p:column headerText="Time Until Start">
+				<h:outputText
+					value="#{data.processInspectorBean.getDisplayDuration(task.timeUntilStart)}" />
+			</p:column>
+
+			<p:column headerText="Time Until End">
+				<h:outputText
+					value="#{data.processInspectorBean.getDisplayDuration(task.timeUntilEnd)}" />
+			</p:column>
+			<p:column headerText="Custom Info">
+				<h:outputText value="#{task.customInfo}" />
+			</p:column>
+		</p:dataTable>
+	</p:fieldset>
+</cc:implementation>
+
+</html>
