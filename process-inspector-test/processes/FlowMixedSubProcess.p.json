@@ -35,12 +35,12 @@
           } ]
       },
       "visual" : {
-        "at" : { "x" : 288, "y" : 128 },
+        "at" : { "x" : 256, "y" : 128 },
         "labelOffset" : { "x" : 16, "y" : -24 }
       },
       "connect" : [
         { "id" : "f1", "to" : "f4", "condition" : "ivp==\"TaskA.ivp\"", "var" : "in1" },
-        { "id" : "f7", "to" : "S30", "via" : [ { "x" : 288, "y" : 328 } ], "condition" : "ivp==\"TaskB.ivp\"" }
+        { "id" : "f7", "to" : "S30", "via" : [ { "x" : 256, "y" : 272 } ], "condition" : "ivp==\"TaskB.ivp\"" }
       ]
     }, {
       "id" : "S10",
@@ -191,10 +191,10 @@
           ]
         } ],
       "visual" : {
-        "at" : { "x" : 536, "y" : 80 }
+        "at" : { "x" : 408, "y" : 88 }
       },
       "connect" : [
-        { "id" : "f12", "to" : "S40", "via" : [ { "x" : 784, "y" : 80 } ] },
+        { "id" : "f12", "to" : "S40", "via" : [ { "x" : 560, "y" : 88 } ] },
         { "id" : "f16", "to" : "S20" }
       ]
     }, {
@@ -215,12 +215,12 @@
           } ]
       },
       "visual" : {
-        "at" : { "x" : 384, "y" : 128 },
+        "at" : { "x" : 320, "y" : 128 },
         "labelOffset" : { "x" : -8, "y" : -8 }
       },
       "connect" : [
-        { "id" : "f6", "to" : "S20", "via" : [ { "x" : 384, "y" : 200 } ], "condition" : "ivp==\"TaskB.ivp\"" },
-        { "id" : "f5", "to" : "S10", "via" : [ { "x" : 384, "y" : 80 } ], "condition" : "ivp==\"TaskA.ivp\"" }
+        { "id" : "f6", "to" : "S20", "via" : [ { "x" : 320, "y" : 184 } ], "condition" : "ivp==\"TaskB.ivp\"" },
+        { "id" : "f5", "to" : "S10", "via" : [ { "x" : 320, "y" : 88 } ], "condition" : "ivp==\"TaskA.ivp\"" }
       ]
     }, {
       "id" : "S20",
@@ -331,7 +331,7 @@
           ]
         } ],
       "visual" : {
-        "at" : { "x" : 536, "y" : 200 }
+        "at" : { "x" : 408, "y" : 184 }
       },
       "connect" : [
         { "id" : "f11", "to" : "S40" },
@@ -414,7 +414,7 @@
           ]
         } ],
       "visual" : {
-        "at" : { "x" : 688, "y" : 328 }
+        "at" : { "x" : 488, "y" : 272 }
       },
       "connect" : [
         { "id" : "f10", "to" : "S40" }
@@ -545,7 +545,14 @@
               ]
             },
             "task" : {
-              "name" : "SubD-TaskB"
+              "name" : "SubD-TaskD",
+              "code" : [
+                "import java.util.concurrent.TimeUnit;",
+                "import com.axonivy.utils.process.inspector.APAConfig;",
+                "import com.axonivy.utils.process.inspector.test.UseCase;",
+                "",
+                "APAConfig.setEstimate(3,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+              ]
             }
           },
           "visual" : {
@@ -579,7 +586,7 @@
           ]
         } ],
       "visual" : {
-        "at" : { "x" : 784, "y" : 200 }
+        "at" : { "x" : 560, "y" : 184 }
       },
       "connect" : [
         { "id" : "f9", "to" : "f8" }
@@ -588,7 +595,7 @@
       "id" : "f8",
       "type" : "TaskEnd",
       "visual" : {
-        "at" : { "x" : 920, "y" : 200 }
+        "at" : { "x" : 680, "y" : 184 }
       }
     }, {
       "id" : "f14",
@@ -608,7 +615,7 @@
         }
       },
       "visual" : {
-        "at" : { "x" : 160, "y" : 128 }
+        "at" : { "x" : 152, "y" : 128 }
       },
       "connect" : [
         { "id" : "f15", "to" : "f3", "var" : "in1" }

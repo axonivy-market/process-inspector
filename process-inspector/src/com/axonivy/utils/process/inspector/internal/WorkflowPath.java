@@ -14,11 +14,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 
+import com.axonivy.utils.process.inspector.internal.helper.AnalysisPathHelper;
 import com.axonivy.utils.process.inspector.internal.model.AnalysisPath;
 import com.axonivy.utils.process.inspector.internal.model.CommonElement;
 import com.axonivy.utils.process.inspector.internal.model.ProcessElement;
@@ -29,12 +33,14 @@ import com.axonivy.utils.process.inspector.model.DetectedElement;
 import com.axonivy.utils.process.inspector.model.DetectedTask;
 import com.axonivy.utils.process.inspector.model.ElementTask;
 
+import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.HierarchicElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 import ch.ivyteam.ivy.process.model.element.activity.SubProcessCall;
+import ch.ivyteam.ivy.process.model.element.event.end.EmbeddedEnd;
 import ch.ivyteam.ivy.process.model.element.event.end.TaskEnd;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
@@ -91,7 +97,7 @@ class WorkflowPath {
 					timeUntilStarts);
 			result.addAll(elements);
 		}
-		result = keepMaxTimeUtilEndDetectedElement(result);
+		//result = keepMaxTimeUtilEndDetectedElement(result);
 		return result;
 	}
 
@@ -128,20 +134,26 @@ class WorkflowPath {
 		Duration timeUntilStart = timeUntilStarts.get(startElement);
 		Duration durationStart = timeUntilEnd(result, timeUntilStart);
 
-		for (ProcessElement element : path.getElements()) {
-			// CommonElement(RequestStart)
+		int lengh = path.getElements().size();
+
+		for (int i = 0; i < lengh; i++) {
+			ProcessElement element = path.getElements().get(i); 
+			ProcessElement nextElement = i < lengh - 1 ? path.getElements().get(i + 1) : null;
+
+			//It is start node -> Ignored
 			if (processGraph.isRequestStart(element.getElement())) {
 				continue;
 			}
 
+			//It is system task -> Ignored
 			if (element instanceof CommonElement 
 					&& processGraph.isTaskAndCaseModifier(element.getElement())
 					&& processGraph.isSystemTask(element.getElement())) {
 				continue;
 			}
 
-			// CommonElement(Alternative)
-			if (processGraph.isAlternative(element.getElement()) && this.isEnableDescribeAlternative) {
+			//It is alternative -> base on this.isEnableDescribeAlternative to decide
+			if (this.isEnableDescribeAlternative && processGraph.isAlternative(element.getElement())) {
 				var detectedAlternative = createDetectedAlternative(element);
 				if (detectedAlternative != null) {
 					result.add(detectedAlternative);
@@ -152,8 +164,7 @@ class WorkflowPath {
 			if (processGraph.isSubProcessCall(element.getElement())) {
 				SubProcessCall subProcessCall = (SubProcessCall) element.getElement();
 				if (processGraph.isHandledAsTask(subProcessCall)) {
-					var detectedSubProcessCall = createDetectedTaskFromSubProcessCall(subProcessCall, useCase,
-							durationStart);
+					var detectedSubProcessCall = createDetectedTaskFromSubProcessCall(subProcessCall, useCase, durationStart);
 					if (detectedSubProcessCall != null) {
 						result.add(detectedSubProcessCall);
 						durationStart = timeUntilEnd(result, timeUntilStart);
@@ -161,7 +172,7 @@ class WorkflowPath {
 				}
 			}
 
-			// CommonElement(SingleTaskCreator)
+			// // It is User Task - CommonElement(SingleTaskCreator)
 			if (processGraph.isSingleTaskCreator(element.getElement())) {
 				SingleTaskCreator singleTask = (SingleTaskCreator) element.getElement();
 				var detectedTask = createDetectedTask(singleTask, useCase, durationStart);
@@ -172,8 +183,10 @@ class WorkflowPath {
 				continue;
 			}
 
-			if (element instanceof SubProcessGroup) {
-				List<AnalysisPath> subPaths = ((SubProcessGroup) element).getInternalPaths();
+			// It is EmbeddedProcessElement
+			if (element instanceof SubProcessGroup) {				
+				List<AnalysisPath> internalPaths = ((SubProcessGroup) element).getInternalPaths();
+				List<AnalysisPath> subPaths = getAnalysisPathBaseOnNextSequenceFlow(internalPaths, nextElement.getElement());
 				List<DetectedElement> allTaskFromSubPath = new ArrayList<>();
 				for(AnalysisPath subPath : subPaths) {
 					ProcessElement startSubElement = subPath.getElements().get(0);
@@ -464,4 +477,50 @@ class WorkflowPath {
 
 		return defaultIfBlank(taskNameFromRawMacro, taskIdentifier);
 	}
+	
+	private List<AnalysisPath> getAnalysisPathBaseOnNextSequenceFlow(List<AnalysisPath> subPaths, BaseElement sequenceFlow) {
+		List<AnalysisPath> result = new ArrayList<>();
+
+		if (sequenceFlow instanceof SequenceFlow) {
+			for (AnalysisPath path : subPaths) {				
+				ProcessElement lastProcessElement = AnalysisPathHelper.getLastElement(path);
+				BaseElement lastElement = lastProcessElement.getElement();
+
+				if (processGraph.isTaskEnd(lastElement)) {
+					result.add(path);
+					continue;
+				}
+
+				if (processGraph.isTaskSwitchGateway(lastElement)) {
+					Map<SequenceFlow, List<AnalysisPath>> validInternalPaths = new LinkedHashMap<>();
+					((TaskParallelGroup) lastProcessElement).getInternalPaths().forEach((key, value) -> {
+						var validPaths = getAnalysisPathBaseOnNextSequenceFlow(value, sequenceFlow);
+						if (isNotEmpty(validPaths)) {
+							validInternalPaths.put(key, validPaths);
+						}
+					});
+
+					int size = path.getElements().size();
+					List<ProcessElement> newPath = path.getElements().stream().limit(size - 1).collect(Collectors.toList());
+					if (MapUtils.isNotEmpty(validInternalPaths)) {
+						TaskParallelGroup taskGroup = new TaskParallelGroup(lastElement);
+						taskGroup.setInternalPaths(validInternalPaths);
+						newPath.add(taskGroup);	
+					}
+					continue;
+				}
+				
+				if (processGraph.isEmbeddedEnd(lastElement)) {
+					BaseElement outerSequenceFlow = ((EmbeddedEnd) lastElement).getConnectedOuterSequenceFlow();
+					if(outerSequenceFlow.getPid().equals(sequenceFlow.getPid())) {
+						result.add(path);
+					}
+					continue;
+				}
+
+			}
+		}
+		return result;
+	}
 }
+ 

@@ -23,6 +23,8 @@ import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
 import ch.ivyteam.ivy.process.model.element.activity.SubProcessCall;
+import ch.ivyteam.ivy.process.model.element.event.end.EmbeddedEnd;
+import ch.ivyteam.ivy.process.model.element.event.end.TaskEnd;
 import ch.ivyteam.ivy.process.model.element.event.start.EmbeddedStart;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
@@ -65,10 +67,11 @@ public class ProcessGraph {
 		return result;
 	}
 
-	public BaseElement findStartElementOfProcess(SequenceFlow sequenceFlow, EmbeddedProcessElement embeddedProcessElement) {		
-		BaseElement start = findStartElementOfProcess(embeddedProcessElement).stream()				
+	public EmbeddedStart findStartElementOfProcess(SequenceFlow sequenceFlow, EmbeddedProcessElement embeddedProcessElement) {		
+		EmbeddedStart start = findStartElementOfProcess(embeddedProcessElement).stream()				
 				.filter(it -> sequenceFlow == null || ((EmbeddedStart) it).getConnectedOuterSequenceFlow().equals(sequenceFlow))
 				.findFirst()
+				.map(EmbeddedStart.class::cast)
 				.orElse(null);		
 		return start;
 	}
@@ -166,6 +169,14 @@ public class ProcessGraph {
 		return element instanceof SubProcessCall;
 	}
 
+	public boolean isTaskEnd(BaseElement element) {
+		return element instanceof TaskEnd;
+	}
+
+	public boolean isEmbeddedEnd(BaseElement element) {
+		return element instanceof EmbeddedEnd;
+	}
+	
 	public boolean isHandledAsTask(SubProcessCall subProcessCall) {
 		return containPrefixs(subProcessCall.getParameters().getCode(), "APAConfig.handleAsTask");
 	}
@@ -179,10 +190,11 @@ public class ProcessGraph {
 		return List.of(prefix).stream().allMatch(it -> content.contains(it));
 	}
 	
-	private List<BaseElement> findStartElementOfProcess(EmbeddedProcessElement embeddedProcessElement) {
+	private List<EmbeddedStart> findStartElementOfProcess(EmbeddedProcessElement embeddedProcessElement) {
 		EmbeddedProcess process = embeddedProcessElement.getEmbeddedProcess();
-		List<BaseElement> starts = process.getElements().stream()
+		List<EmbeddedStart> starts = process.getElements().stream()
 				.filter(EmbeddedStart.class::isInstance)
+				.map(EmbeddedStart.class::cast)
 				.toList();	
 		return starts;
 	}

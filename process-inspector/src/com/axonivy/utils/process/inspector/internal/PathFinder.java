@@ -42,6 +42,7 @@ import ch.ivyteam.ivy.process.model.diagram.edge.DiagramEdge;
 import ch.ivyteam.ivy.process.model.diagram.value.Label;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.event.end.TaskEnd;
+import ch.ivyteam.ivy.process.model.element.event.start.EmbeddedStart;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
@@ -506,7 +507,7 @@ public class PathFinder {
 				.map(ProcessElement::getElement)
 				.map(SequenceFlow.class::cast).orElse(null);
 		
-		BaseElement start = processGraph.findStartElementOfProcess((SequenceFlow)lastElement, processElement);
+		EmbeddedStart start = processGraph.findStartElementOfProcess((SequenceFlow)lastElement, processElement);
 		List<AnalysisPath> path = findAnalysisPaths(new CommonElement(start), flowName, findType, emptyList());
 		
 		SubProcessGroup subProcessGroup = new SubProcessGroup(processElement, path);		
