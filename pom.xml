@@ -3,7 +3,7 @@
   <groupId>com.axonivy.utils.process.inspector</groupId>
   <name>process-inspector</name>
   <artifactId>process-inspector-modules</artifactId>
-  <version>11.2.4-SNAPSHOT</version>
+  <version>11.2.4</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -15,7 +15,7 @@
 
   <scm>
     <developerConnection>scm:git:https://github.com/axonivy-market/${project.name}.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>v11.2.4</tag>
   </scm>
 
   <build>
