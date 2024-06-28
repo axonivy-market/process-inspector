@@ -3,7 +3,7 @@
   <groupId>com.axonivy.utils.process.inspector</groupId>
   <name>process-inspector</name>
   <artifactId>process-inspector-modules</artifactId>
-  <version>11.2.1-SNAPSHOT</version>
+  <version>11.2.5-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
