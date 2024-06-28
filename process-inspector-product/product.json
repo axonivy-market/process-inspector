@@ -36,7 +36,8 @@
           {
             "groupId": "com.axonivy.utils.process.inspector",
             "artifactId": "process-inspector",
-            "version": "${version}"
+            "version": "${version}",
+            "type": "jar"
           }
         ],
         "repositories": [
