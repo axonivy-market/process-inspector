@@ -4,9 +4,13 @@ import static java.util.Collections.emptyList;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.collections4.ListUtils;
 
@@ -47,7 +51,8 @@ public class AnalysisPathHelper {
 		return result;
 	}
 
-	public static List<AnalysisPath> addAllToPath(List<AnalysisPath> paths, Map<SequenceFlow, List<AnalysisPath>> pathOptions) {
+	public static List<AnalysisPath> addAllToPath(List<AnalysisPath> paths,
+			Map<SequenceFlow, List<AnalysisPath>> pathOptions) {
 		List<AnalysisPath> result = new ArrayList<>();
 		if (pathOptions.isEmpty()) {
 			result.addAll(paths);
@@ -68,7 +73,6 @@ public class AnalysisPathHelper {
 		}
 		return result;
 	}
-	
 
 	public static List<AnalysisPath> replaceFirstElement(ProcessElement element, List<AnalysisPath> subPaths) {
 		if (subPaths.isEmpty()) {
@@ -84,82 +88,124 @@ public class AnalysisPathHelper {
 
 		return result;
 	}
-	
+
 	public static <T> int getLastIndex(AnalysisPath path) {
 		List<ProcessElement> elements = path.getElements();
 		return elements.size() == 0 ? 0 : elements.size() - 1;
 	}
-	
+
 	public static ProcessElement getLastElement(AnalysisPath path) {
 		List<ProcessElement> elements = path.getElements();
 		int size = elements.size();
 		return size == 0 ? null : elements.get(size - 1);
 	}
-	
+
 	public static NodeElement getFirstNodeElement(List<AnalysisPath> paths) {
-		NodeElement startNode =  AnalysisPathHelper.getAllProcessElement(paths).stream()						
-				.map(ProcessElement::getElement)							
-				.filter(NodeElement.class::isInstance)
-				.findFirst()
-				.map(NodeElement.class::cast)
-				.orElse(null);
+		NodeElement startNode = AnalysisPathHelper.getAllProcessElement(paths).stream().map(ProcessElement::getElement)
+				.filter(NodeElement.class::isInstance).findFirst().map(NodeElement.class::cast).orElse(null);
 		return startNode;
 	}
-	
-	public static List<AnalysisPath> removeLastElementByClassType(List<AnalysisPath> paths , Class<?> clazz) {
+
+	public static List<AnalysisPath> removeLastElementByClassType(List<AnalysisPath> paths, Class<?> clazz) {
 
 		List<AnalysisPath> result = new ArrayList<>();
 		for (AnalysisPath path : paths) {
 			int lastIndex = AnalysisPathHelper.getLastIndex(path);
 			List<ProcessElement> pathElements = new ArrayList<>(path.getElements());
 			ProcessElement lastElement = pathElements.get(lastIndex);
-			
+
 			if (lastElement instanceof CommonElement && clazz.isInstance(lastElement.getElement())) {
 				pathElements.remove(lastIndex);
 			}
-			
+
 			result.add(new AnalysisPath(pathElements));
 		}
 
 		return result;
 	}
-	
+
 	public static List<ProcessElement> getAllProcessElement(List<AnalysisPath> paths) {
-		List<ProcessElement> elements = paths.stream()
-				.map(AnalysisPath::getElements)
-				.flatMap(List::stream)
-				.flatMap(it -> getAllProcessElement(it).stream())
-				.toList();
+		List<ProcessElement> elements = paths.stream().map(AnalysisPath::getElements).flatMap(List::stream)
+				.flatMap(it -> getAllProcessElement(it).stream()).toList();
 		return elements;
 	}
-	
+
 	public static List<ProcessElement> getAllProcessElement(ProcessElement element) {
-		if(element instanceof CommonElement) {
+		if (element instanceof CommonElement) {
 			return List.of(element);
 		}
-		
-		if(element instanceof TaskParallelGroup) {
+
+		if (element instanceof TaskParallelGroup) {
 			List<ProcessElement> result = new ArrayList<>();
-			
+
 			TaskParallelGroup group = (TaskParallelGroup) element;
-			if(group.getElement() != null) {
+			if (group.getElement() != null) {
 				result.add(new CommonElement(group.getElement()));
 			}
-						
-			for(Entry<SequenceFlow, List<AnalysisPath>> entry : group.getInternalPaths().entrySet()) {
-				List<ProcessElement> allProcessElement = entry.getValue().stream()
-						.map(AnalysisPath::getElements)
-						.flatMap(List::stream)
-						.flatMap(it -> getAllProcessElement(it).stream())
-						.toList();
-				
-				result.add(new CommonElement(entry.getKey()));				
+
+			for (Entry<SequenceFlow, List<AnalysisPath>> entry : group.getInternalPaths().entrySet()) {
+				List<ProcessElement> allProcessElement = entry.getValue().stream().map(AnalysisPath::getElements)
+						.flatMap(List::stream).flatMap(it -> getAllProcessElement(it).stream()).toList();
+
+				result.add(new CommonElement(entry.getKey()));
 				result.addAll(allProcessElement);
 			}
-			
+
 			return result;
 		}
-		
+
 		return emptyList();
+	}
+
+	public static <K, V extends List<AnalysisPath>> Map<K, V> getPathByStartElements(Map<K, V> source, Set<K> keys) {
+		Map<K, V> result = new LinkedHashMap<>();
+		keys.forEach(key -> {
+			V paths = source.get(key);
+			if (isNotEmpty(paths)) {
+				result.put(key, paths);
+			}
+		});
+		return result;
+	}
+	
+	public static List<AnalysisPath> getAnalysisPathFrom(Map<ProcessElement, List<AnalysisPath>> source, ProcessElement from) {
+		Set<AnalysisPath> result = new HashSet<>();
+		List<AnalysisPath> paths = source.values().stream().flatMap(Collection::stream).toList();
+		
+		for (AnalysisPath path : paths) {
+			List<ProcessElement> elements = path.getElements();
+			int index = elements.indexOf(from);
+			if (index >= 0) {
+				List<ProcessElement> afterFrom = elements.subList(index, elements.size() - 1);
+				result.add(new AnalysisPath(afterFrom));
+			}
+		}
+
+		return new ArrayList<>(result);
+		
+	}
+	
+	public static Map<ProcessElement, List<AnalysisPath>> getAnalysisPathTo(Map<ProcessElement, List<AnalysisPath>> source, ProcessElement to) {
+		 Map<ProcessElement, List<AnalysisPath>> pathBeforeIntersection = new LinkedHashMap<>();
+		for (Entry<ProcessElement, List<AnalysisPath>> entry : source.entrySet()) {
+			List<AnalysisPath> beforeTo = getAnalysisPathTo(entry.getValue(), to);
+			if (isNotEmpty(beforeTo)) {
+				pathBeforeIntersection.put(entry.getKey(), beforeTo);
+			}
+		}
+
+		return pathBeforeIntersection;
+	}
+	
+	private static List<AnalysisPath> getAnalysisPathTo(List<AnalysisPath> source, ProcessElement to) {
+		List<AnalysisPath> result = new ArrayList<>();
+		for (AnalysisPath path : source) {
+			int index = path.getElements().indexOf(to);
+			if (index >= 0) {
+				List<ProcessElement> beforeIntersection = path.getElements().subList(0, index);
+				result.add(new AnalysisPath(beforeIntersection));
+			}
+		}
+		return result;
 	}
 }

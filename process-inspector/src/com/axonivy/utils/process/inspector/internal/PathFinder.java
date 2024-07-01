@@ -2,6 +2,9 @@ package com.axonivy.utils.process.inspector.internal;
 
 import static com.axonivy.utils.process.inspector.internal.helper.AnalysisPathHelper.addAllToPath;
 import static com.axonivy.utils.process.inspector.internal.helper.AnalysisPathHelper.addToPath;
+import static com.axonivy.utils.process.inspector.internal.helper.AnalysisPathHelper.getAnalysisPathFrom;
+import static com.axonivy.utils.process.inspector.internal.helper.AnalysisPathHelper.getAnalysisPathTo;
+import static com.axonivy.utils.process.inspector.internal.helper.AnalysisPathHelper.getPathByStartElements;
 import static com.axonivy.utils.process.inspector.internal.helper.AnalysisPathHelper.replaceFirstElement;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
@@ -167,8 +170,7 @@ public class PathFinder {
 
 	private Map<ProcessElement, List<AnalysisPath>> mergePath(Map<ProcessElement, List<AnalysisPath>> source,
 			ProcessElement intersection, List<AnalysisPath> subPath) {
-		Map<ProcessElement, List<AnalysisPath>> pathBeforeIntersection = getPathBeforeIntersection(source,
-				intersection);
+		Map<ProcessElement, List<AnalysisPath>> pathBeforeIntersection = getAnalysisPathTo(source, intersection);
 
 		Map<ProcessElement, List<AnalysisPath>> pathNotIntersection = source.entrySet().stream()
 				.filter(entry -> !pathBeforeIntersection.keySet().contains(entry.getKey())).collect(toMap(
@@ -234,14 +236,14 @@ public class PathFinder {
 			ProcessElement intersection = intersectionEntry.getKey();
 			Set<ProcessElement> startElements = intersectionEntry.getValue();
 
-			var paths = getPathByStartElements(source, startElements);
+			Map<ProcessElement, List<AnalysisPath>> paths = getPathByStartElements(source, startElements);
 
-			var pathBeforeIntersection = getPathBeforeIntersection(paths, intersection);
+			Map<ProcessElement, List<AnalysisPath>> pathBeforeIntersection = getAnalysisPathTo(paths, intersection);
 
 			// Call recursion inside convertToTaskParallelGroup
 			TaskParallelGroup taskGroup = convertToTaskParallelGroup(pathBeforeIntersection);
 
-			List<AnalysisPath> subPathAfterIntersection = getAnalysisPathFromIntersection(paths, intersection);
+			List<AnalysisPath> subPathAfterIntersection = getAnalysisPathFrom(paths, intersection);
 
 			result.addAll(addToPath(List.of(new AnalysisPath(List.of(taskGroup))), subPathAfterIntersection));
 		}
@@ -250,87 +252,31 @@ public class PathFinder {
 	}
 
 	private Map<ProcessElement, List<AnalysisPath>> getPathHaveNoIntersection(
-			Map<ProcessElement, List<AnalysisPath>> source, Map<ProcessElement, Set<ProcessElement>> intersections) {
-		List<ProcessElement> startElementWithIntersection = intersections.values().stream().flatMap(Collection::stream)
+			Map<ProcessElement, List<AnalysisPath>> source, 
+			Map<ProcessElement, Set<ProcessElement>> intersections) {
+		
+		List<ProcessElement> startElementWithIntersection = intersections.values().stream()
+				.flatMap(Collection::stream)
 				.toList();
 
-		return source.entrySet().stream().filter(entry -> !startElementWithIntersection.contains(entry.getKey()))
-				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue,
-						LinkedHashMap::new));
+		return source.entrySet().stream()
+				.filter(entry -> !startElementWithIntersection.contains(entry.getKey()))
+				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 	}
 
-	private TaskParallelGroup convertToTaskParallelGroupWithInternalPath(
-			Map<ProcessElement, List<AnalysisPath>> internalPaths) {
+	private TaskParallelGroup convertToTaskParallelGroupWithInternalPath(Map<ProcessElement, List<AnalysisPath>> internalPaths) {
 		TaskParallelGroup taskGroup = new TaskParallelGroup(null);
-		taskGroup.setInternalPaths(convertToInternalPathForTaskParallelGroup(internalPaths));
+		
+		Map<SequenceFlow, List<AnalysisPath>> result = new LinkedHashMap<>();
+		internalPaths.entrySet().forEach(it -> {
+			SequenceFlow sequenceFlow = processGraph.getFirstIncoming(it.getKey().getElement());
+			result.put(sequenceFlow, it.getValue());
+		});
+		
+		taskGroup.setInternalPaths(result);
 		return taskGroup;
 	}
 
-	private Map<SequenceFlow, List<AnalysisPath>> convertToInternalPathForTaskParallelGroup(
-			Map<ProcessElement, List<AnalysisPath>> internalPath) {
-		Map<SequenceFlow, List<AnalysisPath>> result = new LinkedHashMap<>();
-		internalPath.entrySet().forEach(it -> {
-			NodeElement element = (NodeElement) it.getKey().getElement();
-			result.put(element.getIncoming().get(0), it.getValue());
-		});
-		return result;
-	}
-
-	private List<AnalysisPath> getAnalysisPathFromIntersection(Map<ProcessElement, List<AnalysisPath>> source,
-			ProcessElement intersection) {
-		Set<AnalysisPath> result = new HashSet<>();
-		List<AnalysisPath> paths = source.values().stream().flatMap(Collection::stream).toList();
-		for (AnalysisPath path : paths) {
-			List<ProcessElement> elements = path.getElements();
-			int index = elements.indexOf(intersection);
-			if (index >= 0) {
-				List<ProcessElement> beforeIntersection = elements.subList(index, elements.size() - 1);
-				result.add(new AnalysisPath(beforeIntersection));
-			}
-		}
-
-		return new ArrayList<>(result);
-	}
-
-	private Map<ProcessElement, List<AnalysisPath>> getPathByStartElements(
-			Map<ProcessElement, List<AnalysisPath>> source, Set<ProcessElement> elements) {
-		Map<ProcessElement, List<AnalysisPath>> result = new LinkedHashMap<>();
-
-		elements.forEach(key -> {
-			List<AnalysisPath> paths = source.get(key);
-			if (isNotEmpty(paths)) {
-				result.put(key, paths);
-			}
-		});
-
-		return result;
-	}
-
-	private Map<ProcessElement, List<AnalysisPath>> getPathBeforeIntersection(
-			Map<ProcessElement, List<AnalysisPath>> paths, ProcessElement intersection) {
-		Map<ProcessElement, List<AnalysisPath>> pathBeforeIntersection = new LinkedHashMap<>();
-		for (Entry<ProcessElement, List<AnalysisPath>> entry : paths.entrySet()) {
-			List<AnalysisPath> beforeIntersections = getAnalysisPathBeforeIntersection(entry.getValue(), intersection);
-			if (isNotEmpty(beforeIntersections)) {
-				pathBeforeIntersection.put(entry.getKey(), beforeIntersections);
-			}
-		}
-
-		return pathBeforeIntersection;
-	}
-
-	private List<AnalysisPath> getAnalysisPathBeforeIntersection(List<AnalysisPath> paths,
-			ProcessElement intersection) {
-		List<AnalysisPath> result = new ArrayList<>();
-		for (AnalysisPath path : paths) {
-			int index = path.getElements().indexOf(intersection);
-			if (index >= 0) {
-				List<ProcessElement> beforeIntersection = path.getElements().subList(0, index);
-				result.add(new AnalysisPath(beforeIntersection));
-			}
-		}
-		return result;
-	}
 
 	private Map<ProcessElement, Set<ProcessElement>> getLastIntersectionByStartElements(Map<ProcessElement, List<AnalysisPath>> paths) {
 		var intersections = getAllIntersectionTaskSwitchGatewayWithStartElement(paths);

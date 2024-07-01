@@ -97,7 +97,7 @@ class WorkflowPath {
 					timeUntilStarts);
 			result.addAll(elements);
 		}
-		//result = keepMaxTimeUtilEndDetectedElement(result);
+		result = keepMaxTimeUtilEndDetectedElement(result);
 		return result;
 	}
 
@@ -185,8 +185,8 @@ class WorkflowPath {
 
 			// It is EmbeddedProcessElement
 			if (element instanceof SubProcessGroup) {				
-				List<AnalysisPath> internalPaths = ((SubProcessGroup) element).getInternalPaths();
-				List<AnalysisPath> subPaths = getAnalysisPathBaseOnNextSequenceFlow(internalPaths, nextElement.getElement());
+				List<AnalysisPath> subPaths = ((SubProcessGroup) element).getInternalPaths();
+				//List<AnalysisPath> subPaths = getAnalysisPathBaseOnNextSequenceFlow(internalPaths, nextElement.getElement());
 				List<DetectedElement> allTaskFromSubPath = new ArrayList<>();
 				for(AnalysisPath subPath : subPaths) {
 					ProcessElement startSubElement = subPath.getElements().get(0);

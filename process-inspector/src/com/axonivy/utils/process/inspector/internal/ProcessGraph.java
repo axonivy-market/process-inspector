@@ -186,6 +186,13 @@ public class ProcessGraph {
 				.collect(Collectors.joining("-"));
 	}
 	
+	public SequenceFlow getFirstIncoming(BaseElement element) {		
+		if(element instanceof NodeElement) {
+			return ((NodeElement) element).getIncoming().stream().findFirst().orElse(null);			
+		}
+		return null;		
+	}
+	
 	private boolean containPrefixs(String content, String... prefix) {
 		return List.of(prefix).stream().allMatch(it -> content.contains(it));
 	}
