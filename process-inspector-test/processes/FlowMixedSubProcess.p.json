@@ -150,7 +150,7 @@
                 "import com.axonivy.utils.process.inspector.APAConfig;",
                 "import com.axonivy.utils.process.inspector.test.UseCase;",
                 "",
-                "APAConfig.setEstimate(6,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+                "APAConfig.setEstimate(17,TimeUnit.HOURS,UseCase.BIGPROJECT);"
               ]
             }
           },
@@ -163,8 +163,10 @@
         }, {
           "id" : "S10-f10",
           "type" : "TaskEnd",
+          "name" : "End",
           "visual" : {
-            "at" : { "x" : 544, "y" : 168 }
+            "at" : { "x" : 544, "y" : 168 },
+            "labelOffset" : { "x" : 13, "y" : 33 }
           }
         }, {
           "id" : "S10-f12",
@@ -231,50 +233,28 @@
           "type" : "EmbeddedStart",
           "name" : "from SubB",
           "visual" : {
-            "at" : { "x" : 192, "y" : 168 }
+            "at" : { "x" : 224, "y" : 168 },
+            "labelOffset" : { "x" : 11, "y" : 27 }
           },
           "parentConnector" : "f6",
           "connect" : [
-            { "id" : "S20-f0", "to" : "S20-f7", "var" : "in1" }
+            { "id" : "S20-f0", "to" : "S20-f11", "var" : "in1" }
           ]
         }, {
           "id" : "S20-g1",
           "type" : "EmbeddedEnd",
           "name" : "to SubD",
           "visual" : {
-            "at" : { "x" : 632, "y" : 72 },
+            "at" : { "x" : 784, "y" : 72 },
             "labelOffset" : { "x" : 3, "y" : 43 }
           },
           "parentConnector" : "f11"
-        }, {
-          "id" : "S20-f1",
-          "type" : "UserTask",
-          "name" : "SubB-TaskA",
-          "config" : {
-            "dialog" : "com.axonivy.utils.process.inspector.test.Dummy:start()",
-            "task" : {
-              "name" : "SubB-TaskA",
-              "code" : [
-                "import java.util.concurrent.TimeUnit;",
-                "import com.axonivy.utils.process.inspector.APAConfig;",
-                "import com.axonivy.utils.process.inspector.test.UseCase;",
-                "",
-                "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
-              ]
-            }
-          },
-          "visual" : {
-            "at" : { "x" : 456, "y" : 120 }
-          },
-          "connect" : [
-            { "id" : "S20-f2", "to" : "S20-f3", "var" : "in1" }
-          ]
         }, {
           "id" : "S20-g2",
           "type" : "EmbeddedEnd",
           "name" : "to SubC",
           "visual" : {
-            "at" : { "x" : 624, "y" : 152 },
+            "at" : { "x" : 784, "y" : 168 },
             "labelOffset" : { "x" : 3, "y" : 27 }
           },
           "parentConnector" : "f13"
@@ -295,22 +275,23 @@
               } ]
           },
           "visual" : {
-            "at" : { "x" : 552, "y" : 120 }
+            "at" : { "x" : 568, "y" : 120 }
           },
           "connect" : [
-            { "id" : "S20-f4", "to" : "S20-g1", "condition" : "ivp==\"TaskA.ivp\"" },
-            { "id" : "S20-f5", "to" : "S20-g2", "condition" : "ivp==\"TaskB.ivp\"" }
+            { "id" : "S20-f4", "to" : "S20-f13", "via" : [ { "x" : 568, "y" : 72 } ], "condition" : "ivp==\"TaskA.ivp\"" },
+            { "id" : "S20-f5", "to" : "S20-f15", "via" : [ { "x" : 568, "y" : 168 } ], "condition" : "ivp==\"TaskB.ivp\"" }
           ]
         }, {
           "id" : "S20-g3",
           "type" : "EmbeddedStart",
           "name" : "from SubA",
           "visual" : {
-            "at" : { "x" : 208, "y" : 56 }
+            "at" : { "x" : 224, "y" : 72 },
+            "labelOffset" : { "x" : 11, "y" : 27 }
           },
           "parentConnector" : "f16",
           "connect" : [
-            { "id" : "S20-f6", "to" : "S20-f7", "var" : "in2" }
+            { "id" : "S20-f6", "to" : "S20-f9", "var" : "in2" }
           ]
         }, {
           "id" : "S20-f7",
@@ -324,11 +305,150 @@
               } ]
           },
           "visual" : {
-            "at" : { "x" : 328, "y" : 120 }
+            "at" : { "x" : 440, "y" : 120 }
           },
           "connect" : [
-            { "id" : "S20-f8", "to" : "S20-f1", "condition" : "ivp==\"TaskA.ivp\"" }
+            { "id" : "S20-f1", "to" : "S20-f2", "condition" : "ivp==\"TaskA.ivp\"" }
           ]
+        }, {
+          "id" : "S20-f9",
+          "type" : "UserTask",
+          "name" : "SubB-TaskA",
+          "config" : {
+            "dialog" : "com.axonivy.utils.process.inspector.test.Dummy:start()",
+            "task" : {
+              "name" : "SubB-TaskA",
+              "code" : [
+                "import java.util.concurrent.TimeUnit;",
+                "import com.axonivy.utils.process.inspector.APAConfig;",
+                "import com.axonivy.utils.process.inspector.test.UseCase;",
+                "",
+                "APAConfig.setEstimate(2,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+              ]
+            }
+          },
+          "visual" : {
+            "at" : { "x" : 344, "y" : 72 }
+          },
+          "connect" : [
+            { "id" : "S20-f10", "to" : "S20-f7", "via" : [ { "x" : 440, "y" : 72 } ], "var" : "in2" }
+          ]
+        }, {
+          "id" : "S20-f11",
+          "type" : "UserTask",
+          "name" : "SubB-TaskB",
+          "config" : {
+            "dialog" : "com.axonivy.utils.process.inspector.test.Dummy:start()",
+            "task" : {
+              "name" : "SubB-TaskB",
+              "code" : [
+                "import java.util.concurrent.TimeUnit;",
+                "import com.axonivy.utils.process.inspector.APAConfig;",
+                "import com.axonivy.utils.process.inspector.test.UseCase;",
+                "",
+                "APAConfig.setEstimate(3,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+              ]
+            }
+          },
+          "visual" : {
+            "at" : { "x" : 344, "y" : 168 }
+          },
+          "connect" : [
+            { "id" : "S20-f12", "to" : "S20-f7", "via" : [ { "x" : 440, "y" : 168 } ], "var" : "in1" }
+          ]
+        }, {
+          "id" : "S20-f13",
+          "type" : "UserTask",
+          "name" : "SubB-TaskC",
+          "config" : {
+            "dialog" : "com.axonivy.utils.process.inspector.test.Dummy:start()",
+            "task" : {
+              "name" : "SubB-TaskC",
+              "code" : [
+                "import java.util.concurrent.TimeUnit;",
+                "import com.axonivy.utils.process.inspector.APAConfig;",
+                "import com.axonivy.utils.process.inspector.test.UseCase;",
+                "",
+                "APAConfig.setEstimate(4,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+              ]
+            }
+          },
+          "visual" : {
+            "at" : { "x" : 664, "y" : 72 }
+          },
+          "connect" : [
+            { "id" : "S20-f14", "to" : "S20-g1" }
+          ]
+        }, {
+          "id" : "S20-f15",
+          "type" : "UserTask",
+          "name" : "SubB-TaskD",
+          "config" : {
+            "dialog" : "com.axonivy.utils.process.inspector.test.Dummy:start()",
+            "task" : {
+              "name" : "SubB-TaskD",
+              "code" : [
+                "import java.util.concurrent.TimeUnit;",
+                "import com.axonivy.utils.process.inspector.APAConfig;",
+                "import com.axonivy.utils.process.inspector.test.UseCase;",
+                "",
+                "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+              ]
+            }
+          },
+          "visual" : {
+            "at" : { "x" : 664, "y" : 168 }
+          },
+          "connect" : [
+            { "id" : "S20-f16", "to" : "S20-g2" }
+          ]
+        }, {
+          "id" : "S20-f2",
+          "type" : "Alternative",
+          "config" : {
+            "conditions" : {
+              "S20-f18" : "true",
+              "S20-f8" : ""
+            }
+          },
+          "visual" : {
+            "at" : { "x" : 512, "y" : 120 }
+          },
+          "connect" : [
+            { "id" : "S20-f8", "to" : "S20-f3", "var" : "in1" },
+            { "id" : "S20-f18", "to" : "S20-f17" }
+          ]
+        }, {
+          "id" : "S20-f17",
+          "type" : "UserTask",
+          "name" : "SubB-TaskE",
+          "config" : {
+            "dialog" : "com.axonivy.utils.process.inspector.test.Dummy:start()",
+            "task" : {
+              "name" : "SubB-TaskE",
+              "code" : [
+                "import java.util.concurrent.TimeUnit;",
+                "import com.axonivy.utils.process.inspector.APAConfig;",
+                "import com.axonivy.utils.process.inspector.test.UseCase;",
+                "",
+                "APAConfig.setEstimate(13,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+              ]
+            }
+          },
+          "visual" : {
+            "at" : { "x" : 512, "y" : 240 }
+          },
+          "connect" : [
+            { "id" : "S20-f20", "to" : "S20-f19" }
+          ]
+        }, {
+          "id" : "S20-f19",
+          "type" : "TaskEnd",
+          "name" : "End",
+          "visual" : {
+            "at" : { "x" : 784, "y" : 240 },
+            "labelOffset" : { "x" : 13, "y" : 33 }
+          }
         } ],
       "visual" : {
         "at" : { "x" : 408, "y" : 184 }
@@ -346,54 +466,33 @@
           "type" : "EmbeddedStart",
           "name" : "from split1",
           "visual" : {
-            "at" : { "x" : 224, "y" : 64 }
+            "at" : { "x" : 216, "y" : 64 },
+            "labelOffset" : { "x" : 11, "y" : 27 }
           },
           "parentConnector" : "f7",
           "connect" : [
-            { "id" : "S30-f0", "to" : "S30-f4", "var" : "in1" }
+            { "id" : "S30-f0", "to" : "S30-f8", "var" : "in1" }
           ]
         }, {
           "id" : "S30-g1",
           "type" : "EmbeddedEnd",
           "name" : "to SubD",
           "visual" : {
-            "at" : { "x" : 672, "y" : 64 },
+            "at" : { "x" : 496, "y" : 112 },
             "labelOffset" : { "x" : 27, "y" : 43 }
           },
           "parentConnector" : "f10"
-        }, {
-          "id" : "S30-f1",
-          "type" : "UserTask",
-          "name" : "SubC-TaskA",
-          "config" : {
-            "dialog" : "com.axonivy.utils.process.inspector.test.Dummy:start()",
-            "task" : {
-              "name" : "SubC-TaskA",
-              "code" : [
-                "import java.util.concurrent.TimeUnit;",
-                "import com.axonivy.utils.process.inspector.APAConfig;",
-                "import com.axonivy.utils.process.inspector.test.UseCase;",
-                "",
-                "APAConfig.setEstimate(5,TimeUnit.HOURS,UseCase.BIGPROJECT);"
-              ]
-            }
-          },
-          "visual" : {
-            "at" : { "x" : 448, "y" : 64 }
-          },
-          "connect" : [
-            { "id" : "S30-f2", "to" : "S30-g1" }
-          ]
         }, {
           "id" : "S30-g2",
           "type" : "EmbeddedStart",
           "name" : "from SubB",
           "visual" : {
-            "at" : { "x" : 216, "y" : 136 }
+            "at" : { "x" : 216, "y" : 168 },
+            "labelOffset" : { "x" : 11, "y" : 27 }
           },
           "parentConnector" : "f13",
           "connect" : [
-            { "id" : "S30-f3", "to" : "S30-f4", "var" : "in2" }
+            { "id" : "S30-f3", "to" : "S30-f6", "var" : "in2" }
           ]
         }, {
           "id" : "S30-f4",
@@ -407,10 +506,56 @@
               } ]
           },
           "visual" : {
-            "at" : { "x" : 320, "y" : 64 }
+            "at" : { "x" : 432, "y" : 112 }
           },
           "connect" : [
-            { "id" : "S30-f5", "to" : "S30-f1", "condition" : "ivp==\"TaskA.ivp\"" }
+            { "id" : "S30-f1", "to" : "S30-g1", "condition" : "ivp==\"TaskA.ivp\"" }
+          ]
+        }, {
+          "id" : "S30-f6",
+          "type" : "UserTask",
+          "name" : "SubC-TaskB",
+          "config" : {
+            "dialog" : "com.axonivy.utils.process.inspector.test.Dummy:start()",
+            "task" : {
+              "name" : "SubC-TaskB",
+              "code" : [
+                "import java.util.concurrent.TimeUnit;",
+                "import com.axonivy.utils.process.inspector.APAConfig;",
+                "import com.axonivy.utils.process.inspector.test.UseCase;",
+                "",
+                "APAConfig.setEstimate(4,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+              ]
+            }
+          },
+          "visual" : {
+            "at" : { "x" : 328, "y" : 168 }
+          },
+          "connect" : [
+            { "id" : "S30-f7", "to" : "S30-f4", "via" : [ { "x" : 432, "y" : 168 } ], "var" : "in2" }
+          ]
+        }, {
+          "id" : "S30-f8",
+          "type" : "UserTask",
+          "name" : "SubC-TaskA",
+          "config" : {
+            "dialog" : "com.axonivy.utils.process.inspector.test.Dummy:start()",
+            "task" : {
+              "name" : "SubC-TaskA",
+              "code" : [
+                "import java.util.concurrent.TimeUnit;",
+                "import com.axonivy.utils.process.inspector.APAConfig;",
+                "import com.axonivy.utils.process.inspector.test.UseCase;",
+                "",
+                "APAConfig.setEstimate(3,TimeUnit.HOURS,UseCase.BIGPROJECT);"
+              ]
+            }
+          },
+          "visual" : {
+            "at" : { "x" : 328, "y" : 64 }
+          },
+          "connect" : [
+            { "id" : "S30-f9", "to" : "S30-f4", "via" : [ { "x" : 432, "y" : 64 } ], "var" : "in1" }
           ]
         } ],
       "visual" : {
@@ -448,7 +593,7 @@
             }
           },
           "visual" : {
-            "at" : { "x" : 552, "y" : 152 }
+            "at" : { "x" : 544, "y" : 152 }
           },
           "connect" : [
             { "id" : "S40-f2", "to" : "S40-g0" }
@@ -465,7 +610,7 @@
               } ]
           },
           "visual" : {
-            "at" : { "x" : 432, "y" : 144 }
+            "at" : { "x" : 416, "y" : 152 }
           },
           "connect" : [
             { "id" : "S40-f4", "to" : "S40-f1", "condition" : "ivp==\"TaskA.ivp\"" }
@@ -526,7 +671,7 @@
             "at" : { "x" : 296, "y" : 80 }
           },
           "connect" : [
-            { "id" : "S40-f8", "to" : "S40-f3", "var" : "in3" }
+            { "id" : "S40-f8", "to" : "S40-f3", "via" : [ { "x" : 416, "y" : 80 } ], "var" : "in3" }
           ]
         }, {
           "id" : "S40-f9",
@@ -559,7 +704,7 @@
             "at" : { "x" : 296, "y" : 224 }
           },
           "connect" : [
-            { "id" : "S40-f10", "to" : "S40-f3", "var" : "in1" }
+            { "id" : "S40-f10", "to" : "S40-f3", "via" : [ { "x" : 416, "y" : 224 } ], "var" : "in1" }
           ]
         }, {
           "id" : "S40-f11",

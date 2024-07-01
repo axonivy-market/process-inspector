@@ -1,6 +1,7 @@
 package com.axonivy.utils.process.inspector.internal.helper;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 import java.util.ArrayList;
@@ -13,14 +14,18 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.collections4.SetUtils;
 
 import com.axonivy.utils.process.inspector.internal.model.AnalysisPath;
 import com.axonivy.utils.process.inspector.internal.model.CommonElement;
 import com.axonivy.utils.process.inspector.internal.model.ProcessElement;
 import com.axonivy.utils.process.inspector.internal.model.TaskParallelGroup;
 
+import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
+import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
+import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 
 public class AnalysisPathHelper {
 	public static List<AnalysisPath> addToPath(List<AnalysisPath> paths, List<AnalysisPath> subPaths) {
@@ -197,6 +202,62 @@ public class AnalysisPathHelper {
 		return pathBeforeIntersection;
 	}
 	
+	public static List<SequenceFlow> findIncomingsFromPaths(List<AnalysisPath> paths, ProcessElement from) {
+		List<BaseElement> elements = getAllProcessElement(paths).stream()						
+				.map(ProcessElement::getElement)
+				.toList();
+		
+		List<SequenceFlow> sequenceFlows =	elements.stream()
+				.filter(SequenceFlow.class::isInstance)
+				.map(SequenceFlow.class::cast)
+				.filter(it -> it.getTarget().equals(from.getElement()))			
+				.distinct()				
+				.toList();
+		
+		return sequenceFlows;
+	}
+	
+	public static boolean isContains(List<AnalysisPath> currentPaths, final ProcessElement from) {
+		boolean isContains = false;
+		if (from.getElement() instanceof NodeElement && from.getElement() instanceof RequestStart == false) {
+			NodeElement node = (NodeElement) from.getElement();
+			
+			if (node.getIncoming().size() > 0) {
+				SequenceFlow sequenceFlow = node.getIncoming().get(0);
+				List<AnalysisPath> pathWithConnectToFrom = currentPaths.stream().filter(path -> {
+					int lastIndex = getLastIndex(path);
+					return sequenceFlow.equals(path.getElements().get(lastIndex).getElement());
+				}).toList();
+
+				isContains = pathWithConnectToFrom.stream()
+						.map(AnalysisPath::getElements)
+						.flatMap(List::stream)
+						.anyMatch(it -> it.getElement().equals(from.getElement()));
+			}
+		}
+		return isContains;
+	}
+	
+	public static Map<ProcessElement, Set<ProcessElement>> getAllStartElementOfTaskSwitchGateways(Map<ProcessElement, List<AnalysisPath>> source) {
+		Map<ProcessElement, Set<ProcessElement>> result = new LinkedHashMap<>();
+
+		for (ProcessElement startElement : source.keySet()) {			
+			List<AnalysisPath> paths =  source.getOrDefault(startElement, emptyList());
+			for (AnalysisPath path : paths) {
+				for (ProcessElement element : path.getElements()) {
+					if (element.getElement() instanceof TaskSwitchGateway) {						
+						if (((TaskSwitchGateway) element.getElement()).getIncoming().size() > 1) {
+							Set<ProcessElement> startElements = result.getOrDefault(element, emptySet());
+
+							result.put(element, SetUtils.union(startElements, Set.of(startElement)));
+						}
+					}
+				}
+			}
+		}
+		
+		return result;
+	}
 	private static List<AnalysisPath> getAnalysisPathTo(List<AnalysisPath> source, ProcessElement to) {
 		List<AnalysisPath> result = new ArrayList<>();
 		for (AnalysisPath path : source) {

@@ -1,7 +1,10 @@
 package com.axonivy.utils.process.inspector.internal;
 
+import static java.util.Collections.emptyList;
+import static org.apache.commons.collections4.ListUtils.union;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,8 +20,11 @@ import com.axonivy.utils.process.inspector.model.ElementTask;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.EmbeddedProcess;
+import ch.ivyteam.ivy.process.model.HierarchicElement;
 import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
+import ch.ivyteam.ivy.process.model.diagram.edge.DiagramEdge;
+import ch.ivyteam.ivy.process.model.diagram.value.Label;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
@@ -74,31 +80,6 @@ public class ProcessGraph {
 				.map(EmbeddedStart.class::cast)
 				.orElse(null);		
 		return start;
-	}
-
-	public long countStartElement(BaseElement element) {
-		if(element instanceof NodeElement) {
-			BaseElement parent = ((NodeElement) element).getParent();
-			if(parent instanceof  EmbeddedProcessElement) {
-				return findStartElementOfProcess((EmbeddedProcessElement)parent).stream()
-						.map(EmbeddedStart.class::cast)
-						.filter(it -> it.getOutgoing().size() > 0)
-						.count();
-			} else {
-				return ((NodeElement) element).getRootProcess().getElements().stream()
-						.filter(RequestStart.class::isInstance)
-						.count();
-			}
-		}
-		return 0;
-	}
-	
-	public List<String> getNextTargetIdsByCondition(Alternative alternative, String condition) {
-		IvyScriptExpression script = IvyScriptExpression.script(defaultString(condition));
-		List<String> nextTargetIds = alternative.getConditions().conditions().entrySet().stream()
-				.filter(entry -> script.equals(entry.getValue())).map(Entry::getKey).toList();
-		
-		return nextTargetIds;
 	}
 
 	public TaskConfig getStartTaskConfig(SequenceFlow sequenceFlow) {
@@ -192,6 +173,115 @@ public class ProcessGraph {
 		}
 		return null;		
 	}
+
+	public List<SequenceFlow> getOutgoing(BaseElement element) {		
+		if(element instanceof NodeElement) {
+			return ((NodeElement) element).getOutgoing();			
+		}
+		return emptyList();		
+	}
+	
+	public boolean isMultiIncoming(BaseElement element) {		
+		if(element instanceof NodeElement) {
+			return ((NodeElement) element).getIncoming().size() > 1;			
+		}
+		return false;		
+	}
+	
+	public boolean isMultiIOutgoing(BaseElement element) {		
+		if(element instanceof NodeElement) {
+			return ((NodeElement) element).getOutgoing().size() > 1;			
+		}
+		return false;		
+	}
+	
+	public List<SequenceFlow> getSequenceFlowOf(NodeElement from,  NodeElement startNode) {
+		long numberOfStarts = countStartElement(from);
+		List<SequenceFlow> incomings = from.getIncoming();
+		
+		List<SequenceFlow> sequenceFlows = emptyList();				
+		if(numberOfStarts == 1) {
+			//If there are only on start node -> just get incoming
+			sequenceFlows = incomings;
+		} else {			
+			//TODO: Should find another solution to check
+			sequenceFlows = incomings.stream().filter(it -> isStartedFromOf(startNode, it, emptyList())).toList();
+		}
+		return sequenceFlows;
+	}
+	
+
+	public boolean hasFlowName(SequenceFlow sequenceFlow, String flowName) {
+		String label = Optional.ofNullable(sequenceFlow)
+				.map(SequenceFlow::getEdge)
+				.map(DiagramEdge::getLabel)
+				.map(Label::getText)
+				.orElse(null);
+		
+		return isNotBlank(label) && label.contains(flowName);
+	}
+
+	public boolean isDefaultPath(SequenceFlow flow) {
+		NodeElement sourceElement = flow.getSource();
+		if (sourceElement instanceof Alternative) {
+			return isDefaultPath((Alternative) sourceElement, flow);
+		}
+
+		return false;
+	}
+
+	public EmbeddedProcessElement getParentElement(BaseElement element) {
+		if (element instanceof HierarchicElement) {
+			var parentElement = ((HierarchicElement) element).getParent();
+			if (parentElement instanceof EmbeddedProcessElement) {
+				return (EmbeddedProcessElement) parentElement;
+			}
+		}
+		return null;
+	}
+	
+	public boolean isConnectOuterOf(EmbeddedEnd end, SequenceFlow sequenceFlow) {
+		BaseElement outerSequenceFlow = ((EmbeddedEnd) end).getConnectedOuterSequenceFlow();
+		return outerSequenceFlow.getPid().equals(sequenceFlow.getPid());
+	}
+	
+	private boolean isDefaultPath(Alternative alternative, SequenceFlow sequenceFlow) {
+		String currentElementId = sequenceFlow.getPid().getFieldIds();
+		List<String> nextTargetIds = getNextTargetIdsByCondition(alternative, EMPTY);
+		return nextTargetIds.contains(currentElementId);
+	}
+	
+	private List<String> getNextTargetIdsByCondition(Alternative alternative, String condition) {
+		IvyScriptExpression script = IvyScriptExpression.script(defaultString(condition));
+		List<String> nextTargetIds = alternative.getConditions().conditions().entrySet().stream()
+				.filter(entry -> script.equals(entry.getValue())).map(Entry::getKey).toList();
+		
+		return nextTargetIds;
+	}
+	
+	private boolean isStartedFromOf(NodeElement startNode, SequenceFlow sequenceFlow, List<BaseElement> pathChecked) {
+		if(startNode == null) {
+			return false;
+		}
+		NodeElement node = sequenceFlow.getSource();
+		if(pathChecked.contains(node)) {
+			return false;
+		}
+		
+		if(startNode.equals(node)) {
+			return true;
+		} 
+		
+		// Maybe have a loop here.
+		List<SequenceFlow> sequenceFlows = node.getIncoming();
+		for (SequenceFlow flow : sequenceFlows) {
+			List<BaseElement> newPathChecked = union(pathChecked, List.of(node, flow));
+			if (isStartedFromOf(startNode, flow, newPathChecked)) {
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	private boolean containPrefixs(String content, String... prefix) {
 		return List.of(prefix).stream().allMatch(it -> content.contains(it));
@@ -204,5 +294,22 @@ public class ProcessGraph {
 				.map(EmbeddedStart.class::cast)
 				.toList();	
 		return starts;
+	}
+	
+	private long countStartElement(BaseElement element) {
+		if(element instanceof NodeElement) {
+			BaseElement parent = ((NodeElement) element).getParent();
+			if(parent instanceof  EmbeddedProcessElement) {
+				return findStartElementOfProcess((EmbeddedProcessElement)parent).stream()
+						.map(EmbeddedStart.class::cast)
+						.filter(it -> it.getOutgoing().size() > 0)
+						.count();
+			} else {
+				return ((NodeElement) element).getRootProcess().getElements().stream()
+						.filter(RequestStart.class::isInstance)
+						.count();
+			}
+		}
+		return 0;
 	}
 }
