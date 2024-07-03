@@ -2,16 +2,18 @@ package com.axonivy.utils.process.inspector.internal;
 
 import static com.axonivy.utils.process.inspector.internal.helper.AnalysisPathHelper.addAllToPath;
 import static com.axonivy.utils.process.inspector.internal.helper.AnalysisPathHelper.addToPath;
+import static com.axonivy.utils.process.inspector.internal.helper.AnalysisPathHelper.findIncomingsFromPaths;
+import static com.axonivy.utils.process.inspector.internal.helper.AnalysisPathHelper.getAllStartElementOfTaskSwitchGateways;
+import static com.axonivy.utils.process.inspector.internal.helper.AnalysisPathHelper.getAnalysisPathFrom;
+import static com.axonivy.utils.process.inspector.internal.helper.AnalysisPathHelper.getAnalysisPathTo;
+import static com.axonivy.utils.process.inspector.internal.helper.AnalysisPathHelper.getPathByStartElements;
 import static com.axonivy.utils.process.inspector.internal.helper.AnalysisPathHelper.replaceFirstElement;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toMap;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
-import static org.apache.commons.collections4.ListUtils.union;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,9 +25,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.collections4.MapUtils;
 
 import com.axonivy.utils.process.inspector.internal.helper.AnalysisPathHelper;
 import com.axonivy.utils.process.inspector.internal.model.AnalysisPath;
@@ -35,14 +37,12 @@ import com.axonivy.utils.process.inspector.internal.model.SubProcessGroup;
 import com.axonivy.utils.process.inspector.internal.model.TaskParallelGroup;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
-import ch.ivyteam.ivy.process.model.HierarchicElement;
 import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
-import ch.ivyteam.ivy.process.model.diagram.edge.DiagramEdge;
-import ch.ivyteam.ivy.process.model.diagram.value.Label;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
+import ch.ivyteam.ivy.process.model.element.event.end.EmbeddedEnd;
 import ch.ivyteam.ivy.process.model.element.event.end.TaskEnd;
-import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
+import ch.ivyteam.ivy.process.model.element.event.start.EmbeddedStart;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 
@@ -102,35 +102,27 @@ public class PathFinder {
 			result.put(entry.getKey(), pathWithParent);
 		}
 		
+		//Fix internal path for subprocess with multiple end event
+		result = correctInternalPathByNextSequence(result);
 		return result;
 	}
 	
-	private List<AnalysisPath> getParentPathOf(ProcessElement startElement,String flowName, FindType findType, List<AnalysisPath> paths) throws Exception {
-		ProcessElement parentElement = getParentElement(startElement);
-		
+	private List<AnalysisPath> getParentPathOf(ProcessElement startElement,String flowName, FindType findType, List<AnalysisPath> paths) throws Exception {				
 		List<AnalysisPath> result = paths;
+		
+		EmbeddedProcessElement parentElement = processGraph.getParentElement(startElement.getElement());
 		if(parentElement != null) {
-			SubProcessGroup subProcess = new SubProcessGroup((EmbeddedProcessElement) parentElement.getElement(), paths);
+			SubProcessGroup subProcess = new SubProcessGroup(parentElement, paths);			
+			ProcessElement parentProcessElement = new CommonElement(parentElement);
 			
-			Map<ProcessElement, List<AnalysisPath>> parentPaths = findPath(List.of(parentElement), flowName, findType);
-			List<AnalysisPath> subPaths = parentPaths.getOrDefault(parentElement, emptyList());
-			
+			Map<ProcessElement, List<AnalysisPath>> parentPaths = findPath(List.of(parentProcessElement), flowName, findType);			
+			List<AnalysisPath> subPaths = parentPaths.getOrDefault(parentProcessElement, emptyList());			
 			List<AnalysisPath> fullParentPath = replaceFirstElement(subProcess, subPaths);
 			
-			result = getParentPathOf(parentElement, flowName, findType, fullParentPath);
+			result = getParentPathOf(parentProcessElement, flowName, findType, fullParentPath);
 		}
 
 		return result;
-	}
-	
-	private ProcessElement getParentElement(ProcessElement startElement) {
-		if (startElement.getElement() instanceof HierarchicElement) {
-			var parentElement = ((HierarchicElement) startElement.getElement()).getParent();
-			if (parentElement instanceof EmbeddedProcessElement) {
-				return new CommonElement(parentElement);
-			}
-		}
-		return null;
 	}
 
 	private Map<ProcessElement, List<AnalysisPath>> findPath(List<ProcessElement> froms, String flowName, FindType findType) throws Exception {
@@ -166,8 +158,7 @@ public class PathFinder {
 
 	private Map<ProcessElement, List<AnalysisPath>> mergePath(Map<ProcessElement, List<AnalysisPath>> source,
 			ProcessElement intersection, List<AnalysisPath> subPath) {
-		Map<ProcessElement, List<AnalysisPath>> pathBeforeIntersection = getPathBeforeIntersection(source,
-				intersection);
+		Map<ProcessElement, List<AnalysisPath>> pathBeforeIntersection = getAnalysisPathTo(source, intersection);
 
 		Map<ProcessElement, List<AnalysisPath>> pathNotIntersection = source.entrySet().stream()
 				.filter(entry -> !pathBeforeIntersection.keySet().contains(entry.getKey())).collect(toMap(
@@ -184,8 +175,7 @@ public class PathFinder {
 		return result;
 	}
 
-	private TaskParallelGroup convertToTaskParallelGroup(
-			Map<ProcessElement, List<AnalysisPath>> pathBeforeIntersection) {
+	private TaskParallelGroup convertToTaskParallelGroup(Map<ProcessElement, List<AnalysisPath>> pathBeforeIntersection) {
 		Map<ProcessElement, List<AnalysisPath>> pathHaveNoIntersection = emptyMap();
 		Map<ProcessElement, List<AnalysisPath>> pathHaveIntersection = pathBeforeIntersection;
 
@@ -198,8 +188,7 @@ public class PathFinder {
 
 			pathHaveIntersection = pathBeforeIntersection.entrySet().stream()
 					.filter(entry -> !startEleWithoutIntersection.contains(entry.getKey()))
-					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue,
-							LinkedHashMap::new));
+					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 		}
 
 		List<AnalysisPath> pathsWithIntersection = convertToAnalysisPaths(pathHaveIntersection);
@@ -208,9 +197,9 @@ public class PathFinder {
 		internalPath.putAll(pathHaveNoIntersection);
 
 		if (isNotEmpty(pathsWithIntersection)) {
-
 			ProcessElement key = pathBeforeIntersection.keySet().stream()
-					.filter(it -> !startEleWithoutIntersection.contains(it)).findFirst().get();
+					.filter(it -> !startEleWithoutIntersection.contains(it))
+					.findFirst().get();
 			internalPath.put(key, pathsWithIntersection);
 		}
 
@@ -233,14 +222,14 @@ public class PathFinder {
 			ProcessElement intersection = intersectionEntry.getKey();
 			Set<ProcessElement> startElements = intersectionEntry.getValue();
 
-			var paths = getPathByStartElements(source, startElements);
+			Map<ProcessElement, List<AnalysisPath>> paths = getPathByStartElements(source, startElements);
 
-			var pathBeforeIntersection = getPathBeforeIntersection(paths, intersection);
+			Map<ProcessElement, List<AnalysisPath>> pathBeforeIntersection = getAnalysisPathTo(paths, intersection);
 
 			// Call recursion inside convertToTaskParallelGroup
 			TaskParallelGroup taskGroup = convertToTaskParallelGroup(pathBeforeIntersection);
 
-			List<AnalysisPath> subPathAfterIntersection = getAnalysisPathFromIntersection(paths, intersection);
+			List<AnalysisPath> subPathAfterIntersection = getAnalysisPathFrom(paths, intersection);
 
 			result.addAll(addToPath(List.of(new AnalysisPath(List.of(taskGroup))), subPathAfterIntersection));
 		}
@@ -249,86 +238,29 @@ public class PathFinder {
 	}
 
 	private Map<ProcessElement, List<AnalysisPath>> getPathHaveNoIntersection(
-			Map<ProcessElement, List<AnalysisPath>> source, Map<ProcessElement, Set<ProcessElement>> intersections) {
-		List<ProcessElement> startElementWithIntersection = intersections.values().stream().flatMap(Collection::stream)
+			Map<ProcessElement, List<AnalysisPath>> source, 
+			Map<ProcessElement, Set<ProcessElement>> intersections) {
+		
+		List<ProcessElement> startElementWithIntersection = intersections.values().stream()
+				.flatMap(Collection::stream)
 				.toList();
 
-		return source.entrySet().stream().filter(entry -> !startElementWithIntersection.contains(entry.getKey()))
-				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue,
-						LinkedHashMap::new));
+		return source.entrySet().stream()
+				.filter(entry -> !startElementWithIntersection.contains(entry.getKey()))
+				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 	}
 
-	private TaskParallelGroup convertToTaskParallelGroupWithInternalPath(
-			Map<ProcessElement, List<AnalysisPath>> internalPaths) {
+	private TaskParallelGroup convertToTaskParallelGroupWithInternalPath(Map<ProcessElement, List<AnalysisPath>> internalPaths) {
 		TaskParallelGroup taskGroup = new TaskParallelGroup(null);
-		taskGroup.setInternalPaths(convertToInternalPathForTaskParallelGroup(internalPaths));
-		return taskGroup;
-	}
-
-	private Map<SequenceFlow, List<AnalysisPath>> convertToInternalPathForTaskParallelGroup(
-			Map<ProcessElement, List<AnalysisPath>> internalPath) {
+		
 		Map<SequenceFlow, List<AnalysisPath>> result = new LinkedHashMap<>();
-		internalPath.entrySet().forEach(it -> {
-			NodeElement element = (NodeElement) it.getKey().getElement();
-			result.put(element.getIncoming().get(0), it.getValue());
+		internalPaths.entrySet().forEach(it -> {
+			SequenceFlow sequenceFlow = processGraph.getFirstIncoming(it.getKey().getElement());
+			result.put(sequenceFlow, it.getValue());
 		});
-		return result;
-	}
-
-	private List<AnalysisPath> getAnalysisPathFromIntersection(Map<ProcessElement, List<AnalysisPath>> source,
-			ProcessElement intersection) {
-		Set<AnalysisPath> result = new HashSet<>();
-		List<AnalysisPath> paths = source.values().stream().flatMap(Collection::stream).toList();
-		for (AnalysisPath path : paths) {
-			List<ProcessElement> elements = path.getElements();
-			int index = elements.indexOf(intersection);
-			if (index >= 0) {
-				List<ProcessElement> beforeIntersection = elements.subList(index, elements.size() - 1);
-				result.add(new AnalysisPath(beforeIntersection));
-			}
-		}
-
-		return new ArrayList<>(result);
-	}
-
-	private Map<ProcessElement, List<AnalysisPath>> getPathByStartElements(
-			Map<ProcessElement, List<AnalysisPath>> source, Set<ProcessElement> elements) {
-		Map<ProcessElement, List<AnalysisPath>> result = new LinkedHashMap<>();
-
-		elements.forEach(key -> {
-			List<AnalysisPath> paths = source.get(key);
-			if (isNotEmpty(paths)) {
-				result.put(key, paths);
-			}
-		});
-
-		return result;
-	}
-
-	private Map<ProcessElement, List<AnalysisPath>> getPathBeforeIntersection(
-			Map<ProcessElement, List<AnalysisPath>> paths, ProcessElement intersection) {
-		Map<ProcessElement, List<AnalysisPath>> pathBeforeIntersection = new LinkedHashMap<>();
-		for (Entry<ProcessElement, List<AnalysisPath>> entry : paths.entrySet()) {
-			List<AnalysisPath> beforeIntersections = getAnalysisPathBeforeIntersection(entry.getValue(), intersection);
-			if (isNotEmpty(beforeIntersections)) {
-				pathBeforeIntersection.put(entry.getKey(), beforeIntersections);
-			}
-		}
-
-		return pathBeforeIntersection;
-	}
-
-	private List<AnalysisPath> getAnalysisPathBeforeIntersection(List<AnalysisPath> paths,
-			ProcessElement intersection) {
-		List<AnalysisPath> result = new ArrayList<>();
-		for (AnalysisPath path : paths) {
-			int index = path.getElements().indexOf(intersection);
-			if (index >= 0) {
-				List<ProcessElement> beforeIntersection = path.getElements().subList(0, index);
-				result.add(new AnalysisPath(beforeIntersection));
-			}
-		}
-		return result;
+		
+		taskGroup.setInternalPaths(result);
+		return taskGroup;
 	}
 
 	private Map<ProcessElement, Set<ProcessElement>> getLastIntersectionByStartElements(Map<ProcessElement, List<AnalysisPath>> paths) {
@@ -344,23 +276,9 @@ public class PathFinder {
 		return keepIntersections;
 	}
 
-	private Map<ProcessElement, Set<ProcessElement>> getAllIntersectionTaskSwitchGatewayWithStartElement(Map<ProcessElement, List<AnalysisPath>> paths) {
-		Map<ProcessElement, Set<ProcessElement>> intersectNodes = new LinkedHashMap<>();
+	private Map<ProcessElement, Set<ProcessElement>> getAllIntersectionTaskSwitchGatewayWithStartElement(Map<ProcessElement, List<AnalysisPath>> source) {
+		Map<ProcessElement, Set<ProcessElement>> intersectNodes = getAllStartElementOfTaskSwitchGateways(source);
 
-		for (ProcessElement startElement : paths.keySet()) {
-			for (AnalysisPath path : paths.getOrDefault(startElement, emptyList())) {
-				for (ProcessElement element : path.getElements()) {
-					if (element.getElement() instanceof TaskSwitchGateway) {
-						TaskSwitchGateway taskSwitch = (TaskSwitchGateway) element.getElement();
-						if (taskSwitch.getIncoming().size() > 1) {
-							Set<ProcessElement> startElements = intersectNodes.getOrDefault(element, emptySet());
-
-							intersectNodes.put(element, SetUtils.union(startElements, Set.of(startElement)));
-						}
-					}
-				}
-			}
-		}
 		return intersectNodes.entrySet().stream()
 				.sorted(Map.Entry
 						.<ProcessElement, Set<ProcessElement>>comparingByValue(
@@ -377,7 +295,7 @@ public class PathFinder {
 		List<AnalysisPath> path = emptyList();
 		ProcessElement from = startElement;
 		// Prevent loop
-		if (isContains(currentPath, from)) {
+		if (AnalysisPathHelper.isContains(currentPath, from)) {
 			return path;
 		}
 
@@ -410,9 +328,9 @@ public class PathFinder {
 					return path;
 				}
 				
-				if (from.getElement() instanceof TaskSwitchGateway) {
-					//In case only one out going -> it should run as normal node
-					if(((TaskSwitchGateway)from.getElement()).getOutgoing().size() > 1) {
+				if (processGraph.isTaskSwitchGateway(from.getElement())) {
+					//In case only one out going -> it should run as normal node					 
+					if(processGraph.isMultiIOutgoing(from.getElement())) {
 						// Call recursion for next TasksSwitchGateway
 						List<AnalysisPath> nextPathOfTaskSwitchGateway = findAnalysisPaths(from, flowName, findType, newPath);
 						path = addToPath(path, nextPathOfTaskSwitchGateway);
@@ -456,24 +374,6 @@ public class PathFinder {
 		return pathOptions;
 	}
 
-	private boolean isContains(List<AnalysisPath> currentPaths, final ProcessElement from) {
-		boolean isContains = false;
-		if (from.getElement() instanceof NodeElement && from.getElement() instanceof RequestStart == false) {
-			NodeElement node = (NodeElement) from.getElement();
-			if (node.getIncoming().size() > 0) {
-				SequenceFlow sequenceFlow = node.getIncoming().get(0);
-				List<AnalysisPath> pathWithConnectToFrom = currentPaths.stream().filter(path -> {
-					int lastIndex = AnalysisPathHelper.getLastIndex(path);
-					return sequenceFlow.equals(path.getElements().get(lastIndex).getElement());
-				}).toList();
-
-				isContains = pathWithConnectToFrom.stream().map(AnalysisPath::getElements).flatMap(List::stream)
-						.anyMatch(it -> it.getElement().equals(from.getElement()));
-			}
-		}
-		return isContains;
-	}
-
 	private TaskParallelGroup getTaskParallelGroup(ProcessElement from, String flowName, FindType findType,
 			List<AnalysisPath> currentPath) throws Exception {
 		TaskParallelGroup result = new TaskParallelGroup(from.getElement());
@@ -506,7 +406,7 @@ public class PathFinder {
 				.map(ProcessElement::getElement)
 				.map(SequenceFlow.class::cast).orElse(null);
 		
-		BaseElement start = processGraph.findStartElementOfProcess((SequenceFlow)lastElement, processElement);
+		EmbeddedStart start = processGraph.findStartElementOfProcess((SequenceFlow)lastElement, processElement);
 		List<AnalysisPath> path = findAnalysisPaths(new CommonElement(start), flowName, findType, emptyList());
 		
 		SubProcessGroup subProcessGroup = new SubProcessGroup(processElement, path);		
@@ -527,7 +427,8 @@ public class PathFinder {
 		// Always is priority check flow from flowOverrides first.
 		if (from instanceof Alternative) {
 			String flowIdFromOrverride = this.processFlowOverrides.get(from.getPid().getRawPid());
-			flow = from.getOutgoing().stream().filter(out -> out.getPid().getRawPid().equals(flowIdFromOrverride))
+			flow = from.getOutgoing().stream()
+					.filter(out -> out.getPid().getRawPid().equals(flowIdFromOrverride))
 					.findFirst();
 		}
 
@@ -542,7 +443,7 @@ public class PathFinder {
 
 	private Optional<SequenceFlow> getSequenceFlow(NodeElement nodeElement, String flowName) throws Exception {
 		List<SequenceFlow> outs = nodeElement.getOutgoing();
-		if (CollectionUtils.isEmpty(outs)) {
+		if (isEmpty(outs)) {
 			return Optional.empty();
 		}
 
@@ -568,7 +469,7 @@ public class PathFinder {
 	}
 
 	private Optional<SequenceFlow> findSequenceFlowByDefaultPath(List<SequenceFlow> outs) throws Exception {
-		List<SequenceFlow> defaultPathOuts = outs.stream().filter(out -> isDefaultPath(out)).toList();
+		List<SequenceFlow> defaultPathOuts = outs.stream().filter(out -> processGraph.isDefaultPath(out)).toList();
 		if (defaultPathOuts.size() > 1) {
 			// Throw exception
 			throw new Exception("Have more than one out going with default path");
@@ -577,9 +478,8 @@ public class PathFinder {
 		}
 	}
 
-	private Optional<SequenceFlow> findSequenceFlowByFlowName(List<SequenceFlow> outs, String flowName)
-			throws Exception {
-		List<SequenceFlow> flowNameOuts = outs.stream().filter(out -> hasFlowName(out, flowName)).toList();
+	private Optional<SequenceFlow> findSequenceFlowByFlowName(List<SequenceFlow> outs, String flowName) throws Exception {
+		List<SequenceFlow> flowNameOuts = outs.stream().filter(out -> processGraph.hasFlowName(out, flowName)).toList();
 		if (flowNameOuts.size() > 1) {
 			// Throw exception
 			throw new Exception("Have more than one out going with flowname " + flowName);
@@ -593,7 +493,7 @@ public class PathFinder {
 			return true;
 		}
 
-		if (hasFlowName(sequenceFlow, flowName)) {
+		if (processGraph.hasFlowName(sequenceFlow, flowName)) {
 			return true;
 		}
 
@@ -604,40 +504,16 @@ public class PathFinder {
 		return false;
 	}
 
-	private boolean hasFlowName(SequenceFlow sequenceFlow, String flowName) {
-		String label = Optional.ofNullable(sequenceFlow)
-				.map(SequenceFlow::getEdge)
-				.map(DiagramEdge::getLabel)
-				.map(Label::getText)
-				.orElse(null);
-		
-		return isNotBlank(label) && label.contains(flowName);
-	}
-
-	private boolean isDefaultPath(SequenceFlow flow) {
-		NodeElement sourceElement = flow.getSource();
-		if (sourceElement instanceof Alternative) {
-			return isDefaultPath((Alternative) sourceElement, flow);
-		}
-
-		return false;
-	}
-
-	private boolean isDefaultPath(Alternative alternative, SequenceFlow sequenceFlow) {
-		String currentElementId = sequenceFlow.getPid().getFieldIds();
-		List<String> nextTargetIds = processGraph.getNextTargetIdsByCondition(alternative, EMPTY);
-		return nextTargetIds.contains(currentElementId);
-	}
-
 	private boolean isStartTaskSwitchGateway(ProcessElement element) {
-		return element.getElement() instanceof TaskSwitchGateway
-				&& ((TaskSwitchGateway) element.getElement()).getOutgoing().size() > 1;
+		return processGraph.isTaskSwitchGateway(element.getElement()) && processGraph.isMultiIOutgoing(element.getElement());
 	}
 
 	private boolean isJoinTaskSwitchGateway(List<AnalysisPath> paths, ProcessElement from) {		
 		BaseElement baseElement = from.getElement();
 		boolean result = false;
-		if (baseElement instanceof TaskSwitchGateway && ((TaskSwitchGateway) baseElement).getIncoming().size() > 1) {
+		
+		if (processGraph.isTaskSwitchGateway(baseElement) && processGraph.isMultiIncoming(baseElement)) {
+
 			boolean hasFullInComing = haveFullInComingJoinTaskSwitchGateway(paths, from);
 			
 			boolean hasStartBefore = false;
@@ -662,19 +538,16 @@ public class PathFinder {
 		BaseElement baseElement = from.getElement();
 		boolean hasFullInComing = false;
 		//Make sure it is join task switch  
-		if (baseElement instanceof TaskSwitchGateway) {
-			var taskSwitchGateway = (TaskSwitchGateway) baseElement;
-			
-			if (taskSwitchGateway.getIncoming().size() > 1) {				
-				List<SequenceFlow> sequenceFlowToParalletTasks = findIncomingsFromPaths(paths, from);
-				
-				NodeElement startNode = AnalysisPathHelper.getFirstNodeElement(paths);				
-				List<SequenceFlow> sequenceFlows = getSequenceFlowOf(from, startNode);
-				
-				long count = sequenceFlowToParalletTasks.stream().filter(el -> sequenceFlows.contains(el)).count();
-				if (count >= sequenceFlows.size()) {
-					hasFullInComing = true;
-				}
+		if (processGraph.isTaskSwitchGateway(baseElement) && processGraph.isMultiIncoming(baseElement)) {
+
+			List<SequenceFlow> sequenceFlowToParalletTasks = findIncomingsFromPaths(paths, from);
+
+			NodeElement startNode = AnalysisPathHelper.getFirstNodeElement(paths);
+			List<SequenceFlow> sequenceFlows = processGraph.getSequenceFlowOf((NodeElement) baseElement, startNode);
+
+			long count = sequenceFlowToParalletTasks.stream().filter(el -> sequenceFlows.contains(el)).count();
+			if (count >= sequenceFlows.size()) {
+				hasFullInComing = true;
 			}
 		}
 		return hasFullInComing;
@@ -683,30 +556,6 @@ public class PathFinder {
 	private ProcessElement getJoinTaskSwithGateWay(TaskParallelGroup taskParallelGroup) {
 		List<ProcessElement> elements = AnalysisPathHelper.getAllProcessElement(taskParallelGroup);
 		return AnalysisPathHelper.getLastElement(new AnalysisPath(elements));		
-	}
-
-	private boolean isStartedFromOf(NodeElement startNode, SequenceFlow sequenceFlow, List<BaseElement> pathChecked) {
-		if(startNode == null) {
-			return false;
-		}
-		NodeElement node = sequenceFlow.getSource();
-		if(pathChecked.contains(node)) {
-			return false;
-		}
-		
-		if(startNode.equals(node)) {
-			return true;
-		} 
-		
-		// Maybe have a loop here.
-		List<SequenceFlow> sequenceFlows = node.getIncoming();
-		for (SequenceFlow flow : sequenceFlows) {
-			List<BaseElement> newPathChecked = union(pathChecked, List.of(node, flow));
-			if (isStartedFromOf(startNode, flow, newPathChecked)) {
-				return true;
-			}
-		}
-		return false;
 	}
 	
 	private boolean shouldStopFindTask(SubProcessGroup element, FindType findType) {
@@ -726,34 +575,89 @@ public class PathFinder {
 		}
 		return false;
 	}
-	
-	private List<SequenceFlow> getSequenceFlowOf(ProcessElement from,  NodeElement startNode) {
-		long numberOfStarts = processGraph.countStartElement(from.getElement());
-		List<SequenceFlow> incomings = ((NodeElement)from.getElement()).getIncoming();
-		
-		List<SequenceFlow> sequenceFlows = emptyList();				
-		if(numberOfStarts == 1) {
-			//If there are only on start node -> just get incoming
-			sequenceFlows = incomings;
-		} else {			
-			//TODO: Should find another solution to check
-			sequenceFlows = incomings.stream().filter(it -> isStartedFromOf(startNode, it, emptyList())).toList();
+
+	private Map<ProcessElement, List<AnalysisPath>> correctInternalPathByNextSequence(Map<ProcessElement, List<AnalysisPath>> source) {
+		Map<ProcessElement, List<AnalysisPath>> result = new LinkedHashMap<>();
+
+		for (Entry<ProcessElement, List<AnalysisPath>> entry : source.entrySet()) {
+			List<AnalysisPath> paths = correctInternalPathByNextSequence(entry.getValue());
+			result.put(entry.getKey(), paths);
 		}
-		return sequenceFlows;
+		return result;
 	}
 	
-	private List<SequenceFlow> findIncomingsFromPaths(List<AnalysisPath> paths, ProcessElement from) {
-		List<BaseElement> elements = AnalysisPathHelper.getAllProcessElement(paths).stream()						
-				.map(ProcessElement::getElement)
-				.toList();
+	private List<AnalysisPath> correctInternalPathByNextSequence(List<AnalysisPath> paths) {
+		List<AnalysisPath> result = new ArrayList<>();
 		
-		List<SequenceFlow> sequenceFlows =	elements.stream()
-				.filter(SequenceFlow.class::isInstance)
-				.map(SequenceFlow.class::cast)
-				.filter(it -> it.getTarget().equals(from.getElement()))			
-				.distinct()				
-				.toList();
+		for (AnalysisPath path : paths) {
+			int lengh = path.getElements().size();
+			List<ProcessElement> elements = new ArrayList<>();
+			for (int i = 0; i < lengh; i++) {
+				ProcessElement element = path.getElements().get(i); 
+				ProcessElement nextElement = i < lengh - 1 ? path.getElements().get(i + 1) : null;
+				
+				if (element instanceof SubProcessGroup) {
+					SubProcessGroup subProcessGroup = (SubProcessGroup) element;
+					List<AnalysisPath> subPaths = subProcessGroup.getInternalPaths();
+					subPaths = getAnalysisPathBaseOnNextSequenceFlow(subPaths, nextElement);
+					
+					SubProcessGroup subElement = new SubProcessGroup((EmbeddedProcessElement) element.getElement(), subPaths);
+					elements.add(subElement);
+					
+				} else {
+					elements.add(element);
+				}
+			}
+			result.add(new AnalysisPath(elements));
+		}
 		
-		return sequenceFlows;
+		return result;
+	}
+	private List<AnalysisPath> getAnalysisPathBaseOnNextSequenceFlow(List<AnalysisPath> internalPaths, ProcessElement nextElement) {		
+		if(nextElement == null) {
+			return internalPaths;
+		}
+		
+		List<AnalysisPath> result = new ArrayList<>();
+		BaseElement sequenceFlow = nextElement.getElement();
+		if (sequenceFlow instanceof SequenceFlow) {
+			for (AnalysisPath path : internalPaths) {				
+				ProcessElement lastProcessElement = AnalysisPathHelper.getLastElement(path);
+				BaseElement lastElement = lastProcessElement.getElement();
+
+				if (processGraph.isTaskEnd(lastElement)) {
+					result.add(path);
+					continue;
+				}
+
+				if (processGraph.isTaskSwitchGateway(lastElement)) {
+					Map<SequenceFlow, List<AnalysisPath>> validInternalPaths = new LinkedHashMap<>();
+					((TaskParallelGroup) lastProcessElement).getInternalPaths().forEach((key, value) -> {
+						var validPaths = getAnalysisPathBaseOnNextSequenceFlow(value, nextElement);
+						if (isNotEmpty(validPaths)) {
+							validInternalPaths.put(key, validPaths);
+						}
+					});
+
+					int size = path.getElements().size();
+					List<ProcessElement> newPath = path.getElements().stream().limit(size - 1).collect(Collectors.toList());
+					if (MapUtils.isNotEmpty(validInternalPaths)) {
+						TaskParallelGroup taskGroup = new TaskParallelGroup(lastElement);
+						taskGroup.setInternalPaths(validInternalPaths);
+						newPath.add(taskGroup);	
+					}
+					result.add(new AnalysisPath(newPath));
+					continue;
+				}
+				
+				if (processGraph.isEmbeddedEnd(lastElement)) {
+					if (processGraph.isConnectOuterOf((EmbeddedEnd) lastElement, (SequenceFlow) sequenceFlow)) {
+						result.add(path);
+					}
+					continue;
+				}
+			}
+		}
+		return result;
 	}
 }
