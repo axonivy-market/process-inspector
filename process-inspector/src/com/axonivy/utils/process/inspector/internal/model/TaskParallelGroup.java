@@ -3,27 +3,22 @@ package com.axonivy.utils.process.inspector.internal.model;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
-import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
 import ch.ivyteam.ivy.process.model.value.PID;
 
 public class TaskParallelGroup implements ProcessElement {
 	private BaseElement element;
-	private Map<SequenceFlow, List<AnalysisPath>> internalPaths;
+	private List<AnalysisPath> internalPaths;
 
-	public TaskParallelGroup(BaseElement element) {
+	public TaskParallelGroup(BaseElement element, List<AnalysisPath> internalPaths) {
 		this.element = element;
-	}
-
-	public Map<SequenceFlow, List<AnalysisPath>> getInternalPaths() {
-		return internalPaths;
-	}
-
-	public void setInternalPaths(Map<SequenceFlow, List<AnalysisPath>> internalPaths) {
 		this.internalPaths = internalPaths;
+	}
+	
+	public List<AnalysisPath> getInternalPaths() {
+		return internalPaths;
 	}
 
 	@Override
