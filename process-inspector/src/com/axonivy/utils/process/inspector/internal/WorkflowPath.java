@@ -3,6 +3,7 @@ package com.axonivy.utils.process.inspector.internal;
 import static com.axonivy.utils.process.inspector.internal.helper.AnalysisPathHelper.getInternalPath;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
@@ -418,11 +419,11 @@ class WorkflowPath {
 		return detectedTask;
 	}
 
-	
 	private DetectedElement createDetectedEmbeddedEnd(EmbeddedEnd element, Duration timeUntilStartAt) {
 		String pid = element.getPid().getRawPid();
-		String connectedOuterSequenceFlowPid = element.getConnectedOuterSequenceFlow().getPid().getRawPid();
-		String elementName = element.getName();	
+		String elementName = element.getName();
+		String connectedOuterSequenceFlowPid = ofNullable(element.getConnectedOuterSequenceFlow())
+				.map(it -> it.getPid().getRawPid()).orElse(null);			
 		
 		var detectedEmbeddedEnd = new DetectedEmbeddedEnd(pid, elementName, connectedOuterSequenceFlowPid, timeUntilStartAt);
 		return detectedEmbeddedEnd;
