@@ -98,6 +98,15 @@ public class ProcessGraph {
 		return taskConfig;
 	}
 
+	public boolean isSystemTask(TaskConfig task) {
+		if(task instanceof TaskConfig) {
+			String roleName = ((TaskConfig) task).getActivator().getName();
+			return Role.SYSTEM.name().equals(roleName);
+		}
+		
+		return false;
+	}
+	
 	public boolean isSystemTask(BaseElement task) {
 		if (task instanceof TaskAndCaseModifier) {
 			return ((TaskAndCaseModifier) task).getAllTaskConfigs().stream()

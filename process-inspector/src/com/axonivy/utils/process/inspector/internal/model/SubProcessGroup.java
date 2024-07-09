@@ -13,12 +13,8 @@ public class SubProcessGroup implements ProcessElement {
 	private EmbeddedProcessElement element;
 	List<AnalysisPath> internalPaths;
 
-	public SubProcessGroup(EmbeddedProcessElement element) {
-		this.element = element;
-	}
-
 	public SubProcessGroup(EmbeddedProcessElement element, List<AnalysisPath> internalPaths) {
-		this(element);
+		this.element = element;
 		this.internalPaths = internalPaths;
 	}
 	
