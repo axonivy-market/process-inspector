@@ -37,7 +37,7 @@ public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 
 		var detectedTasks = processInspector.findAllTasks(icase, null);
 
-		var expected = Arrays.array("Task 1A", "Task A", "Task B", "Task 1B", "Task C", "Task D");
+		var expected = Arrays.array("Task E", "Task 1A", "Task A", "Task B", "Task 1B", "Task C", "Task D");
 		var taskNames = getTaskNames(detectedTasks);
 		assertArrayEquals(expected, taskNames);
 	}
@@ -60,7 +60,7 @@ public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 		ExecutionResult result = bpmClient.start().process(FLOW_PARALLEL_IN_ORDER.elementName("start")).execute();
 		List<ITask> parallelTasks = result.workflow().activeTasks();
 		for (ITask task : parallelTasks) {
-			result = bpmClient.start().task(task).as().everybody().execute();
+			result = bpmClient.start().task(task).as().systemUser().execute();
 		}
 
 		List<ITask> activeTasks = result.workflow().activeTasks();
@@ -74,7 +74,7 @@ public class FlowParallelInOrderCaseTest extends FlowExampleTest {
 
 		var detectedTasks = processInspector.findTasksOnPath(icase, null, null);
 
-		var expected = Arrays.array("Task C", "Task B", "Task D");
+		var expected = Arrays.array("Task E", "Task C", "Task B", "Task D");
 		var taskNames = getTaskNames(detectedTasks);
 		assertArrayEquals(expected, taskNames);
 

@@ -17,3 +17,6 @@ classes/
 src_dataClasses/
 src_wsproc/
 logs/
+
+# test
+.temp-*

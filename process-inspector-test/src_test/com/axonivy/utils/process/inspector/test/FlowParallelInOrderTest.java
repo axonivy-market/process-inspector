@@ -38,7 +38,7 @@ public class FlowParallelInOrderTest extends FlowExampleTest {
 		List<DetectedTask> detectedTasks = processInspector.findAllTasks(start, null).stream()
 				.map(DetectedTask.class::cast).toList();
 
-		var expected = Arrays.array("Task 1A", "Task A", "Task B", "Task 1B", "Task C", "Task D");
+		var expected = Arrays.array("Task E", "Task 1A", "Task A", "Task B", "Task 1B", "Task C", "Task D");
 		var taskNames = getTaskNames(detectedTasks);
 		assertArrayEquals(expected, taskNames);
 	}
