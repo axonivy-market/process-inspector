@@ -6,7 +6,7 @@
 	<version>11.2.6-SNAPSHOT</version>
 	<packaging>iar</packaging>
 	<properties>
-		<build.plugin.version>11.2.0</build.plugin.version>
+    <project.build.plugin.version>11.2.0</project.build.plugin.version>
 	</properties>
 	<pluginRepositories>
 		<pluginRepository>
@@ -23,7 +23,7 @@
 			<plugin>
 				<groupId>com.axonivy.ivy.ci</groupId>
 				<artifactId>project-build-plugin</artifactId>
-				<version>${build.plugin.version}</version>
+				<version>${project.build.plugin.version}</version>
 				<extensions>true</extensions>
 			</plugin>
 			<plugin>
