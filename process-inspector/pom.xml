@@ -6,7 +6,7 @@
 	<version>11.2.6-SNAPSHOT</version>
 	<packaging>iar</packaging>
 	<properties>
-    <project.build.plugin.version>11.2.0</project.build.plugin.version>
+    <project.build.plugin.version>11.3.0</project.build.plugin.version>
 	</properties>
 	<pluginRepositories>
 		<pluginRepository>
