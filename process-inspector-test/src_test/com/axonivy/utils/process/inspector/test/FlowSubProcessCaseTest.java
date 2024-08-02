@@ -19,7 +19,7 @@ import ch.ivyteam.ivy.bpm.exec.client.IvyProcessTest;
 import ch.ivyteam.ivy.workflow.ICase;
 import ch.ivyteam.ivy.workflow.ITask;
 
-@IvyProcessTest
+@IvyProcessTest(enableWebServer = true)
 public class FlowSubProcessCaseTest extends FlowExampleTest {
 	private static final BpmProcess FLOW_SUB_PROCESS = BpmProcess.name("FlowSubprocess");
 		
