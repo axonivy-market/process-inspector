@@ -1,16 +1,11 @@
 # Process Inspector
 
-Axon Ivy’s Process Inspector tool helps you to calculate duration to finish a workflow case. Key features:
+Axon Ivy's Process Inspector is a tool that allows you to predict the completion of a case. The prediction is based on the default durations for tasks processed in a workflow. These default task durations must be configured manually.
 
-- Configure needed information directly in the process model
-	- Default duration of a task for multiple use cases. Each task can have multiple named default durations.
-	- Different “happy path” flows. It’s possible to set multiple named process paths.
-- Possibilities to override settings of the process model
-	- Override duration
-	- Override default path for the gateways
-- Create a list of all tasks in the process.
-- Get configured duration for a task.
-- Get all upcoming tasks on a configured process path with expected start timestamp for each task.
+(1) Configure the inspector directly in the process model:
+  (a) Duration of a task
+  (b) Different "Happy Path" flows: It is possible to define multiple process paths
+(2) Create a list of all tasks in the process and their predicted completion date.
 
 ## Setup
 
