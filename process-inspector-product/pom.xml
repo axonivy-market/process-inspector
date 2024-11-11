@@ -45,6 +45,8 @@
 								<copy file="README.md" tofile="${project.build.directory}/README.md" />
 								<loadfile property="variables.yaml" srcFile="${variables.yaml.file}" encoding="UTF-8" failonerror="false" />
 								<replace file="${project.build.directory}/README.md" token="@variables.yaml@" value="${variables.yaml}" />
+                <copy file="README_DE.md" tofile="${project.build.directory}/README_DE.md"/>
+                <replace file="${project.build.directory}/README_DE.md" token="@variables.yaml@" value="${variables.yaml}"/>
 							</target>
 						</configuration>
 						<goals>
