@@ -19,7 +19,7 @@
       <directory>target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>README.md</include>
+        <include>README*.md</include>
       </includes>
     </fileSet>
   </fileSets>
