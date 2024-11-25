@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.axonivy.utils.process.inspector</groupId>
   <artifactId>process-inspector-demo</artifactId>
-  <version>11.2.6</version>
+  <version>11.2.7-SNAPSHOT</version>
   <packaging>iar</packaging>
   <properties>
 		<project.build.plugin.version>11.3.0</project.build.plugin.version>
