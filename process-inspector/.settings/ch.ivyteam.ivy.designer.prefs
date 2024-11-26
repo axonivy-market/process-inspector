@@ -1,5 +1,4 @@
-ch.ivyteam.ivy.designer.preferences.DataClassPreferencePage\:DEFAULT_DATA_CLASS=com.axonivy.utils.process.inspector.Data
 ch.ivyteam.ivy.designer.preferences.DataClassPreferencePage\:DEFAULT_NAMESPACE=com.axonivy.utils.process.inspector
-ch.ivyteam.ivy.project.preferences\:PRIMEFACES_VERSION=11
-ch.ivyteam.ivy.project.preferences\:PROJECT_VERSION=112000
+ch.ivyteam.ivy.project.preferences\:PRIMEFACES_VERSION=13
+ch.ivyteam.ivy.project.preferences\:PROJECT_VERSION=120001
 eclipse.preferences.version=1

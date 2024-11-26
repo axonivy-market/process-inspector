@@ -1,4 +1,0 @@
-DemoData #class
-com.axonivy.utils.process.inspector.demo #namespace
-bean com.axonivy.utils.process.inspector.demo.ProcessInspectorBean #field
-bean PERSISTENT #fieldModifier

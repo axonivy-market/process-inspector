@@ -1,5 +1,5 @@
 {
-  "$schema" : "https://json-schema.axonivy.com/process/11.2.2/process.json",
+  "$schema" : "https://json-schema.axonivy.com/process/12.0.0/process.json",
   "id" : "18DF31B990019995",
   "config" : {
     "data" : "com.axonivy.utils.process.inspector.test.Data"
@@ -109,9 +109,9 @@
         "labelOffset" : { "x" : -24, "y" : 0 }
       },
       "connect" : [
-        { "id" : "f10", "to" : "f7", "color" : "default path", "label" : {
+        { "id" : "f10", "to" : "f7", "label" : {
             "name" : "{internal}"
-          } },
+          }, "color" : "default path" },
         { "id" : "f12", "to" : "f11", "via" : [ { "x" : 352, "y" : 248 } ], "label" : {
             "name" : "{external}",
             "segment" : 1.2,
@@ -147,7 +147,7 @@
       "name" : "alt1",
       "visual" : {
         "at" : { "x" : 584, "y" : 64 },
-        "labelOffset" : { "x" : 16, "y" : -16 }
+        "labelOffset" : { "y" : -16 }
       },
       "connect" : [
         { "id" : "f29", "to" : "f16", "color" : "default path" }
@@ -253,7 +253,7 @@
       },
       "visual" : {
         "at" : { "x" : 896, "y" : 64 },
-        "labelOffset" : { "x" : 16, "y" : -16 }
+        "labelOffset" : { "y" : -16 }
       },
       "connect" : [
         { "id" : "f40", "to" : "f30", "color" : "default path" },

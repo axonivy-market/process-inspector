@@ -72,7 +72,7 @@
 
 		<p:panel id="alternative-selection" header="Select process override"
 			toggleable="true" toggleSpeed="500" closeSpeed="500" collapsed="true">
-			<p:repeat var="alternative"
+			<ui:repeat var="alternative"
 				value="#{data.processInspectorBean.selectedAnalyzer.alternatives}">
 				<h:panelGroup>
 					<p:outputLabel value="#{alternative.taskName}"
@@ -85,7 +85,7 @@
 						<p:ajax listener="#{logic.onSelect}" event="change" />
 					</p:selectOneRadio>
 				</h:panelGroup>
-			</p:repeat>
+			</ui:repeat>
 		</p:panel>
 
 		<p:panel id="process-viewer-diagram" header="Process diagram"

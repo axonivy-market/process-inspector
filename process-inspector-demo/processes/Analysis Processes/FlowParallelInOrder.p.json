@@ -1,5 +1,5 @@
 {
-  "$schema" : "https://json-schema.axonivy.com/process/11.2.2/process.json",
+  "$schema" : "https://json-schema.axonivy.com/process/12.0.0/process.json",
   "id" : "18E3BEFFB97FCA4E",
   "config" : {
     "data" : "com.axonivy.utils.process.inspector.demo.Data"
@@ -367,9 +367,9 @@
       },
       "connect" : [
         { "id" : "f64", "to" : "f58", "via" : [ { "x" : 352, "y" : 344 } ] },
-        { "id" : "f79", "to" : "f0", "color" : "default path", "label" : {
+        { "id" : "f79", "to" : "f0", "label" : {
             "name" : "{internal}"
-          } }
+          }, "color" : "default path" }
       ]
     }, {
       "id" : "f0",
