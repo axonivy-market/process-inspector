@@ -1,5 +1,5 @@
 {
-  "$schema" : "https://json-schema.axonivy.com/process/11.2.2/process.json",
+  "$schema" : "https://json-schema.axonivy.com/process/12.0.0/process.json",
   "id" : "1902A31FF5BCFF03",
   "config" : {
     "data" : "com.axonivy.utils.process.inspector.test.FlowMixedSubProcessData"
@@ -36,7 +36,7 @@
       },
       "visual" : {
         "at" : { "x" : 256, "y" : 128 },
-        "labelOffset" : { "x" : 16, "y" : -24 }
+        "labelOffset" : { "y" : -24 }
       },
       "connect" : [
         { "id" : "f1", "to" : "f4", "condition" : "ivp==\"TaskA.ivp\"", "var" : "in1" },
