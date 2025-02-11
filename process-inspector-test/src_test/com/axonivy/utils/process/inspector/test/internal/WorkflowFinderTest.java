@@ -14,12 +14,13 @@ import com.axonivy.utils.process.inspector.internal.model.AnalysisPath;
 import com.axonivy.utils.process.inspector.internal.model.CommonElement;
 import com.axonivy.utils.process.inspector.internal.model.ProcessElement;
 import com.axonivy.utils.process.inspector.test.ProcessGraphHelper;
+import com.axonivy.utils.process.inspector.utils.ProcessInspectorUtils;
 
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.Process;
 
 @IvyTest
-public class WorkflowFinderTest extends InternalAbstractTest {
+public class WorkflowFinderTest {
 	private static final String FLOW_EXAMPLE_BASIC = "FlowExampleBasic";
 
 	private static PathFinder workflowPath;
@@ -31,7 +32,7 @@ public class WorkflowFinderTest extends InternalAbstractTest {
 
 	@Test
 	void shouldFindPathAtStart() throws Exception {
-		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
+		Process process = ProcessInspectorUtils.getProcessByName(FLOW_EXAMPLE_BASIC);
 		var start = ProcessGraphHelper.findByElementName(process, "start");
 		Map<ProcessElement, List<AnalysisPath>> result = workflowPath.setFlowName("internal")
 				.setStartElements(List.of(new CommonElement(start))).findTaskOnPath();

@@ -11,13 +11,14 @@ import com.axonivy.utils.process.inspector.internal.WorkflowDuration;
 import com.axonivy.utils.process.inspector.model.ElementTask;
 import com.axonivy.utils.process.inspector.test.ProcessGraphHelper;
 import com.axonivy.utils.process.inspector.test.UseCase;
+import com.axonivy.utils.process.inspector.utils.ProcessInspectorUtils;
 
 import ch.ivyteam.ivy.environment.IvyTest;
 import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 
 @IvyTest
-public class WorkflowDurationTest extends InternalAbstractTest {
+public class WorkflowDurationTest {
 	private static final String FLOW_EXAMPLE_BASIC = "FlowExampleBasic";
 	private static WorkflowDuration workflowDuration;
 
@@ -28,7 +29,7 @@ public class WorkflowDurationTest extends InternalAbstractTest {
 
 	@Test
 	void shouldGetDurationOfTaskCWithUseCaseBIGPROJECT() throws Exception {
-		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
+		Process process = ProcessInspectorUtils.getProcessByName(FLOW_EXAMPLE_BASIC);
 		var taskC = (SingleTaskCreator) ProcessGraphHelper.findByElementName(process, "Task C");
 		ElementTask elementTask = ElementTask.createSingle(taskC.getPid().getRawPid());
 		var result = workflowDuration.getDuration(elementTask, taskC.getTaskConfig().getScript(), UseCase.BIGPROJECT);
@@ -38,7 +39,7 @@ public class WorkflowDurationTest extends InternalAbstractTest {
 
 	@Test
 	void shouldGetDurationOfTaskCWithUseCaseMEDIUMPROJECT() throws Exception {
-		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
+		Process process = ProcessInspectorUtils.getProcessByName(FLOW_EXAMPLE_BASIC);
 		SingleTaskCreator taskC = (SingleTaskCreator) ProcessGraphHelper.findByElementName(process, "Task C");
 		ElementTask elementTask = ElementTask.createSingle(taskC.getPid().getRawPid());
 		var result = workflowDuration.getDuration(elementTask, taskC.getTaskConfig().getScript(),
@@ -49,7 +50,7 @@ public class WorkflowDurationTest extends InternalAbstractTest {
 
 	@Test
 	void shouldGetDurationOfTaskCWithUseCaseSMALLPROJECT() throws Exception {
-		Process process = getProcessByName(FLOW_EXAMPLE_BASIC);
+		Process process = ProcessInspectorUtils.getProcessByName(FLOW_EXAMPLE_BASIC);
 		SingleTaskCreator taskC = (SingleTaskCreator) ProcessGraphHelper.findByElementName(process, "Task C");
 		ElementTask elementTask = ElementTask.createSingle(taskC.getPid().getRawPid());
 		var result = workflowDuration.getDuration(elementTask, taskC.getTaskConfig().getScript(), UseCase.SMALLPROJECT);
