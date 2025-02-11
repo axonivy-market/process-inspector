@@ -28,6 +28,7 @@ import com.axonivy.utils.process.inspector.internal.AdvancedProcessInspector;
 import com.axonivy.utils.process.inspector.model.DetectedAlternative;
 import com.axonivy.utils.process.inspector.model.DetectedElement;
 import com.axonivy.utils.process.inspector.model.DetectedTask;
+import com.axonivy.utils.process.inspector.utils.ProcessInspectorUtils;
 
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -40,8 +41,6 @@ import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.event.start.value.RequestPath;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
-import ch.ivyteam.ivy.process.rdm.IProcess;
-import ch.ivyteam.ivy.process.rdm.IProcessManager;
 import ch.ivyteam.ivy.process.viewer.api.ProcessViewer;
 import ch.ivyteam.ivy.workflow.start.IProcessWebStartable;
 import ch.ivyteam.ivy.workflow.start.IWebStartable;
@@ -57,7 +56,7 @@ public class ProcessInspectorBean {
 	ProcessInspector processInspector;
 
 	public ProcessInspectorBean() {
-		this.processes = getAllProcesses();
+		this.processes = ProcessInspectorUtils.getAllProcesses();
 	}
 
 	public List<Process> getProcesses() {
@@ -240,11 +239,7 @@ public class ProcessInspectorBean {
 		return processFlowOverride;
 	}
 
-	private List<Process> getAllProcesses() {
-		List<Process> processes = IProcessManager.instance().getProjectDataModels().stream()
-				.flatMap(project -> project.getProcesses().stream()).map(IProcess::getModel).toList();
-		return processes;
-	}
+
 
 	private static List<BaseElement> getElementOfProcess(Process process) {
 		var processElements = process.getProcessElements();
