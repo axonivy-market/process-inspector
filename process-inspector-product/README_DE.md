@@ -10,7 +10,7 @@ direkt dabei modellieren.\
 (2) Schafft eine Liste von alle Tasks dabei und ihr prophezeit Abschluss
 datiert.
 
-## Einrichtung
+## Setup
 
 In dem Projekt, du zufügen nur die Kolonie herein eure pom.xml Und rufen
 öffentlich APIs
