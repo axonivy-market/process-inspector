@@ -17,7 +17,7 @@ In dem Projekt, du zufügen nur die Kolonie herein eure pom.xml Und rufen
 
 **1. Füg zu Kolonie**
 ```XML
-	<dependency>
+<dependency>
 		<groupId>com.axonivy.utils.process.inspector</groupId>
 		<artifactId>process-inspector</artifactId>
 		<version>${process.inspector.version}</version>
@@ -29,7 +29,7 @@ Hier können wir lagern einige persönliche Auskunft (#z.B. vereinfacht
 modelliert) in der Instanz und #wiederbenutzen ihm für verschieden Berechnungen
 auf diesem Objekt.**
 ```java
-	/** 
+/** 
 	 * @param process - The process that should be analyzed.	 
 	 */
 	public AdvancedProcessInspector(Process process)
@@ -37,7 +37,7 @@ auf diesem Objekt.**
 **3. Du kannst #benutzerdefiniert die Arbeitsgang Strömung oder beschäftigen
 Dauer**
 ```java
-	/**
+/**
 	 * This method can be used to override configured path taken after an alternative gateway.
 	 * @param processFlowOverrides
 	 * key: element ID + task identifier (for support of callable sub-processes, we also need to add the path of parent elements. However, not needed in first versions.)
@@ -68,7 +68,7 @@ Dauer**
 `calculateWorstCaseDuration` `calculateDurationOfPath` zu analysieren euren
 Arbeitsgang.**
 ```java
-	/**
+/**
 	 * Return a list of all tasks in the process which can be reached from the starting element.
 	 * @param startAtElement - Element where we start traversing the process
 	 * @param useCase - Use case that should be used to read duration values. Durations will be set to 0 in case not provided.
@@ -121,7 +121,7 @@ Arbeitsgang.**
 **1. Wie zu analysieren das workflow gründen auf den Strömung Namen {extern} mit
 benutzen Fall BIGPROJECT?**
 ```java
-	// We create a new process inspector with UseCase.BIGPROJECT and flowName is "external"
+// We create a new process inspector with UseCase.BIGPROJECT and flowName is "external"
 	var processInspector = new AdvancedProcessInspector(process);	
 	public List<DetectedElement> detectedTasks = processInspector.findTasksOnPath(start, UseCase.BIGPROJECT, "external");
 
@@ -133,7 +133,7 @@ benutzen Fall BIGPROJECT?**
 **2. Wie zu analysieren das workflow gründen auf die Arbeitsgang Strömung
 Überbrückung?**
 ```java
-	// We create a new process inspector with flowName is null.
+// We create a new process inspector with flowName is null.
 	// Basically, the path taken after alternative will base on default path. But we will override it by setProcessFlowOverrides API
 	var processInspector = new AdvancedProcessInspector(process);
 	var flowOverrides = new HashMap<String, String>();
@@ -143,7 +143,7 @@ benutzen Fall BIGPROJECT?**
 
 	public List<DetectedElement> detectedTasks = processInspector.findTasksOnPath(start, null, null);
 
-	// The result is list of task on path: Task A -> Task C	
+	// The result is list of task on path: Task A -> Task C
 ```
 
 ## Demo
