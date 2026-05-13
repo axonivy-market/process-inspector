@@ -1,5 +1,5 @@
 {
-  "$schema" : "https://json-schema.axonivy.com/process/12.0.0/process.json",
+  "$schema" : "https://json-schema.axonivy.com/process/13.2.0/process.json",
   "id" : "18DE58E0441486DF",
   "config" : {
     "data" : "com.axonivy.utils.process.inspector.test.Data"
@@ -308,12 +308,16 @@
             "tasks" : [ {
                 "id" : "TaskA",
                 "responsible" : {
-                  "activator" : "SYSTEM"
+                  "roles" : [
+                    "SYSTEM"
+                  ]
                 }
               }, {
                 "id" : "TaskB",
                 "responsible" : {
-                  "activator" : "SYSTEM"
+                  "roles" : [
+                    "SYSTEM"
+                  ]
                 }
               } ]
           },
@@ -347,7 +351,9 @@
             "tasks" : [ {
                 "id" : "TaskA",
                 "responsible" : {
-                  "activator" : "SYSTEM"
+                  "roles" : [
+                    "SYSTEM"
+                  ]
                 }
               } ]
           },
@@ -458,12 +464,16 @@
             "tasks" : [ {
                 "id" : "TaskA",
                 "responsible" : {
-                  "activator" : "SYSTEM"
+                  "roles" : [
+                    "SYSTEM"
+                  ]
                 }
               }, {
                 "id" : "TaskB",
                 "responsible" : {
-                  "activator" : "SYSTEM"
+                  "roles" : [
+                    "SYSTEM"
+                  ]
                 }
               } ]
           },
@@ -507,12 +517,16 @@
             "tasks" : [ {
                 "id" : "TaskA",
                 "responsible" : {
-                  "activator" : "SYSTEM"
+                  "roles" : [
+                    "SYSTEM"
+                  ]
                 }
               }, {
                 "id" : "TaskB",
                 "responsible" : {
-                  "activator" : "SYSTEM"
+                  "roles" : [
+                    "SYSTEM"
+                  ]
                 }
               } ]
           },
@@ -603,7 +617,9 @@
             "tasks" : [ {
                 "id" : "TaskA",
                 "responsible" : {
-                  "activator" : "SYSTEM"
+                  "roles" : [
+                    "SYSTEM"
+                  ]
                 }
               } ]
           },
@@ -703,12 +719,16 @@
         "tasks" : [ {
             "id" : "TaskA",
             "responsible" : {
-              "activator" : "SYSTEM"
+              "roles" : [
+                "SYSTEM"
+              ]
             }
           }, {
             "id" : "TaskB",
             "responsible" : {
-              "activator" : "SYSTEM"
+              "roles" : [
+                "SYSTEM"
+              ]
             }
           } ]
       },
@@ -728,12 +748,16 @@
         "tasks" : [ {
             "id" : "TaskB",
             "responsible" : {
-              "activator" : "SYSTEM"
+              "roles" : [
+                "SYSTEM"
+              ]
             }
           }, {
             "id" : "TaskA",
             "responsible" : {
-              "activator" : "SYSTEM"
+              "roles" : [
+                "SYSTEM"
+              ]
             }
           } ]
       },
@@ -754,7 +778,9 @@
         "tasks" : [ {
             "id" : "TaskA",
             "responsible" : {
-              "activator" : "SYSTEM"
+              "roles" : [
+                "SYSTEM"
+              ]
             }
           } ]
       },
