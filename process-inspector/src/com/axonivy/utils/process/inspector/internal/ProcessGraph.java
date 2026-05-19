@@ -41,11 +41,6 @@ import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskIdentifier;
 
 public class ProcessGraph {
-
-	private enum Role {
-		SYSTEM
-	};
-
 	public String getCodeLineByPrefix(TaskConfig task, String... prefix) {
 		// strongly typed!
 		String script = Optional.of(task.script()).orElse(EMPTY);
