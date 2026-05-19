@@ -36,6 +36,7 @@ import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.IvyScriptExpression;
+import ch.ivyteam.ivy.process.model.element.value.task.Responsible;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskIdentifier;
 
@@ -47,7 +48,7 @@ public class ProcessGraph {
 
 	public String getCodeLineByPrefix(TaskConfig task, String... prefix) {
 		// strongly typed!
-		String script = Optional.of(task.getScript()).orElse(EMPTY);
+		String script = Optional.of(task.script()).orElse(EMPTY);
 		return getCodeLineByPrefix(script, prefix);
 	}
 
@@ -92,16 +93,15 @@ public class ProcessGraph {
 			String startTask = Arrays.stream(condition.split("==")).skip(1).limit(1).findFirst().orElse(null);
 
 			taskConfig = ((TaskSwitchGateway) taskSwitchGateway).getAllTaskConfigs().stream()
-					.filter(it -> startTask.contains(it.getTaskIdentifier().getTaskIvpLinkName())).findFirst()
+					.filter(it -> startTask.contains(it.identifier().getTaskIvpLinkName())).findFirst()
 					.orElse(null);
 		}
 		return taskConfig;
 	}
 
 	public boolean isSystemTask(TaskConfig task) {
-		if(task instanceof TaskConfig) {
-			String roleName = ((TaskConfig) task).getActivator().getName();
-			return Role.SYSTEM.name().equals(roleName);
+		if(task instanceof TaskConfig ivyTask) {
+			return ivyTask.responsible() == Responsible.SYSTEM;
 		}
 		
 		return false;
@@ -110,7 +110,7 @@ public class ProcessGraph {
 	public boolean isSystemTask(BaseElement task) {
 		if (task instanceof TaskAndCaseModifier) {
 			return ((TaskAndCaseModifier) task).getAllTaskConfigs().stream()
-					.anyMatch(it -> Role.SYSTEM.name().equals(it.getActivator().getName()));
+					.anyMatch(this::isSystemTask);
 		}
 		return false;
 	}
@@ -122,7 +122,7 @@ public class ProcessGraph {
 	public ElementTask createElementTask(TaskAndCaseModifier task, TaskConfig taskConfig) {
 		String pid = task.getPid().getRawPid();
 		if (task instanceof TaskSwitchGateway) {
-			String taskIdentifier = Optional.ofNullable(taskConfig).map(TaskConfig::getTaskIdentifier)
+			String taskIdentifier = Optional.ofNullable(taskConfig).map(TaskConfig::identifier)
 					.map(TaskIdentifier::getRawIdentifier).orElse(EMPTY);
 
 			return ElementTask.createGateway(pid, taskIdentifier);

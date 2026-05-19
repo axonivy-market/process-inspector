@@ -407,7 +407,7 @@ class WorkflowPath {
 			Duration timeUntilStartAt) {
 		String elementName = task.getName();
 		String taskName = getTaskName(taskConfig);
-		String script = Optional.ofNullable(taskConfig).map(TaskConfig::getScript).orElse(EMPTY);
+		String script = Optional.ofNullable(taskConfig).map(TaskConfig::script).orElse(EMPTY);
 		String customerInfo = getCustomInfoByCode(script);
 
 		ElementTask elementTask = processGraph.createElementTask(task, taskConfig);
@@ -504,10 +504,10 @@ class WorkflowPath {
 	}
 
 	private String getTaskName(TaskConfig taskConfig) {
-		String taskNameFromRawMacro = Optional.ofNullable(taskConfig).map(TaskConfig::getName)
+		String taskNameFromRawMacro = Optional.ofNullable(taskConfig).map(TaskConfig::name)
 				.map(MacroExpression::getRawMacro).orElse(EMPTY);
 
-		String taskIdentifier = Optional.ofNullable(taskConfig).map(TaskConfig::getTaskIdentifier)
+		String taskIdentifier = Optional.ofNullable(taskConfig).map(TaskConfig::identifier)
 				.map(TaskIdentifier::getRawIdentifier).orElse(EMPTY);
 
 		return defaultIfBlank(taskNameFromRawMacro, taskIdentifier);
