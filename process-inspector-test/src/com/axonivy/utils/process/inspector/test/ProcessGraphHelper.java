@@ -31,7 +31,7 @@ public class ProcessGraphHelper {
 	public static BaseElement findByTaskName(Process process, String name) {
 		return getElementOfProcess(process).stream().filter(el -> {
 			return el instanceof SingleTaskCreator;
-		}).filter(el -> ((SingleTaskCreator) el).getTaskConfig().getName().getRawMacro().equals(name)).findFirst()
+		}).filter(el -> ((SingleTaskCreator) el).getTaskConfig().name().getRawMacro().equals(name)).findFirst()
 				.orElse(null);
 	}
 
