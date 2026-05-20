@@ -3,6 +3,7 @@ package com.axonivy.utils.process.inspector.test;
 import static java.util.Collections.emptyList;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -38,7 +39,7 @@ public class ProcessGraphHelper {
 	private static List<BaseElement> getElementOfProcess(Process process) {
 		var processElements = process.getProcessElements();
 		var childElments = getElementOfProcesses(processElements);
-		var elements = process.getElements();
+		var elements = new ArrayList<BaseElement>(process.getElements());
 		elements.addAll(childElments);
 
 		return elements;

@@ -37,6 +37,7 @@ import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.IvyScriptExpression;
 import ch.ivyteam.ivy.process.model.element.value.task.Responsible;
+import ch.ivyteam.ivy.process.model.element.value.task.ResponsibleType;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskIdentifier;
 
@@ -96,15 +97,16 @@ public class ProcessGraph {
 
 	public boolean isSystemTask(TaskConfig task) {
 		if(task instanceof TaskConfig ivyTask) {
-			return ivyTask.responsible() == Responsible.SYSTEM;
+			System.out.println(ivyTask.responsible());
+			return ivyTask.responsible().type() == ResponsibleType.ROLES && ivyTask.responsible().roles().contains("SYSTEM");
 		}
 		
 		return false;
 	}
 	
 	public boolean isSystemTask(BaseElement task) {
-		if (task instanceof TaskAndCaseModifier) {
-			return ((TaskAndCaseModifier) task).getAllTaskConfigs().stream()
+		if (task instanceof TaskAndCaseModifier ivyTask) {
+			return ivyTask.getAllTaskConfigs().stream()
 					.anyMatch(this::isSystemTask);
 		}
 		return false;
