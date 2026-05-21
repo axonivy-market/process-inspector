@@ -32,7 +32,7 @@ public class WorkflowDurationTest {
 		Process process = ProcessInspectorUtils.getProcessByName(FLOW_EXAMPLE_BASIC);
 		var taskC = (SingleTaskCreator) ProcessGraphHelper.findByElementName(process, "Task C");
 		ElementTask elementTask = ElementTask.createSingle(taskC.getPid().getRawPid());
-		var result = workflowDuration.getDuration(elementTask, taskC.getTaskConfig().getScript(), UseCase.BIGPROJECT);
+		var result = workflowDuration.getDuration(elementTask, taskC.getTaskConfig().script(), UseCase.BIGPROJECT);
 
 		assertEquals(Duration.ofHours(4), result);
 	}
@@ -42,7 +42,7 @@ public class WorkflowDurationTest {
 		Process process = ProcessInspectorUtils.getProcessByName(FLOW_EXAMPLE_BASIC);
 		SingleTaskCreator taskC = (SingleTaskCreator) ProcessGraphHelper.findByElementName(process, "Task C");
 		ElementTask elementTask = ElementTask.createSingle(taskC.getPid().getRawPid());
-		var result = workflowDuration.getDuration(elementTask, taskC.getTaskConfig().getScript(),
+		var result = workflowDuration.getDuration(elementTask, taskC.getTaskConfig().script(),
 				UseCase.MEDIUMPROJECT);
 
 		assertEquals(Duration.ofHours(3), result);
@@ -53,7 +53,7 @@ public class WorkflowDurationTest {
 		Process process = ProcessInspectorUtils.getProcessByName(FLOW_EXAMPLE_BASIC);
 		SingleTaskCreator taskC = (SingleTaskCreator) ProcessGraphHelper.findByElementName(process, "Task C");
 		ElementTask elementTask = ElementTask.createSingle(taskC.getPid().getRawPid());
-		var result = workflowDuration.getDuration(elementTask, taskC.getTaskConfig().getScript(), UseCase.SMALLPROJECT);
+		var result = workflowDuration.getDuration(elementTask, taskC.getTaskConfig().script(), UseCase.SMALLPROJECT);
 
 		assertEquals(Duration.ofHours(2), result);
 	}

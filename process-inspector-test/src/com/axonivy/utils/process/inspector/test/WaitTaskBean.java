@@ -2,8 +2,6 @@ package com.axonivy.utils.process.inspector.test;
 
 import java.util.UUID;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-
 import ch.ivyteam.ivy.process.intermediateevent.IProcessIntermediateEventBean;
 import ch.ivyteam.ivy.service.ServiceException;
 
@@ -25,12 +23,12 @@ public class WaitTaskBean implements IProcessIntermediateEventBean {
 	}
 
 	@Override
-	public void start(IProgressMonitor monitor) throws ServiceException {
+	public void start() throws ServiceException {
 		isRunning = true;
 	}
 
 	@Override
-	public void stop(IProgressMonitor monitor) throws ServiceException {
+	public void stop() throws ServiceException {
 		isRunning = false;
 	}
 

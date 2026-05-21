@@ -1,5 +1,6 @@
 package com.axonivy.utils.process.inspector.helper;
 
+import ch.ivyteam.ivy.application.IProcessModelVersion;
 import ch.ivyteam.ivy.process.model.BaseElement;
 import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.model.value.PID;
@@ -16,7 +17,7 @@ public class TaskHelper {
 
 		var pid = task.getStart().getProcessElementId();
 		IWorkflowProcessModelVersion pmv = task.getProcessModelVersion();
-		var manager = IProcessManager.instance().getProjectDataModelFor(pmv);
+		var manager = IProcessManager.instance().getProjectDataModelFor((IProcessModelVersion) pmv);
 		Process processRdm = manager.findProcess(pid.getProcessGuid(), true).getModel();
 		BaseElement taskElement = processRdm.search().pid(pid).findOneDeep();
 		return taskElement;
@@ -25,7 +26,7 @@ public class TaskHelper {
 	public static BaseElement getBaseElementByPid(PID pid, IWorkflowProcessModelVersion pmv) {
 		String processGuid = pid.getRawPid().split("-")[0];
 				
-		var manager = IProcessManager.instance().getProjectDataModelFor(pmv);
+		var manager = IProcessManager.instance().getProjectDataModelFor((IProcessModelVersion) pmv);
 		Process processRdm = manager.findProcess(processGuid, true).getModel();
 		BaseElement taskElement = processRdm.search().pid(pid).findOneDeep();
 		return taskElement;

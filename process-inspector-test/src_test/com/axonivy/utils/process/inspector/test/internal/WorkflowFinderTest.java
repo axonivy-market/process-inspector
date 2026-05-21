@@ -39,13 +39,11 @@ public class WorkflowFinderTest {
 		List<ProcessElement> elements = result.values().stream().flatMap(List::stream).map(AnalysisPath::getElements)
 				.flatMap(List::stream).toList();
 
-		var expected = Arrays.asList("RequestStartZ:start (18DC44E096FDFF75-f0)",
-				"SequenceFlowZ:RequestStartZ->UserTaskZ", "UserTaskZ:Task A (18DC44E096FDFF75-f2)",
-				"SequenceFlowZ:UserTaskZ->AlternativeZ", "AlternativeZ:Alter (18DC44E096FDFF75-f4)",
-				"SequenceFlowZ:AlternativeZ->AlternativeZ", "AlternativeZ:int/ext? (18DC44E096FDFF75-f8)",
-				"SequenceFlowZ:AlternativeZ->UserTaskZ", "UserTaskZ:Task B (18DC44E096FDFF75-f7)",
-				"SequenceFlowZ:UserTaskZ->AlternativeZ", "AlternativeZ:Alter2 (18DC44E096FDFF75-f6)",
-				"SequenceFlowZ:AlternativeZ->TaskEndZ", "TaskEndZ: (18DC44E096FDFF75-f1)");
+		var expected = Arrays.asList( "RequestStart f0", "ConnectorSchema f3",
+			"UserTask f2", "ConnectorSchema f5", "Alternative f4",
+			"ConnectorSchema f9", "Alternative f8", "ConnectorSchema f10",
+			"UserTask f7", "ConnectorSchema f15", "Alternative f6",
+			"ConnectorSchema f16", "TaskEnd f1");
 		for (int i = 0; i < expected.size(); i++) {
 			assertEquals(expected.get(i), elements.get(i).getElement().toString());
 		}
