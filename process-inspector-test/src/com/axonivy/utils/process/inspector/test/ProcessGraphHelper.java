@@ -3,6 +3,7 @@ package com.axonivy.utils.process.inspector.test;
 import static java.util.Collections.emptyList;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import ch.ivyteam.ivy.process.model.BaseElement;
@@ -31,14 +32,14 @@ public class ProcessGraphHelper {
 	public static BaseElement findByTaskName(Process process, String name) {
 		return getElementOfProcess(process).stream().filter(el -> {
 			return el instanceof SingleTaskCreator;
-		}).filter(el -> ((SingleTaskCreator) el).getTaskConfig().getName().getRawMacro().equals(name)).findFirst()
+		}).filter(el -> ((SingleTaskCreator) el).getTaskConfig().name().getRawMacro().equals(name)).findFirst()
 				.orElse(null);
 	}
 
 	private static List<BaseElement> getElementOfProcess(Process process) {
 		var processElements = process.getProcessElements();
 		var childElments = getElementOfProcesses(processElements);
-		var elements = process.getElements();
+		var elements = new ArrayList<BaseElement>(process.getElements());
 		elements.addAll(childElments);
 
 		return elements;

@@ -3,6 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: process-inspector
 Bundle-SymbolicName: process-inspector
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: process.inspector
-Require-Bundle: ch.ivyteam.ivy.process.rdm;bundle-version="11.2.1"
+Require-Bundle: ch.ivyteam.ivy.process.rdm;bundle-version="13.2.0"
