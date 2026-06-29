@@ -1,15 +1,12 @@
 {
-  "$schema" : "https://json-schema.axonivy.com/data-class/12.0.0/data-class.json",
+  "$schema" : "https://json-schema.axonivy.com/14.0-dev/project/data-class.json",
   "simpleName" : "InspectorSelectionData",
   "namespace" : "com.axonivy.utils.process.inspector.demo.component.InspectorSelection",
-  "isBusinessCaseData" : false,
   "fields" : [ {
     "name" : "processInspectorBean",
-    "type" : "com.axonivy.utils.process.inspector.demo.ProcessInspectorBean",
-    "modifiers" : [ "PERSISTENT" ]
+    "type" : "com.axonivy.utils.process.inspector.demo.ProcessInspectorBean"
   }, {
     "name" : "event",
-    "type" : "javax.faces.event.AjaxBehaviorEvent",
-    "modifiers" : [ "PERSISTENT" ]
+    "type" : "javax.faces.event.AjaxBehaviorEvent"
   } ]
 }
