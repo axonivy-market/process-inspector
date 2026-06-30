@@ -18,9 +18,9 @@
       <artifactId>ivy-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.axonivy.ivy.api</groupId>
-      <artifactId>ivy-runtime</artifactId>
-      <scope>provided</scope>
+      <groupId>com.axonivy.ivy.api.extension</groupId>
+      <artifactId>ivy-process-model-api</artifactId>
+      <version>14.0.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
   <repositories>

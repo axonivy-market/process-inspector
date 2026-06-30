@@ -526,7 +526,7 @@ public class PathFinder {
 			return true;
 		}
 
-		if (isEmpty(sequenceFlow.getEdge().getLabel().getText())) {
+		if (isEmpty(sequenceFlow.getName())) {
 			return true;
 		}
 

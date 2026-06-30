@@ -1,10 +1,10 @@
 package com.axonivy.utils.process.inspector.helper;
 
-import ch.ivyteam.ivy.application.IProcessModelVersion;
+import java.util.Objects;
+
+import ch.ivyteam.ivy.process.loader.ProcessLoader;
 import ch.ivyteam.ivy.process.model.BaseElement;
-import ch.ivyteam.ivy.process.model.Process;
 import ch.ivyteam.ivy.process.model.value.PID;
-import ch.ivyteam.ivy.process.rdm.IProcessManager;
 import ch.ivyteam.ivy.workflow.ITask;
 import ch.ivyteam.ivy.workflow.IWorkflowProcessModelVersion;
 
@@ -16,20 +16,14 @@ public class TaskHelper {
 		}
 
 		var pid = task.getStart().getProcessElementId();
-		IWorkflowProcessModelVersion pmv = task.getProcessModelVersion();
-		var manager = IProcessManager.instance().getProjectDataModelFor((IProcessModelVersion) pmv);
-		Process processRdm = manager.findProcess(pid.getProcessGuid(), true).getModel();
-		BaseElement taskElement = processRdm.search().pid(pid).findOneDeep();
-		return taskElement;
+		return getBaseElementByPid(pid, task.getProcessModelVersion());
 	}
 	
 	public static BaseElement getBaseElementByPid(PID pid, IWorkflowProcessModelVersion pmv) {
-		String processGuid = pid.getRawPid().split("-")[0];
-				
-		var manager = IProcessManager.instance().getProjectDataModelFor((IProcessModelVersion) pmv);
-		Process processRdm = manager.findProcess(processGuid, true).getModel();
-		BaseElement taskElement = processRdm.search().pid(pid).findOneDeep();
-		return taskElement;
+		var process =	ProcessLoader.of(pmv).loadById(pid.getProcessGuid());
+		return process.map(p -> p.search().pid(pid).findOneDeep())
+			.filter(Objects::nonNull)
+			.orElse(null);
 	}	
 	
 }

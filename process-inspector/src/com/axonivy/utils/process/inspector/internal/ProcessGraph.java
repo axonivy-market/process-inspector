@@ -23,8 +23,6 @@ import ch.ivyteam.ivy.process.model.EmbeddedProcess;
 import ch.ivyteam.ivy.process.model.HierarchicElement;
 import ch.ivyteam.ivy.process.model.NodeElement;
 import ch.ivyteam.ivy.process.model.connector.SequenceFlow;
-import ch.ivyteam.ivy.process.model.diagram.edge.DiagramEdge;
-import ch.ivyteam.ivy.process.model.diagram.value.Label;
 import ch.ivyteam.ivy.process.model.element.EmbeddedProcessElement;
 import ch.ivyteam.ivy.process.model.element.SingleTaskCreator;
 import ch.ivyteam.ivy.process.model.element.TaskAndCaseModifier;
@@ -36,7 +34,6 @@ import ch.ivyteam.ivy.process.model.element.event.start.RequestStart;
 import ch.ivyteam.ivy.process.model.element.gateway.Alternative;
 import ch.ivyteam.ivy.process.model.element.gateway.TaskSwitchGateway;
 import ch.ivyteam.ivy.process.model.element.value.IvyScriptExpression;
-import ch.ivyteam.ivy.process.model.element.value.task.Responsible;
 import ch.ivyteam.ivy.process.model.element.value.task.ResponsibleType;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskConfig;
 import ch.ivyteam.ivy.process.model.element.value.task.TaskIdentifier;
@@ -113,11 +110,11 @@ public class ProcessGraph {
 	}
 
 	public ElementTask getElementTask(SingleTaskCreator task) {
-		return ElementTask.createSingle(task.getPid().getRawPid());
+		return ElementTask.createSingle(((BaseElement)task).getPid().getRawPid());
 	}
 
 	public ElementTask createElementTask(TaskAndCaseModifier task, TaskConfig taskConfig) {
-		String pid = task.getPid().getRawPid();
+		String pid = ((BaseElement)task).getPid().getRawPid();
 		if (task instanceof TaskSwitchGateway) {
 			String taskIdentifier = Optional.ofNullable(taskConfig).map(TaskConfig::identifier)
 					.map(TaskIdentifier::getRawIdentifier).orElse(EMPTY);
@@ -219,9 +216,7 @@ public class ProcessGraph {
 
 	public boolean hasFlowName(SequenceFlow sequenceFlow, String flowName) {
 		String label = Optional.ofNullable(sequenceFlow)
-				.map(SequenceFlow::getEdge)
-				.map(DiagramEdge::getLabel)
-				.map(Label::getText)
+				.map(SequenceFlow::getName)
 				.orElse(null);
 		
 		return isNotBlank(label) && label.contains(flowName);

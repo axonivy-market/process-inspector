@@ -405,14 +405,17 @@ class WorkflowPath {
 
 	private DetectedElement createDetectedTask(TaskAndCaseModifier task, TaskConfig taskConfig, Enum<?> useCase,
 			Duration timeUntilStartAt) {
-		String elementName = task.getName();
+		if (!(task instanceof HierarchicElement hierarchic)) {
+			return null;
+		}
+		String elementName = hierarchic.getName();
 		String taskName = getTaskName(taskConfig);
 		String script = Optional.ofNullable(taskConfig).map(TaskConfig::script).orElse(EMPTY);
 		String customerInfo = getCustomInfoByCode(script);
 
 		ElementTask elementTask = processGraph.createElementTask(task, taskConfig);
 		Duration duration = this.workflowDuration().getDuration(elementTask, script, useCase);
-		List<String> parentElementNames = getParentElementNames(task);
+		List<String> parentElementNames = getParentElementNames(hierarchic);
 
 		DetectedTask detectedTask = new DetectedTask(elementTask.getId(), taskName, elementName, timeUntilStartAt,
 				duration, parentElementNames, customerInfo);
