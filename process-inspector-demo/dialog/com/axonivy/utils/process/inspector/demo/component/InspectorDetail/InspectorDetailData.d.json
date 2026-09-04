@@ -1,0 +1,14 @@
+{
+  "$schema" : "https://json-schema.axonivy.com/14.0-dev/project/data-class.json",
+  "simpleName" : "InspectorDetailData",
+  "namespace" : "com.axonivy.utils.process.inspector.demo.component.InspectorDetail",
+  "fields" : [ {
+    "name" : "processInspectorBean",
+    "type" : "com.axonivy.utils.process.inspector.demo.ProcessInspectorBean",
+    "modifiers" : [ ]
+  }, {
+    "name" : "analyzer",
+    "type" : "com.axonivy.utils.process.inspector.demo.model.Analyzer",
+    "modifiers" : [ ]
+  } ]
+}
