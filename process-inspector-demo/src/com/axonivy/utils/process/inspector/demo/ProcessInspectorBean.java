@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
-import javax.faces.event.AjaxBehaviorEvent;
+import jakarta.annotation.PostConstruct;
+import jakarta.faces.event.AjaxBehaviorEvent;
 
 import org.apache.commons.lang3.StringUtils;
 import org.primefaces.component.selectoneradio.SelectOneRadio;

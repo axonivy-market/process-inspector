@@ -1,0 +1,14 @@
+{
+  "$schema" : "https://json-schema.axonivy.com/14.0-dev/project/data-class.json",
+  "simpleName" : "InspectorSelectionData",
+  "namespace" : "com.axonivy.utils.process.inspector.demo.component.InspectorSelection",
+  "fields" : [ {
+    "name" : "processInspectorBean",
+    "type" : "com.axonivy.utils.process.inspector.demo.ProcessInspectorBean",
+    "modifiers" : [ ]
+  }, {
+    "name" : "event",
+    "type" : "jakarta.faces.event.AjaxBehaviorEvent",
+    "modifiers" : [ ]
+  } ]
+}

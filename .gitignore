@@ -12,8 +12,3 @@ hs_err_pid*
 target/
 
 # ivy
-lib/mvn-deps/
-logs/
-src_generated/dataclass/
-src_generated/repo/
-src_generated/wsprocess/
