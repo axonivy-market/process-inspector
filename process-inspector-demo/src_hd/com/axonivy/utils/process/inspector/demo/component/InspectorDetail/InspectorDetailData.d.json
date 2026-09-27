@@ -1,15 +1,12 @@
 {
-  "$schema" : "https://json-schema.axonivy.com/data-class/12.0.0/data-class.json",
+  "$schema" : "https://json-schema.axonivy.com/14.0-dev/project/data-class.json",
   "simpleName" : "InspectorDetailData",
   "namespace" : "com.axonivy.utils.process.inspector.demo.component.InspectorDetail",
-  "isBusinessCaseData" : false,
   "fields" : [ {
     "name" : "processInspectorBean",
-    "type" : "com.axonivy.utils.process.inspector.demo.ProcessInspectorBean",
-    "modifiers" : [ "PERSISTENT" ]
+    "type" : "com.axonivy.utils.process.inspector.demo.ProcessInspectorBean"
   }, {
     "name" : "analyzer",
-    "type" : "com.axonivy.utils.process.inspector.demo.model.Analyzer",
-    "modifiers" : [ "PERSISTENT" ]
+    "type" : "com.axonivy.utils.process.inspector.demo.model.Analyzer"
   } ]
 }
