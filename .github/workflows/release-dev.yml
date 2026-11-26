@@ -1,8 +1,7 @@
 name: Release-Build-Dev
+run-name: Release-Build-Dev ${{ github.ref_name }}${{ inputs.dryRun && ' (dry run)' || '' }}
 
 on:
-  schedule:
-    - cron: '21 21 * * *'
   workflow_dispatch:
     inputs:
       dryRun:
@@ -18,8 +17,7 @@ permissions:
 
 jobs:
   release:
-    uses: axonivy-market/github-workflows/.github/workflows/release-dev.yml@v6
+    uses: axonivy-market/github-workflows/.github/workflows/release-dev.yml@v14
     with:
-      dryRun: ${{ fromJSON(github.event_name == 'schedule' && 'false' || github.event_name == 'workflow_dispatch' && github.event.inputs.dryRun || 'true') }}
-      javaVersion: 25
+      dryRun: ${{ inputs.dryRun }}
     secrets: inherit
